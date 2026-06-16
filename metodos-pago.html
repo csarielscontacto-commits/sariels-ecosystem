@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métodos de Pago - Sariel's Ecosystem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .metodo-pago {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .metodo-pago.usdt {
+            background: linear-gradient(135deg, #26a69a 0%, #00897b 100%);
+            border-left-color: #26a69a;
+            color: white;
+        }
+
+        .metodo-pago.usdc {
+            background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
+            border-left-color: #2196f3;
+            color: white;
+        }
+
+        .metodo-titulo {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .metodo-pago:not(.usdt):not(.usdc) .metodo-titulo {
+            color: #333;
+        }
+
+        .direccion-container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            backdrop-filter: blur(10px);
+        }
+
+        .metodo-pago:not(.usdt):not(.usdc) .direccion-container {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-copiar {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .metodo-pago:not(.usdt):not(.usdc) .btn-copiar {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-copiar:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .metodo-pago:not(.usdt):not(.usdc) .btn-copiar:hover {
+            background: #764ba2;
+        }
+
+        .info-container {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            font-size: 0.95em;
+            line-height: 1.8;
+            border-left: 4px solid #1976d2;
+        }
+
+        .info-container strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .red-polygon {
+            background: #9c27b0;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .advertencia {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+            line-height: 1.6;
+        }
+
+        .tabla-monedas {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .tabla-monedas th,
+        .tabla-monedas td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tabla-monedas th {
+            background: #667eea;
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .tabla-monedas tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tabla-monedas tr:hover {
+            background: #f5f5f5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .comision {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .tabla-monedas {
+                font-size: 0.9em;
+            }
+
+            .tabla-monedas th,
+            .tabla-monedas td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Métodos de Pago</h1>
+        <p class="subtitle">Sariel's Ecosystem - Aceptamos Criptomonedas</p>
+
+        <div class="red-polygon">
+            🌐 Red: Polygon (MATIC)
+        </div>
+
+        <!-- USDT -->
+        <div class="metodo-pago usdt">
+            <div class="metodo-titulo">💚 USDT (Tether)</div>
+            <p style="margin-bottom: 10px;">USD Tether - Moneda estable respaldada en dólares</p>
+            
+            <strong>Dirección de Depósito:</strong>
+            <div class="direccion-container">
+0x45c6455aa01356609d96b659c6eb880b7e1d046d
+            </div>
+            <button class="btn-copiar" onclick="copiarAlPortapapeles('0x45c6455aa01356609d96b659c6eb880b7e1d046d', 'USDT')">
+                📋 Copiar Dirección
+            </button>
+        </div>
+
+        <!-- USDC -->
+        <div class="metodo-pago usdc">
+            <div class="metodo-titulo">💙 USDC (USD Coin)</div>
+            <p style="margin-bottom: 10px;">USD Coin - Moneda estable emitida por Coinbase y Circle</p>
+            
+            <strong>Dirección de Depósito:</strong>
+            <div class="direccion-container">
+0x45c6455aa01356609d96b659c6eb880b7e1d046d
+            </div>
+            <button class="btn-copiar" onclick="copiarAlPortapapeles('0x45c6455aa01356609d96b659c6eb880b7e1d046d', 'USDC')">
+                📋 Copiar Dirección
+            </button>
+        </div>
+
+        <div class="info-container">
+            <strong>ℹ️ Información Importante</strong>
+            ✅ Solo acepta transferencias en la red <strong>Polygon</strong><br>
+            ✅ Comisión: <span class="comision">GRATIS</span><br>
+            ✅ Las transacciones se confirman en segundos<br>
+            ⚠️ <strong>NO</strong> envíes desde otras redes (Ethereum, BSC, etc.) - ¡PERDERÁS TU DINERO!
+        </div>
+
+        <div class="advertencia">
+            <strong>⚠️ ADVERTENCIA IMPORTANTE:</strong><br>
+            Verifica siempre que estés en la red <strong>Polygon</strong> antes de enviar. Solo envía <strong>USDT o USDC</strong>. Si envías otra criptomoneda, podría perderse.
+        </div>
+
+        <table class="tabla-monedas">
+            <thead>
+                <tr>
+                    <th>Moneda</th>
+                    <th>Red</th>
+                    <th>Comisión</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>💚 USDT</td>
+                    <td>Polygon</td>
+                    <td>Gratis</td>
+                </tr>
+                <tr>
+                    <td>💙 USDC</td>
+                    <td>Polygon</td>
+                    <td>Gratis</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="background: #f0f4c3; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #7cb342;">
+            <strong style="color: #558b2f; display: block; margin-bottom: 10px;">📊 ¿Cómo comprar USDT o USDC?</strong>
+            <p style="color: #558b2f; line-height: 1.8;">
+                1. Crea una cuenta en Binance, Coinbase, Kraken o tu exchange favorito<br>
+                2. Compra USDT o USDC<br>
+                3. Retira a la red <strong>Polygon</strong><br>
+                4. Envía a la dirección de arriba<br>
+                5. ¡Listo! Recibiremos tu pago en segundos
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>💼 Sariel's Ecosystem - Sistema de Gestión de Activos</p>
+            <p style="margin-top: 10px; font-size: 0.85em;">Última actualización: 2026</p>
+        </div>
+    </div>
+
+    <script>
+        function copiarAlPortapapeles(texto, tipo) {
+            navigator.clipboard.writeText(texto).then(() => {
+                alert(`✅ Dirección de ${tipo} copiada al portapapeles`);
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+                alert('No se pudo copiar la dirección');
+            });
+        }
+    </script>
+</body>
+</html>
