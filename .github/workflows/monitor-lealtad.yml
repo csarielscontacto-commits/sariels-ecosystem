@@ -1,0 +1,26 @@
+name: Monitor de Lealtad Sariel
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Ejecutar consulta
+        env:
+          ALCHEMY_API_URL: ${{ secrets.ALCHEMY_API_URL }}
+        run: |
+          curl $ALCHEMY_API_URL \
+          -X POST -H "Content-Type: application/json" \
+          -d '{"jsonrpc":"2.0","method":"alchemy_getAssetTransfers","params":[{"fromBlock": "0x0","category": ["erc20"],"fromAddress": "0x994b342dd87fc825f66e51ffa3ef71ad818b6893"}],"id":0}' > transacciones.json
+      - name: Guardar resultados
+        run: |
+          git config user.name "Sariel-Bot"
+          git config user.email "bot@sariel.com"
+          git add transacciones.json
+          git commit -m "Actualizacion automatica de transacciones"
+          git push
+
