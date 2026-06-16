@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Venta - Sariel's Ecosystem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .botones-header {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .link-btn {
+            background: #26a69a;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .link-btn:hover {
+            background: #1e7f76;
+        }
+        
+        .link-btn.secondary {
+            background: #999;
+        }
+        
+        .link-btn.secondary:hover {
+            background: #777;
+        }
+        
+        .info-sync {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .info-sync p {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .sync-badge {
+            display: inline-block;
+            background: #26a69a;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .sync-badge.desincronizado {
+            background: #ffa726;
+        }
+        
+        .vendedor-info {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #764ba2;
+        }
+        
+        .vendedor-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+        
+        .vendedor-badge {
+            display: inline-block;
+            background: #764ba2;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .precio-display {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .success-message {
+            display: none;
+            background: #26a69a;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .error-message {
+            display: none;
+            background: #ef5350;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .info-box {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+        
+        .info-box p {
+            color: #555;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+        
+        .estadisticas-vendedor {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid rgba(118, 75, 162, 0.2);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-valor {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #764ba2;
+        }
+        
+        .stat-label {
+            font-size: 0.8em;
+            color: #999;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .botones-header {
+                width: 100%;
+            }
+            
+            .link-btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💳 Registrar Venta</h1>
+            <div class="botones-header">
+                <a href="dashboard-central.html" class="link-btn">📊 Dashboard</a>
+                <button class="link-btn secondary" onclick="cambiarVendedor()">🔄 Cambiar Vendedor</button>
+            </div>
+        </div>
+        
+        <!-- Estado de Sincronización -->
+        <div class="info-sync">
+            <p>Estado de sincronización:</p>
+            <span class="sync-badge" id="syncBadge">Verificando...</span>
+        </div>
+        
+        <!-- Información del Vendedor -->
+        <div class="vendedor-info">
+            <p><strong>Vendedor Asignado:</strong></p>
+            <p><span class="vendedor-badge" id="vendedorBadge">Cargando...</span></p>
+            
+            <div class="estadisticas-vendedor">
+                <div class="stat">
+                    <div class="stat-valor" id="ventasHoyVendedor">0</div>
+                    <div class="stat-label">Ventas hoy</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-valor" id="ingresoHoyVendedor">$0</div>
+                    <div class="stat-label">Ingreso hoy</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-valor" id="totalVentasVendedor">0</div>
+                    <div class="stat-label">Total ventas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-valor" id="totalIngresoVendedor">$0</div>
+                    <div class="stat-label">Total ingreso</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mensajes -->
+        <div class="success-message" id="successMessage">
+            ✅ ¡Venta registrada exitosamente!
+        </div>
+        <div class="error-message" id="errorMessage">
+            ❌ Error al registrar la venta. Intenta de nuevo.
+        </div>
+        
+        <!-- Instrucciones -->
+        <div class="info-box">
+            <strong>⚠️ Instrucciones:</strong>
+            <p>1. 📱 Escanea el QR del cliente</p>
+            <p>2. ✏️ Completa los datos del formulario</p>
+            <p>3. 💾 Presiona "Registrar Venta"</p>
+            <p style="color: #26a69a; margin-top: 8px; font-weight: 600;">✨ Todos los datos se sincronizarán automáticamente con el dashboard central</p>
+        </div>
+        
+        <!-- Formulario -->
+        <form id="ventasForm">
+            <div class="form-group">
+                <label for="cantidad">Cantidad de productos:</label>
+                <input type="number" id="cantidad" min="1" value="1" required>
+            </div>
+            
+            <div class="precio-display" id="precioTotal">
+                Total: $75.00 MXN
+            </div>
+            
+            <div class="form-group">
+                <label for="cliente">Nombre del cliente:</label>
+                <input type="text" id="cliente" placeholder="Ej: Juan García" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="metodo">Método de pago:</label>
+                <select id="metodo" required>
+                    <option value="">-- Seleccionar --</option>
+                    <option value="efectivo">💵 Efectivo</option>
+                    <option value="transferencia">💳 Transferencia bancaria</option>
+                    <option value="tarjeta">🏧 Tarjeta de crédito/débito</option>
+                    <option value="otro">📝 Otro</option>
+                </select>
+            </div>
+            
+            <button type="submit" id="submitBtn">📊 Registrar Venta</button>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="base-datos-centralizada.js"></script>
+    <script>
+        let vendedorActual = null;
+        
+        /**
+         * Inicializa la página
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Inicializando Registro de Ventas');
+            inicializarVendedor();
+            actualizarEstadoSync();
+            
+            // Actualizar estado cada 5 segundos
+            setInterval(actualizarEstadoSync, 5000);
+        });
+        
+        /**
+         * Inicializa o recupera el vendedor actual
+         */
+        function inicializarVendedor() {
+            let vendedorId = localStorage.getItem('vendedorActual');
+            
+            if (!vendedorId) {
+                // Crear nuevo vendedor
+                const numero = Math.floor(Math.random() * 1000) + 1;
+                vendedorId = `vendedor_${numero}`;
+                vendedorActual = {
+                    id: vendedorId,
+                    nombre: `Vendedor ${numero}`,
+                    numero: numero,
+                    fechaRegistro: new Date().toISOString()
+                };
+                
+                localStorage.setItem('vendedorActual', vendedorId);
+                localStorage.setItem('vendedorActualData', JSON.stringify(vendedorActual));
+            } else {
+                vendedorActual = JSON.parse(localStorage.getItem('vendedorActualData')) || {
+                    id: vendedorId,
+                    nombre: `Vendedor ${vendedorId.split('_')[1]}`,
+                    numero: parseInt(vendedorId.split('_')[1])
+                };
+            }
+            
+            document.getElementById('vendedorBadge').textContent = vendedorActual.nombre;
+            actualizarEstadisticasVendedor();
+        }
+        
+        /**
+         * Actualiza las estadísticas del vendedor
+         */
+        function actualizarEstadisticasVendedor() {
+            const ventas = bd.obtenerTodasLasVentas();
+            const ventasVendedor = ventas.filter(v => v.vendedorId === vendedorActual.id);
+            
+            const ventasHoy = bd.obtenerVentasDeHoy().filter(v => v.vendedorId === vendedorActual.id);
+            const ingresoHoy = ventasHoy.reduce((sum, v) => sum + v.monto, 0);
+            
+            const totalIngreso = ventasVendedor.reduce((sum, v) => sum + v.monto, 0);
+            
+            document.getElementById('ventasHoyVendedor').textContent = ventasHoy.length;
+            document.getElementById('ingresoHoyVendedor').textContent = formatearPrecio(ingresoHoy / CONFIG.PRECIO_UNITARIO);
+            document.getElementById('totalVentasVendedor').textContent = ventasVendedor.length;
+            document.getElementById('totalIngresoVendedor').textContent = formatearPrecio(totalIngreso / CONFIG.PRECIO_UNITARIO);
+        }
+        
+        /**
+         * Actualiza el estado de sincronización
+         */
+        function actualizarEstadoSync() {
+            const badge = document.getElementById('syncBadge');
+            const stats = bd.obtenerEstadisticas();
+            
+            if (stats.ultimaSincronizacion) {
+                const ahora = new Date();
+                const diff = ahora - stats.ultimaSincronizacion;
+                const segundos = Math.floor(diff / 1000);
+                
+                if (segundos < 10) {
+                    badge.textContent = '✅ Sincronizado';
+                    badge.classList.remove('desincronizado');
+                } else if (segundos < 60) {
+                    badge.textContent = `✅ Hace ${segundos}s`;
+                    badge.classList.remove('desincronizado');
+                } else {
+                    badge.textContent = '⚠️ Pendiente sincronización';
+                    badge.classList.add('desincronizado');
+                }
+            } else {
+                badge.textContent = '🔄 Sincronizando...';
+                badge.classList.remove('desincronizado');
+            }
+        }
+        
+        /**
+         * Cambia el vendedor actual
+         */
+        function cambiarVendedor() {
+            const nuevoNumero = prompt('Ingresa el número del nuevo vendedor (o deja en blanco para generar uno nuevo):', '');
+            
+            if (nuevoNumero !== null) {
+                let vendedorId, nombre, numero;
+                
+                if (nuevoNumero.trim() === '') {
+                    numero = Math.floor(Math.random() * 1000) + 1;
+                    nombre = `Vendedor ${numero}`;
+                } else {
+                    numero = parseInt(nuevoNumero);
+                    nombre = `Vendedor ${numero}`;
+                }
+                
+                vendedorId = `vendedor_${numero}`;
+                
+                vendedorActual = {
+                    id: vendedorId,
+                    nombre: nombre,
+                    numero: numero,
+                    fechaRegistro: new Date().toISOString()
+                };
+                
+                localStorage.setItem('vendedorActual', vendedorId);
+                localStorage.setItem('vendedorActualData', JSON.stringify(vendedorActual));
+                
+                document.getElementById('vendedorBadge').textContent = vendedorActual.nombre;
+                actualizarEstadisticasVendedor();
+                
+                log('🔄 Vendedor cambiado a:', vendedorActual.nombre);
+            }
+        }
+        
+        /**
+         * Actualiza el precio total según cantidad
+         */
+        document.getElementById('cantidad').addEventListener('change', function() {
+            const cantidad = parseInt(this.value) || 1;
+            const total = cantidad * CONFIG.PRECIO_UNITARIO;
+            document.getElementById('precioTotal').textContent = 
+                `Total: ${CONFIG.SIMBOLO_MONEDA}${total.toLocaleString('es-MX')} ${CONFIG.MONEDA}`;
+        });
+        
+        /**
+         * Maneja el envío del formulario
+         */
+        document.getElementById('ventasForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Registrando...';
+            
+            try {
+                const cantidad = parseInt(document.getElementById('cantidad').value);
+                const cliente = document.getElementById('cliente').value;
+                const metodo = document.getElementById('metodo').value;
+                const total = cantidad * CONFIG.PRECIO_UNITARIO;
+                
+                // Crear objeto de venta
+                const venta = {
+                    id: `venta_${Date.now()}`,
+                    vendedorId: vendedorActual.id,
+                    vendedorNombre: vendedorActual.nombre,
+                    cantidad: cantidad,
+                    cliente: cliente,
+                    metodo: metodo,
+                    monto: total,
+                    timestamp: Date.now(),
+                    sincronizado: false,
+                    fechaRegistro: new Date().toISOString()
+                };
+                
+                // Registrar en la base de datos centralizada
+                bd.registrarVenta(venta);
+                
+                // Sincronizar inmediatamente
+                await bd.sincronizarConServidor();
+                
+                // Mostrar mensaje de éxito
+                const successMsg = document.getElementById('successMessage');
+                successMsg.style.display = 'block';
+                
+                // Actualizar estadísticas
+                actualizarEstadisticasVendedor();
+                
+                // Limpiar formulario
+                this.reset();
+                document.getElementById('precioTotal').textContent = 
+                    `Total: ${CONFIG.SIMBOLO_MONEDA}${CONFIG.PRECIO_UNITARIO.toLocaleString('es-MX')} ${CONFIG.MONEDA}`;
+                
+                log('✅ Venta registrada y sincronizada');
+                
+                // Ocultar mensaje después de 3 segundos
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                logError('Error registrando venta', error);
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 3000);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📊 Registrar Venta';
+            }
+        });
+        
+        // Escuchar cambios de sincronización
+        window.addEventListener('sincronizacionCompleta', () => {
+            actualizarEstadisticasVendedor();
+            actualizarEstadoSync();
+        });
+        
+        window.addEventListener('ventaRegistrada', () => {
+            actualizarEstadisticasVendedor();
+        });
+    </script>
+</body>
+</html>
