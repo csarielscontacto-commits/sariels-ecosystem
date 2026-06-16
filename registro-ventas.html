@@ -30,11 +30,53 @@
             width: 100%;
         }
         
-        h1 {
-            text-align: center;
-            color: #333;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
-            font-size: 2em;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .dashboard-link {
+            background: #26a69a;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        
+        .dashboard-link:hover {
+            background: #1e7f76;
+        }
+        
+        .vendedor-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .vendedor-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+        
+        .vendedor-badge {
+            display: inline-block;
+            background: #2196f3;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
         }
         
         .form-group {
@@ -110,7 +152,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>💳 Registrar Venta</h1>
+        <div class="header">
+            <h1>💳 Registrar Venta</h1>
+            <a href="dashboard-ventas.html" class="dashboard-link">📊 Dashboard</a>
+        </div>
+        
+        <div class="vendedor-info">
+            <p><strong>Vendedor:</strong> <span class="vendedor-badge" id="vendedorBadge">Cargando...</span></p>
+            <p id="contadorVendedor">Ventas: 0</p>
+        </div>
         
         <div class="info-box">
             <strong>⚠️ Instrucciones:</strong>
@@ -154,6 +204,45 @@
 
     <script>
         const PRECIO_UNITARIO = 75;
+        let vendedorActual = null;
+        
+        // Inicializar vendedor
+        function inicializarVendedor() {
+            vendedorActual = obtenerOCrearVendedor();
+            document.getElementById('vendedorBadge').textContent = vendedorActual.nombre;
+            actualizarContadorVendedor();
+        }
+        
+        function obtenerOCrearVendedor() {
+            let vendedorId = localStorage.getItem('vendedorActual');
+            
+            if (!vendedorId) {
+                // Crear nuevo vendedor
+                const vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+                let numeroVendedor = vendedores.length + 1;
+                
+                vendedorId = 'vendedor_' + numeroVendedor;
+                const vendedor = {
+                    id: vendedorId,
+                    nombre: 'Vendedor ' + numeroVendedor,
+                    numero: numeroVendedor,
+                    fechaRegistro: new Date().toISOString()
+                };
+                
+                vendedores.push(vendedor);
+                localStorage.setItem('vendedores', JSON.stringify(vendedores));
+                localStorage.setItem('vendedorActual', vendedorId);
+            }
+            
+            const vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+            return vendedores.find(v => v.id === vendedorId);
+        }
+        
+        function actualizarContadorVendedor() {
+            const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            const ventasVendedor = ventas.filter(v => v.vendedorId === vendedorActual.id).length;
+            document.getElementById('contadorVendedor').textContent = `Ventas: ${ventasVendedor}`;
+        }
         
         // Actualizar precio total según cantidad
         document.getElementById('cantidad').addEventListener('change', function() {
@@ -172,6 +261,9 @@
             const total = cantidad * PRECIO_UNITARIO;
             
             const venta = {
+                id: 'venta_' + Date.now(),
+                vendedorId: vendedorActual.id,
+                vendedorNombre: vendedorActual.nombre,
                 cantidad: cantidad,
                 cliente: cliente,
                 metodo: metodo,
@@ -185,9 +277,15 @@
             ventas.push(venta);
             localStorage.setItem('ventas', JSON.stringify(ventas));
             
+            // Disparar evento para que otros tabs se enteren
+            window.dispatchEvent(new CustomEvent('ventaNueva', { detail: venta }));
+            
             // Mostrar mensaje de éxito
             const successMsg = document.getElementById('successMessage');
             successMsg.style.display = 'block';
+            
+            // Actualizar contador
+            actualizarContadorVendedor();
             
             // Limpiar formulario
             this.reset();
@@ -200,6 +298,16 @@
             
             console.log('Venta registrada:', venta);
         });
+        
+        // Escuchar cambios en localStorage desde otros tabs
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'ventas') {
+                actualizarContadorVendedor();
+            }
+        });
+        
+        // Inicializar al cargar
+        document.addEventListener('DOMContentLoaded', inicializarVendedor);
     </script>
 </body>
 </html>

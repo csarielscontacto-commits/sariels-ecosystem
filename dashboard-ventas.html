@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Ventas - Sariel's</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #26a69a;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7f76;
+        }
+        
+        .btn-danger {
+            background: #ef5350;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53935;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card.total {
+            border-left-color: #26a69a;
+        }
+        
+        .stat-card.vendedores {
+            border-left-color: #ffa726;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-card.total .stat-value {
+            color: #26a69a;
+        }
+        
+        .stat-card.vendedores .stat-value {
+            color: #ffa726;
+        }
+        
+        .stat-label {
+            color: #999;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .vendedor-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .vendedor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .vendedor-nombre {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .vendedor-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .stat-numero {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th {
+            background: #f0f4ff;
+            padding: 12px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .venta-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .venta-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .venta-cliente {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .venta-monto {
+            color: #26a69a;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .venta-fecha {
+            color: #999;
+            font-size: 0.85em;
+        }
+        
+        .venta-metodo {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            display: inline-block;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .filtro-select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        
+        .filtro-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .total-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .total-section h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .total-section .total-valor {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dashboard de Ventas - Sariel's</h1>
+            <p>Monitoreo en tiempo real de todas las ventas</p>
+        </div>
+        
+        <div class="controls">
+            <a href="registro-ventas.html" class="btn btn-primary">+ Nueva Venta</a>
+            <button class="btn btn-success" onclick="actualizarDatos()">🔄 Actualizar</button>
+            <button class="btn btn-danger" onclick="limpiarDatos()">🗑️ Limpiar Datos</button>
+            <select id="filtroVendedor" class="filtro-select" onchange="filtrarPorVendedor()">
+                <option value="">Todos los vendedores</option>
+            </select>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalVentas">0</div>
+                <div class="stat-label">Total de Ventas</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-value" id="totalMonto">$0 MXN</div>
+                <div class="stat-label">Monto Total</div>
+            </div>
+            <div class="stat-card vendedores">
+                <div class="stat-value" id="totalVendedores">0</div>
+                <div class="stat-label">Vendedores Activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="promedio">$0 MXN</div>
+                <div class="stat-label">Venta Promedio</div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="section">
+                <h2>👥 Desempeño por Vendedor</h2>
+                <div id="vendedoresContainer">
+                    <div class="no-data">Cargando vendedores...</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>💳 Métodos de Pago</h2>
+                <div id="metodosContainer">
+                    <div class="no-data">Cargando datos...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📋 Historial de Ventas</h2>
+            <div id="ventasContainer">
+                <div class="no-data">No hay ventas registradas</div>
+            </div>
+            <div id="totalSection"></div>
+        </div>
+    </div>
+
+    <script>
+        // Actualizar dashboard
+        function actualizarDatos() {
+            mostrarVendedores();
+            mostrarMetodos();
+            mostrarVentas();
+            actualizarEstadisticas();
+        }
+        
+        function actualizarEstadisticas() {
+            const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            const vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+            
+            const totalVentas = ventas.length;
+            const totalMonto = ventas.reduce((sum, v) => sum + v.monto, 0);
+            const promedio = totalVentas > 0 ? (totalMonto / totalVentas) : 0;
+            
+            document.getElementById('totalVentas').textContent = totalVentas;
+            document.getElementById('totalMonto').textContent = `$${totalMonto.toLocaleString()} MXN`;
+            document.getElementById('totalVendedores').textContent = vendedores.length;
+            document.getElementById('promedio').textContent = `$${promedio.toLocaleString('es-MX', {maximumFractionDigits: 2})} MXN`;
+        }
+        
+        function mostrarVendedores() {
+            const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            const vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+            const container = document.getElementById('vendedoresContainer');
+            const filtroSelect = document.getElementById('filtroVendedor');
+            
+            // Actualizar filtro
+            let opcionesHTML = '<option value="">Todos los vendedores</option>';
+            vendedores.forEach(v => {
+                opcionesHTML += `<option value="${v.id}">${v.nombre}</option>`;
+            });
+            filtroSelect.innerHTML = opcionesHTML;
+            
+            // Mostrar tarjetas de vendedores
+            if (vendedores.length === 0) {
+                container.innerHTML = '<div class="no-data">No hay vendedores registrados</div>';
+                return;
+            }
+            
+            let html = '';
+            vendedores.forEach(vendedor => {
+                const ventasVendedor = ventas.filter(v => v.vendedorId === vendedor.id);
+                const totalVendedor = ventasVendedor.reduce((sum, v) => sum + v.monto, 0);
+                const cantidadTotal = ventasVendedor.reduce((sum, v) => sum + v.cantidad, 0);
+                
+                html += `
+                    <div class="vendedor-card">
+                        <div class="vendedor-header">
+                            <div class="vendedor-nombre">👤 ${vendedor.nombre}</div>
+                        </div>
+                        <div class="vendedor-stats">
+                            <div class="stat-item">
+                                <span>📦 Productos:</span>
+                                <span class="stat-numero">${cantidadTotal}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>💰 Total:</span>
+                                <span class="stat-numero">$${totalVendedor.toLocaleString()} MXN</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>🛒 Ventas:</span>
+                                <span class="stat-numero">${ventasVendedor.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function mostrarMetodos() {
+            const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            const container = document.getElementById('metodosContainer');
+            
+            const metodos = {};
+            ventas.forEach(venta => {
+                if (!metodos[venta.metodo]) {
+                    metodos[venta.metodo] = { cantidad: 0, total: 0 };
+                }
+                metodos[venta.metodo].cantidad++;
+                metodos[venta.metodo].total += venta.monto;
+            });
+            
+            if (Object.keys(metodos).length === 0) {
+                container.innerHTML = '<div class="no-data">No hay datos de métodos de pago</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Método</th><th>Cantidad</th><th>Total</th></tr></thead><tbody>';
+            
+            Object.entries(metodos).forEach(([metodo, datos]) => {
+                const etiqueta = {
+                    'efectivo': '💵 Efectivo',
+                    'transferencia': '🏦 Transferencia',
+                    'tarjeta': '💳 Tarjeta',
+                    'otro': '❓ Otro'
+                }[metodo] || metodo;
+                
+                html += `
+                    <tr>
+                        <td>${etiqueta}</td>
+                        <td>${datos.cantidad}</td>
+                        <td>$${datos.total.toLocaleString()} MXN</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function mostrarVentas() {
+            const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            const vendedorFiltro = document.getElementById('filtroVendedor').value;
+            const container = document.getElementById('ventasContainer');
+            const totalSection = document.getElementById('totalSection');
+            
+            let ventasFiltradas = ventas;
+            if (vendedorFiltro) {
+                ventasFiltradas = ventas.filter(v => v.vendedorId === vendedorFiltro);
+            }
+            
+            // Ordenar por fecha descendente
+            ventasFiltradas.sort((a, b) => b.timestamp - a.timestamp);
+            
+            if (ventasFiltradas.length === 0) {
+                container.innerHTML = '<div class="no-data">No hay ventas registradas</div>';
+                totalSection.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">';
+            
+            ventasFiltradas.forEach(venta => {
+                const fecha = new Date(venta.fecha);
+                const fechaFormato = fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
+                
+                html += `
+                    <div class="venta-item">
+                        <div style="margin-bottom: 8px;">
+                            <div class="venta-cliente">${venta.cliente || 'Cliente anónimo'}</div>
+                            <div style="color: #999; font-size: 0.9em; margin-top: 2px;">${venta.vendedorNombre}</div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <div class="venta-monto">$${venta.monto.toLocaleString()} MXN</div>
+                            <div style="color: #999; font-size: 0.9em;">Qty: ${venta.cantidad}</div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <span class="venta-metodo">${venta.metodo}</span>
+                        </div>
+                        <div class="venta-fecha">${fechaFormato}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            // Mostrar total
+            const totalVentas = ventasFiltradas.reduce((sum, v) => sum + v.monto, 0);
+            totalSection.innerHTML = `
+                <div class="total-section">
+                    <h3>Total en ${vendedorFiltro ? 'este vendedor' : 'todas las ventas'}</h3>
+                    <div class="total-valor">$${totalVentas.toLocaleString()} MXN</div>
+                </div>
+            `;
+        }
+        
+        function filtrarPorVendedor() {
+            mostrarVentas();
+        }
+        
+        function limpiarDatos() {
+            if (confirm('⚠️ ¿Estás seguro? Esto eliminará TODOS los datos de ventas y no se puede deshacer.')) {
+                localStorage.removeItem('ventas');
+                localStorage.removeItem('vendedores');
+                localStorage.removeItem('vendedorActual');
+                actualizarDatos();
+                alert('✅ Datos limpiados correctamente');
+            }
+        }
+        
+        // Escuchar cambios en localStorage desde otros tabs
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'ventas' || e.key === 'vendedores') {
+                actualizarDatos();
+            }
+        });
+        
+        // Actualizar cada 2 segundos para sincronización en tiempo real
+        setInterval(actualizarDatos, 2000);
+        
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', actualizarDatos);
+    </script>
+</body>
+</html>
