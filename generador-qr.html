@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador QR - Sariel's Ecosystem</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .opciones {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .opcion {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .opcion:hover {
+            border-color: #667eea;
+            background: #f5f5ff;
+            transform: translateY(-2px);
+        }
+
+        .opcion.activa {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .opcion h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .opcion p {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .contenedor-qr {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            border: 2px dashed #ddd;
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #qrcode {
+            display: inline-block;
+        }
+
+        #qrcode img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .botones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .btn-descargar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-descargar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-copiar {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-copiar:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-volver {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-volver:hover {
+            background: #e0e0e0;
+        }
+
+        .url-mostrada {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-size: 0.9em;
+            color: #666;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #667eea;
+        }
+
+        .info {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .seccion-inicio {
+            display: block;
+        }
+
+        .seccion-qr {
+            display: none;
+        }
+
+        .seccion-qr.activa {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .botones {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SECCIÓN INICIO: Seleccionar opción -->
+        <div class="seccion-inicio" id="seccionInicio">
+            <h1>📱 Generador QR</h1>
+            <p class="subtitle">Sariel's Ecosystem - Ventas en Tiempo Real</p>
+
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Elige qué página quieres en el QR:
+            </p>
+
+            <div class="opciones">
+                <div class="opcion" onclick="seleccionarOpcion('dashboard', this)">
+                    <h3>📊 Dashboard Central</h3>
+                    <p>Ver todas las ventas en tiempo real</p>
+                </div>
+
+                <div class="opcion" onclick="seleccionarOpcion('registro', this)">
+                    <h3>📝 Registrar Venta</h3>
+                    <p>Registrar nueva venta directamente</p>
+                </div>
+            </div>
+
+            <div class="info">
+                <strong>💡 ¿Cuál elegir?</strong>
+                <br>✅ Dashboard: Para gerentes/supervisores
+                <br>✅ Registro: Para vendedores en campo
+            </div>
+        </div>
+
+        <!-- SECCIÓN QR: Mostrar y descargar -->
+        <div class="seccion-qr" id="seccionQR">
+            <h1>📱 Tu QR está Listo</h1>
+            <p class="subtitle" id="subtituloQR"></p>
+
+            <div class="url-mostrada" id="urlMostrada"></div>
+
+            <div class="contenedor-qr">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="botones">
+                <button class="btn-copiar" onclick="copiarURL()">📋 Copiar URL</button>
+                <button class="btn-copiar" onclick="descargarQR()">📥 Descargar QR</button>
+                <button class="btn-descargar" onclick="volverInicio()">← Volver Atrás</button>
+            </div>
+
+            <div class="info">
+                <strong>✅ QR Estático</strong>
+                <br>Este QR no cambiará. Puedes imprimirlo, colocarlo en tu negocio, en cartas, etc.
+                <br>Siempre llevará a la misma página.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let urlSeleccionada = '';
+        let qrcodeInstance = null;
+
+        // URLs configuradas
+        const URLs = {
+            dashboard: 'https://csarielscontacto-commits.github.io/sariels-ecosystem/dashboard-central.html',
+            registro: 'https://csarielscontacto-commits.github.io/sariels-ecosystem/registro-ventas-centralizado.html'
+        };
+
+        const TITULOS = {
+            dashboard: '📊 Dashboard Central - Ventas en Tiempo Real',
+            registro: '📝 Registrar Venta - Formulario'
+        };
+
+        function seleccionarOpcion(tipo, elemento) {
+            // Activar opción
+            document.querySelectorAll('.opcion').forEach(op => op.classList.remove('activa'));
+            elemento.classList.add('activa');
+
+            // Obtener URL
+            urlSeleccionada = URLs[tipo];
+
+            // Mostrar QR
+            setTimeout(() => {
+                document.getElementById('seccionInicio').classList.remove('activa');
+                document.getElementById('seccionQR').classList.add('activa');
+                document.getElementById('subtituloQR').textContent = TITULOS[tipo];
+                document.getElementById('urlMostrada').textContent = urlSeleccionada;
+
+                // Generar QR
+                generarQR(urlSeleccionada);
+            }, 300);
+        }
+
+        function generarQR(url) {
+            // Limpiar QR anterior
+            document.getElementById('qrcode').innerHTML = '';
+
+            // Generar nuevo QR
+            qrcodeInstance = new QRCode(document.getElementById('qrcode'), {
+                text: url,
+                width: 256,
+                height: 256,
+                correctLevel: QRCode.CorrectLevel.H,
+                useSVG: false
+            });
+        }
+
+        function copiarURL() {
+            navigator.clipboard.writeText(urlSeleccionada).then(() => {
+                alert('✅ URL copiada al portapapeles');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+                alert('No se pudo copiar la URL');
+            });
+        }
+
+        function descargarQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `qr-sariel-${new Date().getTime()}.png`;
+                link.click();
+            }
+        }
+
+        function volverInicio() {
+            document.getElementById('seccionQR').classList.remove('activa');
+            document.getElementById('seccionInicio').classList.add('activa');
+            document.querySelectorAll('.opcion').forEach(op => op.classList.remove('activa'));
+            document.getElementById('qrcode').innerHTML = '';
+        }
+
+        // Mostrar sección inicio al cargar
+        window.addEventListener('load', () => {
+            document.getElementById('seccionInicio').classList.add('activa');
+        });
+    </script>
+</body>
+</html>
