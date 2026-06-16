@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Ventas - Sariel's</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .info-box {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .precio-display {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .success-message {
+            display: none;
+            background: #26a69a;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Registrar Venta</h1>
+        
+        <div class="info-box">
+            <strong>⚠️ Instrucciones:</strong>
+            <p>1. Escanea el QR del cliente</p>
+            <p>2. Completa el formulario</p>
+            <p>3. Presiona "Registrar Venta"</p>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            ✅ ¡Venta registrada exitosamente!
+        </div>
+        
+        <form id="ventasForm">
+            <div class="form-group">
+                <label for="cantidad">Cantidad de productos:</label>
+                <input type="number" id="cantidad" min="1" value="1" required>
+            </div>
+            
+            <div class="precio-display" id="precioTotal">
+                Total: $75.00 MXN
+            </div>
+            
+            <div class="form-group">
+                <label for="cliente">Nombre del cliente:</label>
+                <input type="text" id="cliente" placeholder="Opcional" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="metodo">Método de pago:</label>
+                <select id="metodo" required>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="tarjeta">Tarjeta de crédito/débito</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            
+            <button type="submit">📊 Registrar Venta</button>
+        </form>
+    </div>
+
+    <script>
+        const PRECIO_UNITARIO = 75;
+        
+        // Actualizar precio total según cantidad
+        document.getElementById('cantidad').addEventListener('change', function() {
+            const cantidad = parseInt(this.value) || 1;
+            const total = cantidad * PRECIO_UNITARIO;
+            document.getElementById('precioTotal').textContent = 
+                `Total: $${total.toLocaleString()} MXN`;
+        });
+        
+        document.getElementById('ventasForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const cantidad = parseInt(document.getElementById('cantidad').value);
+            const cliente = document.getElementById('cliente').value;
+            const metodo = document.getElementById('metodo').value;
+            const total = cantidad * PRECIO_UNITARIO;
+            
+            const venta = {
+                cantidad: cantidad,
+                cliente: cliente,
+                metodo: metodo,
+                monto: total,
+                fecha: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+            
+            // Guardar en localStorage
+            let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            ventas.push(venta);
+            localStorage.setItem('ventas', JSON.stringify(ventas));
+            
+            // Mostrar mensaje de éxito
+            const successMsg = document.getElementById('successMessage');
+            successMsg.style.display = 'block';
+            
+            // Limpiar formulario
+            this.reset();
+            document.getElementById('precioTotal').textContent = `Total: $${PRECIO_UNITARIO.toLocaleString()} MXN`;
+            
+            // Ocultar mensaje después de 3 segundos
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+            
+            console.log('Venta registrada:', venta);
+        });
+    </script>
+</body>
+</html>
