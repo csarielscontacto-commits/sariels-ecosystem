@@ -87,6 +87,14 @@ class SistemaFidelizacion {
         return new Date().toISOString();
     }
 
+    obtenerClaveFecha(fecha) {
+        const fechaBase = fecha ? new Date(fecha) : new Date();
+        const anio = fechaBase.getFullYear();
+        const mes = String(fechaBase.getMonth() + 1).padStart(2, '0');
+        const dia = String(fechaBase.getDate()).padStart(2, '0');
+        return `${anio}-${mes}-${dia}`;
+    }
+
     normalizarTexto(texto = '') {
         return texto.toString().trim().toLowerCase();
     }
@@ -390,10 +398,10 @@ class SistemaFidelizacion {
     }
 
     obtenerResumenGeneral() {
-        const hoy = new Date().toDateString();
+        const hoy = this.obtenerClaveFecha();
         const toksOtorgadosHoy = this.clientes.reduce((total, cliente) => {
             const toksClienteHoy = (cliente.historialToks || []).reduce((subtotal, movimiento) => {
-                const esHoy = new Date(movimiento.fecha).toDateString() === hoy;
+                const esHoy = this.obtenerClaveFecha(movimiento.fecha) === hoy;
                 const esOtorgado = Number(movimiento.cantidad) > 0;
                 return subtotal + (esHoy && esOtorgado ? Number(movimiento.cantidad) : 0);
             }, 0);

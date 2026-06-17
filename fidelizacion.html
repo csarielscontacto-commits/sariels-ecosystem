@@ -579,6 +579,16 @@
             renderPerfilCliente();
         }
 
+        function escaparHTML(texto = '') {
+            return texto
+                .toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function manejarBusquedaClientes() {
             const termino = document.getElementById('buscarClienteInput').value.trim();
             const resultados = termino ? sistemaFidelizacion.buscarClientePorNombre(termino) : sistemaFidelizacion.obtenerTodosLosClientes().slice(0, 5);
@@ -589,19 +599,20 @@
                 return;
             }
 
+            const terminoNormalizado = termino.toLowerCase();
             let html = resultados.map((cliente) => `
                 <div class="autocomplete-item" data-cliente-id="${cliente.id}">
-                    <strong>${cliente.nombre}</strong><br>
-                    <small>${cliente.telefono || 'Sin teléfono'} · ${cliente.toks} TOKs</small>
+                    <strong>${escaparHTML(cliente.nombre)}</strong><br>
+                    <small>${escaparHTML(cliente.telefono || 'Sin teléfono')} · ${cliente.toks} TOKs</small>
                 </div>
             `).join('');
 
-            const existeCoincidenciaExacta = resultados.some((cliente) => cliente.nombre.toLowerCase() === termino.toLowerCase());
+            const existeCoincidenciaExacta = resultados.some((cliente) => cliente.nombre.toLowerCase() === terminoNormalizado);
             if (termino && !existeCoincidenciaExacta) {
                 html += `
                     <div class="autocomplete-item" data-registrar-nuevo="true">
                         <strong>➕ Registrar como nuevo cliente</strong><br>
-                        <small>${termino}</small>
+                        <small>${escaparHTML(termino)}</small>
                     </div>
                 `;
             }
@@ -684,8 +695,8 @@
                 const ventas = sistemaFidelizacion.obtenerVentasCliente(cliente.id).length;
                 return `
                     <tr data-cliente-id="${cliente.id}" class="${cliente.id === clienteSeleccionadoId ? 'selected' : ''}">
-                        <td>${cliente.nombre}</td>
-                        <td>${cliente.telefono || '—'}</td>
+                        <td>${escaparHTML(cliente.nombre)}</td>
+                        <td>${escaparHTML(cliente.telefono || '—')}</td>
                         <td><strong>${cliente.toks}</strong></td>
                         <td>${nft ? `<span class="nft-badge" style="background:${nft.color};">NFT ${nft.nombre}</span>` : 'Sin NFT'}</td>
                         <td>${ventas}</td>
@@ -719,7 +730,7 @@
                     <div class="leader-item">
                         <div class="leader-top">
                             <div>
-                                <strong>#${indice + 1} ${cliente.nombre}</strong><br>
+                                <strong>#${indice + 1} ${escaparHTML(cliente.nombre)}</strong><br>
                                 <small>${nft ? `NFT ${nft.nombre}` : 'Sin NFT'} · ${cliente.toks} TOKs</small>
                             </div>
                             <strong>${cliente.toks} 🪙</strong>

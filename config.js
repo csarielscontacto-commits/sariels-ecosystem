@@ -43,7 +43,7 @@ const CONFIG = {
     // ============================================
     TOKENS: {
         // Cuántos TOKs se otorgan por venta
-        TOKS_POR_VENTA: 10,            // 10 TOKs por cada $75 gastados
+        TOKS_POR_VENTA: 10,            // 10 TOKs por cada precio unitario configurado
         TOKS_POR_REFERIDO: 25,         // bonus por traer un amigo
         TOKS_POR_REGISTRO: 50,         // TOKs de bienvenida al registrarse
         // Umbrales NFT

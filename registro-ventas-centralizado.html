@@ -614,6 +614,16 @@
             });
         }
 
+        function escaparHTML(texto = '') {
+            return texto
+                .toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderResultadosFidelizacion(valor) {
             const resultados = document.getElementById('clienteFidelizacionResultados');
             const registrarBtn = document.getElementById('registrarClienteFidelizacionBtn');
@@ -630,8 +640,8 @@
 
             resultados.innerHTML = clientes.map((cliente) => `
                 <div class="autocomplete-item" data-cliente-id="${cliente.id}">
-                    <strong>${cliente.nombre}</strong><br>
-                    <small>${cliente.telefono || 'Sin teléfono'} · ${cliente.toks} TOKs</small>
+                    <strong>${escaparHTML(cliente.nombre)}</strong><br>
+                    <small>${escaparHTML(cliente.telefono || 'Sin teléfono')} · ${cliente.toks} TOKs</small>
                 </div>
             `).join('') || '<div class="autocomplete-item">Sin coincidencias</div>';
 
@@ -648,7 +658,9 @@
 
             clienteFidelizacionSeleccionado = cliente;
             document.getElementById('clienteFidelizacion').value = cliente.nombre;
-            document.getElementById('cliente').value = cliente.nombre;
+            if (!document.getElementById('cliente').value.trim()) {
+                document.getElementById('cliente').value = cliente.nombre;
+            }
             document.getElementById('clienteFidelizacionResultados').style.display = 'none';
             actualizarInfoClienteFidelizacion();
         }
