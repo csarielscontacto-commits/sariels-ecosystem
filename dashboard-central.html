@@ -264,6 +264,51 @@
             background: #d0d0d0;
         }
 
+        .fidelizacion-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 25px;
+        }
+
+        .fidelizacion-panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .fidelizacion-metricas {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .fidelizacion-metrica {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.12) 100%);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .fidelizacion-metrica h3 {
+            color: #555;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .fidelizacion-metrica .valor {
+            color: #333;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .fidelizacion-metrica p {
+            color: #777;
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+
         .estado-vacio {
             text-align: center;
             padding: 40px;
@@ -287,6 +332,10 @@
 
             .metricas-principales {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .fidelizacion-metricas {
+                grid-template-columns: 1fr;
             }
 
             table {
@@ -403,11 +452,36 @@
                 📥 Descargar Datos
             </button>
         </div>
+
+        <div class="fidelizacion-panel">
+            <h2>🎫 Fidelización</h2>
+            <div class="fidelizacion-metricas">
+                <div class="fidelizacion-metrica">
+                    <h3>Total de clientes registrados</h3>
+                    <div class="valor" id="fidelizacionClientes">0</div>
+                    <p>Clientes con perfil de fidelización.</p>
+                </div>
+                <div class="fidelizacion-metrica">
+                    <h3>TOKs otorgados hoy</h3>
+                    <div class="valor" id="fidelizacionToksHoy">0</div>
+                    <p>Incluye compras, bienvenida y bonos.</p>
+                </div>
+                <div class="fidelizacion-metrica">
+                    <h3>NFTs activos</h3>
+                    <div class="valor" id="fidelizacionNftsActivos">0</div>
+                    <p>Bronce, Plata, Oro y Diamante activos.</p>
+                </div>
+            </div>
+            <a href="fidelizacion.html" class="btn-primary" style="text-decoration: none; display: inline-block;">
+                🎫 Ver Panel de Fidelización
+            </a>
+        </div>
     </div>
 
     <!-- Scripts -->
     <script src="config.js"></script>
     <script src="base-datos-centralizada.js"></script>
+    <script src="fidelizacion.js"></script>
     <script>
         // Variables globales para gráficas
         let chartHoras = null;
@@ -472,6 +546,9 @@
             
             // Actualizar tabla
             actualizarTablaVentas();
+
+            // Actualizar fidelización
+            actualizarPanelFidelizacion();
             
             // Actualizar gráficas
             if (chartHoras) actualizarGraficaHoras();
@@ -646,6 +723,16 @@
             link.download = `ventas-sariel-${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             URL.revokeObjectURL(url);
+        }
+
+        /**
+         * Actualiza las métricas rápidas de fidelización.
+         */
+        function actualizarPanelFidelizacion() {
+            const resumen = sistemaFidelizacion.obtenerResumenGeneral();
+            document.getElementById('fidelizacionClientes').textContent = resumen.totalClientes;
+            document.getElementById('fidelizacionToksHoy').textContent = resumen.toksOtorgadosHoy;
+            document.getElementById('fidelizacionNftsActivos').textContent = resumen.nftsActivos;
         }
 
         // Escuchar cambios de sincronización

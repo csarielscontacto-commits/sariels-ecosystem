@@ -45,6 +45,7 @@ Sistema de gestión de ventas en tiempo real con **sincronización centralizada*
 ### 📌 URLs Principales
 - **Dashboard Central**: `dashboard-central.html`
 - **Registrar Venta**: `registro-ventas-centralizado.html`
+- **Panel de Fidelización**: `fidelizacion.html`
 
 ### 🌐 Acceso Online
 - **Dashboard**: https://csarielscontacto-commits.github.io/sariels-ecosystem/dashboard-central.html
@@ -77,6 +78,7 @@ const CONFIG = {
 | Archivo | Descripción |
 |---------|-------------|
 | `dashboard-central.html` | Dashboard principal con gráficas |
+| `fidelizacion.html` | Panel de clientes, TOKs y NFTs |
 | `registro-ventas-centralizado.html` | Formulario para registrar ventas |
 | `index.html` | Página de inicio (heredada) |
 
@@ -85,6 +87,7 @@ const CONFIG = {
 |---------|-------------|
 | `config.js` | Configuración centralizada |
 | `base-datos-centralizada.js` | Sistema de sincronización y BD |
+| `fidelizacion.js` | Lógica del sistema de fidelización |
 
 ## 🔧 Arquitectura del Sistema
 
@@ -116,6 +119,32 @@ const CONFIG = {
         │   - Monitoreo de meta       │
         └─────────────────────────────┘
 ```
+
+## 🎫 Sistema de Fidelización TOKs & NFTs
+
+El ecosistema ahora incluye un sistema de fidelización basado en **TOKs** y **niveles NFT** para recompensar a los clientes frecuentes.
+
+### ¿Cómo funciona?
+- **Registro**: cada cliente nuevo recibe **50 TOKs** de bienvenida.
+- **Compras**: por cada **$75 MXN** de compra se otorgan **10 TOKs**.
+- **Referidos / bonos**: se pueden otorgar TOKs manualmente para campañas o premios.
+- **Canjes**: los TOKs pueden restarse cuando el cliente los usa en beneficios.
+- **NFTs automáticos**: al alcanzar ciertos umbrales, el sistema emite automáticamente un NFT con descuento asociado.
+
+### Niveles NFT y beneficios
+
+| Nivel NFT | TOKs mínimos | Beneficio |
+|-----------|--------------|-----------|
+| Bronce | 100 TOKs | 5% de descuento |
+| Plata | 300 TOKs | 10% de descuento |
+| Oro | 600 TOKs | 15% de descuento |
+| Diamante | 1000 TOKs | 20% de descuento |
+
+### Archivos principales
+- `fidelizacion.html` — panel para buscar, registrar y gestionar clientes del programa.
+- `fidelizacion.js` — clase `SistemaFidelizacion` con persistencia vía `localStorage`.
+- `registro-ventas-centralizado.html` — integra la asociación de ventas con clientes de fidelización.
+- `dashboard-central.html` — muestra métricas rápidas del programa.
 
 ## 📊 Flujo de Datos
 
