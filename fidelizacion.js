@@ -151,10 +151,10 @@ class SistemaFidelizacion {
             throw new Error('El nombre del cliente es obligatorio');
         }
 
-        const existente = this.clientes.find((cliente) =>
+        const existente = telefonoLimpio ? this.clientes.find((cliente) =>
             this.normalizarTexto(cliente.nombre) === this.normalizarTexto(nombreLimpio) &&
             this.normalizarTexto(cliente.telefono) === this.normalizarTexto(telefonoLimpio)
-        );
+        ) : null;
 
         if (existente) {
             return existente;
