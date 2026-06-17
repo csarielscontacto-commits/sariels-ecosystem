@@ -129,6 +129,67 @@
         .form-group {
             margin-bottom: 20px;
         }
+
+        .autocomplete-wrapper {
+            position: relative;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            display: none;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .autocomplete-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background: #f5f7ff;
+        }
+
+        .cliente-fidelizacion-info {
+            display: none;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f0f4ff;
+            color: #4b5cc4;
+            font-size: 0.92em;
+            border-left: 4px solid #667eea;
+        }
+
+        .cliente-fidelizacion-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .mini-btn {
+            background: #eef1ff;
+            color: #4b5cc4;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.9em;
+            cursor: pointer;
+            width: auto;
+        }
         
         label {
             display: block;
@@ -359,6 +420,23 @@
                 <label for="cliente">Nombre del cliente:</label>
                 <input type="text" id="cliente" placeholder="Ej: Juan García" required>
             </div>
+
+            <div class="form-group">
+                <label for="clienteFidelizacion">Asociar cliente fidelización (opcional):</label>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="clienteFidelizacion" placeholder="Buscar cliente registrado por nombre">
+                    <div class="autocomplete-results" id="clienteFidelizacionResultados"></div>
+                </div>
+                <div class="cliente-fidelizacion-actions">
+                    <button type="button" class="mini-btn" id="registrarClienteFidelizacionBtn" style="display: none;">
+                        ➕ Registrar como nuevo cliente
+                    </button>
+                    <button type="button" class="mini-btn" id="limpiarClienteFidelizacionBtn" style="display: none;">
+                        ✖️ Quitar asociación
+                    </button>
+                </div>
+                <div class="cliente-fidelizacion-info" id="clienteFidelizacionInfo"></div>
+            </div>
             
             <div class="form-group">
                 <label for="metodo">Método de pago:</label>
@@ -378,8 +456,10 @@
     <!-- Scripts -->
     <script src="config.js"></script>
     <script src="base-datos-centralizada.js"></script>
+    <script src="fidelizacion.js"></script>
     <script>
         let vendedorActual = null;
+        let clienteFidelizacionSeleccionado = null;
         
         /**
          * Inicializa la página
@@ -387,6 +467,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             log('🚀 Inicializando Registro de Ventas');
             inicializarVendedor();
+            inicializarFidelizacion();
             actualizarEstadoSync();
             
             // Actualizar estado cada 5 segundos
@@ -505,6 +586,114 @@
                 log('🔄 Vendedor cambiado a:', vendedorActual.nombre);
             }
         }
+
+        /**
+         * Inicializa la búsqueda de clientes de fidelización.
+         */
+        function inicializarFidelizacion() {
+            const input = document.getElementById('clienteFidelizacion');
+            const resultados = document.getElementById('clienteFidelizacionResultados');
+            const registrarBtn = document.getElementById('registrarClienteFidelizacionBtn');
+            const limpiarBtn = document.getElementById('limpiarClienteFidelizacionBtn');
+
+            input.addEventListener('input', () => {
+                clienteFidelizacionSeleccionado = null;
+                actualizarInfoClienteFidelizacion();
+                renderResultadosFidelizacion(input.value);
+            });
+
+            input.addEventListener('focus', () => renderResultadosFidelizacion(input.value));
+
+            registrarBtn.addEventListener('click', registrarNuevoClienteFidelizacion);
+            limpiarBtn.addEventListener('click', limpiarClienteFidelizacion);
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.autocomplete-wrapper')) {
+                    resultados.style.display = 'none';
+                }
+            });
+        }
+
+        function renderResultadosFidelizacion(valor) {
+            const resultados = document.getElementById('clienteFidelizacionResultados');
+            const registrarBtn = document.getElementById('registrarClienteFidelizacionBtn');
+            const termino = valor.trim();
+            const clientes = termino ? sistemaFidelizacion.buscarClientePorNombre(termino) : sistemaFidelizacion.obtenerTodosLosClientes().slice(0, 5);
+
+            registrarBtn.style.display = termino ? 'inline-block' : 'none';
+
+            if (clientes.length === 0 && !termino) {
+                resultados.style.display = 'none';
+                resultados.innerHTML = '';
+                return;
+            }
+
+            resultados.innerHTML = clientes.map((cliente) => `
+                <div class="autocomplete-item" data-cliente-id="${cliente.id}">
+                    <strong>${cliente.nombre}</strong><br>
+                    <small>${cliente.telefono || 'Sin teléfono'} · ${cliente.toks} TOKs</small>
+                </div>
+            `).join('') || '<div class="autocomplete-item">Sin coincidencias</div>';
+
+            resultados.style.display = 'block';
+
+            resultados.querySelectorAll('[data-cliente-id]').forEach((item) => {
+                item.addEventListener('click', () => seleccionarClienteFidelizacion(item.dataset.clienteId));
+            });
+        }
+
+        function seleccionarClienteFidelizacion(clienteId) {
+            const cliente = sistemaFidelizacion.obtenerCliente(clienteId);
+            if (!cliente) return;
+
+            clienteFidelizacionSeleccionado = cliente;
+            document.getElementById('clienteFidelizacion').value = cliente.nombre;
+            document.getElementById('cliente').value = cliente.nombre;
+            document.getElementById('clienteFidelizacionResultados').style.display = 'none';
+            actualizarInfoClienteFidelizacion();
+        }
+
+        function actualizarInfoClienteFidelizacion() {
+            const info = document.getElementById('clienteFidelizacionInfo');
+            const limpiarBtn = document.getElementById('limpiarClienteFidelizacionBtn');
+
+            if (!clienteFidelizacionSeleccionado) {
+                info.style.display = 'none';
+                info.textContent = '';
+                limpiarBtn.style.display = 'none';
+                return;
+            }
+
+            const descuento = sistemaFidelizacion.calcularDescuentoCliente(clienteFidelizacionSeleccionado.id);
+            info.style.display = 'block';
+            info.textContent = `Cliente asociado: ${clienteFidelizacionSeleccionado.nombre} · ${clienteFidelizacionSeleccionado.toks} TOKs · Descuento actual ${descuento}%`;
+            limpiarBtn.style.display = 'inline-block';
+        }
+
+        function registrarNuevoClienteFidelizacion() {
+            const nombre = document.getElementById('clienteFidelizacion').value.trim();
+            if (!nombre) {
+                alert('Escribe primero el nombre del cliente para registrarlo.');
+                return;
+            }
+
+            const telefono = prompt(`Ingresa el teléfono de ${nombre} (opcional):`, '') || '';
+
+            try {
+                const cliente = sistemaFidelizacion.registrarCliente(nombre, telefono);
+                seleccionarClienteFidelizacion(cliente.id);
+                actualizarInfoClienteFidelizacion();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function limpiarClienteFidelizacion() {
+            clienteFidelizacionSeleccionado = null;
+            document.getElementById('clienteFidelizacion').value = '';
+            document.getElementById('clienteFidelizacionResultados').style.display = 'none';
+            actualizarInfoClienteFidelizacion();
+        }
         
         /**
          * Actualiza el precio total según cantidad
@@ -531,6 +720,7 @@
                 const cliente = document.getElementById('cliente').value;
                 const metodo = document.getElementById('metodo').value;
                 const total = cantidad * CONFIG.PRECIO_UNITARIO;
+                let resultadoFidelizacion = null;
                 
                 // Crear objeto de venta
                 const venta = {
@@ -543,24 +733,38 @@
                     monto: total,
                     timestamp: Date.now(),
                     sincronizado: false,
-                    fechaRegistro: new Date().toISOString()
+                    fechaRegistro: new Date().toISOString(),
+                    clienteFidelizacionId: clienteFidelizacionSeleccionado ? clienteFidelizacionSeleccionado.id : null
                 };
                 
                 // Registrar en la base de datos centralizada
                 bd.registrarVenta(venta);
+
+                if (clienteFidelizacionSeleccionado) {
+                    resultadoFidelizacion = sistemaFidelizacion.procesarVenta(clienteFidelizacionSeleccionado.id, venta);
+                    clienteFidelizacionSeleccionado = sistemaFidelizacion.obtenerCliente(clienteFidelizacionSeleccionado.id);
+                }
                 
                 // Sincronizar inmediatamente
                 await bd.sincronizarConServidor();
                 
                 // Mostrar mensaje de éxito
                 const successMsg = document.getElementById('successMessage');
+                if (resultadoFidelizacion) {
+                    const mensajeNFT = resultadoFidelizacion.nftNuevo ? ` · 🎉 ¡Nuevo NFT ${resultadoFidelizacion.nftNuevo.nombre} desbloqueado!` : '';
+                    successMsg.textContent = `✅ Venta registrada · +${resultadoFidelizacion.toksOtorgados} TOKs otorgados a ${clienteFidelizacionSeleccionado.nombre}${mensajeNFT}`;
+                } else {
+                    successMsg.textContent = '✅ ¡Venta registrada exitosamente!';
+                }
                 successMsg.style.display = 'block';
                 
                 // Actualizar estadísticas
                 actualizarEstadisticasVendedor();
+                actualizarInfoClienteFidelizacion();
                 
                 // Limpiar formulario
                 this.reset();
+                limpiarClienteFidelizacion();
                 document.getElementById('precioTotal').textContent = 
                     `Total: ${CONFIG.SIMBOLO_MONEDA}${CONFIG.PRECIO_UNITARIO.toLocaleString('es-MX')} ${CONFIG.MONEDA}`;
                 

@@ -39,6 +39,29 @@ const CONFIG = {
     },
     
     // ============================================
+    // CONFIGURACIÓN DE FIDELIZACIÓN
+    // ============================================
+    TOKENS: {
+        // Cuántos TOKs se otorgan por venta
+        TOKS_POR_VENTA: 10,            // 10 TOKs por cada $75 gastados
+        TOKS_POR_REFERIDO: 25,         // bonus por traer un amigo
+        TOKS_POR_REGISTRO: 50,         // TOKs de bienvenida al registrarse
+        // Umbrales NFT
+        NFT_BRONCE_MIN: 100,           // 100 TOKs = NFT Bronce
+        NFT_PLATA_MIN: 300,            // 300 TOKs = NFT Plata
+        NFT_ORO_MIN: 600,              // 600 TOKs = NFT Oro
+        NFT_DIAMANTE_MIN: 1000,        // 1000 TOKs = NFT Diamante
+        // Beneficios por nivel NFT (descuento en %)
+        DESCUENTO_BRONCE: 5,
+        DESCUENTO_PLATA: 10,
+        DESCUENTO_ORO: 15,
+        DESCUENTO_DIAMANTE: 20,
+        // Storage keys
+        STORAGE_CLIENTES: 'clientes_fidelizacion',
+        STORAGE_NFTS: 'nfts_emitidos'
+    },
+    
+    // ============================================
     // CONFIGURACIÓN DE METAS Y OBJETIVOS
     // ============================================
     METAS: {
