@@ -32,6 +32,9 @@ Sistema de gestión de ventas en tiempo real con **sincronización centralizada*
 - ✅ Sincronización automática con dashboard central
 - 🌀 Indicador visual de estado de sincronización
 - 💾 Almacenamiento local con respaldo
+- 🔢 Contador simple de transacciones por cliente (sin niveles)
+- 🪙 Activación automática de "Emitir NFT" al llegar a 12 transacciones por cliente
+- ✅ Estado de NFT de utilidad con soporte de canje (`canjeado`)
 
 ### ⚙️ Sistema de Sincronización
 - **Base de datos centralizada**: GitHub Gist como servidor
@@ -126,6 +129,10 @@ Vendedor registra venta
 Se guarda en LocalStorage local
     ↓
 Se registra en BD centralizada
+    ↓
+Se actualiza contador por cliente (sin niveles)
+    ↓
+Si cliente llega a transacción 12 se habilita "Emitir NFT"
     ↓
 Se dispara evento 'ventaRegistrada'
     ↓

@@ -35,7 +35,8 @@ const CONFIG = {
         VENDEDOR_KEY: 'vendedor_actual',
         VENDEDORES_KEY: 'vendedores_registrados',
         CACHE_KEY: 'cache_dashboard',
-        LAST_SYNC_KEY: 'ultimo_sincronismo'
+        LAST_SYNC_KEY: 'ultimo_sincronismo',
+        NFT_CLIENTES_KEY: 'estado_nft_clientes'
     },
     
     // ============================================

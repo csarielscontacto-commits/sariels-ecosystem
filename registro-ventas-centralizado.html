@@ -259,6 +259,46 @@
             font-size: 0.8em;
             color: #999;
         }
+
+        .cliente-nft-panel {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffb300;
+        }
+
+        .cliente-nft-panel h3 {
+            color: #8d6e63;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .cliente-nft-datos {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .cliente-nft-valor {
+            font-weight: bold;
+            color: #5d4037;
+        }
+
+        .cliente-nft-acciones {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cliente-nft-acciones button {
+            width: auto;
+            flex: 1;
+            min-width: 190px;
+            font-size: 0.95em;
+            padding: 10px 12px;
+        }
         
         @media (max-width: 600px) {
             .container {
@@ -359,6 +399,25 @@
                 <label for="cliente">Nombre del cliente:</label>
                 <input type="text" id="cliente" placeholder="Ej: Juan García" required>
             </div>
+
+            <div class="cliente-nft-panel">
+                <h3>🎟️ Contador por cliente y NFT de utilidad (domo de galleta)</h3>
+                <div class="cliente-nft-datos">
+                    <div>
+                        <div>Transacciones registradas:</div>
+                        <div class="cliente-nft-valor" id="clienteTransacciones">0</div>
+                    </div>
+                    <div>
+                        <div>Estado NFT:</div>
+                        <div class="cliente-nft-valor" id="clienteNftEstado">Sin emitir</div>
+                    </div>
+                </div>
+                <p id="clienteElegibilidadMensaje">Ingresa un cliente para validar si puede emitir NFT en la transacción 12.</p>
+                <div class="cliente-nft-acciones">
+                    <button type="button" id="emitirNftBtn" disabled>🪙 Emitir NFT</button>
+                    <button type="button" id="canjearNftBtn" disabled>✅ Marcar NFT como canjeado</button>
+                </div>
+            </div>
             
             <div class="form-group">
                 <label for="metodo">Método de pago:</label>
@@ -380,6 +439,7 @@
     <script src="base-datos-centralizada.js"></script>
     <script>
         let vendedorActual = null;
+        let estadoClienteActual = null;
         
         /**
          * Inicializa la página
@@ -388,6 +448,7 @@
             log('🚀 Inicializando Registro de Ventas');
             inicializarVendedor();
             actualizarEstadoSync();
+            actualizarPanelCliente();
             
             // Actualizar estado cada 5 segundos
             setInterval(actualizarEstadoSync, 5000);
@@ -440,6 +501,51 @@
             document.getElementById('ingresoHoyVendedor').textContent = formatearPrecio(ingresoHoy / CONFIG.PRECIO_UNITARIO);
             document.getElementById('totalVentasVendedor').textContent = ventasVendedor.length;
             document.getElementById('totalIngresoVendedor').textContent = formatearPrecio(totalIngreso / CONFIG.PRECIO_UNITARIO);
+        }
+
+        /**
+         * Actualiza panel de contador de cliente y estado NFT
+         */
+        function actualizarPanelCliente(cliente = null) {
+            const inputCliente = document.getElementById('cliente');
+            const nombreCliente = (cliente !== null ? cliente : inputCliente.value).trim();
+            
+            const transaccionesEl = document.getElementById('clienteTransacciones');
+            const estadoEl = document.getElementById('clienteNftEstado');
+            const mensajeEl = document.getElementById('clienteElegibilidadMensaje');
+            const emitirBtn = document.getElementById('emitirNftBtn');
+            const canjearBtn = document.getElementById('canjearNftBtn');
+            
+            if (!nombreCliente) {
+                estadoClienteActual = null;
+                transaccionesEl.textContent = '0';
+                estadoEl.textContent = 'Sin emitir';
+                mensajeEl.textContent = 'Ingresa un cliente para validar si puede emitir NFT en la transacción 12.';
+                emitirBtn.disabled = true;
+                canjearBtn.disabled = true;
+                return;
+            }
+            
+            estadoClienteActual = bd.obtenerEstadoClienteNFT(nombreCliente);
+            transaccionesEl.textContent = estadoClienteActual.transacciones;
+            
+            if (estadoClienteActual.nft.canjeado) {
+                estadoEl.textContent = 'Canjeado';
+            } else if (estadoClienteActual.nft.emitido) {
+                estadoEl.textContent = 'Emitido';
+            } else {
+                estadoEl.textContent = 'Sin emitir';
+            }
+            
+            if (estadoClienteActual.puedeEmitirNFT) {
+                mensajeEl.textContent = '✅ Cliente elegible: alcanzó 12 transacciones. Ya puedes emitir NFT.';
+            } else {
+                const faltantes = Math.max(0, 12 - estadoClienteActual.transacciones);
+                mensajeEl.textContent = `Faltan ${faltantes} transacción(es) para activar "Emitir NFT".`;
+            }
+            
+            emitirBtn.disabled = !estadoClienteActual.puedeEmitirNFT;
+            canjearBtn.disabled = !(estadoClienteActual.nft.emitido && !estadoClienteActual.nft.canjeado);
         }
         
         /**
@@ -515,6 +621,48 @@
             document.getElementById('precioTotal').textContent = 
                 `Total: ${CONFIG.SIMBOLO_MONEDA}${total.toLocaleString('es-MX')} ${CONFIG.MONEDA}`;
         });
+
+        document.getElementById('cliente').addEventListener('input', function() {
+            actualizarPanelCliente(this.value);
+        });
+
+        document.getElementById('emitirNftBtn').addEventListener('click', function() {
+            const cliente = document.getElementById('cliente').value.trim();
+            if (!cliente) return;
+            
+            try {
+                bd.emitirNFTCliente(cliente);
+                actualizarPanelCliente(cliente);
+                const successMsg = document.getElementById('successMessage');
+                successMsg.textContent = `🪙 NFT de utilidad emitido para ${cliente}. Beneficio físico: domo de galleta.`;
+                successMsg.style.display = 'block';
+                setTimeout(() => successMsg.style.display = 'none', 3000);
+            } catch (error) {
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = `❌ ${error.message}`;
+                errorMsg.style.display = 'block';
+                setTimeout(() => errorMsg.style.display = 'none', 3000);
+            }
+        });
+
+        document.getElementById('canjearNftBtn').addEventListener('click', function() {
+            const cliente = document.getElementById('cliente').value.trim();
+            if (!cliente) return;
+            
+            try {
+                bd.marcarNFTCanjeado(cliente);
+                actualizarPanelCliente(cliente);
+                const successMsg = document.getElementById('successMessage');
+                successMsg.textContent = `✅ NFT marcado como canjeado para ${cliente}.`;
+                successMsg.style.display = 'block';
+                setTimeout(() => successMsg.style.display = 'none', 3000);
+            } catch (error) {
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = `❌ ${error.message}`;
+                errorMsg.style.display = 'block';
+                setTimeout(() => errorMsg.style.display = 'none', 3000);
+            }
+        });
         
         /**
          * Maneja el envío del formulario
@@ -534,7 +682,7 @@
                 
                 // Crear objeto de venta
                 const venta = {
-                    id: `venta_${Date.now()}`,
+                    id: `venta_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
                     vendedorId: vendedorActual.id,
                     vendedorNombre: vendedorActual.nombre,
                     cantidad: cantidad,
@@ -554,13 +702,16 @@
                 
                 // Mostrar mensaje de éxito
                 const successMsg = document.getElementById('successMessage');
+                successMsg.textContent = '✅ ¡Venta registrada exitosamente!';
                 successMsg.style.display = 'block';
                 
                 // Actualizar estadísticas
                 actualizarEstadisticasVendedor();
+                actualizarPanelCliente(cliente);
                 
                 // Limpiar formulario
                 this.reset();
+                document.getElementById('cliente').value = cliente;
                 document.getElementById('precioTotal').textContent = 
                     `Total: ${CONFIG.SIMBOLO_MONEDA}${CONFIG.PRECIO_UNITARIO.toLocaleString('es-MX')} ${CONFIG.MONEDA}`;
                 
@@ -593,6 +744,11 @@
         
         window.addEventListener('ventaRegistrada', () => {
             actualizarEstadisticasVendedor();
+            actualizarPanelCliente();
+        });
+
+        window.addEventListener('estadoNFTActualizado', () => {
+            actualizarPanelCliente();
         });
     </script>
 </body>

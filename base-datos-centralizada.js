@@ -163,10 +163,19 @@ class BaseDatosCentralizada {
      * Registra una nueva venta en el sistema
      */
     registrarVenta(venta) {
+        const clienteId = this.obtenerClienteId(venta.cliente);
+        const idVentaBase = venta.id || `venta_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        let idVenta = idVentaBase;
+        
+        while (this.obtenerTodasLasVentas().some(v => v.id === idVenta)) {
+            idVenta = `${idVentaBase}_${Math.random().toString(36).slice(2, 6)}`;
+        }
+        
         // Agregar propiedades de sincronización
         const ventaCompleta = {
             ...venta,
-            id: venta.id || `venta_${Date.now()}`,
+            id: idVenta,
+            clienteId: clienteId,
             timestamp: venta.timestamp || Date.now(),
             sincronizado: false,
             fechaRegistro: new Date().toISOString()
@@ -182,10 +191,144 @@ class BaseDatosCentralizada {
         
         // Disparar evento
         window.dispatchEvent(new CustomEvent('ventaRegistrada', { detail: ventaCompleta }));
+        const estadoCliente = this.obtenerEstadoClienteNFT(ventaCompleta.cliente);
+        window.dispatchEvent(new CustomEvent('contadorClienteActualizado', { detail: estadoCliente }));
+        
+        if (estadoCliente.transacciones === 12 && estadoCliente.puedeEmitirNFT) {
+            window.dispatchEvent(new CustomEvent('clienteElegibleNFT', { detail: estadoCliente }));
+        }
         
         log('🛒 Venta registrada', ventaCompleta);
         
         return ventaCompleta;
+    }
+
+    /**
+     * Normaliza la identidad de un cliente para tracking determinístico
+     */
+    obtenerClienteId(cliente = '') {
+        return String(cliente || '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+    
+    /**
+     * Obtiene el mapa de estados NFT por cliente
+     */
+    obtenerMapaEstadosNFT() {
+        const datos = localStorage.getItem(CONFIG.STORAGE.NFT_CLIENTES_KEY);
+        return datos ? JSON.parse(datos) : {};
+    }
+    
+    /**
+     * Guarda el mapa de estados NFT por cliente
+     */
+    guardarMapaEstadosNFT(estados) {
+        localStorage.setItem(CONFIG.STORAGE.NFT_CLIENTES_KEY, JSON.stringify(estados));
+    }
+    
+    /**
+     * Obtiene el estado de transacciones + NFT de un cliente
+     */
+    obtenerEstadoClienteNFT(cliente) {
+        const clienteId = this.obtenerClienteId(cliente);
+        if (!clienteId) {
+            return {
+                clienteId: '',
+                clienteNombre: '',
+                transacciones: 0,
+                puedeEmitirNFT: false,
+                nft: {
+                    emitido: false,
+                    canjeado: false,
+                    fechaEmision: null,
+                    fechaCanje: null,
+                    tipo: 'utilidad_domo_galleta'
+                }
+            };
+        }
+        
+        const ventasCliente = this.obtenerTodasLasVentas().filter(v => {
+            const ventaClienteId = v.clienteId || this.obtenerClienteId(v.cliente);
+            return ventaClienteId === clienteId;
+        });
+        const transacciones = ventasCliente.length;
+        
+        const estados = this.obtenerMapaEstadosNFT();
+        const estadoGuardado = estados[clienteId] || {};
+        const nft = {
+            emitido: Boolean(estadoGuardado.emitido),
+            canjeado: Boolean(estadoGuardado.canjeado),
+            fechaEmision: estadoGuardado.fechaEmision || null,
+            fechaCanje: estadoGuardado.fechaCanje || null,
+            tipo: 'utilidad_domo_galleta'
+        };
+        
+        return {
+            clienteId: clienteId,
+            clienteNombre: String(cliente).trim(),
+            transacciones: transacciones,
+            puedeEmitirNFT: transacciones >= 12 && !nft.emitido,
+            nft: nft
+        };
+    }
+    
+    /**
+     * Marca NFT como emitido para un cliente elegible
+     */
+    emitirNFTCliente(cliente) {
+        const estado = this.obtenerEstadoClienteNFT(cliente);
+        
+        if (estado.transacciones < 12) {
+            throw new Error('Cliente no elegible: se requieren 12 transacciones para emitir el NFT');
+        }
+        
+        if (estado.nft.emitido) {
+            return estado;
+        }
+        
+        const estados = this.obtenerMapaEstadosNFT();
+        estados[estado.clienteId] = {
+            emitido: true,
+            canjeado: false,
+            fechaEmision: new Date().toISOString(),
+            fechaCanje: null
+        };
+        this.guardarMapaEstadosNFT(estados);
+        
+        const estadoActualizado = this.obtenerEstadoClienteNFT(cliente);
+        window.dispatchEvent(new CustomEvent('estadoNFTActualizado', { detail: estadoActualizado }));
+        return estadoActualizado;
+    }
+    
+    /**
+     * Marca NFT emitido como canjeado en tienda
+     */
+    marcarNFTCanjeado(cliente) {
+        const estado = this.obtenerEstadoClienteNFT(cliente);
+        
+        if (!estado.nft.emitido) {
+            throw new Error('No se puede canjear: el NFT aún no ha sido emitido');
+        }
+        
+        if (estado.nft.canjeado) {
+            return estado;
+        }
+        
+        const estados = this.obtenerMapaEstadosNFT();
+        estados[estado.clienteId] = {
+            emitido: true,
+            canjeado: true,
+            fechaEmision: estado.nft.fechaEmision,
+            fechaCanje: new Date().toISOString()
+        };
+        this.guardarMapaEstadosNFT(estados);
+        
+        const estadoActualizado = this.obtenerEstadoClienteNFT(cliente);
+        window.dispatchEvent(new CustomEvent('estadoNFTActualizado', { detail: estadoActualizado }));
+        return estadoActualizado;
     }
     
     /**
