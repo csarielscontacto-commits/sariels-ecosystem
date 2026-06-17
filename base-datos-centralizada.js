@@ -163,11 +163,21 @@ class BaseDatosCentralizada {
      * Registra una nueva venta en el sistema
      */
     registrarVenta(venta) {
-        const clienteId = this.obtenerClienteId(venta.cliente);
+        if (!venta || typeof venta !== 'object') {
+            throw new Error('Venta inválida');
+        }
+        
+        const clienteNombre = String(venta.cliente || '').trim();
+        if (!clienteNombre) {
+            throw new Error('El nombre del cliente es obligatorio');
+        }
+        
+        const clienteId = this.obtenerClienteId(clienteNombre);
         const idVentaBase = venta.id || `venta_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
         let idVenta = idVentaBase;
+        const idsExistentes = new Set(this.obtenerTodasLasVentas().map(v => v.id));
         
-        while (this.obtenerTodasLasVentas().some(v => v.id === idVenta)) {
+        while (idsExistentes.has(idVenta)) {
             idVenta = `${idVentaBase}_${Math.random().toString(36).slice(2, 6)}`;
         }
         
@@ -175,6 +185,7 @@ class BaseDatosCentralizada {
         const ventaCompleta = {
             ...venta,
             id: idVenta,
+            cliente: clienteNombre,
             clienteId: clienteId,
             timestamp: venta.timestamp || Date.now(),
             sincronizado: false,
@@ -207,6 +218,8 @@ class BaseDatosCentralizada {
      * Normaliza la identidad de un cliente para tracking determinístico
      */
     obtenerClienteId(cliente = '') {
+        // Normalización para que "Juan García", "juan garcia" y variantes equivalentes
+        // se contabilicen como el mismo cliente en el contador/NFT.
         return String(cliente || '')
             .trim()
             .toLowerCase()
