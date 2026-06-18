@@ -146,6 +146,63 @@ El ecosistema ahora incluye un sistema de fidelización basado en **TOKs** y **n
 - `registro-ventas-centralizado.html` — integra la asociación de ventas con clientes de fidelización.
 - `dashboard-central.html` — muestra métricas rápidas del programa.
 
+## 🟢 Flujo Web3 Rewards (Polygon Amoy)
+
+Se implementó un flujo Web3 de prueba en `fidelizacion.html` con diseño verde moderno:
+
+- Conexión de wallet desktop + **WalletConnect QR** para móvil.
+- Registro de compra de galleta: **+1 TOK** por evento.
+- Umbral exacto de canje: al llegar a **12 TOKs** se habilita el botón de canje/mint.
+- Canje protegido por ciclo de umbral para evitar doble mint del mismo evento.
+- Mint de NFT en Amoy mediante contrato ERC-721 con regalías ERC-2981.
+
+### Contrato NFT y regalías
+
+- Contrato: `contracts/CookieRewardNFT.sol`
+- Red: **Polygon Amoy** (`chainId: 80002`)
+- Regalías: **10%** (1000 bps)
+- Wallet admin / autoridad / receptor regalías:
+  `0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b`
+
+### Instalación (tooling smart contract)
+
+```bash
+npm install
+npm run compile
+npm run test
+```
+
+### Variables de entorno
+
+1. Copia `.env.example` a `.env`
+2. Configura:
+   - `AMOY_RPC_URL`
+   - `PRIVATE_KEY` (wallet de despliegue/autorizada)
+   - `POLYGONSCAN_API_KEY` (opcional)
+
+### Desplegar a Amoy
+
+```bash
+npm run deploy:amoy
+```
+
+Luego copia la dirección desplegada y colócala en:
+
+- `config.js` → `CONFIG.WEB3_REWARDS.REWARD_NFT_ADDRESS`
+
+Además, configura tu `WalletConnect Project ID` en:
+
+- `config.js` → `CONFIG.WEB3_REWARDS.WALLETCONNECT_PROJECT_ID`
+
+### Prueba E2E (local + Amoy)
+
+1. Abre `fidelizacion.html`.
+2. Pulsa **Conectar wallet (QR móvil)** y conecta en Polygon Amoy.
+3. Pulsa **Registrar compra de galleta** 12 veces (1 TOK por compra).
+4. Verifica que al llegar a 12 TOKs se habilite **Canjear 12 TOKs y Mint NFT**.
+5. Pulsa canjear y confirma la transacción para mintear el NFT de recompensa.
+6. Verifica el hash en Amoy Polygonscan y confirma regalías (ERC-2981) del 10%.
+
 ## 📊 Flujo de Datos
 
 ### 1. Registro de Venta

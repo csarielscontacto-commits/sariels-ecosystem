@@ -3,415 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fidelización TOKs & NFTs - Sariel's Ecosystem</title>
+    <title>Panel Web3 TOK Rewards - Sariel's Ecosystem</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #050b08;
+            --panel: #0d1713;
+            --panel-2: #13211c;
+            --line: #1f3d33;
+            --text: #e6fff3;
+            --muted: #9ccab5;
+            --green: #28f79a;
+            --green-soft: #173428;
+            --danger: #ff6f91;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            font-family: Inter, 'Segoe UI', Tahoma, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% 10%, rgba(40, 247, 154, 0.2), transparent 35%),
+                radial-gradient(circle at 90% 20%, rgba(40, 247, 154, 0.12), transparent 35%),
+                var(--bg);
+            padding: 18px;
         }
 
         .container {
-            max-width: 1280px;
+            max-width: 1024px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.97);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(12, 26, 20, 0.96), rgba(8, 16, 13, 0.96));
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+            overflow: hidden;
         }
 
         .header {
+            padding: 24px;
+            border-bottom: 1px solid var(--line);
             display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
         }
 
-        .header h1 {
-            color: #333;
-            font-size: 2rem;
-        }
+        .header h1 { font-size: 1.6rem; margin-bottom: 8px; }
+        .header p { color: var(--muted); }
 
-        .header p {
-            color: #666;
-            margin-top: 6px;
-        }
-
-        .btn-link,
-        .btn-primary,
-        .btn-secondary,
-        .btn-danger {
-            border: none;
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
+        .back-link {
+            color: var(--green);
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: transform 0.2s ease, opacity 0.2s ease;
+            font-weight: 700;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 14px;
+            background: rgba(13, 30, 22, 0.8);
         }
 
-        .btn-link:hover,
-        .btn-primary:hover,
-        .btn-secondary:hover,
-        .btn-danger:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-link,
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #f0f4ff;
-            color: #4d5ab3;
-        }
-
-        .btn-danger {
-            background: #ffebee;
-            color: #d84343;
-        }
-
-        .status-message {
-            display: none;
-            padding: 14px 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .status-message.success {
-            display: block;
-            background: #e8f5e9;
-            color: #1b7d3d;
-        }
-
-        .status-message.error {
-            display: block;
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .grid-principal {
+        .grid {
+            padding: 24px;
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 16px;
         }
 
         .card {
-            background: white;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, var(--panel), var(--panel-2));
             border-radius: 16px;
-            padding: 22px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.12);
+            padding: 18px;
         }
 
-        .card h2 {
-            color: #333;
-            margin-bottom: 16px;
-        }
+        .card h2 { margin-bottom: 12px; font-size: 1.15rem; }
 
-        .search-row,
-        .actions-row {
-            display: flex;
+        .wallet-box {
+            display: grid;
             gap: 12px;
-            flex-wrap: wrap;
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 700;
-            color: #555;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #d8def5;
-            border-radius: 12px;
-            font-size: 1rem;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .search-wrapper {
-            position: relative;
-            flex: 1;
-            min-width: 240px;
-        }
-
-        .autocomplete-list {
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #d8def5;
-            border-radius: 12px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-            overflow: hidden;
-            z-index: 20;
-            display: none;
-        }
-
-        .autocomplete-item {
-            padding: 12px 14px;
-            cursor: pointer;
-            border-bottom: 1px solid #eef1ff;
-        }
-
-        .autocomplete-item:last-child {
-            border-bottom: none;
-        }
-
-        .autocomplete-item:hover {
-            background: #f6f8ff;
-        }
-
-        .profile-card {
-            display: none;
-        }
-
-        .profile-card.active {
-            display: block;
-        }
-
-        .profile-header {
+        .wallet-row {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
             flex-wrap: wrap;
-            margin-bottom: 18px;
+            gap: 10px;
+            align-items: center;
         }
 
-        .token-balance {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 18px;
-            padding: 20px;
-            text-align: center;
-            min-width: 220px;
+        .address {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9rem;
+            color: #b6f8d8;
+            word-break: break-all;
         }
 
-        .token-balance .value {
-            font-size: 2.4rem;
-            font-weight: 800;
-            margin-top: 10px;
-        }
-
-        .nft-badge {
+        .badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
+            gap: 6px;
             border-radius: 999px;
-            color: #333;
+            padding: 6px 12px;
+            font-size: 0.82rem;
             font-weight: 700;
-            background: #f1f3f9;
+            border: 1px solid var(--line);
+            background: #13231c;
+            color: var(--muted);
         }
 
-        .meta-grid {
+        .badge.ok {
+            border-color: rgba(40, 247, 154, 0.5);
+            color: #8ff3c7;
+            background: #0e271d;
+        }
+
+        .counter {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-            margin: 18px 0;
-        }
-
-        .mini-stat {
-            background: #f7f8ff;
-            border-radius: 12px;
-            padding: 14px;
-        }
-
-        .mini-stat .label {
-            display: block;
-            color: #777;
-            font-size: 0.85rem;
-            margin-bottom: 6px;
-        }
-
-        .mini-stat strong {
-            color: #333;
-            font-size: 1.05rem;
-        }
-
-        .action-box {
-            background: #f7f8ff;
-            padding: 16px;
+            gap: 8px;
+            text-align: center;
+            background: rgba(40, 247, 154, 0.08);
+            border: 1px solid rgba(40, 247, 154, 0.32);
             border-radius: 14px;
-        }
-
-        .action-box h3 {
+            padding: 16px;
             margin-bottom: 12px;
-            color: #444;
         }
 
-        .action-inline {
+        .counter .value {
+            font-size: 2.4rem;
+            line-height: 1;
+            font-weight: 800;
+            color: var(--green);
+            text-shadow: 0 0 22px rgba(40, 247, 154, 0.35);
+        }
+
+        .helper {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .actions {
             display: grid;
-            grid-template-columns: 1fr 1fr auto;
             gap: 10px;
         }
 
-        .table-card table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table-card th,
-        .table-card td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #eef1ff;
-        }
-
-        .table-card th {
-            color: #555;
-            background: #f8f9ff;
-        }
-
-        .table-card tbody tr {
-            cursor: pointer;
-        }
-
-        .table-card tbody tr:hover {
-            background: #f7f8ff;
-        }
-
-        .table-card tbody tr.selected {
-            background: #eef1ff;
-        }
-
-        .sort-button {
-            background: none;
+        button {
             border: none;
-            color: inherit;
-            font: inherit;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
+            transition: transform .15s ease, opacity .15s ease;
         }
 
-        .leaderboard-list {
-            display: grid;
-            gap: 12px;
+        button:hover { transform: translateY(-1px); }
+        button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2efaa2, #1cd783);
+            color: #04130b;
         }
 
-        .leader-item {
-            background: #f8f9ff;
-            border-radius: 14px;
-            padding: 14px;
+        .btn-secondary {
+            border: 1px solid var(--line);
+            background: #11221c;
+            color: #bafbd9;
         }
 
-        .leader-top {
+        .btn-redeem {
+            background: linear-gradient(135deg, #22ee94, #14b86f);
+            color: #042b18;
+        }
+
+        .btn-danger {
+            background: #2c151c;
+            color: #ffabc0;
+            border: 1px solid #4a1d29;
+        }
+
+        .status {
+            margin: 0 24px 24px;
+            border-radius: 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            background: #0f1d18;
+            color: var(--muted);
+            min-height: 44px;
             display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        .progress {
-            height: 10px;
-            background: #dde3ff;
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .helper-text {
-            color: #666;
-            font-size: 0.92rem;
-            margin-top: 8px;
-        }
-
-        .empty-state {
-            padding: 20px;
-            border-radius: 14px;
-            background: #f7f8ff;
-            color: #666;
-            text-align: center;
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(30, 35, 80, 0.55);
-            display: none;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 40;
         }
 
-        .modal.active {
-            display: flex;
+        .status.success {
+            border-color: rgba(40, 247, 154, 0.45);
+            color: #8ff3c7;
+            background: #0c241a;
         }
 
-        .modal-content {
-            width: 100%;
-            max-width: 460px;
-            background: white;
-            border-radius: 18px;
-            padding: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        .status.error {
+            border-color: rgba(255, 111, 145, 0.4);
+            color: #ffc2d0;
+            background: #2b141b;
         }
 
-        .modal-content h3 {
-            margin-bottom: 16px;
+        .list {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
         }
 
-        .hidden {
-            display: none !important;
+        .list li {
+            list-style: none;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: rgba(8, 17, 13, 0.75);
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            color: #a9d6be;
         }
 
-        @media (max-width: 960px) {
-            .grid-principal {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 720px) {
-            .container {
-                padding: 20px;
-            }
-
-            .meta-grid,
-            .action-inline {
-                grid-template-columns: 1fr;
-            }
-
-            .table-card {
-                overflow-x: auto;
-            }
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -419,414 +234,361 @@
     <div class="container">
         <div class="header">
             <div>
-                <h1>🎫 Fidelización TOKs &amp; NFTs</h1>
-                <p>Gestiona clientes, TOKs acumulados y niveles NFT del ecosistema.</p>
+                <h1>🟢 Panel Web3 Rewards (Polygon Amoy)</h1>
+                <p>Conecta wallet (desktop/móvil QR), suma TOKs por galleta y canjea NFT al umbral de 12 TOKs.</p>
             </div>
-            <a href="dashboard-central.html" class="btn-link">⬅️ Volver al dashboard</a>
+            <a class="back-link" href="dashboard-central.html">⬅ Volver al dashboard</a>
         </div>
 
-        <div id="statusMessage" class="status-message"></div>
-
-        <div class="grid-principal">
-            <div class="card">
-                <h2>🔎 Buscar / Registrar Cliente</h2>
-                <div class="search-row">
-                    <div class="search-wrapper">
-                        <input type="text" id="buscarClienteInput" placeholder="Escribe el nombre del cliente">
-                        <div id="autocompleteList" class="autocomplete-list"></div>
+        <div class="grid">
+            <section class="card">
+                <h2>👛 Conexión de billetera</h2>
+                <div class="wallet-box">
+                    <div class="wallet-row">
+                        <button id="btnConnect" class="btn-primary">Conectar wallet (QR móvil)</button>
+                        <button id="btnDisconnect" class="btn-danger" disabled>Desconectar</button>
                     </div>
-                    <button type="button" class="btn-primary" id="abrirModalRegistro">➕ Registrar nuevo cliente</button>
+                    <div id="walletAddress" class="address">Sin wallet conectada</div>
+                    <div class="wallet-row">
+                        <span id="chainBadge" class="badge">Red no detectada</span>
+                        <button id="btnSwitchNetwork" class="btn-secondary" disabled>Cambiar a Polygon Amoy</button>
+                    </div>
+                    <p class="helper">Se soporta wallet inyectada (desktop) y WalletConnect con QR (móvil) como flujo estándar.</p>
                 </div>
-                <p class="helper-text">Busca por nombre para abrir el perfil y operar sus TOKs.</p>
+            </section>
 
-                <div id="perfilCliente" class="profile-card">
-                    <div class="profile-header">
-                        <div>
-                            <h2 id="perfilNombre">Cliente</h2>
-                            <p id="perfilTelefono" class="helper-text">Teléfono: --</p>
-                            <p id="perfilRegistro" class="helper-text">Registrado: --</p>
-                        </div>
-                        <div class="token-balance">
-                            <div>🪙 Balance TOKs</div>
-                            <div class="value" id="perfilToks">0</div>
-                        </div>
-                    </div>
-
-                    <div class="meta-grid">
-                        <div class="mini-stat">
-                            <span class="label">NFT activo</span>
-                            <div id="perfilNft">Sin NFT</div>
-                        </div>
-                        <div class="mini-stat">
-                            <span class="label">Descuento actual</span>
-                            <strong id="perfilDescuento">0%</strong>
-                        </div>
-                        <div class="mini-stat">
-                            <span class="label">Ventas asociadas</span>
-                            <strong id="perfilVentas">0</strong>
-                        </div>
-                    </div>
-
-                    <div class="actions-row">
-                        <div class="action-box" style="flex: 1;">
-                            <h3>➕ Otorgar TOKs manualmente</h3>
-                            <div class="action-inline">
-                                <input type="number" min="1" id="manualToksCantidad" placeholder="Cantidad">
-                                <input type="text" id="manualToksMotivo" placeholder="Motivo (bonus, referido...)">
-                                <button type="button" class="btn-primary" id="btnOtorgarToks">Otorgar</button>
-                            </div>
-                        </div>
-                        <div class="action-box" style="flex: 1;">
-                            <h3>🎁 Canjear TOKs</h3>
-                            <div class="action-inline">
-                                <input type="number" min="1" id="canjeToksCantidad" placeholder="Cantidad">
-                                <div class="helper-text" style="align-self: center;">Canje para descuentos u otros beneficios.</div>
-                                <button type="button" class="btn-danger" id="btnCanjearToks">Canjear</button>
-                            </div>
-                        </div>
-                    </div>
+            <section class="card">
+                <h2>🍪 TOK Rewards</h2>
+                <div class="counter">
+                    <div>TOKs actuales (wallet conectada)</div>
+                    <div id="tokBalance" class="value">0</div>
+                    <div id="tokHint" class="helper">Compra 12 galletas para desbloquear el canje NFT.</div>
                 </div>
-            </div>
 
-            <div class="card">
-                <h2>🏆 Leaderboard TOKs</h2>
-                <div id="leaderboard" class="leaderboard-list"></div>
-            </div>
+                <div class="actions">
+                    <button id="btnRegisterPurchase" class="btn-secondary" disabled>Registrar compra de galleta (+1 TOK)</button>
+                    <button id="btnRedeem" class="btn-redeem" disabled>Canjear 12 TOKs y Mint NFT</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>⚙️ Configuración on-chain</h2>
+                <p class="helper">Contrato NFT (Amoy): <span id="contractAddressLabel" class="address" style="display:block; margin-top:8px;">No configurado</span></p>
+                <p class="helper" style="margin-top:10px;">Admin / regalías / autoridad: <span class="address" style="display:block; margin-top:8px;">0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b</span></p>
+                <p class="helper" style="margin-top:10px;">Royalty: 10% (ERC2981)</p>
+            </section>
+
+            <section class="card">
+                <h2>📜 Últimos eventos</h2>
+                <ul id="eventLog" class="list"></ul>
+            </section>
         </div>
 
-        <div class="card table-card">
-            <h2>👥 Todos los clientes</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>
-                            <button type="button" class="sort-button" id="sortToksButton">
-                                TOKs ↓
-                            </button>
-                        </th>
-                        <th>Nivel NFT</th>
-                        <th>Ventas</th>
-                        <th>Registrado</th>
-                    </tr>
-                </thead>
-                <tbody id="clientesTableBody">
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">Aún no hay clientes registrados.</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="modalRegistro" class="modal">
-        <div class="modal-content">
-            <h3>Registrar nuevo cliente</h3>
-            <form id="registroClienteForm">
-                <div class="form-group">
-                    <label for="registroNombre">Nombre</label>
-                    <input type="text" id="registroNombre" required>
-                </div>
-                <div class="form-group">
-                    <label for="registroTelefono">Teléfono</label>
-                    <input type="text" id="registroTelefono" placeholder="Opcional">
-                </div>
-                <div class="actions-row">
-                    <button type="submit" class="btn-primary">Guardar cliente</button>
-                    <button type="button" class="btn-secondary" id="cerrarModalRegistro">Cancelar</button>
-                </div>
-            </form>
-        </div>
+        <div id="status" class="status">Listo para iniciar. Conecta una wallet para comenzar.</div>
     </div>
 
     <script src="config.js"></script>
-    <script src="fidelizacion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
     <script>
-        let clienteSeleccionadoId = null;
-        let ordenToksDesc = true;
+        const APP = {
+            provider: null,
+            web3Provider: null,
+            signer: null,
+            walletAddress: null,
+            chainId: null,
+            web3Modal: null,
+            mintInFlight: false,
+            storageKey: 'web3_cookie_rewards_v1',
+            contractAbi: [
+                'function mintReward(address to) external returns (uint256)',
+                'function owner() external view returns (address)'
+            ]
+        };
+
+        const CHAIN_ID = Number(CONFIG?.WEB3_REWARDS?.CHAIN?.ID || 80002);
+        const CHAIN_HEX = CONFIG?.WEB3_REWARDS?.CHAIN?.HEX_ID || '0x13882';
+        const CHAIN_NAME = CONFIG?.WEB3_REWARDS?.CHAIN?.NAME || 'Polygon Amoy';
+        const RPC_URL = CONFIG?.WEB3_REWARDS?.CHAIN?.RPC_URL || 'https://rpc-amoy.polygon.technology';
+        const EXPLORER = CONFIG?.WEB3_REWARDS?.CHAIN?.EXPLORER || 'https://amoy.polygonscan.com';
+        const UMBRAL = Number(CONFIG?.WEB3_REWARDS?.TOKS_UMBRAL_CANJE || 12);
+        const ADMIN_WALLET = (CONFIG?.WEB3_REWARDS?.ADMIN_WALLET || '').toLowerCase();
+        const CONTRACT_ADDRESS = CONFIG?.WEB3_REWARDS?.REWARD_NFT_ADDRESS || '';
 
         document.addEventListener('DOMContentLoaded', () => {
-            configurarEventos();
-            renderTodo();
+            initModal();
+            bindEvents();
+            renderBaseState();
         });
 
-        function configurarEventos() {
-            document.getElementById('buscarClienteInput').addEventListener('input', manejarBusquedaClientes);
-            document.getElementById('buscarClienteInput').addEventListener('focus', manejarBusquedaClientes);
-            document.getElementById('sortToksButton').addEventListener('click', alternarOrdenToks);
-            document.getElementById('abrirModalRegistro').addEventListener('click', abrirModalRegistro);
-            document.getElementById('cerrarModalRegistro').addEventListener('click', cerrarModalRegistro);
-            document.getElementById('registroClienteForm').addEventListener('submit', registrarClienteDesdeModal);
-            document.getElementById('btnOtorgarToks').addEventListener('click', otorgarToksManual);
-            document.getElementById('btnCanjearToks').addEventListener('click', canjearToksCliente);
-            document.getElementById('modalRegistro').addEventListener('click', (event) => {
-                if (event.target.id === 'modalRegistro') cerrarModalRegistro();
+        function initModal() {
+            APP.web3Modal = new window.Web3Modal.default({
+                cacheProvider: false,
+                providerOptions: {
+                    walletconnect: {
+                        package: window.WalletConnectProvider.default,
+                        options: {
+                            projectId: CONFIG?.WEB3_REWARDS?.WALLETCONNECT_PROJECT_ID,
+                            rpc: { [CHAIN_ID]: RPC_URL },
+                            chainId: CHAIN_ID,
+                            qrcode: true,
+                            showQrModal: true
+                        }
+                    }
+                },
+                theme: 'dark'
             });
-            document.addEventListener('click', (event) => {
-                const wrapper = document.querySelector('.search-wrapper');
-                if (!wrapper.contains(event.target)) {
-                    ocultarAutocomplete();
+        }
+
+        function bindEvents() {
+            document.getElementById('btnConnect').addEventListener('click', connectWallet);
+            document.getElementById('btnDisconnect').addEventListener('click', disconnectWallet);
+            document.getElementById('btnSwitchNetwork').addEventListener('click', switchToAmoy);
+            document.getElementById('btnRegisterPurchase').addEventListener('click', registerCookiePurchase);
+            document.getElementById('btnRedeem').addEventListener('click', redeemAndMint);
+        }
+
+        function renderBaseState() {
+            const label = CONTRACT_ADDRESS && /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS)
+                ? CONTRACT_ADDRESS
+                : 'No configurado (actualiza CONFIG.WEB3_REWARDS.REWARD_NFT_ADDRESS)';
+            document.getElementById('contractAddressLabel').textContent = label;
+            addLog('Panel listo. Esperando conexión de billetera.');
+            updateUI();
+        }
+
+        async function connectWallet() {
+            try {
+                if (!APP.web3Modal) initModal();
+                APP.provider = await APP.web3Modal.connect();
+                APP.web3Provider = new ethers.providers.Web3Provider(APP.provider);
+                APP.signer = APP.web3Provider.getSigner();
+                APP.walletAddress = (await APP.signer.getAddress()).toLowerCase();
+                APP.chainId = Number((await APP.web3Provider.getNetwork()).chainId);
+                subscribeProviderEvents();
+                await updateUI();
+                setStatus(`Wallet conectada: ${shortAddress(APP.walletAddress)}`, 'success');
+                addLog(`Wallet conectada: ${APP.walletAddress}`);
+            } catch (error) {
+                setStatus(`No se pudo conectar wallet: ${error.message || error}`, 'error');
+            }
+        }
+
+        function disconnectWallet() {
+            if (APP.provider && typeof APP.provider.disconnect === 'function') {
+                APP.provider.disconnect();
+            }
+            APP.provider = null;
+            APP.web3Provider = null;
+            APP.signer = null;
+            APP.walletAddress = null;
+            APP.chainId = null;
+            updateUI();
+            setStatus('Wallet desconectada.', 'success');
+            addLog('Wallet desconectada.');
+        }
+
+        async function switchToAmoy() {
+            if (!APP.provider || !APP.provider.request) return;
+            try {
+                await APP.provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: CHAIN_HEX }]
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    await APP.provider.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                            chainId: CHAIN_HEX,
+                            chainName: CHAIN_NAME,
+                            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+                            rpcUrls: [RPC_URL],
+                            blockExplorerUrls: [EXPLORER]
+                        }]
+                    });
+                } else {
+                    setStatus(`No fue posible cambiar de red: ${switchError.message || switchError}`, 'error');
+                    return;
                 }
+            }
+            APP.chainId = Number((await APP.web3Provider.getNetwork()).chainId);
+            updateUI();
+            setStatus('Red cambiada a Polygon Amoy.', 'success');
+        }
+
+        function subscribeProviderEvents() {
+            if (!APP.provider || !APP.provider.on) return;
+            APP.provider.on('accountsChanged', (accounts) => {
+                APP.walletAddress = accounts && accounts[0] ? accounts[0].toLowerCase() : null;
+                updateUI();
             });
-        }
-
-        function renderTodo() {
-            renderTablaClientes();
-            renderLeaderboard();
-            renderPerfilCliente();
-        }
-
-        function escaparHTML(texto = '') {
-            return texto
-                .toString()
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function manejarBusquedaClientes() {
-            const termino = document.getElementById('buscarClienteInput').value.trim();
-            const resultados = termino ? sistemaFidelizacion.buscarClientePorNombre(termino) : sistemaFidelizacion.obtenerTodosLosClientes().slice(0, 5);
-            const autocomplete = document.getElementById('autocompleteList');
-
-            if (resultados.length === 0 && !termino) {
-                ocultarAutocomplete();
-                return;
-            }
-
-            const terminoNormalizado = termino.toLowerCase();
-            let html = resultados.map((cliente) => `
-                <div class="autocomplete-item" data-cliente-id="${cliente.id}">
-                    <strong>${escaparHTML(cliente.nombre)}</strong><br>
-                    <small>${escaparHTML(cliente.telefono || 'Sin teléfono')} · ${cliente.toks} TOKs</small>
-                </div>
-            `).join('');
-
-            const existeCoincidenciaExacta = resultados.some((cliente) => cliente.nombre.toLowerCase() === terminoNormalizado);
-            if (termino && !existeCoincidenciaExacta) {
-                html += `
-                    <div class="autocomplete-item" data-registrar-nuevo="true">
-                        <strong>➕ Registrar como nuevo cliente</strong><br>
-                        <small>${escaparHTML(termino)}</small>
-                    </div>
-                `;
-            }
-
-            autocomplete.innerHTML = html;
-            autocomplete.style.display = 'block';
-
-            autocomplete.querySelectorAll('[data-cliente-id]').forEach((item) => {
-                item.addEventListener('click', () => seleccionarCliente(item.dataset.clienteId));
+            APP.provider.on('chainChanged', (chainHex) => {
+                APP.chainId = Number(chainHex);
+                updateUI();
             });
+            APP.provider.on('disconnect', () => disconnectWallet());
+        }
 
-            const opcionRegistro = autocomplete.querySelector('[data-registrar-nuevo="true"]');
-            if (opcionRegistro) {
-                opcionRegistro.addEventListener('click', () => abrirModalRegistro(termino));
+        function readState() {
+            try {
+                return JSON.parse(localStorage.getItem(APP.storageKey) || '{}');
+            } catch (_) {
+                return {};
             }
         }
 
-        function ocultarAutocomplete() {
-            document.getElementById('autocompleteList').style.display = 'none';
+        function writeState(state) {
+            localStorage.setItem(APP.storageKey, JSON.stringify(state));
         }
 
-        function seleccionarCliente(clienteId) {
-            const cliente = sistemaFidelizacion.obtenerCliente(clienteId);
-            if (!cliente) return;
-
-            clienteSeleccionadoId = clienteId;
-            document.getElementById('buscarClienteInput').value = cliente.nombre;
-            ocultarAutocomplete();
-            renderTodo();
+        function getWalletState(address) {
+            const state = readState();
+            const key = (address || '').toLowerCase();
+            if (!state[key]) {
+                state[key] = {
+                    toks: 0,
+                    thresholdCycle: 0,
+                    lastRedeemedCycle: 0,
+                    purchases: 0,
+                    lastMintTx: null
+                };
+                writeState(state);
+            }
+            return state[key];
         }
 
-        function renderPerfilCliente() {
-            const perfil = document.getElementById('perfilCliente');
-            const cliente = clienteSeleccionadoId ? sistemaFidelizacion.obtenerCliente(clienteSeleccionadoId) : null;
+        function saveWalletState(address, walletState) {
+            const state = readState();
+            state[(address || '').toLowerCase()] = walletState;
+            writeState(state);
+        }
 
-            if (!cliente) {
-                perfil.classList.remove('active');
+        function registerCookiePurchase() {
+            if (!APP.walletAddress) return;
+            const ws = getWalletState(APP.walletAddress);
+
+            if (ws.toks >= UMBRAL) {
+                setStatus(`Ya alcanzaste ${UMBRAL} TOKs. Canjea primero para evitar doble umbral.`, 'error');
                 return;
             }
 
-            const nft = sistemaFidelizacion.obtenerNFTActivo(cliente.id);
-            const ventas = sistemaFidelizacion.obtenerVentasCliente(cliente.id).length;
+            ws.toks += Number(CONFIG?.WEB3_REWARDS?.TOKS_POR_GALLETA || 1);
+            ws.purchases += 1;
 
-            document.getElementById('perfilNombre').textContent = cliente.nombre;
-            document.getElementById('perfilTelefono').textContent = `Teléfono: ${cliente.telefono || 'Sin registrar'}`;
-            document.getElementById('perfilRegistro').textContent = `Registrado: ${new Date(cliente.fechaRegistro).toLocaleString('es-MX')}`;
-            document.getElementById('perfilToks').textContent = cliente.toks;
-            document.getElementById('perfilDescuento').textContent = `${sistemaFidelizacion.calcularDescuentoCliente(cliente.id)}%`;
-            document.getElementById('perfilVentas').textContent = ventas;
-            document.getElementById('perfilNft').innerHTML = nft
-                ? `<span class="nft-badge" style="background: ${nft.color};">🏅 NFT ${nft.nombre}</span>`
-                : '<span class="nft-badge">Sin NFT</span>';
+            if (ws.toks === UMBRAL) {
+                ws.thresholdCycle += 1;
+                addLog(`Umbral de ${UMBRAL} TOKs alcanzado para ${shortAddress(APP.walletAddress)}.`);
+            }
 
-            perfil.classList.add('active');
+            saveWalletState(APP.walletAddress, ws);
+            updateUI();
+            setStatus('Compra registrada: +1 TOK.', 'success');
         }
 
-        function alternarOrdenToks() {
-            ordenToksDesc = !ordenToksDesc;
-            document.getElementById('sortToksButton').textContent = `TOKs ${ordenToksDesc ? '↓' : '↑'}`;
-            renderTablaClientes();
-        }
+        async function redeemAndMint() {
+            if (!APP.walletAddress || !APP.signer || APP.mintInFlight) return;
+            const ws = getWalletState(APP.walletAddress);
 
-        function renderTablaClientes() {
-            const tbody = document.getElementById('clientesTableBody');
-            const clientes = sistemaFidelizacion.obtenerTodosLosClientes().sort((a, b) => ordenToksDesc ? b.toks - a.toks : a.toks - b.toks);
-
-            if (clientes.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">Aún no hay clientes registrados.</div>
-                        </td>
-                    </tr>
-                `;
+            if (ws.toks !== UMBRAL) {
+                setStatus(`El canje se habilita exactamente en ${UMBRAL} TOKs.`, 'error');
                 return;
             }
 
-            tbody.innerHTML = clientes.map((cliente) => {
-                const nft = sistemaFidelizacion.obtenerNFTActivo(cliente.id);
-                const ventas = sistemaFidelizacion.obtenerVentasCliente(cliente.id).length;
-                return `
-                    <tr data-cliente-id="${cliente.id}" class="${cliente.id === clienteSeleccionadoId ? 'selected' : ''}">
-                        <td>${escaparHTML(cliente.nombre)}</td>
-                        <td>${escaparHTML(cliente.telefono || '—')}</td>
-                        <td><strong>${cliente.toks}</strong></td>
-                        <td>${nft ? `<span class="nft-badge" style="background:${nft.color};">NFT ${nft.nombre}</span>` : 'Sin NFT'}</td>
-                        <td>${ventas}</td>
-                        <td>${new Date(cliente.fechaRegistro).toLocaleDateString('es-MX')}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            tbody.querySelectorAll('tr[data-cliente-id]').forEach((fila) => {
-                fila.addEventListener('click', () => seleccionarCliente(fila.dataset.clienteId));
-            });
-        }
-
-        function renderLeaderboard() {
-            const contenedor = document.getElementById('leaderboard');
-            const topClientes = sistemaFidelizacion.obtenerLeaderboard(5);
-
-            if (topClientes.length === 0) {
-                contenedor.innerHTML = '<div class="empty-state">Sin clientes aún. Registra el primero para comenzar.</div>';
+            if (ws.lastRedeemedCycle >= ws.thresholdCycle) {
+                setStatus('Este umbral ya fue canjeado. Registra nuevas compras.', 'error');
                 return;
             }
 
-            contenedor.innerHTML = topClientes.map((cliente, indice) => {
-                const nft = cliente.nft;
-                const progreso = cliente.progreso;
-                const textoNivel = progreso.siguienteNivel
-                    ? `Faltan ${progreso.restante} TOKs para ${progreso.siguienteNivel.nombre}`
-                    : 'Nivel máximo alcanzado';
+            if (!/^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS)) {
+                setStatus('Configura la dirección del contrato NFT en CONFIG.WEB3_REWARDS.REWARD_NFT_ADDRESS.', 'error');
+                return;
+            }
 
-                return `
-                    <div class="leader-item">
-                        <div class="leader-top">
-                            <div>
-                                <strong>#${indice + 1} ${escaparHTML(cliente.nombre)}</strong><br>
-                                <small>${nft ? `NFT ${nft.nombre}` : 'Sin NFT'} · ${cliente.toks} TOKs</small>
-                            </div>
-                            <strong>${cliente.toks} 🪙</strong>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar" style="width: ${progreso.porcentaje}%"></div>
-                        </div>
-                        <small style="display:block; margin-top:8px; color:#666;">${textoNivel}</small>
-                    </div>
-                `;
-            }).join('');
-        }
+            if (APP.chainId !== CHAIN_ID) {
+                setStatus('Debes estar en Polygon Amoy para canjear y mintear.', 'error');
+                return;
+            }
 
-        function abrirModalRegistro(nombreSugerido = '') {
-            document.getElementById('registroNombre').value = nombreSugerido;
-            document.getElementById('registroTelefono').value = '';
-            document.getElementById('modalRegistro').classList.add('active');
-        }
-
-        function cerrarModalRegistro() {
-            document.getElementById('modalRegistro').classList.remove('active');
-        }
-
-        function registrarClienteDesdeModal(event) {
-            event.preventDefault();
+            APP.mintInFlight = true;
+            updateUI();
 
             try {
-                const nombre = document.getElementById('registroNombre').value.trim();
-                const telefono = document.getElementById('registroTelefono').value.trim();
-                const cliente = sistemaFidelizacion.registrarCliente(nombre, telefono);
-                clienteSeleccionadoId = cliente.id;
-                document.getElementById('buscarClienteInput').value = cliente.nombre;
-                cerrarModalRegistro();
-                renderTodo();
-                mostrarMensaje(`✅ Cliente registrado: ${cliente.nombre}. Se otorgaron ${CONFIG.TOKENS.TOKS_POR_REGISTRO} TOKs de bienvenida.`, 'success');
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, APP.contractAbi, APP.signer);
+                const tx = await contract.mintReward(APP.walletAddress);
+                const receipt = await tx.wait();
+
+                ws.toks = 0;
+                ws.lastRedeemedCycle = ws.thresholdCycle;
+                ws.lastMintTx = receipt.transactionHash;
+                saveWalletState(APP.walletAddress, ws);
+
+                addLog(`NFT minteado. Tx: ${receipt.transactionHash}`);
+                setStatus(`NFT de recompensa minteado correctamente. Tx: ${receipt.transactionHash}`, 'success');
             } catch (error) {
-                mostrarMensaje(`❌ ${error.message}`, 'error');
+                const textoError = (error?.data?.message || error?.message || 'Error desconocido');
+                setStatus(`No se pudo mintear: ${textoError}`, 'error');
+            } finally {
+                APP.mintInFlight = false;
+                updateUI();
             }
         }
 
-        function otorgarToksManual() {
-            if (!clienteSeleccionadoId) {
-                mostrarMensaje('❌ Selecciona un cliente primero.', 'error');
-                return;
+        function updateUI() {
+            const connected = !!APP.walletAddress;
+            const ws = connected ? getWalletState(APP.walletAddress) : { toks: 0, thresholdCycle: 0, lastRedeemedCycle: 0 };
+            const isAmoy = APP.chainId === CHAIN_ID;
+            const canRedeem = connected && isAmoy && !APP.mintInFlight && ws.toks === UMBRAL && ws.lastRedeemedCycle < ws.thresholdCycle;
+            const canRegisterPurchase = connected && isAmoy && ws.toks < UMBRAL && !APP.mintInFlight;
+
+            document.getElementById('walletAddress').textContent = connected ? APP.walletAddress : 'Sin wallet conectada';
+            document.getElementById('tokBalance').textContent = String(ws.toks || 0);
+            document.getElementById('btnConnect').disabled = connected;
+            document.getElementById('btnDisconnect').disabled = !connected;
+            document.getElementById('btnRegisterPurchase').disabled = !canRegisterPurchase;
+            document.getElementById('btnRedeem').disabled = !canRedeem;
+            document.getElementById('btnSwitchNetwork').disabled = !connected || isAmoy;
+
+            const chainBadge = document.getElementById('chainBadge');
+            if (!connected) {
+                chainBadge.textContent = 'Red no detectada';
+                chainBadge.className = 'badge';
+            } else if (isAmoy) {
+                chainBadge.textContent = '✅ Polygon Amoy conectada';
+                chainBadge.className = 'badge ok';
+            } else {
+                chainBadge.textContent = `⚠ Red actual: chainId ${APP.chainId || 'N/A'}`;
+                chainBadge.className = 'badge';
             }
 
-            const cantidad = Number(document.getElementById('manualToksCantidad').value);
-            const motivo = document.getElementById('manualToksMotivo').value.trim() || 'bonus';
-
-            if (!cantidad || cantidad <= 0) {
-                mostrarMensaje('❌ Ingresa una cantidad válida de TOKs.', 'error');
-                return;
-            }
-
-            sistemaFidelizacion.otorgarToks(clienteSeleccionadoId, cantidad, motivo);
-            const nftNuevo = sistemaFidelizacion.verificarYEmitirNFT(clienteSeleccionadoId);
-            document.getElementById('manualToksCantidad').value = '';
-            document.getElementById('manualToksMotivo').value = '';
-            renderTodo();
-
-            const mensajeNft = nftNuevo ? ` 🎉 Nuevo NFT ${nftNuevo.nombre} desbloqueado.` : '';
-            mostrarMensaje(`✅ Se otorgaron ${cantidad} TOKs al cliente.${mensajeNft}`, 'success');
+            const faltantes = Math.max(0, UMBRAL - Number(ws.toks || 0));
+            const hint = ws.toks === UMBRAL
+                ? `¡Listo! Tienes exactamente ${UMBRAL} TOKs. Ya puedes canjear y mintear.`
+                : `Faltan ${faltantes} TOKs para desbloquear canje.`;
+            document.getElementById('tokHint').textContent = hint;
         }
 
-        function canjearToksCliente() {
-            if (!clienteSeleccionadoId) {
-                mostrarMensaje('❌ Selecciona un cliente primero.', 'error');
-                return;
-            }
-
-            const cantidad = Number(document.getElementById('canjeToksCantidad').value);
-            if (!cantidad || cantidad <= 0) {
-                mostrarMensaje('❌ Ingresa una cantidad válida para canjear.', 'error');
-                return;
-            }
-
-            const exitoso = sistemaFidelizacion.canjearToks(clienteSeleccionadoId, cantidad);
-            if (!exitoso) {
-                mostrarMensaje('❌ El cliente no tiene TOKs suficientes para este canje.', 'error');
-                return;
-            }
-
-            document.getElementById('canjeToksCantidad').value = '';
-            renderTodo();
-            mostrarMensaje(`✅ Se canjearon ${cantidad} TOKs correctamente.`, 'success');
+        function shortAddress(address) {
+            if (!address) return '';
+            return `${address.slice(0, 6)}...${address.slice(-4)}`;
         }
 
-        function mostrarMensaje(texto, tipo) {
-            const mensaje = document.getElementById('statusMessage');
-            mensaje.textContent = texto;
-            mensaje.className = `status-message ${tipo}`;
+        function addLog(message) {
+            const list = document.getElementById('eventLog');
+            const item = document.createElement('li');
+            const timestamp = new Date().toLocaleString('es-MX');
+            item.textContent = `[${timestamp}] ${message}`;
+            list.prepend(item);
+            while (list.children.length > 8) {
+                list.removeChild(list.lastChild);
+            }
+        }
 
-            setTimeout(() => {
-                mensaje.className = 'status-message';
-                mensaje.textContent = '';
-            }, 4000);
+        function setStatus(message, type = '') {
+            const el = document.getElementById('status');
+            el.textContent = message;
+            el.className = `status ${type}`.trim();
         }
     </script>
 </body>

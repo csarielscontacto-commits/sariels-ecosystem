@@ -60,6 +60,26 @@ const CONFIG = {
         STORAGE_CLIENTES: 'clientes_fidelizacion',
         STORAGE_NFTS: 'nfts_emitidos'
     },
+
+    // ============================================
+    // CONFIGURACIÓN WEB3 RECOMPENSAS (AMOY)
+    // ============================================
+    WEB3_REWARDS: {
+        ADMIN_WALLET: '0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b',
+        ROYALTY_BPS: 1000, // 10%
+        TOKS_POR_GALLETA: 1,
+        TOKS_UMBRAL_CANJE: 12,
+        CHAIN: {
+            ID: 80002,
+            HEX_ID: '0x13882',
+            NAME: 'Polygon Amoy',
+            SYMBOL: 'POL',
+            RPC_URL: 'https://rpc-amoy.polygon.technology',
+            EXPLORER: 'https://amoy.polygonscan.com'
+        },
+        WALLETCONNECT_PROJECT_ID: 'YOUR_WALLETCONNECT_PROJECT_ID',
+        REWARD_NFT_ADDRESS: '0x0000000000000000000000000000000000000000'
+    },
     
     // ============================================
     // CONFIGURACIÓN DE METAS Y OBJETIVOS
