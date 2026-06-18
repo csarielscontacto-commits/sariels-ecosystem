@@ -178,6 +178,7 @@ npm run test
 2. Configura:
    - `AMOY_RPC_URL`
    - `PRIVATE_KEY` (wallet de despliegue/autorizada)
+   - `ADMIN_WALLET` (por defecto la wallet de regalías/autoridad)
    - `POLYGONSCAN_API_KEY` (opcional)
 
 ### Desplegar a Amoy

@@ -22,7 +22,7 @@ contract CookieRewardNFT is ERC721, ERC2981, Ownable {
         require(adminWallet != address(0), "Admin wallet invalida");
         _baseTokenURI = baseTokenURI_;
 
-        _setDefaultRoyalty(adminWallet, 1000);
+        _setDefaultRoyalty(adminWallet, 1000); // 1000 bps = 10%
         authorizedMinters[adminWallet] = true;
         emit AuthorizedMinterUpdated(adminWallet, true);
     }

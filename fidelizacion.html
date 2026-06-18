@@ -288,9 +288,9 @@
     </div>
 
     <script src="config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
-    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <script src="assets/vendor/ethers.umd.min.js"></script>
+    <script src="assets/vendor/web3modal.min.js"></script>
+    <script src="assets/vendor/walletconnect-web3-provider.min.js"></script>
     <script>
         const APP = {
             provider: null,
@@ -298,6 +298,7 @@
             signer: null,
             walletAddress: null,
             chainId: null,
+            providerListeners: null,
             web3Modal: null,
             mintInFlight: false,
             storageKey: 'web3_cookie_rewards_v1',
@@ -313,8 +314,8 @@
         const RPC_URL = CONFIG?.WEB3_REWARDS?.CHAIN?.RPC_URL || 'https://rpc-amoy.polygon.technology';
         const EXPLORER = CONFIG?.WEB3_REWARDS?.CHAIN?.EXPLORER || 'https://amoy.polygonscan.com';
         const UMBRAL = Number(CONFIG?.WEB3_REWARDS?.TOKS_UMBRAL_CANJE || 12);
-        const ADMIN_WALLET = (CONFIG?.WEB3_REWARDS?.ADMIN_WALLET || '').toLowerCase();
         const CONTRACT_ADDRESS = CONFIG?.WEB3_REWARDS?.REWARD_NFT_ADDRESS || '';
+        const WALLETCONNECT_PROJECT_ID = CONFIG?.WEB3_REWARDS?.WALLETCONNECT_PROJECT_ID || '';
 
         document.addEventListener('DOMContentLoaded', () => {
             initModal();
@@ -329,7 +330,7 @@
                     walletconnect: {
                         package: window.WalletConnectProvider.default,
                         options: {
-                            projectId: CONFIG?.WEB3_REWARDS?.WALLETCONNECT_PROJECT_ID,
+                            projectId: WALLETCONNECT_PROJECT_ID,
                             rpc: { [CHAIN_ID]: RPC_URL },
                             chainId: CHAIN_ID,
                             qrcode: true,
@@ -355,6 +356,9 @@
                 : 'No configurado (actualiza CONFIG.WEB3_REWARDS.REWARD_NFT_ADDRESS)';
             document.getElementById('contractAddressLabel').textContent = label;
             addLog('Panel listo. Esperando conexión de billetera.');
+            if (!WALLETCONNECT_PROJECT_ID || WALLETCONNECT_PROJECT_ID === 'YOUR_WALLETCONNECT_PROJECT_ID') {
+                addLog('Configura WALLETCONNECT_PROJECT_ID para conexión QR móvil en producción.');
+            }
             updateUI();
         }
 
@@ -384,6 +388,7 @@
             APP.signer = null;
             APP.walletAddress = null;
             APP.chainId = null;
+            APP.providerListeners = null;
             updateUI();
             setStatus('Wallet desconectada.', 'success');
             addLog('Wallet desconectada.');
@@ -420,15 +425,27 @@
 
         function subscribeProviderEvents() {
             if (!APP.provider || !APP.provider.on) return;
-            APP.provider.on('accountsChanged', (accounts) => {
-                APP.walletAddress = accounts && accounts[0] ? accounts[0].toLowerCase() : null;
-                updateUI();
-            });
-            APP.provider.on('chainChanged', (chainHex) => {
-                APP.chainId = Number(chainHex);
-                updateUI();
-            });
-            APP.provider.on('disconnect', () => disconnectWallet());
+            if (APP.providerListeners && APP.provider.removeListener) {
+                APP.provider.removeListener('accountsChanged', APP.providerListeners.accountsChanged);
+                APP.provider.removeListener('chainChanged', APP.providerListeners.chainChanged);
+                APP.provider.removeListener('disconnect', APP.providerListeners.disconnect);
+            }
+
+            APP.providerListeners = {
+                accountsChanged: (accounts) => {
+                    APP.walletAddress = accounts && accounts[0] ? accounts[0].toLowerCase() : null;
+                    updateUI();
+                },
+                chainChanged: (chainHex) => {
+                    APP.chainId = Number(chainHex);
+                    updateUI();
+                },
+                disconnect: () => disconnectWallet()
+            };
+
+            APP.provider.on('accountsChanged', APP.providerListeners.accountsChanged);
+            APP.provider.on('chainChanged', APP.providerListeners.chainChanged);
+            APP.provider.on('disconnect', APP.providerListeners.disconnect);
         }
 
         function readState() {
@@ -527,7 +544,7 @@
                 addLog(`NFT minteado. Tx: ${receipt.transactionHash}`);
                 setStatus(`NFT de recompensa minteado correctamente. Tx: ${receipt.transactionHash}`, 'success');
             } catch (error) {
-                const textoError = (error?.data?.message || error?.message || 'Error desconocido');
+                const textoError = error?.data?.message || error?.message || 'Transacción rechazada por wallet, red o permisos de minteo.';
                 setStatus(`No se pudo mintear: ${textoError}`, 'error');
             } finally {
                 APP.mintInFlight = false;
