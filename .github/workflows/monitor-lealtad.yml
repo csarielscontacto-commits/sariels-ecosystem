@@ -10,17 +10,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Ejecutar consulta
-        env:
-          ALCHEMY_API_URL: ${{ secrets.ALCHEMY_API_URL }}
         run: |
-          curl $ALCHEMY_API_URL \
+          curl https://rpc-amoy.polygon.technology \
           -X POST -H "Content-Type: application/json" \
-          -d '{"jsonrpc":"2.0","method":"alchemy_getAssetTransfers","params":[{"fromBlock": "0x0","category": ["erc20"],"fromAddress": "0x994b342dd87fc825f66e51ffa3ef71ad818b6893"}],"id":0}' > transacciones.json
+          -d '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b","latest"],"id":1}' \
+          -o transacciones.json --silent --fail || echo '{"error":"RPC no disponible"}' > transacciones.json
       - name: Guardar resultados
         run: |
           git config user.name "Sariel-Bot"
           git config user.email "bot@sariel.com"
           git add transacciones.json
-          git commit -m "Actualizacion automatica de transacciones"
+          git diff --staged --quiet || git commit -m "Actualizacion automatica de transacciones"
           git push
 
