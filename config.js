@@ -77,7 +77,7 @@ const CONFIG = {
             RPC_URL: 'https://rpc-amoy.polygon.technology',
             EXPLORER: 'https://amoy.polygonscan.com'
         },
-        WALLETCONNECT_PROJECT_ID: 'YOUR_WALLETCONNECT_PROJECT_ID',
+        WALLETCONNECT_PROJECT_ID: 'bdb1ed42d90dc3ee390251a83230bf9b',
         REWARD_NFT_ADDRESS: '0x0000000000000000000000000000000000000000'
     },
     
