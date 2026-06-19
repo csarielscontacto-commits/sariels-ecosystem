@@ -78,7 +78,11 @@ const CONFIG = {
             EXPLORER: 'https://amoy.polygonscan.com'
         },
         WALLETCONNECT_PROJECT_ID: 'bdb1ed42d90dc3ee390251a83230bf9b',
-        REWARD_NFT_ADDRESS: '0x0000000000000000000000000000000000000000'
+        REWARD_NFT_ADDRESS: '0x0000000000000000000000000000000000000000',
+        STOK_CONTRACT_ADDRESS: '0x0000000000000000000000000000000000000000',
+        SNFT_CONTRACT_ADDRESS: '0x0000000000000000000000000000000000000000',
+        QR_CODES_URL: 'https://raw.githubusercontent.com/csarielscontacto-commits/sariels-ecosystem/main/data/codigos-qr.json',
+        CLAIM_PAGE_URL: 'https://csarielscontacto-commits.github.io/sariels-ecosystem/claim.html'
     },
     
     // ============================================

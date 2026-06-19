@@ -3,392 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador QR - Sariel's Ecosystem</title>
+    <title>Admin QR - Sariel's</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --ok: #22c55e;
+            --muted: #64748b;
         }
+
+        * { box-sizing: border-box; }
 
         body {
+            margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             min-height: 100vh;
+            color: #0f172a;
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            margin-bottom: 14px;
+        }
+
+        h1 { margin: 0 0 8px; }
+        .muted { color: var(--muted); margin: 0; }
+
+        .row {
             display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
         }
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
-            font-size: 2em;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-        }
-
-        .opciones {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .opcion {
-            padding: 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .opcion:hover {
-            border-color: #667eea;
-            background: #f5f5ff;
-            transform: translateY(-2px);
-        }
-
-        .opcion.activa {
-            border-color: #667eea;
-            background: #667eea;
-            color: white;
-        }
-
-        .opcion h3 {
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .opcion p {
-            font-size: 0.9em;
-            opacity: 0.7;
-        }
-
-        .contenedor-qr {
-            text-align: center;
-            margin: 30px 0;
-            padding: 30px;
-            background: #f9f9f9;
-            border-radius: 12px;
-            border: 2px dashed #ddd;
-            min-height: 320px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #qrcode {
-            display: inline-block;
-        }
-
-        #qrcode img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        .botones {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
+        input, button {
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            padding: 10px 12px;
+            font-size: 0.95rem;
         }
 
         button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            background: var(--primary);
+            border: 0;
+            color: #fff;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95em;
         }
 
-        .btn-descargar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            grid-column: 1 / -1;
+        button.secondary { background: #475569; }
+
+        .badge {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
         }
 
-        .btn-descargar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .badge.disponible { background: #dcfce7; color: #166534; }
+        .badge.reclamado { background: #fee2e2; color: #991b1b; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
         }
 
-        .btn-copiar {
-            background: #e0e0e0;
-            color: #333;
+        .qr-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+            page-break-inside: avoid;
         }
 
-        .btn-copiar:hover {
-            background: #d0d0d0;
+        .qr {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+            min-height: 130px;
+            align-items: center;
         }
 
-        .btn-volver {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-volver:hover {
-            background: #e0e0e0;
-        }
-
-        .url-mostrada {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.78rem;
             word-break: break-all;
-            font-size: 0.9em;
-            color: #666;
-            font-family: 'Courier New', monospace;
-            border-left: 4px solid #667eea;
-        }
-
-        .info {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 15px;
+            background: #f8fafc;
             border-radius: 8px;
-            margin: 20px 0;
-            font-size: 0.9em;
-            line-height: 1.6;
+            padding: 8px;
         }
 
-        .info strong {
-            display: block;
-            margin-bottom: 5px;
-        }
+        .hidden { display: none !important; }
 
-        .info-crypto {
-            background: #f0f4c3;
-            color: #9ccc65;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-size: 0.9em;
-            line-height: 1.6;
-            border-left: 4px solid #7cb342;
-        }
-
-        .info-crypto strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #558b2f;
-        }
-
-        .direccion-wallet {
-            background: #fff3cd;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            word-break: break-all;
-            border-left: 4px solid #ffc107;
-        }
-
-        .seccion-inicio {
-            display: block;
-        }
-
-        .seccion-qr {
-            display: none;
-        }
-
-        .seccion-qr.activa {
-            display: block;
-        }
-
-        .metodos-pago {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-size: 0.9em;
-            border-left: 4px solid #4caf50;
-        }
-
-        .metodos-pago strong {
-            display: block;
-            color: #2e7d32;
-            margin-bottom: 8px;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
-
-            .botones {
-                grid-template-columns: 1fr;
-            }
+        @media print {
+            body { background: #fff; }
+            #authCard, #controls { display: none !important; }
+            .card { box-shadow: none; padding: 0; }
+            .grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- SECCIÓN INICIO: Seleccionar opción -->
-        <div class="seccion-inicio" id="seccionInicio">
-            <h1>📱 Generador QR</h1>
-            <p class="subtitle">Sariel's Ecosystem - Ventas en Tiempo Real</p>
+    <div class="wrap">
+        <section class="card" id="authCard">
+            <h1>🔐 Panel Admin de QRs - Sariel's</h1>
+            <p class="muted">Ingresa la contraseña para administrar e imprimir etiquetas.</p>
+            <div class="row">
+                <input type="password" id="passwordInput" placeholder="Contraseña admin">
+                <button id="loginBtn">Entrar</button>
+            </div>
+            <p class="muted" id="authMsg"></p>
+        </section>
 
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">
-                Elige qué página quieres en el QR:
-            </p>
+        <section class="card hidden" id="panelCard">
+            <h1>🍪 Códigos QR de Reclamo</h1>
+            <p class="muted">Cada etiqueta apunta a <strong>claim.html?code=SarielTO#XXX</strong>.</p>
 
-            <div class="opciones">
-                <div class="opcion" onclick="seleccionarOpcion('dashboard', this)">
-                    <h3>📊 Dashboard Central</h3>
-                    <p>Ver todas las ventas en tiempo real</p>
-                </div>
-
-                <div class="opcion" onclick="seleccionarOpcion('registro', this)">
-                    <h3>📝 Registrar Venta</h3>
-                    <p>Registrar nueva venta directamente</p>
-                </div>
-
-                <div class="opcion" onclick="seleccionarOpcion('pagos', this)">
-                    <h3>💳 Métodos de Pago</h3>
-                    <p>USDT y USDC en Polygon</p>
-                </div>
+            <div id="controls" class="row">
+                <input type="number" id="limitInput" min="1" value="50" style="max-width:120px;">
+                <button id="reloadBtn">Actualizar estado</button>
+                <button class="secondary" id="printBtn">Imprimir etiquetas</button>
             </div>
 
-            <div class="info">
-                <strong>💡 ¿Cuál elegir?</strong>
-                <br>✅ Dashboard: Para gerentes/supervisores
-                <br>✅ Registro: Para vendedores en campo
-                <br>✅ Métodos de Pago: Para clientes
+            <div class="row">
+                <span class="badge disponible">Disponibles: <span id="availableCount">0</span></span>
+                <span class="badge reclamado">Reclamados: <span id="claimedCount">0</span></span>
             </div>
-        </div>
+        </section>
 
-        <!-- SECCIÓN QR: Mostrar y descargar -->
-        <div class="seccion-qr" id="seccionQR">
-            <h1>📱 Tu QR está Listo</h1>
-            <p class="subtitle" id="subtituloQR"></p>
-
-            <div class="url-mostrada" id="urlMostrada"></div>
-
-            <div class="contenedor-qr">
-                <div id="qrcode"></div>
-            </div>
-
-            <div class="botones">
-                <button class="btn-copiar" onclick="copiarURL()">📋 Copiar URL</button>
-                <button class="btn-copiar" onclick="descargarQR()">📥 Descargar QR</button>
-                <button class="btn-descargar" onclick="volverInicio()">← Volver Atrás</button>
-            </div>
-
-            <div class="info">
-                <strong>✅ QR Estático</strong>
-                <br>Este QR no cambiará. Puedes imprimirlo, colocarlo en tu negocio, en cartas, etc.
-                <br>Siempre llevará a la misma página.
-            </div>
-        </div>
+        <section class="card hidden" id="gridCard">
+            <div class="grid" id="qrGrid"></div>
+        </section>
     </div>
 
+    <script src="config.js"></script>
     <script>
-        let urlSeleccionada = '';
-        let qrcodeInstance = null;
+        const ADMIN_PASSWORD = 'sariels-admin-2026';
+        const CODES_URL = './data/codigos-qr.json';
 
-        // URLs configuradas
-        const URLs = {
-            dashboard: 'https://csarielscontacto-commits.github.io/sariels-ecosystem/dashboard-central.html',
-            registro: 'https://csarielscontacto-commits.github.io/sariels-ecosystem/registro-ventas-centralizado.html',
-            pagos: 'https://csarielscontacto-commits.github.io/sariels-ecosystem/metodos-pago.html'
+        const state = {
+            codes: []
         };
 
-        const TITULOS = {
-            dashboard: '📊 Dashboard Central - Ventas en Tiempo Real',
-            registro: '📝 Registrar Venta - Formulario',
-            pagos: '💳 Métodos de Pago - USDT y USDC'
-        };
+        const $ = (id) => document.getElementById(id);
 
-        function seleccionarOpcion(tipo, elemento) {
-            // Activar opción
-            document.querySelectorAll('.opcion').forEach(op => op.classList.remove('activa'));
-            elemento.classList.add('activa');
-
-            // Obtener URL
-            urlSeleccionada = URLs[tipo];
-
-            // Mostrar QR
-            setTimeout(() => {
-                document.getElementById('seccionInicio').classList.remove('activa');
-                document.getElementById('seccionQR').classList.add('activa');
-                document.getElementById('subtituloQR').textContent = TITULOS[tipo];
-                document.getElementById('urlMostrada').textContent = urlSeleccionada;
-
-                // Generar QR
-                generarQR(urlSeleccionada);
-            }, 300);
+        function setAuthMessage(message, isError = false) {
+            const el = $('authMsg');
+            el.textContent = message;
+            el.style.color = isError ? '#b91c1c' : '#64748b';
         }
 
-        function generarQR(url) {
-            // Limpiar QR anterior
-            document.getElementById('qrcode').innerHTML = '';
+        async function loadCodes() {
+            const response = await fetch(CODES_URL, { cache: 'no-store' });
+            if (!response.ok) throw new Error('No se pudo cargar data/codigos-qr.json');
+            state.codes = await response.json();
+            return state.codes;
+        }
 
-            // Generar nuevo QR
-            qrcodeInstance = new QRCode(document.getElementById('qrcode'), {
-                text: url,
-                width: 256,
-                height: 256,
-                correctLevel: QRCode.CorrectLevel.H,
-                useSVG: false
+        function updateStats(codes) {
+            const available = codes.filter((item) => item.estado === 'disponible').length;
+            const claimed = codes.length - available;
+            $('availableCount').textContent = String(available);
+            $('claimedCount').textContent = String(claimed);
+        }
+
+        function renderQRCards(codes) {
+            const grid = $('qrGrid');
+            grid.innerHTML = '';
+
+            const max = Math.max(1, Number($('limitInput').value || 50));
+            const selected = codes.slice(0, max);
+
+            selected.forEach((item) => {
+                const card = document.createElement('article');
+                card.className = 'qr-card';
+
+                const statusClass = item.estado === 'disponible' ? 'disponible' : 'reclamado';
+                card.innerHTML = `
+                    <strong>${item.codigo}</strong>
+                    <div class="row" style="margin-top:6px; margin-bottom:4px;">
+                        <span class="badge ${statusClass}">${item.estado}</span>
+                    </div>
+                    <div class="qr" id="qr-${item.id}"></div>
+                    <div class="mono">${item.url_claim}</div>
+                `;
+
+                grid.appendChild(card);
+
+                new QRCode(document.getElementById(`qr-${item.id}`), {
+                    text: item.url_claim,
+                    width: 120,
+                    height: 120,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
             });
         }
 
-        function copiarURL() {
-            navigator.clipboard.writeText(urlSeleccionada).then(() => {
-                alert('✅ URL copiada al portapapeles');
-            }).catch(err => {
-                console.error('Error al copiar:', err);
-                alert('No se pudo copiar la URL');
-            });
+        async function reloadData() {
+            const codes = await loadCodes();
+            updateStats(codes);
+            renderQRCards(codes);
         }
 
-        function descargarQR() {
-            const canvas = document.querySelector('#qrcode canvas');
-            if (canvas) {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = `qr-sariel-${new Date().getTime()}.png`;
-                link.click();
+        function unlockPanel() {
+            $('authCard').classList.add('hidden');
+            $('panelCard').classList.remove('hidden');
+            $('gridCard').classList.remove('hidden');
+            reloadData().catch((error) => alert(error.message));
+        }
+
+        $('loginBtn').addEventListener('click', () => {
+            const pass = $('passwordInput').value;
+            if (pass !== ADMIN_PASSWORD) {
+                setAuthMessage('Contraseña incorrecta.', true);
+                return;
             }
-        }
+            unlockPanel();
+        });
 
-        function volverInicio() {
-            document.getElementById('seccionQR').classList.remove('activa');
-            document.getElementById('seccionInicio').classList.add('activa');
-            document.querySelectorAll('.opcion').forEach(op => op.classList.remove('activa'));
-            document.getElementById('qrcode').innerHTML = '';
-        }
+        $('reloadBtn').addEventListener('click', () => {
+            reloadData().catch((error) => alert(error.message));
+        });
 
-        // Mostrar sección inicio al cargar
-        window.addEventListener('load', () => {
-            document.getElementById('seccionInicio').classList.add('activa');
+        $('limitInput').addEventListener('change', () => {
+            renderQRCards(state.codes);
+        });
+
+        $('printBtn').addEventListener('click', () => {
+            window.print();
         });
     </script>
 </body>
