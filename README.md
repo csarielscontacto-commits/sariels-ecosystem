@@ -350,3 +350,5 @@ Para preguntas o problemas, revisa la consola del navegador (F12) para ver los l
 **Versión**: 1.0.0  
 **Última actualización**: 2026-06-16  
 **Autor**: Sariel's Ecosystem Team
+
+ - Proyecto desplegado con éxito.
