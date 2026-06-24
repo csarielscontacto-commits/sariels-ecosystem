@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control de Sariel · IA Predictiva</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script src="../config.js" defer></script>
+    <script src="./js/models.js" defer></script>
+</head>
+<body>
+    <div class="shell">
+        <header class="topbar hero panel">
+            <div class="brand">
+                <span class="eyebrow">IA predictiva</span>
+                <h1>Panel de Control de Sariel</h1>
+                <p>Visión ejecutiva de ventas, retención, recomendaciones y economía TOK con persistencia local.</p>
+            </div>
+            <div class="actions">
+                <a class="btn btn-primary" href="../dashboard-central.html">Dashboard central</a>
+                <a class="btn" href="../fidelizacion.html">Fidelización</a>
+            </div>
+        </header>
+
+        <section class="metrics-grid" aria-label="Métricas globales">
+            <article class="metric-card accent">
+                <div class="metric-label">Ventas totales</div>
+                <div class="metric-value" id="metricVentasTotales">--</div>
+                <span class="metric-trend positive" id="metricCrecimientoVentas">--</span>
+            </article>
+            <article class="metric-card success">
+                <div class="metric-label">Clientes activos</div>
+                <div class="metric-value" id="metricClientesActivos">--</div>
+                <span class="metric-trend positive">últimos 30 días</span>
+            </article>
+            <article class="metric-card">
+                <div class="metric-label">TOKs en circulación</div>
+                <div class="metric-value" id="metricToksCirculacion">--</div>
+                <span class="metric-trend neutral" id="metricVariacionToks">--</span>
+            </article>
+            <article class="metric-card">
+                <div class="metric-label">Tasa de retención</div>
+                <div class="metric-value" id="metricRetencion">--</div>
+                <span class="metric-trend" id="metricRiesgoChurn">--</span>
+            </article>
+        </section>
+
+        <section class="nav-grid" aria-label="Accesos rápidos">
+            <a class="nav-card" href="./dashboard-ventas.html">
+                <strong>Predicción de ventas</strong>
+                <span>Tendencia semanal, producto estrella y proyección mensual del negocio de galletas.</span>
+                <span class="kicker">Abrir dashboard →</span>
+            </a>
+            <a class="nav-card" href="./dashboard-churn.html">
+                <strong>Riesgo de abandono</strong>
+                <span>Segmentación por recencia y frecuencia para priorizar campañas de retención.</span>
+                <span class="kicker">Abrir dashboard →</span>
+            </a>
+            <a class="nav-card" href="./dashboard-recomendaciones.html">
+                <strong>Recomendaciones inteligentes</strong>
+                <span>Combos sugeridos, próximas compras y campañas personalizadas.</span>
+                <span class="kicker">Abrir dashboard →</span>
+            </a>
+            <a class="nav-card" href="./dashboard-toks.html">
+                <strong>Analítica TOKs / NFTs</strong>
+                <span>Emisión, canje, circulación y predicción del programa de fidelización.</span>
+                <span class="kicker">Abrir dashboard →</span>
+            </a>
+        </section>
+
+        <section class="two-columns">
+            <article class="insight-card">
+                <div class="section-head">
+                    <h2>Resumen ejecutivo</h2>
+                    <span class="status-pill positive">auto refresh 5 min</span>
+                </div>
+                <ul class="insight-list" id="resumenEjecutivo"></ul>
+            </article>
+            <article class="list-card">
+                <div class="section-head">
+                    <h2>Señales clave</h2>
+                    <span class="table-caption" id="ultimaActualizacion">Actualizando...</span>
+                </div>
+                <div class="mini-grid" id="senalesClave"></div>
+            </article>
+        </section>
+
+        <p class="footer-note">Datos simulados y persistidos en <code>localStorage</code>, listos para futura conexión con API propia o GitHub Gist.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const renderizar = () => {
+                const ventas = new window.ModeloPredictivoVentas();
+                const churn = new window.ModeloChurn();
+                const recomendaciones = new window.ModeloRecomendacion();
+                const toks = new window.ModeloToks();
+
+                const resumenVentas = ventas.obtenerResumenGeneral();
+                const resumenChurn = churn.obtenerResumenRiesgo();
+                const resumenRecomendaciones = recomendaciones.obtenerResumen();
+                const resumenToks = toks.obtenerResumen();
+
+                document.getElementById('metricVentasTotales').textContent = window.SarielIA.formatearMoneda(resumenVentas.ingresoTotal);
+                document.getElementById('metricCrecimientoVentas').textContent = `${resumenVentas.crecimiento >= 0 ? '+' : ''}${resumenVentas.crecimiento}% semanal`;
+                document.getElementById('metricClientesActivos').textContent = window.SarielIA.formatearNumero(resumenVentas.clientesActivos);
+                document.getElementById('metricToksCirculacion').textContent = window.SarielIA.formatearNumero(resumenToks.circulacion);
+                document.getElementById('metricVariacionToks').textContent = `${resumenToks.prediccion.circulacion7d >= 0 ? '+' : ''}${window.SarielIA.formatearNumero(resumenToks.prediccion.circulacion7d)} próximos 7d`;
+                document.getElementById('metricRetencion').textContent = `${resumenChurn.tasaRetencion}%`;
+                const riesgoBadge = document.getElementById('metricRiesgoChurn');
+                riesgoBadge.textContent = `${resumenChurn.altos} clientes en riesgo alto`;
+                riesgoBadge.className = `metric-trend ${resumenChurn.altos > 2 ? 'alert' : 'positive'}`;
+
+                document.getElementById('resumenEjecutivo').innerHTML = [
+                    ventas.generarInsightEjecutivo(),
+                    churn.generarInsightEjecutivo(),
+                    recomendaciones.generarInsightEjecutivo(),
+                    toks.generarInsightEjecutivo()
+                ].map((texto) => `<li>${texto}</li>`).join('');
+
+                document.getElementById('senalesClave').innerHTML = `
+                    <div class="mini-card"><span class="muted">Producto estrella</span><strong>${resumenVentas.productoEstrella.nombre}</strong></div>
+                    <div class="mini-card"><span class="muted">Combo sugerido</span><strong>${resumenRecomendaciones.comboGanador}</strong></div>
+                    <div class="mini-card"><span class="muted">Clientes con NFT</span><strong>${window.SarielIA.formatearNumero(resumenToks.clientesConNFT)}</strong></div>
+                    <div class="mini-card"><span class="muted">Score churn</span><strong>${resumenChurn.promedioScore}/100</strong></div>
+                `;
+                document.getElementById('ultimaActualizacion').textContent = `Actualizado ${window.SarielIA.formatearFecha(new Date(), true)}`;
+            };
+
+            window.SarielIA.programarActualizacion(renderizar);
+        });
+    </script>
+</body>
+</html>

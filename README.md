@@ -46,6 +46,7 @@ Sistema de gestión de ventas en tiempo real con **sincronización centralizada*
 - **Dashboard Central**: `dashboard-central.html`
 - **Registrar Venta**: `registro-ventas-centralizado.html`
 - **Panel de Fidelización**: `fidelizacion.html`
+- **Panel IA Predictiva**: `ia-predictiva/index.html`
 
 ### 🌐 Acceso Online
 - **Dashboard**: https://csarielscontacto-commits.github.io/sariels-ecosystem/dashboard-central.html
@@ -81,6 +82,7 @@ const CONFIG = {
 | `fidelizacion.html` | Panel de clientes, TOKs y NFTs |
 | `registro-ventas-centralizado.html` | Formulario para registrar ventas |
 | `index.html` | Página de inicio (heredada) |
+| `ia-predictiva/` | Panel y dashboards de IA predictiva en navegador |
 
 ### Archivos JavaScript (Lógica)
 | Archivo | Descripción |
