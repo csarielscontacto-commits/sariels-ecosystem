@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Dashboard IA - Ecosistema Sariel</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Dashboard de Inteligencia Predictiva</h1>
+        <p class="subtitle">Datos en tiempo real · IA activa · Mensajes automáticos</p>
+
+        <section id="metricas-globales">
+            <div class="card">
+                <h3>Clientes en Riesgo</h3>
+                <div class="numero" id="clientesRiesgo">0</div>
+                <div class="sub">⚠️ Churn &gt; 70%</div>
+            </div>
+            <div class="card">
+                <h3>Ventas Estimadas (7d)</h3>
+                <div class="numero" id="ventasEstimadas">0</div>
+                <div class="sub">📈 Tendencia +20%</div>
+            </div>
+            <div class="card">
+                <h3>Mensajes Generados</h3>
+                <div class="numero" id="totalMensajes">0</div>
+                <div class="sub">📨 Últimas 24h</div>
+            </div>
+        </section>
+
+        <section id="feed-mensajes">
+            <h2>📨 Feed de Mensajes Automáticos</h2>
+            <div id="contenedor-mensajes">
+                <div style="color:#8892b0; text-align:center; padding:30px;">
+                    ⏳ Esperando mensajes...
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/models.js"></script>
+    <script src="js/mensajes.js"></script>
+    <script>
+        function obtenerResultadosFallback() {
+            const modeloChurn = typeof ModeloChurn === 'function' ? new ModeloChurn() : null;
+            const modeloVentas = typeof ModeloPredictivoVentas === 'function' ? new ModeloPredictivoVentas() : null;
+
+            return {
+                churn: {
+                    data: modeloChurn ? modeloChurn.obtenerSegmentos().map(cliente => ({
+                        ...cliente,
+                        riesgo: cliente.score
+                    })) : []
+                },
+                prediccion: {
+                    data: {
+                        ventasEsperadas: modeloVentas ? modeloVentas.obtenerSerieSemanal(7).reduce((total, dia) => total + dia.ingreso, 0) : 0
+                    }
+                }
+            };
+        }
+
+        function cargarResultadosDashboard() {
+            if (typeof cargarResultadosIA === 'function') {
+                return cargarResultadosIA();
+            }
+            return obtenerResultadosFallback();
+        }
+
+        function renderDashboard() {
+            try {
+                const data = cargarResultadosDashboard();
+
+                const enRiesgo = data.churn?.data?.filter(c => Number(c.riesgo) >= 70) || [];
+                document.getElementById('clientesRiesgo').textContent = enRiesgo.length;
+
+                const ventasEst = data.prediccion?.data?.ventasEsperadas || 0;
+                document.getElementById('ventasEstimadas').textContent = ventasEst;
+
+                const mensajes = JSON.parse(localStorage.getItem('mensajes_ia') || '[]');
+                document.getElementById('totalMensajes').textContent = mensajes.length;
+
+                const container = document.getElementById('contenedor-mensajes');
+                if (mensajes.length === 0) {
+                    container.innerHTML = `
+                        <div style="color:#8892b0; text-align:center; padding:30px;">
+                            📭 No hay mensajes aún. Registra una venta para activar la IA.
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = mensajes.slice(0, 20).map(m => `
+                        <div class="msg ${String(m.tipo || 'venta').toLowerCase()}">
+                            <span class="hora">${new Date(m.fecha).toLocaleTimeString()} · ${new Date(m.fecha).toLocaleDateString()}</span>
+                            <span class="texto"><strong>${m.tipo || 'VENTA'}:</strong> ${m.texto}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.warn('Error renderizando dashboard:', e);
+            }
+        }
+
+        window.addEventListener('nuevoMensajeIA', renderDashboard);
+        window.addEventListener('iaActualizada', renderDashboard);
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'mensajes_ia' || e.key === 'resultado_churn' || e.key === 'resultado_prediccion') {
+                renderDashboard();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(renderDashboard, 300);
+        });
+    </script>
+</body>
+</html>
