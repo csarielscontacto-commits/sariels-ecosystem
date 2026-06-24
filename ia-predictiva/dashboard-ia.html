@@ -42,6 +42,8 @@
     <script src="js/models.js"></script>
     <script src="js/mensajes.js"></script>
     <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
         function obtenerResultadosFallback() {
             const modeloChurn = typeof ModeloChurn === 'function' ? new ModeloChurn() : null;
             const modeloVentas = typeof ModeloPredictivoVentas === 'function' ? new ModeloPredictivoVentas() : null;
@@ -68,9 +70,37 @@
             return obtenerResultadosFallback();
         }
 
-        function renderDashboard() {
+        async function obtenerVentas() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/ventas`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.warn('API no disponible, usando localStorage para ventas:', error);
+                return JSON.parse(localStorage.getItem('ventas') || '[]');
+            }
+        }
+
+        async function obtenerMensajes() {
+            try {
+                const ventas = await obtenerVentas();
+                return ventas.map(venta => ({
+                    tipo: 'VENTA',
+                    fecha: venta.fecha,
+                    texto: `Venta registrada: ${venta.producto || 'Producto'} · $${venta.monto}`
+                })).reverse();
+            } catch (error) {
+                console.warn('Error construyendo mensajes desde API, usando localStorage:', error);
+                return JSON.parse(localStorage.getItem('mensajes_ia') || '[]');
+            }
+        }
+
+        async function renderDashboard() {
             try {
                 const data = cargarResultadosDashboard();
+                const mensajes = await obtenerMensajes();
 
                 const enRiesgo = data.churn?.data?.filter(c => Number(c.riesgo) >= 70) || [];
                 document.getElementById('clientesRiesgo').textContent = enRiesgo.length;
@@ -78,7 +108,6 @@
                 const ventasEst = data.prediccion?.data?.ventasEsperadas || 0;
                 document.getElementById('ventasEstimadas').textContent = ventasEst;
 
-                const mensajes = JSON.parse(localStorage.getItem('mensajes_ia') || '[]');
                 document.getElementById('totalMensajes').textContent = mensajes.length;
 
                 const container = document.getElementById('contenedor-mensajes');
@@ -101,16 +130,22 @@
             }
         }
 
-        window.addEventListener('nuevoMensajeIA', renderDashboard);
-        window.addEventListener('iaActualizada', renderDashboard);
+        window.addEventListener('nuevoMensajeIA', () => {
+            renderDashboard();
+        });
+        window.addEventListener('iaActualizada', () => {
+            renderDashboard();
+        });
         window.addEventListener('storage', (e) => {
-            if (e.key === 'mensajes_ia' || e.key === 'resultado_churn' || e.key === 'resultado_prediccion') {
+            if (e.key === 'mensajes_ia' || e.key === 'resultado_churn' || e.key === 'resultado_prediccion' || e.key === 'ventas') {
                 renderDashboard();
             }
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(renderDashboard, 300);
+            setTimeout(() => {
+                renderDashboard();
+            }, 300);
         });
     </script>
 </body>

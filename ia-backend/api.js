@@ -2,10 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
 const path = require('path');
+require('dotenv').config();
 const MensajeriaIA = require('./mensajeria');
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const DATA_PATH = path.join(__dirname, '../ia-data/datos_historicos');
 
 app.use(cors());
@@ -32,8 +33,27 @@ async function guardarArchivo(nombre, data) {
     return { success: true };
 }
 
+function validarVenta(body) {
+    const clienteIdValido = typeof body.clienteId === 'string' && body.clienteId.trim() !== '';
+    const montoValido = typeof body.monto === 'number' && Number.isFinite(body.monto) && body.monto > 0;
+
+    if (!clienteIdValido || !montoValido) {
+        return {
+            valido: false,
+            error: 'Datos inválidos. Se requiere clienteId y monto numérico positivo.'
+        };
+    }
+
+    return { valido: true };
+}
+
 app.post('/api/ventas', async (req, res) => {
     try {
+        const validacion = validarVenta(req.body);
+        if (!validacion.valido) {
+            return res.status(400).json({ error: validacion.error });
+        }
+
         const nuevaVenta = {
             ...req.body,
             fecha: new Date().toISOString(),
