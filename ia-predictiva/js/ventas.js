@@ -1,5 +1,5 @@
 (function (global) {
-    function renderizarBarras(contenedorId, datos, campo, clase = 'positive') {
+    function renderizarBarras(contenedorId, datos, campo, formateador, clase = 'positive') {
         const contenedor = document.getElementById(contenedorId);
         if (!contenedor) return;
         const maximo = Math.max(...datos.map((item) => item[campo]), 1);
@@ -9,7 +9,7 @@
                 <div class="progress-row">
                     <div class="progress-meta">
                         <span>${item.fecha}</span>
-                        <strong>${campo === 'ingreso' ? global.SarielIA.formatearMoneda(item[campo]) : `${item[campo]} ventas`}</strong>
+                        <strong>${formateador(item[campo])}</strong>
                     </div>
                     <div class="progress-bar"><div class="progress-fill ${clase}" style="width:${porcentaje}%"></div></div>
                 </div>
@@ -33,7 +33,7 @@
         document.getElementById('confianzaProyeccion').textContent = `${proyeccion.confianza}% de confianza predictiva`;
         document.getElementById('insightVentas').textContent = modelo.generarInsightEjecutivo();
 
-        renderizarBarras('serieVentas', serie, 'ingreso');
+        renderizarBarras('serieVentas', serie, 'ingreso', global.SarielIA.formatearMoneda);
 
         document.getElementById('tablaProductos').innerHTML = productos.map((producto) => `
             <tr>

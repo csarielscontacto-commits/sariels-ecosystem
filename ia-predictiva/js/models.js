@@ -24,6 +24,8 @@
     const moneda = configuracion.MONEDA || 'MXN';
     const toksPorVenta = configuracion.TOKENS?.TOKS_POR_VENTA || 10;
     const toksBienvenida = configuracion.TOKENS?.TOKS_POR_REGISTRO || 50;
+    const MOTIVO_BIENVENIDA = 'bienvenida';
+    const MOTIVO_COMPRAS = 'compras';
 
     const CATALOGO = [
         { nombre: 'Cookie Clásica', categoria: 'tradicional', prioridad: 0.94, precioReferencia: 75 },
@@ -46,11 +48,16 @@
 
     const METODOS = ['Efectivo', 'Tarjeta', 'Transferencia'];
     const NIVELES_NFT = [
-        { nivel: 'bronce', nombre: 'Bronce', minimo: configuracion.TOKENS?.NFT_BRONCE_MIN || 100, descuento: configuracion.TOKENS?.DESCUENTO_BRONCE || 5 },
-        { nivel: 'plata', nombre: 'Plata', minimo: configuracion.TOKENS?.NFT_PLATA_MIN || 300, descuento: configuracion.TOKENS?.DESCUENTO_PLATA || 10 },
-        { nivel: 'oro', nombre: 'Oro', minimo: configuracion.TOKENS?.NFT_ORO_MIN || 600, descuento: configuracion.TOKENS?.DESCUENTO_ORO || 15 },
-        { nivel: 'diamante', nombre: 'Diamante', minimo: configuracion.TOKENS?.NFT_DIAMANTE_MIN || 1000, descuento: configuracion.TOKENS?.DESCUENTO_DIAMANTE || 20 }
-    ];
+        { nivel: 'bronce', nombre: 'Bronce', minimoKey: 'NFT_BRONCE_MIN', descuentoKey: 'DESCUENTO_BRONCE', minimoDefault: 100, descuentoDefault: 5 },
+        { nivel: 'plata', nombre: 'Plata', minimoKey: 'NFT_PLATA_MIN', descuentoKey: 'DESCUENTO_PLATA', minimoDefault: 300, descuentoDefault: 10 },
+        { nivel: 'oro', nombre: 'Oro', minimoKey: 'NFT_ORO_MIN', descuentoKey: 'DESCUENTO_ORO', minimoDefault: 600, descuentoDefault: 15 },
+        { nivel: 'diamante', nombre: 'Diamante', minimoKey: 'NFT_DIAMANTE_MIN', descuentoKey: 'DESCUENTO_DIAMANTE', minimoDefault: 1000, descuentoDefault: 20 }
+    ].map((nivel) => ({
+        nivel: nivel.nivel,
+        nombre: nivel.nombre,
+        minimo: configuracion.TOKENS?.[nivel.minimoKey] || nivel.minimoDefault,
+        descuento: configuracion.TOKENS?.[nivel.descuentoKey] || nivel.descuentoDefault
+    }));
 
     function obtenerStorage() {
         try {
@@ -128,6 +135,10 @@
         return NIVELES_NFT.filter((nivel) => toks >= nivel.minimo).slice(-1)[0] || null;
     }
 
+    function obtenerEtiquetaNivelNFT(nivelActual) {
+        return typeof nivelActual === 'string' && nivelActual ? nivelActual.toUpperCase() : 'Sin NFT';
+    }
+
     function crearClientesSemilla() {
         return CLIENTES_SEMILLA.map(([nombre, telefono], indice) => ({
             id: `cliente_semilla_${indice + 1}`,
@@ -146,13 +157,7 @@
         for (let dia = 35; dia >= 1; dia -= 1) {
             const volumen = dia % 5 === 0 ? 3 : 2;
             for (let turno = 0; turno < volumen; turno += 1) {
-                const clientesActivos = dia <= 7
-                    ? clientes.slice(0, 4)
-                    : dia <= 16
-                        ? clientes.slice(0, 5)
-                        : dia <= 24
-                            ? clientes.slice(0, 6)
-                            : clientes;
+                const clientesActivos = obtenerClientesActivosSemilla(clientes, dia);
                 const cliente = clientesActivos[(dia + turno) % clientesActivos.length];
                 const productoBase = CATALOGO[(dia + turno) % CATALOGO.length];
                 const complemento = CATALOGO[(dia + turno + 2) % CATALOGO.length];
@@ -181,13 +186,36 @@
         return ventas;
     }
 
-    function enriquecerVenta(venta, detallePersistido, indice) {
+    function obtenerClientesActivosSemilla(clientes, dia) {
+        if (dia <= 7) {
+            return clientes.slice(0, 4);
+        }
+        if (dia <= 16) {
+            return clientes.slice(0, 5);
+        }
+        if (dia <= 24) {
+            return clientes.slice(0, 6);
+        }
+        return clientes;
+    }
+
+    function obtenerItemsVenta(venta, detalleBase, indice) {
         const productoPrincipal = CATALOGO[(indice + Math.max(1, numeroSeguro(venta.cantidad))) % CATALOGO.length];
-        const detalleBase = detallePersistido || {};
-        const items = Array.isArray(venta.items) && venta.items.length > 0 ? venta.items : (Array.isArray(detalleBase.items) && detalleBase.items.length > 0 ? detalleBase.items : [
+        if (Array.isArray(venta.items) && venta.items.length > 0) {
+            return venta.items;
+        }
+        if (Array.isArray(detalleBase.items) && detalleBase.items.length > 0) {
+            return detalleBase.items;
+        }
+        return [
             { nombre: productoPrincipal.nombre, cantidad: Math.max(1, numeroSeguro(venta.cantidad, 1)) },
             { nombre: CATALOGO[(indice + 1) % CATALOGO.length].nombre, cantidad: numeroSeguro(venta.cantidad, 1) > 1 ? 1 : 0 }
-        ].filter((item) => item.cantidad > 0));
+        ].filter((item) => item.cantidad > 0);
+    }
+
+    function enriquecerVenta(venta, detallePersistido, indice) {
+        const detalleBase = detallePersistido || {};
+        const items = obtenerItemsVenta(venta, detalleBase, indice);
 
         const factorRecurrencia = (indice % 4) + 1;
         return {
@@ -239,8 +267,8 @@
                 const toksCompra = ventasCliente.reduce((total, venta) => total + Math.max(toksPorVenta, Math.round(venta.monto / Math.max(1, configuracion.PRECIO_UNITARIO || 75)) * toksPorVenta), 0);
                 const toks = cliente.toks || toksBienvenida + toksCompra;
                 const historial = Array.isArray(cliente.historialToks) && cliente.historialToks.length > 0 ? cliente.historialToks : [
-                    { fecha: cliente.fechaRegistro, cantidad: toksBienvenida, motivo: 'bienvenida', saldo: toksBienvenida },
-                    { fecha: ventasCliente[0]?.fechaRegistro || new Date().toISOString(), cantidad: toksCompra, motivo: 'compras', saldo: toks }
+                    { fecha: cliente.fechaRegistro, cantidad: toksBienvenida, motivo: MOTIVO_BIENVENIDA, saldo: toksBienvenida },
+                    { fecha: ventasCliente[0]?.fechaRegistro || new Date().toISOString(), cantidad: toksCompra, motivo: MOTIVO_COMPRAS, saldo: toks }
                 ];
                 const nivel = obtenerNivelNFTPorToks(toks);
                 const nft = nivel ? {
@@ -567,7 +595,7 @@
                     favorita: favoritos[0] || 'Cookie Clásica',
                     recomendacion: candidato?.relacionado || 'Sevillanos de Piñón',
                     confianza: candidato?.afinidad || 78,
-                    campaña: historial.length > 5 ? 'Paquete premium' : 'Combo de descubrimiento',
+                    campana: historial.length > 5 ? 'Paquete premium' : 'Combo de descubrimiento',
                     ventanaRecompra
                 };
             }).sort((a, b) => b.confianza - a.confianza).slice(0, limite);
@@ -581,7 +609,7 @@
                 comboGanador: `${top.producto} + ${top.relacionado}`,
                 afinidad: top.afinidad,
                 confianzaPromedio,
-                campañasActivas: recomendaciones.filter((item) => item.confianza >= 80).length
+                campanasActivas: recomendaciones.filter((item) => item.confianza >= 80).length
             };
         }
 
@@ -615,7 +643,7 @@
                 canjeados,
                 circulacion,
                 clientesConNFT: this.clientes.filter((cliente) => cliente.nftActual).length,
-                líder: leaderboard[0] || null,
+                lider: leaderboard[0] || null,
                 prediccion
             };
         }
@@ -627,7 +655,7 @@
                 return {
                     nombre: cliente.nombre,
                     toks: numeroSeguro(cliente.toks),
-                    nftActual: cliente.nftActual ? cliente.nftActual.toUpperCase() : 'Sin NFT',
+                    nftNivelActual: obtenerEtiquetaNivelNFT(cliente.nftActual),
                     siguienteNivel: siguiente ? siguiente.nombre : 'Nivel máximo',
                     porcentaje
                 };

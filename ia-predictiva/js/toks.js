@@ -16,7 +16,7 @@
             <tr>
                 <td>${cliente.nombre}</td>
                 <td>${global.SarielIA.formatearNumero(cliente.toks)}</td>
-                <td>${cliente.nftActual}</td>
+                <td>${cliente.nftNivelActual}</td>
                 <td>${cliente.siguienteNivel}</td>
                 <td>
                     <div class="progress-bar"><div class="progress-fill" style="width:${cliente.porcentaje}%"></div></div>
@@ -37,7 +37,7 @@
         document.getElementById('proyeccionNFT').innerHTML = `
             <div class="mini-card"><span class="muted">Emisión estimada</span><strong>${global.SarielIA.formatearNumero(resumen.prediccion.emision7d)} TOKs</strong></div>
             <div class="mini-card"><span class="muted">Canje estimado</span><strong>${global.SarielIA.formatearNumero(resumen.prediccion.canje7d)} TOKs</strong></div>
-            <div class="mini-card"><span class="muted">Próximo líder</span><strong>${resumen.líder ? resumen.líder.nombre : 'Sin datos'}</strong></div>
+            <div class="mini-card"><span class="muted">Próximo líder</span><strong>${resumen.lider ? resumen.lider.nombre : 'Sin datos'}</strong></div>
         `;
     }
 

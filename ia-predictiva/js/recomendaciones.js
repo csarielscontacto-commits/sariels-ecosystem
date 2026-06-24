@@ -8,7 +8,7 @@
         document.getElementById('comboGanador').textContent = resumen.comboGanador;
         document.getElementById('afinidadMedia').textContent = `${resumen.afinidad}%`;
         document.getElementById('confianzaMedia').textContent = `${resumen.confianzaPromedio}%`;
-        document.getElementById('campanasActivas').textContent = global.SarielIA.formatearNumero(resumen.campañasActivas);
+        document.getElementById('campanasActivas').textContent = global.SarielIA.formatearNumero(resumen.campanasActivas);
         document.getElementById('insightRecomendaciones').textContent = modelo.generarInsightEjecutivo();
 
         document.getElementById('listaCombos').innerHTML = combos.map((combo) => `
@@ -26,13 +26,13 @@
                 <td>${cliente.cliente}</td>
                 <td>${cliente.favorita}</td>
                 <td>${cliente.recomendacion}</td>
-                <td>${cliente.campaña}</td>
+                <td>${cliente.campana}</td>
                 <td>${cliente.ventanaRecompra} días</td>
                 <td><span class="status-pill ${cliente.confianza >= 80 ? 'positive' : 'neutral'}">${cliente.confianza}%</span></td>
             </tr>
         `).join('');
 
-        document.getElementById('listaCampanas').innerHTML = clientes.slice(0, 4).map((cliente) => `<li>Enviar a ${cliente.cliente} la campaña <strong>${cliente.campaña}</strong> con foco en ${cliente.recomendacion}.</li>`).join('');
+        document.getElementById('listaCampanas').innerHTML = clientes.slice(0, 4).map((cliente) => `<li>Enviar a ${cliente.cliente} la campaña <strong>${cliente.campana}</strong> con foco en ${cliente.recomendacion}.</li>`).join('');
     }
 
     global.inicializarDashboardRecomendaciones = function () {
