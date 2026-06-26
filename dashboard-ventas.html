@@ -2,49 +2,37 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard de Ventas - Sariel's</title>
-    <style>
-        body { font-family: sans-serif; background: #f5f5f5; padding: 20px; }
-        .btn { padding: 10px; cursor: pointer; }
-        .section { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; }
-        #panel-blackrock { display: flex; gap: 20px; padding: 20px; background: #000; color: #0f0; font-family: monospace; }
-    </style>
+    <title>Dashboard Sariel's</title>
 </head>
 <body>
-    <div id="panel-blackrock">
-        <div><h3>IA Predicción</h3><p id="clima-info">Analizando...</p></div>
-        <div><h3>Estado Báscula</h3><p id="peso-info">Conectando...</p></div>
-        <div><h3>Decisión</h3><p id="decision-info">Autónoma</p></div>
+    <div id="panel-blackrock" style="background: #000; color: #0f0; padding: 20px;">
+        <h3>Estado: <span id="estado-sistema">Iniciando...</span></h3>
     </div>
-    
-    <div class="controls">
-        <button class="btn" onclick="actualizarDashboard()">🔄 Forzar Actualización</button>
-    </div>
-
-    <div class="section">
-        <h2>Historial de Ventas</h2>
-        <div id="ventasContainer"></div>
-    </div>
+    <div id="ventasContainer"></div>
 
     <script>
-        // --- 1. LÓGICA DE VENTAS (Recuperada) ---
+        // 1. Definimos las funciones PRIMERO
         function mostrarVentas() {
             const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
             const container = document.getElementById('ventasContainer');
-            if (ventas.length === 0) { container.innerHTML = "No hay ventas."; return; }
-            let html = '<ul>';
-            ventas.forEach(v => { html += `<li>${v.cliente}: $${v.monto}</li>`; });
-            container.innerHTML = html + '</ul>';
+            if (ventas.length === 0) {
+                container.innerHTML = "<p>No hay ventas registradas.</p>";
+                return;
+            }
+            container.innerHTML = "<p>Ventas cargadas: " + ventas.length + "</p>";
         }
 
-        // --- 2. FUNCIÓN MAESTRA ---
+        // 2. Función maestra
         function actualizarDashboard() {
-            console.log("Sincronizando...");
-            mostrarVentas(); // Aquí reactivamos la visualización
-            document.getElementById('decision-info').innerText = "Sistema Activo: Autónomo";
+            try {
+                mostrarVentas();
+                document.getElementById('estado-sistema').innerText = "Sistema Activo: Autónomo";
+            } catch (e) {
+                console.error("Error en actualización:", e);
+            }
         }
 
-        // --- 3. EVENTOS ---
+        // 3. Eventos
         window.addEventListener('storage', actualizarDashboard);
         document.addEventListener('DOMContentLoaded', actualizarDashboard);
         setInterval(actualizarDashboard, 2000);
