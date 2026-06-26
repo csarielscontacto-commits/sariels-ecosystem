@@ -1,31 +1,236 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ecosistema de Sariel - Autenticación</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sariel's Ecosystem - Authentication</title>
     <style>
-        body { font-family: sans-serif; background-color: #000; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-box { background: #1a1a1a; padding: 40px; border-radius: 15px; text-align: center; border: 1px solid #333; }
-        input { padding: 12px; margin: 10px 0; width: 280px; border-radius: 5px; border: 1px solid #333; background: #000; color: #fff; }
-        button { padding: 12px 25px; background-color: #fff; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 50px 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            max-width: 420px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .login-container:hover {
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            background: #111;
+        }
+
+        .input-group input::placeholder {
+            color: #555;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #ddd;
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(0, 255, 100, 0.1);
+            border: 1px solid rgba(0, 255, 100, 0.2);
+            color: #4caf50;
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+        }
+
+        .footer {
+            margin-top: 25px;
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #000;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="login-box">
-    <h2>Sariel's Ecosystem</h2>
-    <input type="email" id="user-email" placeholder="Correo electrónico">
-    <input type="password" id="user-password" placeholder="Contraseña">
-    <br>
-    <button onclick="iniciarSesion()">Entrar al Sistema</button>
+<div class="login-container">
+    <div class="logo">⚡ Sariel</div>
+    <div class="subtitle">Ecosystem Access</div>
+
+    <form id="loginForm" autocomplete="off">
+        <div class="input-group">
+            <label for="user-email">Email</label>
+            <input 
+                type="email" 
+                id="user-email" 
+                placeholder="your@email.com" 
+                required
+                autocomplete="email"
+            >
+        </div>
+
+        <div class="input-group">
+            <label for="user-password">Password</label>
+            <input 
+                type="password" 
+                id="user-password" 
+                placeholder="••••••••" 
+                required
+                autocomplete="current-password"
+                minlength="6"
+            >
+        </div>
+
+        <button type="submit" class="btn-primary" id="loginBtn">
+            <span id="btnText">Access System</span>
+        </button>
+    </form>
+
+    <div id="message" class="message"></div>
+    
+    <div class="footer">
+        Secure Authentication • Firebase
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // Firebase Configuration
     const firebaseConfig = {
-        apiKey: "AIzaSyCZK7dqOSeaMSsqMoSoMdPMfCSSU4MJR-g",
+        apiKey: "AIzaSyC7KZg0oSeaMssqMoSqMfPcSSsU4M_IR-g",
         authDomain: "ecosistema-de-sariel.firebaseapp.com",
         projectId: "ecosistema-de-sariel",
         storageBucket: "ecosistema-de-sariel.firebasestorage.app",
@@ -34,23 +239,92 @@
         measurementId: "G-ETJ8T1YTK5"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.iniciarSesion = function() {
-        const email = document.getElementById('user-email').value;
-        const password = document.getElementById('user-password').value;
+    // DOM Elements
+    const form = document.getElementById('loginForm');
+    const emailInput = document.getElementById('user-email');
+    const passwordInput = document.getElementById('user-password');
+    const loginBtn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('btnText');
+    const messageDiv = document.getElementById('message');
+
+    // Show message function
+    function showMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type}`;
+        setTimeout(() => {
+            messageDiv.className = 'message';
+        }, 5000);
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                alert("¡Acceso concedido al Ecosistema!");
-            })
-            .catch((error) => {
-                alert("Error: " + error.message);
-            });
-    };
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        // Validation
+        if (!email || !password) {
+            showMessage('Please fill in all fields', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            showMessage('Password must be at least 6 characters', 'error');
+            return;
+        }
+
+        // Show loading state
+        loginBtn.disabled = true;
+        btnText.innerHTML = '<span class="loading-spinner"></span> Authenticating...';
+
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            
+            // Success
+            showMessage('✅ Access granted to the Ecosystem!', 'success');
+            
+            // Optional: Redirect after success
+            // setTimeout(() => {
+            //     window.location.href = '/dashboard-central.html';
+            // }, 2000);
+            
+        } catch (error) {
+            // Handle specific Firebase errors
+            let errorMessage = 'Authentication failed';
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    errorMessage = 'User not found';
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = 'Incorrect password';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email format';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = 'Too many attempts. Try again later';
+                    break;
+                default:
+                    errorMessage = error.message;
+            }
+            showMessage(`❌ ${errorMessage}`, 'error');
+        } finally {
+            // Reset button state
+            loginBtn.disabled = false;
+            btnText.textContent = 'Access System';
+        }
+    });
+
+    // Auto-focus on email field
+    emailInput.focus();
+
+    console.log('🚀 Sariel Ecosystem Authentication initialized');
 </script>
 
 </body>
 </html>
-
