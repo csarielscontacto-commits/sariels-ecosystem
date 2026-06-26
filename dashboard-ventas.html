@@ -2,54 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Sariel's</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        #panel-blackrock { background: #000; color: #0f0; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%); font-family: 'Segoe UI', sans-serif; }
+        .card { transition: all 0.3s ease; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+        .neon-text { text-shadow: 0 0 10px rgb(34 211 238); }
     </style>
 </head>
-<body>
-    <div id="panel-blackrock">
-        <h3>Estado: <span id="estado-sistema">Iniciando...</span></h3>
-    </div>
-    
-    <div id="estadisticas" class="card">
-        <h3>Total Ventas: <span id="totalVentas">0</span></h3>
-        <p>Monto Total: <span id="totalMonto">$0</span></p>
-    </div>
+<body class="min-h-screen text-slate-200">
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-4xl font-bold text-cyan-400 neon-text">Sariel's Dashboard</h1>
+                <p class="text-slate-400 mt-1">Control de Ventas • Sistema Autónomo</p>
+            </div>
+            <div id="estado-sistema" class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full text-sm font-medium">
+                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div> SISTEMA ACTIVO
+            </div>
+        </div>
 
-    <div id="ventasContainer" class="card">
-        <h3>Historial</h3>
-        <ul id="listaVentas"></ul>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-6">
+                <div><p class="text-slate-400 text-sm">Total Ventas</p><h2 id="totalVentas" class="text-5xl font-bold text-white mt-2">0</h2></div>
+            </div>
+            <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-6">
+                <div><p class="text-slate-400 text-sm">Monto Total</p><h2 id="totalMonto" class="text-5xl font-bold text-emerald-400 mt-2">$0</h2></div>
+            </div>
+            <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-6">
+                <div><p class="text-slate-400 text-sm">Promedio por Venta</p><h2 id="promedioVenta" class="text-5xl font-bold text-amber-400 mt-2">$0</h2></div>
+            </div>
+        </div>
+
+        <div class="card bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="text-xl font-semibold"><i class="fa-solid fa-clock"></i> Historial de Ventas</h3>
+                <button onclick="agregarVentaDemo()" class="bg-cyan-600 hover:bg-cyan-500 px-5 py-2 rounded-xl text-sm font-medium">Agregar Venta</button>
+            </div>
+            <div class="p-6 max-h-[500px] overflow-y-auto" id="ventasContainer">
+                <ul id="listaVentas" class="space-y-3"></ul>
+            </div>
+        </div>
     </div>
 
     <script>
         function actualizarDashboard() {
-            try {
-                // 1. Obtener datos
-                const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
-                const totalMonto = ventas.reduce((sum, v) => sum + (v.monto || 0), 0);
-                
-                // 2. Pintar estadísticas
-                document.getElementById('totalVentas').innerText = ventas.length;
-                document.getElementById('totalMonto').innerText = "$" + totalMonto.toLocaleString();
-                document.getElementById('estado-sistema').innerText = "Sistema Activo: Autónomo";
-                
-                // 3. Pintar lista de ventas
-                const lista = document.getElementById('listaVentas');
-                lista.innerHTML = ventas.map(v => `<li>${v.cliente || 'Anónimo'}: $${v.monto}</li>`).join('');
-                
-            } catch (e) {
-                console.error("Error al refrescar:", e);
-            }
+            const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            const totalMonto = ventas.reduce((sum, v) => sum + (v.monto || 0), 0);
+            const promedio = ventas.length > 0 ? Math.round(totalMonto / ventas.length) : 0;
+            document.getElementById('totalVentas').innerText = ventas.length;
+            document.getElementById('totalMonto').innerText = "$" + totalMonto.toLocaleString();
+            document.getElementById('promedioVenta').innerText = "$" + promedio.toLocaleString();
+            document.getElementById('listaVentas').innerHTML = ventas.slice().reverse().map(v => `
+                <li class="bg-slate-800 p-4 rounded-xl flex justify-between">
+                    <span>${v.cliente || 'Anónimo'}</span><span class="text-emerald-400 font-bold">$${v.monto}</span>
+                </li>`).join('');
         }
-
-        // Eventos de control
+        function agregarVentaDemo() {
+            let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+            ventas.push({ cliente: "Cliente " + (ventas.length + 1), monto: Math.floor(Math.random() * 800) + 200 });
+            localStorage.setItem('ventas', JSON.stringify(ventas));
+            actualizarDashboard();
+        }
         window.addEventListener('storage', actualizarDashboard);
-        document.addEventListener('DOMContentLoaded', actualizarDashboard);
-        setInterval(actualizarDashboard, 2000);
+        document.addEventListener('DOMContentLoaded', () => { actualizarDashboard(); setInterval(actualizarDashboard, 2000); });
     </script>
 </body>
 </html>
-
