@@ -11,56 +11,43 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC7KZg0oSeaMssqMoSqMfPcSSsU4M_IR-g",
             authDomain: "ecosistema-de-sariel.firebaseapp.com",
             projectId: "ecosistema-de-sariel",
             storageBucket: "ecosistema-de-sariel.firebasestorage.app",
             messagingSenderId: "386188804408",
-            appId: "1:386188804408:web:900f3a23bdebfbf40381cd",
-            measurementId: "G-ETJ8T1YTK5"
+            appId: "1:386188804408:web:900f3a23bdebfbf40381cd"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Verificar autenticación
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // Redirigir al login si no está autenticado
                 window.location.href = '/auth/index.html';
                 return;
             }
             
-            // Usuario autenticado - mostrar su email
-            console.log('✅ Usuario autenticado:', user.email);
             document.getElementById('userEmail').textContent = user.email;
             document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
             
-            // Inicializar el dashboard
+            // Inicializar el dashboard después de autenticar
             iniciarDashboard();
         });
 
-        // Función para cerrar sesión (se expone globalmente)
         window.cerrarSesion = async function() {
             try {
                 await signOut(auth);
                 window.location.href = '/auth/index.html';
             } catch (error) {
-                console.error('Error al cerrar sesión:', error);
                 alert('Error al cerrar sesión: ' + error.message);
             }
         };
     </script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
@@ -68,18 +55,14 @@
             padding: 20px;
             color: #fff;
         }
+        .container { max-width: 1400px; margin: 0 auto; }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* HEADER MEJORADO */
+        /* HEADER */
         .header {
             background: rgba(26, 26, 26, 0.95);
-            padding: 25px 30px;
+            padding: 20px 30px;
             border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255,255,255,0.06);
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             margin-bottom: 30px;
             display: flex;
@@ -88,377 +71,159 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
         .header-left h1 {
-            font-size: 2em;
+            font-size: 1.8rem;
             background: linear-gradient(135deg, #fff 0%, #888 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        .header-left .subtitle {
-            color: #888;
-            font-size: 0.9rem;
-            -webkit-text-fill-color: #888;
-        }
-
-        .header-right {
+        .header-left .subtitle { color: #888; font-size: 0.9rem; }
+        .header-right { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .sync-status {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: #aaa;
         }
-
+        .sync-indicator {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #26a69a;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: rgba(255,255,255,0.05);
-            padding: 8px 16px 8px 12px;
+            padding: 6px 14px 6px 10px;
             border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.08);
         }
-
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
             color: #fff;
         }
-
-        .user-email {
-            color: #ccc;
-            font-size: 0.9rem;
-        }
-
+        .user-email { color: #ccc; font-size: 0.85rem; }
         .btn-logout {
-            background: rgba(255, 0, 0, 0.15);
+            background: rgba(255,0,0,0.15);
             color: #ff6b6b;
-            border: 1px solid rgba(255, 0, 0, 0.2);
-            padding: 8px 18px;
+            border: 1px solid rgba(255,0,0,0.2);
+            padding: 6px 16px;
             border-radius: 50px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: all 0.3s;
         }
-
-        .btn-logout:hover {
-            background: rgba(255, 0, 0, 0.25);
-            transform: scale(1.05);
-        }
-
-        .sync-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.05);
-            padding: 10px 18px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            color: #aaa;
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .sync-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #26a69a;
-            animation: pulse 2s infinite;
-        }
-
-        .sync-indicator.desincronizado {
-            background: #ffa726;
-            animation: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
+        .btn-logout:hover { background: rgba(255,0,0,0.25); transform: scale(1.05); }
 
         /* MÉTRICAS */
         .metricas-principales {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-
         .metrica {
-            background: rgba(26, 26, 26, 0.9);
-            padding: 24px;
+            background: rgba(26,26,26,0.9);
+            padding: 20px;
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
             border-top: 4px solid #667eea;
-            transition: transform 0.3s;
         }
-
-        .metrica:hover {
-            transform: translateY(-4px);
-        }
-
         .metrica.exito { border-top-color: #26a69a; }
         .metrica.meta { border-top-color: #ffa726; }
         .metrica.promedio { border-top-color: #2196f3; }
-
-        .metrica h3 {
-            color: #888;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .metrica .valor {
-            color: #fff;
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .metrica .detalles {
-            color: #666;
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
-        }
-
+        .metrica h3 { color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .metrica .valor { color: #fff; font-size: 2rem; font-weight: 700; }
+        .metrica .detalles { color: #666; font-size: 0.8rem; display: flex; justify-content: space-between; margin-top: 6px; }
         .barra-meta {
-            width: 100%;
-            height: 8px;
+            width: 100%; height: 8px;
             background: rgba(255,255,255,0.08);
             border-radius: 10px;
             overflow: hidden;
             margin: 10px 0;
         }
-
         .progreso-meta {
             height: 100%;
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             transition: width 0.5s ease;
-            border-radius: 10px;
+            width: 0%;
         }
 
         /* GRÁFICAS */
         .graficas {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-
         .grafica-container {
-            background: rgba(26, 26, 26, 0.9);
-            padding: 24px;
+            background: rgba(26,26,26,0.9);
+            padding: 20px;
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
         }
-
-        .grafica-container h2 {
-            color: #eee;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
+        .grafica-container h2 { color: #eee; margin-bottom: 16px; font-size: 1rem; }
 
         /* TABLA */
         .tabla-ventas {
-            background: rgba(26, 26, 26, 0.9);
-            padding: 24px;
+            background: rgba(26,26,26,0.9);
+            padding: 20px;
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
             margin-bottom: 30px;
             overflow-x: auto;
         }
-
-        .tabla-ventas h2 {
-            color: #eee;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: rgba(255,255,255,0.04);
-        }
-
-        th {
-            padding: 14px 16px;
-            text-align: left;
-            color: #888;
-            font-weight: 600;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            color: #ccc;
-        }
-
-        tbody tr:hover {
-            background: rgba(255,255,255,0.03);
-        }
-
+        .tabla-ventas h2 { color: #eee; margin-bottom: 16px; font-size: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: rgba(255,255,255,0.04); }
+        th { padding: 12px 14px; text-align: left; color: #888; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #ccc; font-size: 0.9rem; }
         .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600;
         }
-
-        .badge-vendedor {
-            background: rgba(102, 126, 234, 0.2);
-            color: #667eea;
-        }
-
-        .badge-metodo {
-            background: rgba(118, 75, 162, 0.2);
-            color: #764ba2;
-        }
+        .badge-vendedor { background: rgba(102,126,234,0.2); color: #667eea; }
+        .badge-metodo { background: rgba(118,75,162,0.2); color: #764ba2; }
 
         /* BOTONES */
-        .botones-accion {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-        }
-
+        .botones-accion { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
         .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            padding: 10px 22px; border: none; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 0.9rem; transition: all 0.3s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.3); }
         .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            color: #ccc;
+            background: rgba(255,255,255,0.08); color: #ccc;
             border: 1px solid rgba(255,255,255,0.08);
         }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
 
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.15);
-        }
+        .estado-vacio { text-align: center; padding: 30px; color: #666; }
+        .estado-vacio h3 { color: #888; margin-bottom: 8px; }
 
-        /* FIDELIZACIÓN */
-        .fidelizacion-panel {
-            background: rgba(26, 26, 26, 0.9);
-            padding: 24px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-top: 25px;
-        }
-
-        .fidelizacion-panel h2 {
-            color: #eee;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-
-        .fidelizacion-metricas {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .fidelizacion-metrica {
-            background: rgba(255,255,255,0.04);
-            border-radius: 12px;
-            padding: 18px;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .fidelizacion-metrica h3 {
-            color: #888;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .fidelizacion-metrica .valor {
-            color: #fff;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .fidelizacion-metrica p {
-            color: #666;
-            margin-top: 6px;
-            font-size: 0.8rem;
-        }
-
-        .estado-vacio {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .estado-vacio h3 {
-            color: #888;
-            margin-bottom: 10px;
-        }
-
-        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .header-left h1 { font-size: 1.5rem; }
+            .header { flex-direction: column; align-items: stretch; }
+            .header-left h1 { font-size: 1.4rem; }
             .graficas { grid-template-columns: 1fr; }
             .metricas-principales { grid-template-columns: 1fr 1fr; }
-            .fidelizacion-metricas { grid-template-columns: 1fr; }
             .header-right { flex-wrap: wrap; }
-            table { font-size: 0.85rem; }
-            th, td { padding: 10px 12px; }
         }
-
         @media (max-width: 480px) {
             .metricas-principales { grid-template-columns: 1fr; }
             .botones-accion { flex-direction: column; }
@@ -468,7 +233,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- HEADER MEJORADO CON USUARIO -->
+        <!-- HEADER -->
         <div class="header">
             <div class="header-left">
                 <div>
@@ -489,7 +254,7 @@
             </div>
         </div>
 
-        <!-- MÉTRICAS PRINCIPALES -->
+        <!-- MÉTRICAS -->
         <div class="metricas-principales">
             <div class="metrica exito">
                 <h3>💰 Ingreso Hoy</h3>
@@ -499,19 +264,15 @@
                     <span id="promedio">$0 promedio</span>
                 </div>
             </div>
-
             <div class="metrica meta">
                 <h3>🎯 Meta Diaria</h3>
                 <div class="valor" id="porcentajeMeta">0%</div>
-                <div class="barra-meta">
-                    <div class="progreso-meta" id="barraMeta" style="width: 0%"></div>
-                </div>
+                <div class="barra-meta"><div class="progreso-meta" id="barraMeta"></div></div>
                 <div class="detalles">
                     <span>Meta: $<span id="metaDiaria">10000</span></span>
                     <span id="faltaMeta">$10000 falta</span>
                 </div>
             </div>
-
             <div class="metrica">
                 <h3>📈 Total Ventas</h3>
                 <div class="valor" id="totalVentas">0</div>
@@ -520,13 +281,10 @@
                     <span id="ventasPromedio">$0 promedio</span>
                 </div>
             </div>
-
             <div class="metrica promedio">
-                <h3>⏰ Última Sincronización</h3>
-                <div class="valor" id="ultimaSinc" style="font-size: 1.3rem; color: #888;">--:--</div>
-                <div class="detalles">
-                    <span id="estadoSinc">Nunca</span>
-                </div>
+                <h3>⏰ Última Actualización</h3>
+                <div class="valor" id="ultimaSinc" style="font-size: 1.2rem; color: #888;">--:--</div>
+                <div class="detalles"><span id="estadoSinc">Cargando...</span></div>
             </div>
         </div>
 
@@ -536,183 +294,224 @@
                 <h2>📊 Ventas por Hora (Hoy)</h2>
                 <canvas id="graficoHoras"></canvas>
             </div>
-
             <div class="grafica-container">
                 <h2>👥 Ventas por Vendedor</h2>
                 <canvas id="graficoVendedores"></canvas>
             </div>
         </div>
 
-        <!-- TABLA DE ÚLTIMAS VENTAS -->
+        <!-- TABLA -->
         <div class="tabla-ventas">
-            <h2>📋 Últimas 10 Ventas</h2>
+            <h2>📋 Últimas Ventas</h2>
             <table>
-                <thead>
-                    <tr>
-                        <th>Hora</th>
-                        <th>Vendedor</th>
-                        <th>Cliente</th>
-                        <th>Cantidad</th>
-                        <th>Método</th>
-                        <th>Monto</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Hora</th><th>Vendedor</th><th>Cliente</th><th>Cantidad</th><th>Método</th><th>Monto</th></tr></thead>
                 <tbody id="tablaVentasBody">
-                    <tr>
-                        <td colspan="6" class="estado-vacio">
-                            <h3>⏳ Cargando ventas...</h3>
-                        </td>
-                    </tr>
+                    <tr><td colspan="6" class="estado-vacio"><h3>⏳ Cargando ventas...</h3></td></tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- BOTONES DE ACCIÓN -->
+        <!-- BOTONES -->
         <div class="botones-accion">
-            <a href="registro-ventas-centralizado.html" class="btn btn-primary">
-                ➕ Registrar Venta
-            </a>
-            <button class="btn btn-secondary" onclick="bd.sincronizarConServidor()">
-                🔄 Sincronizar Ahora
-            </button>
-            <button class="btn btn-secondary" onclick="exportarDatos()">
-                📥 Descargar Datos
-            </button>
+            <a href="registro-ventas-centralizado.html" class="btn btn-primary">➕ Registrar Venta</a>
+            <button class="btn btn-secondary" onclick="generarDatosEjemplo()">📊 Datos Ejemplo</button>
+            <button class="btn btn-secondary" onclick="exportarDatos()">📥 Exportar</button>
         </div>
 
-        <!-- PANEL DE FIDELIZACIÓN -->
-        <div class="fidelizacion-panel">
-            <h2>🎫 Fidelización</h2>
-            <div class="fidelizacion-metricas">
-                <div class="fidelizacion-metrica">
-                    <h3>Total de clientes registrados</h3>
-                    <div class="valor" id="fidelizacionClientes">0</div>
-                    <p>Clientes con perfil de fidelización.</p>
+        <!-- FIDELIZACIÓN -->
+        <div style="background: rgba(26,26,26,0.9); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); margin-top: 25px;">
+            <h2 style="color: #eee; margin-bottom: 16px; font-size: 1rem;">🎫 Fidelización</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
+                    <h3 style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Clientes</h3>
+                    <div style="color: #fff; font-size: 1.5rem; font-weight: 700;" id="fidelizacionClientes">0</div>
                 </div>
-                <div class="fidelizacion-metrica">
-                    <h3>TOKs otorgados hoy</h3>
-                    <div class="valor" id="fidelizacionToksHoy">0</div>
-                    <p>Incluye compras, bienvenida y bonos.</p>
+                <div style="background: rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
+                    <h3 style="color: #888; font-size: 0.75rem; text-transform: uppercase;">TOKs Hoy</h3>
+                    <div style="color: #fff; font-size: 1.5rem; font-weight: 700;" id="fidelizacionToksHoy">0</div>
                 </div>
-                <div class="fidelizacion-metrica">
-                    <h3>NFTs activos</h3>
-                    <div class="valor" id="fidelizacionNftsActivos">0</div>
-                    <p>Bronce, Plata, Oro y Diamante activos.</p>
+                <div style="background: rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
+                    <h3 style="color: #888; font-size: 0.75rem; text-transform: uppercase;">NFTs Activos</h3>
+                    <div style="color: #fff; font-size: 1.5rem; font-weight: 700;" id="fidelizacionNftsActivos">0</div>
                 </div>
             </div>
-            <a href="fidelizacion.html" class="btn btn-primary">
-                🎫 Ver Panel de Fidelización
-            </a>
+            <a href="fidelizacion.html" class="btn btn-primary">🎫 Ver Panel Fidelización</a>
         </div>
     </div>
 
-    <!-- SCRIPTS DEL DASHBOARD -->
+    <!-- SCRIPTS -->
     <script src="config.js"></script>
     <script src="base-datos-centralizada.js"></script>
     <script src="fidelizacion.js"></script>
+
     <script>
-        // Variables globales para gráficas
+        // Variables globales
         let chartHoras = null;
         let chartVendedores = null;
         let dashboardInicializado = false;
 
         /**
-         * Inicializa el dashboard (se llama desde el módulo de Firebase)
+         * Inicia el dashboard
          */
         function iniciarDashboard() {
             if (dashboardInicializado) return;
             dashboardInicializado = true;
 
-            console.log('🚀 Inicializando Dashboard Central');
-            
-            // Cargar datos iniciales
-            bd.sincronizarConServidor().then(() => {
-                actualizarDashboard();
-                crearGraficas();
-            });
-            
-            // Configurar auto-actualización
-            setInterval(actualizarDashboard, 3000);
+            console.log('🚀 Iniciando Dashboard Central');
+
+            // Esperar a que bd esté disponible
+            const esperarBD = setInterval(() => {
+                if (typeof bd !== 'undefined' && bd !== null) {
+                    clearInterval(esperarBD);
+                    console.log('✅ BD detectada, inicializando...');
+                    
+                    // Cargar datos
+                    bd.sincronizarConServidor().then(() => {
+                        actualizarDashboard();
+                        crearGraficas();
+                    });
+                    
+                    // Auto-actualizar
+                    setInterval(actualizarDashboard, 5000);
+                }
+            }, 500);
+
+            // Timeout por si no se carga
+            setTimeout(() => {
+                if (!dashboardInicializado) {
+                    console.warn('⚠️ BD no cargada, usando datos de ejemplo');
+                    generarDatosEjemplo();
+                    actualizarDashboard();
+                    crearGraficas();
+                    dashboardInicializado = true;
+                }
+            }, 5000);
         }
 
         /**
-         * Actualiza todos los elementos del dashboard
+         * Genera datos de ejemplo (fallback)
+         */
+        function generarDatosEjemplo() {
+            if (typeof bd !== 'undefined' && bd !== null) {
+                // Usar BD real
+                const ventas = bd.obtenerTodasLasVentas();
+                if (ventas.length === 0) {
+                    // Si no hay ventas, crear ejemplo
+                    const productos = ['Tortilla', 'Pan', 'Galleta', 'Pastel'];
+                    const vendedores = ['María', 'Juan', 'Carlos', 'Ana'];
+                    const metodos = ['Efectivo', 'Tarjeta', 'Transferencia'];
+                    
+                    for (let i = 0; i < 10; i++) {
+                        const cantidad = Math.floor(Math.random() * 5) + 1;
+                        const monto = cantidad * (typeof CONFIG !== 'undefined' ? CONFIG.PRECIO_UNITARIO : 75);
+                        const hora = Math.floor(Math.random() * 12) + 8;
+                        const fecha = new Date();
+                        fecha.setHours(hora, Math.floor(Math.random() * 60), 0);
+                        
+                        bd.registrarVenta({
+                            vendedorNombre: vendedores[Math.floor(Math.random() * vendedores.length)],
+                            cliente: `Cliente ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
+                            cantidad: cantidad,
+                            metodo: metodos[Math.floor(Math.random() * metodos.length)],
+                            monto: monto,
+                            producto: productos[Math.floor(Math.random() * productos.length)],
+                            fechaRegistro: fecha.toISOString()
+                        });
+                    }
+                    console.log('📊 Datos de ejemplo generados en BD');
+                }
+            } else {
+                console.warn('⚠️ BD no disponible para generar ejemplos');
+            }
+            actualizarDashboard();
+        }
+
+        /**
+         * Actualiza todo el dashboard
          */
         function actualizarDashboard() {
-            const stats = bd.obtenerEstadisticas();
-            
-            // Actualizar métricas
-            document.getElementById('ingresoHoy').textContent = formatearPrecio(stats.ingresoHoy / CONFIG.PRECIO_UNITARIO);
-            document.getElementById('ventasHoy').textContent = `${stats.ventasHoy} venta${stats.ventasHoy !== 1 ? 's' : ''}`;
-            document.getElementById('promedio').textContent = stats.ventasHoy > 0 ? 
-                `$${Math.round(stats.ingresoHoy / stats.ventasHoy).toLocaleString('es-MX')} promedio` : 
-                'Sin ventas';
-            
-            // Meta
-            const porcentaje = stats.porcentajeMeta;
-            document.getElementById('porcentajeMeta').textContent = `${porcentaje}%`;
-            document.getElementById('barraMeta').style.width = `${porcentaje}%`;
-            document.getElementById('metaDiaria').textContent = (CONFIG.METAS.DIARIA).toLocaleString('es-MX');
-            const falta = Math.max(0, CONFIG.METAS.DIARIA - stats.ingresoHoy);
-            document.getElementById('faltaMeta').textContent = `$${falta.toLocaleString('es-MX')} falta`;
-            
-            // Total
-            document.getElementById('totalVentas').textContent = stats.totalVentas;
-            document.getElementById('ingresoTotal').textContent = `$${Math.round(stats.ingresoTotal).toLocaleString('es-MX')} ingresos`;
-            document.getElementById('ventasPromedio').textContent = stats.totalVentas > 0 ? 
-                `$${Math.round(stats.ventaPromedio).toLocaleString('es-MX')} promedio` : 
-                'Sin datos';
-            
-            // Sincronización
-            if (stats.ultimaSincronizacion) {
-                const hora = stats.ultimaSincronizacion.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('ultimaSinc').textContent = hora;
-                document.getElementById('estadoSinc').textContent = 'Hace unos momentos';
-                document.getElementById('syncIndicator').classList.remove('desincronizado');
-                document.getElementById('syncText').textContent = '✅ Sincronizado';
+            let stats = null;
+            let ventas = [];
+
+            if (typeof bd !== 'undefined' && bd !== null) {
+                stats = bd.obtenerEstadisticas();
+                ventas = bd.obtenerTodasLasVentas();
             }
-            
+
+            if (!stats) {
+                // Datos de fallback
+                stats = {
+                    totalVentas: 0,
+                    ingresoTotal: 0,
+                    ventasHoy: 0,
+                    ingresoHoy: 0,
+                    porcentajeMeta: 0,
+                    ventaPromedio: 0
+                };
+                ventas = [];
+            }
+
+            // Actualizar métricas
+            document.getElementById('ingresoHoy').textContent = `$${Math.round(stats.ingresoHoy || 0)}`;
+            document.getElementById('ventasHoy').textContent = `${stats.ventasHoy || 0} ventas`;
+            document.getElementById('promedio').textContent = stats.ventasHoy > 0 ? 
+                `$${Math.round(stats.ingresoHoy / stats.ventasHoy)} promedio` : '$0 promedio';
+
+            const porcentaje = Math.round(stats.porcentajeMeta || 0);
+            document.getElementById('porcentajeMeta').textContent = `${porcentaje}%`;
+            document.getElementById('barraMeta').style.width = `${Math.min(porcentaje, 100)}%`;
+
+            const metaDiaria = (typeof CONFIG !== 'undefined' && CONFIG.METAS) ? CONFIG.METAS.DIARIA : 10000;
+            document.getElementById('metaDiaria').textContent = metaDiaria.toLocaleString('es-MX');
+            const falta = Math.max(0, metaDiaria - (stats.ingresoHoy || 0));
+            document.getElementById('faltaMeta').textContent = `$${falta.toLocaleString('es-MX')} falta`;
+
+            document.getElementById('totalVentas').textContent = stats.totalVentas || 0;
+            document.getElementById('ingresoTotal').textContent = `$${Math.round(stats.ingresoTotal || 0).toLocaleString('es-MX')} ingresos`;
+            document.getElementById('ventasPromedio').textContent = stats.totalVentas > 0 ? 
+                `$${Math.round(stats.ventaPromedio).toLocaleString('es-MX')} promedio` : 'Sin datos';
+
+            // Última sincronización
+            const ahora = new Date();
+            document.getElementById('ultimaSinc').textContent = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('estadoSinc').textContent = 'Actualizado ahora';
+
             // Actualizar tabla
-            actualizarTablaVentas();
-            actualizarPanelFidelizacion();
-            
+            actualizarTablaVentas(ventas.slice(0, 10));
+
             // Actualizar gráficas
-            if (chartHoras) actualizarGraficaHoras();
-            if (chartVendedores) actualizarGraficaVendedores();
+            if (chartHoras) actualizarGraficaHoras(ventas);
+            if (chartVendedores) actualizarGraficaVendedores(ventas);
+
+            // Actualizar fidelización
+            actualizarFidelizacion();
         }
 
         /**
          * Actualiza la tabla de ventas
          */
-        function actualizarTablaVentas() {
-            const ventas = bd.obtenerTodasLasVentas().slice(0, 10);
+        function actualizarTablaVentas(ventas) {
             const tbody = document.getElementById('tablaVentasBody');
             
-            if (ventas.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="estado-vacio">
-                            <h3>📭 No hay ventas registradas</h3>
-                        </td>
-                    </tr>
-                `;
+            if (!ventas || ventas.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="estado-vacio"><h3>📭 No hay ventas registradas</h3></td></tr>`;
                 return;
             }
-            
-            tbody.innerHTML = ventas.map(venta => `
+
+            tbody.innerHTML = ventas.map(v => `
                 <tr>
-                    <td>${new Date(venta.fechaRegistro).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
-                    <td><span class="badge badge-vendedor">${venta.vendedorNombre}</span></td>
-                    <td>${venta.cliente}</td>
-                    <td>${venta.cantidad}</td>
-                    <td><span class="badge badge-metodo">${venta.metodo}</span></td>
-                    <td><strong>$${venta.monto.toLocaleString('es-MX')}</strong></td>
+                    <td>${new Date(v.fechaRegistro).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td><span class="badge badge-vendedor">${v.vendedorNombre || 'N/A'}</span></td>
+                    <td>${v.cliente || 'Anónimo'}</td>
+                    <td>${v.cantidad || 0}</td>
+                    <td><span class="badge badge-metodo">${v.metodo || 'N/A'}</span></td>
+                    <td><strong>$${Math.round(v.monto || 0).toLocaleString('es-MX')}</strong></td>
                 </tr>
             `).join('');
         }
 
         /**
-         * Crea las gráficas iniciales
+         * Crea las gráficas
          */
         function crearGraficas() {
             // Gráfica de horas
@@ -720,30 +519,22 @@
             chartHoras = new Chart(ctxHoras, {
                 type: 'bar',
                 data: {
-                    labels: [],
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [{
                         label: 'Ventas por Hora',
-                        data: [],
+                        data: Array(24).fill(0),
                         backgroundColor: 'rgba(102, 126, 234, 0.6)',
                         borderColor: 'rgba(102, 126, 234, 1)',
                         borderWidth: 2,
-                        borderRadius: 8
+                        borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true,
-                            ticks: { color: '#888' }
-                        },
-                        x: {
-                            ticks: { color: '#888' }
-                        }
+                        y: { beginAtZero: true, ticks: { color: '#888' } },
+                        x: { ticks: { color: '#888', maxTicksLimit: 12 } }
                     }
                 }
             });
@@ -775,52 +566,45 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#ccc' }
-                        }
+                        legend: { position: 'bottom', labels: { color: '#ccc' } }
                     }
                 }
             });
 
-            actualizarGraficaHoras();
-            actualizarGraficaVendedores();
+            // Cargar datos iniciales
+            const ventas = (typeof bd !== 'undefined' && bd !== null) ? bd.obtenerTodasLasVentas() : [];
+            actualizarGraficaHoras(ventas);
+            actualizarGraficaVendedores(ventas);
         }
 
         /**
-         * Actualiza la gráfica de horas
+         * Actualiza gráfica de horas
          */
-        function actualizarGraficaHoras() {
-            const ventas = bd.obtenerVentasDeHoy();
+        function actualizarGraficaHoras(ventas) {
+            if (!chartHoras) return;
+            
             const ventasPorHora = {};
-
-            ventas.forEach(venta => {
-                const hora = new Date(venta.fechaRegistro).getHours();
-                ventasPorHora[hora] = (ventasPorHora[hora] || 0) + venta.monto;
+            ventas.forEach(v => {
+                const hora = new Date(v.fechaRegistro).getHours();
+                ventasPorHora[hora] = (ventasPorHora[hora] || 0) + (v.monto || 0);
             });
 
-            const horas = Array.from({length: 24}, (_, i) => `${i}:00`);
-            const datos = horas.map((_, i) => ventasPorHora[i] || 0);
-
-            chartHoras.data.labels = horas;
+            const datos = Array.from({length: 24}, (_, i) => ventasPorHora[i] || 0);
             chartHoras.data.datasets[0].data = datos;
             chartHoras.update();
         }
 
         /**
-         * Actualiza la gráfica de vendedores
+         * Actualiza gráfica de vendedores
          */
-        function actualizarGraficaVendedores() {
-            const ventas = bd.obtenerTodasLasVentas();
+        function actualizarGraficaVendedores(ventas) {
+            if (!chartVendedores) return;
+            
             const ventasPorVendedor = {};
-
-            ventas.forEach(venta => {
-                if (!ventasPorVendedor[venta.vendedorNombre]) {
-                    ventasPorVendedor[venta.vendedorNombre] = 0;
-                }
-                ventasPorVendedor[venta.vendedorNombre] += venta.monto;
+            ventas.forEach(v => {
+                const nombre = v.vendedorNombre || 'Desconocido';
+                ventasPorVendedor[nombre] = (ventasPorVendedor[nombre] || 0) + (v.monto || 0);
             });
 
             const vendedores = Object.keys(ventasPorVendedor);
@@ -832,18 +616,42 @@
         }
 
         /**
-         * Exporta los datos a JSON
+         * Actualiza métricas de fidelización
+         */
+        function actualizarFidelizacion() {
+            try {
+                if (typeof sistemaFidelizacion !== 'undefined' && sistemaFidelizacion) {
+                    const resumen = sistemaFidelizacion.obtenerResumenGeneral ? 
+                        sistemaFidelizacion.obtenerResumenGeneral() : 
+                        { totalClientes: 0, toksOtorgadosHoy: 0, nftsActivos: 0 };
+                    
+                    document.getElementById('fidelizacionClientes').textContent = resumen.totalClientes || 0;
+                    document.getElementById('fidelizacionToksHoy').textContent = resumen.toksOtorgadosHoy || 0;
+                    document.getElementById('fidelizacionNftsActivos').textContent = resumen.nftsActivos || 0;
+                }
+            } catch (e) {
+                // Si fidelización no está disponible, ignorar
+            }
+        }
+
+        /**
+         * Exporta los datos
          */
         function exportarDatos() {
+            let ventas = [];
+            if (typeof bd !== 'undefined' && bd !== null) {
+                ventas = bd.obtenerTodasLasVentas();
+            }
+
             const datos = {
-                estadisticas: bd.obtenerEstadisticas(),
-                ventas: bd.obtenerTodasLasVentas(),
+                ventas: ventas,
+                totalVentas: ventas.length,
+                ingresoTotal: ventas.reduce((s, v) => s + (v.monto || 0), 0),
                 exportadoEn: new Date().toISOString()
             };
 
-            const dataStr = JSON.stringify(datos, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
+            const blob = new Blob([JSON.stringify(datos, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.download = `ventas-sariel-${new Date().toISOString().split('T')[0]}.json`;
@@ -851,40 +659,22 @@
             URL.revokeObjectURL(url);
         }
 
-        /**
-         * Actualiza el panel de fidelización
-         */
-        function actualizarPanelFidelizacion() {
-            try {
-                const resumen = sistemaFidelizacion.obtenerResumenGeneral();
-                document.getElementById('fidelizacionClientes').textContent = resumen.totalClientes || 0;
-                document.getElementById('fidelizacionToksHoy').textContent = resumen.toksOtorgadosHoy || 0;
-                document.getElementById('fidelizacionNftsActivos').textContent = resumen.nftsActivos || 0;
-            } catch (e) {
-                // Si fidelización no está cargada, ignorar
-            }
-        }
+        // Exponer funciones globalmente
+        window.generarDatosEjemplo = generarDatosEjemplo;
+        window.exportarDatos = exportarDatos;
 
-        /**
-         * Formatea precio
-         */
-        function formatearPrecio(valor) {
-            return `$${Math.round(valor).toLocaleString('es-MX')}`;
-        }
-
-        // Escuchar cambios de sincronización
+        // Escuchar eventos
         window.addEventListener('sincronizacionCompleta', () => {
-            console.log('🔄 Dashboard actualizado por sincronización');
+            console.log('🔄 Sincronización completada');
             actualizarDashboard();
         });
 
         window.addEventListener('ventaRegistrada', () => {
-            console.log('🎉 Nueva venta detectada en dashboard');
+            console.log('📝 Nueva venta registrada');
             actualizarDashboard();
         });
 
-        // Log de inicio
-        console.log('📊 Dashboard Central de Sariel\'s Ecosystem');
+        console.log('📊 Dashboard listo');
     </script>
 </body>
     </html>
