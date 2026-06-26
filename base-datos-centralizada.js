@@ -1,6 +1,6 @@
 /**
  * SISTEMA DE BASE DE DATOS CENTRALIZADA
- * Versión Limpia y Robusta
+ * Versión Robusta con Notificación de Eventos
  */
 
 class BaseDatosCentralizada {
@@ -12,25 +12,26 @@ class BaseDatosCentralizada {
         this.inicializar();
     }
 
-    // 1. Motor de arranque
     inicializar() {
         this.iniciarSincronizacionAutomatica();
         window.addEventListener('storage', (e) => this.manejarCambios(e));
     }
 
-    // 2. Ciclo de sincronización (cada 5 segundos)
     iniciarSincronizacionAutomatica() {
         setInterval(async () => {
             await this.sincronizarConServidor();
         }, CONFIG.DATABASE.SYNC_INTERVAL || 5000);
     }
 
-    // 3. Lógica de sincronización protegida
     async sincronizarConServidor() {
         if (this.sincronizando) return;
         this.sincronizando = true;
         try {
             await this.obtenerVentasDelServidor();
+            
+            // DISPARADOR 1: Avisa que los datos del servidor llegaron
+            window.dispatchEvent(new CustomEvent('datosActualizados'));
+            
             const pendientes = this.ventasLocales.filter(v => !v.sincronizado);
             if (pendientes.length > 0) {
                 await this.enviarVentasAlServidor(pendientes);
@@ -42,7 +43,6 @@ class BaseDatosCentralizada {
         }
     }
 
-    // 4. Obtención de datos (con fallback a caché)
     async obtenerVentasDelServidor() {
         try {
             const respuesta = await fetch(CONFIG.DATABASE.URL, { cache: 'no-cache' });
@@ -57,7 +57,6 @@ class BaseDatosCentralizada {
         }
     }
 
-    // 5. Registro de ventas
     registrarVenta(venta) {
         const ventaCompleta = {
             ...venta,
@@ -67,10 +66,13 @@ class BaseDatosCentralizada {
         };
         this.ventasLocales.push(ventaCompleta);
         localStorage.setItem(CONFIG.STORAGE.VENTAS_KEY, JSON.stringify(this.ventasLocales));
+        
+        // DISPARADOR 2: Avisa que se registró una nueva venta local
+        window.dispatchEvent(new CustomEvent('datosActualizados'));
+        
         return ventaCompleta;
     }
 
-    // 6. Estadísticas simplificadas
     obtenerEstadisticas() {
         const todas = [...this.ventasServer, ...this.ventasLocales];
         const ingresoTotal = todas.reduce((sum, v) => sum + v.monto, 0);
@@ -83,6 +85,7 @@ class BaseDatosCentralizada {
     manejarCambios(e) {
         if (e.key === CONFIG.STORAGE.VENTAS_KEY) {
             this.ventasLocales = JSON.parse(e.newValue) || [];
+            window.dispatchEvent(new CustomEvent('datosActualizados'));
         }
     }
 }
