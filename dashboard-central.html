@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Central - Sariel's Ecosystem</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
         const firebaseConfig = {
             apiKey: "AIzaSyC7KZg0oSeaMssqMoSqMfPcSSsU4M_IR-g",
             authDomain: "ecosistema-de-sariel.firebaseapp.com",
@@ -19,23 +19,17 @@
             messagingSenderId: "386188804408",
             appId: "1:386188804408:web:900f3a23bdebfbf40381cd"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = '/auth/index.html';
                 return;
             }
-            
             document.getElementById('userEmail').textContent = user.email;
             document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
-            
-            // Inicializar el dashboard después de autenticar
             iniciarDashboard();
         });
-
         window.cerrarSesion = async function() {
             try {
                 await signOut(auth);
@@ -45,181 +39,314 @@
             }
         };
     </script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #fff;
+
+        :root {
+            --masa: #1c1714;
+            --masa-alta: #251e19;
+            --panel: #2a221c;
+            --linea: rgba(212, 168, 87, 0.12);
+            --trigo: #d4a857;
+            --trigo-suave: rgba(212, 168, 87, 0.14);
+            --horno: #c2683e;
+            --salvia: #7ba88a;
+            --salvia-suave: rgba(123, 168, 138, 0.14);
+            --texto: #f3ece2;
+            --texto-tenue: #a99c8c;
+            --texto-debil: #6b6055;
         }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at 15% 0%, rgba(212, 168, 87, 0.07), transparent 40%),
+                radial-gradient(circle at 100% 30%, rgba(194, 104, 62, 0.06), transparent 45%),
+                var(--masa);
+            min-height: 100vh;
+            padding: clamp(14px, 3vw, 32px);
+            color: var(--texto);
+        }
+
         .container { max-width: 1400px; margin: 0 auto; }
 
-        /* HEADER */
+        /* ===== HEADER ===== */
         .header {
-            background: rgba(26, 26, 26, 0.95);
-            padding: 20px 30px;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
+            background: var(--panel);
+            padding: 24px 28px;
+            border-radius: 18px;
+            border: 1px solid var(--linea);
+            margin-bottom: 26px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
         }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--trigo), var(--horno), transparent);
+        }
+        .header-left .marca {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .header-left .marca .grano { font-size: 1.1rem; }
         .header-left h1 {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, #fff 0%, #888 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 1.7rem;
+            letter-spacing: -0.01em;
+            color: var(--texto);
         }
-        .header-left .subtitle { color: #888; font-size: 0.9rem; }
-        .header-right { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .header-left .subtitle {
+            color: var(--texto-tenue);
+            font-size: 0.85rem;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        .header-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
         .sync-status {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.05);
-            padding: 8px 16px;
+            gap: 9px;
+            background: var(--masa-alta);
+            border: 1px solid var(--linea);
+            padding: 7px 16px;
             border-radius: 50px;
-            font-size: 0.85rem;
-            color: #aaa;
+            font-size: 0.8rem;
+            color: var(--texto-tenue);
         }
-        .sync-indicator {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: #26a69a;
-            animation: pulse 2s infinite;
+        .horno-pulso {
+            position: relative;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: var(--salvia);
         }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .horno-pulso::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            border: 1px solid var(--salvia);
+            animation: respirar 2.2s ease-out infinite;
+        }
+        @keyframes respirar {
+            0% { transform: scale(0.6); opacity: 0.9; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
         .user-info {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255,255,255,0.05);
-            padding: 6px 14px 6px 10px;
+            background: var(--masa-alta);
+            border: 1px solid var(--linea);
+            padding: 5px 14px 5px 6px;
             border-radius: 50px;
         }
         .user-avatar {
-            width: 32px; height: 32px;
+            width: 30px; height: 30px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #fff;
+            background: linear-gradient(135deg, var(--trigo) 0%, var(--horno) 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--masa); font-size: 0.85rem;
         }
-        .user-email { color: #ccc; font-size: 0.85rem; }
+        .user-email { color: var(--texto-tenue); font-size: 0.82rem; }
+
         .btn-logout {
-            background: rgba(255,0,0,0.15);
-            color: #ff6b6b;
-            border: 1px solid rgba(255,0,0,0.2);
-            padding: 6px 16px;
+            background: transparent;
+            color: #c98a6a;
+            border: 1px solid rgba(201, 138, 106, 0.3);
+            padding: 7px 16px;
             border-radius: 50px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.8rem;
-            transition: all 0.3s;
+            font-size: 0.78rem;
+            transition: all 0.25s;
         }
-        .btn-logout:hover { background: rgba(255,0,0,0.25); transform: scale(1.05); }
+        .btn-logout:hover { background: rgba(201, 138, 106, 0.1); }
 
-        /* MÉTRICAS */
+        /* ===== MÉTRICAS ===== */
         .metricas-principales {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 16px;
+            margin-bottom: 26px;
         }
         .metrica {
-            background: rgba(26,26,26,0.9);
-            padding: 20px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-top: 4px solid #667eea;
+            background: var(--panel);
+            padding: 20px 22px;
+            border-radius: 16px;
+            border: 1px solid var(--linea);
+            position: relative;
         }
-        .metrica.exito { border-top-color: #26a69a; }
-        .metrica.meta { border-top-color: #ffa726; }
-        .metrica.promedio { border-top-color: #2196f3; }
-        .metrica h3 { color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .metrica .valor { color: #fff; font-size: 2rem; font-weight: 700; }
-        .metrica .detalles { color: #666; font-size: 0.8rem; display: flex; justify-content: space-between; margin-top: 6px; }
+        .metrica .icono-eyebrow {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--texto-debil);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .metrica .valor {
+            font-family: 'Fraunces', serif;
+            color: var(--texto);
+            font-size: 2.1rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+        .metrica .detalles {
+            color: var(--texto-debil);
+            font-size: 0.78rem;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metrica.exito .valor { color: var(--salvia); }
+        .metrica.meta .valor { color: var(--trigo); }
+
         .barra-meta {
-            width: 100%; height: 8px;
-            background: rgba(255,255,255,0.08);
+            width: 100%; height: 6px;
+            background: rgba(255,255,255,0.06);
             border-radius: 10px;
             overflow: hidden;
-            margin: 10px 0;
+            margin: 12px 0 0;
         }
         .progreso-meta {
             height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.5s ease;
+            background: linear-gradient(90deg, var(--trigo), var(--horno));
+            transition: width 0.6s ease;
             width: 0%;
         }
 
-        /* GRÁFICAS */
+        /* ===== GRÁFICAS ===== */
         .graficas {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 16px;
+            margin-bottom: 26px;
         }
         .grafica-container {
-            background: rgba(26,26,26,0.9);
-            padding: 20px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.06);
+            background: var(--panel);
+            padding: 22px;
+            border-radius: 16px;
+            border: 1px solid var(--linea);
         }
-        .grafica-container h2 { color: #eee; margin-bottom: 16px; font-size: 1rem; }
+        .grafica-container h2 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            color: var(--texto);
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
 
-        /* TABLA */
+        /* ===== TABLA ===== */
         .tabla-ventas {
-            background: rgba(26,26,26,0.9);
-            padding: 20px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.06);
-            margin-bottom: 30px;
+            background: var(--panel);
+            padding: 22px;
+            border-radius: 16px;
+            border: 1px solid var(--linea);
+            margin-bottom: 26px;
             overflow-x: auto;
         }
-        .tabla-ventas h2 { color: #eee; margin-bottom: 16px; font-size: 1rem; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: rgba(255,255,255,0.04); }
-        th { padding: 12px 14px; text-align: left; color: #888; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #ccc; font-size: 0.9rem; }
-        .badge {
-            display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600;
+        .tabla-ventas h2 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            color: var(--texto);
+            margin-bottom: 16px;
+            font-size: 1rem;
         }
-        .badge-vendedor { background: rgba(102,126,234,0.2); color: #667eea; }
-        .badge-metodo { background: rgba(118,75,162,0.2); color: #764ba2; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: rgba(255,255,255,0.025); }
+        th {
+            padding: 11px 14px; text-align: left; color: var(--texto-debil);
+            font-weight: 600; font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid var(--linea);
+        }
+        td {
+            padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: var(--texto-tenue); font-size: 0.88rem;
+        }
+        td strong { color: var(--texto); font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+        .badge {
+            display: inline-block; padding: 3px 11px; border-radius: 50px;
+            font-size: 0.7rem; font-weight: 600;
+        }
+        .badge-vendedor { background: var(--trigo-suave); color: var(--trigo); }
+        .badge-metodo { background: var(--salvia-suave); color: var(--salvia); }
 
-        /* BOTONES */
-        .botones-accion { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+        /* ===== BOTONES ===== */
+        .botones-accion { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
         .btn {
-            padding: 10px 22px; border: none; border-radius: 10px; cursor: pointer;
-            font-weight: 600; font-size: 0.9rem; transition: all 0.3s;
+            padding: 11px 22px; border: none; border-radius: 12px; cursor: pointer;
+            font-weight: 600; font-size: 0.88rem; transition: all 0.25s;
             text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
+            background: linear-gradient(135deg, var(--trigo) 0%, var(--horno) 100%);
+            color: var(--masa);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(194,104,62,0.25); }
         .btn-secondary {
-            background: rgba(255,255,255,0.08); color: #ccc;
-            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--masa-alta); color: var(--texto-tenue);
+            border: 1px solid var(--linea);
         }
-        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.06); color: var(--texto); }
 
-        .estado-vacio { text-align: center; padding: 30px; color: #666; }
-        .estado-vacio h3 { color: #888; margin-bottom: 8px; }
+        .estado-vacio { text-align: center; padding: 34px; color: var(--texto-debil); }
+        .estado-vacio h3 { color: var(--texto-tenue); margin-bottom: 6px; font-weight: 500; font-size: 0.95rem; }
+
+        /* ===== FIDELIZACIÓN ===== */
+        .panel-fidelizacion {
+            background: var(--panel);
+            padding: 22px;
+            border-radius: 16px;
+            border: 1px solid var(--linea);
+            margin-top: 22px;
+        }
+        .panel-fidelizacion h2 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            color: var(--texto);
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        .fidelizacion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .fidelizacion-stat {
+            background: var(--masa-alta);
+            border: 1px solid var(--linea);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .fidelizacion-stat h3 {
+            color: var(--texto-debil); font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+        }
+        .fidelizacion-stat .num {
+            color: var(--trigo); font-size: 1.5rem; font-weight: 700;
+            font-family: 'Fraunces', serif;
+        }
 
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: stretch; }
-            .header-left h1 { font-size: 1.4rem; }
+            .header-left h1 { font-size: 1.35rem; }
             .graficas { grid-template-columns: 1fr; }
             .metricas-principales { grid-template-columns: 1fr 1fr; }
             .header-right { flex-wrap: wrap; }
@@ -236,36 +363,37 @@
         <!-- HEADER -->
         <div class="header">
             <div class="header-left">
-                <div>
-                    <h1>📊 Sariel's Ecosystem</h1>
-                    <span class="subtitle">Dashboard Central en Tiempo Real</span>
+                <div class="marca">
+                    <span class="grano">🌾</span>
+                    <h1>Sariel's Ecosystem</h1>
                 </div>
+                <div class="subtitle">El núcleo autónomo de tu panadería, en tiempo real</div>
             </div>
             <div class="header-right">
                 <div class="sync-status">
-                    <div class="sync-indicator" id="syncIndicator"></div>
-                    <span id="syncText">Sincronizando...</span>
+                    <div class="horno-pulso" id="syncIndicator"></div>
+                    <span id="syncText">Sincronizando…</span>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">S</div>
                     <span class="user-email" id="userEmail">usuario@email.com</span>
                 </div>
-                <button class="btn-logout" onclick="cerrarSesion()">🚪 Salir</button>
+                <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
             </div>
         </div>
 
         <!-- MÉTRICAS -->
         <div class="metricas-principales">
             <div class="metrica exito">
-                <h3>💰 Ingreso Hoy</h3>
+                <div class="icono-eyebrow">💰 Ingreso de hoy</div>
                 <div class="valor" id="ingresoHoy">$0</div>
                 <div class="detalles">
                     <span id="ventasHoy">0 ventas</span>
-                    <span id="promedio">$0 promedio</span>
+                    <span id="promedio">$0 prom.</span>
                 </div>
             </div>
             <div class="metrica meta">
-                <h3>🎯 Meta Diaria</h3>
+                <div class="icono-eyebrow">🎯 Meta diaria</div>
                 <div class="valor" id="porcentajeMeta">0%</div>
                 <div class="barra-meta"><div class="progreso-meta" id="barraMeta"></div></div>
                 <div class="detalles">
@@ -274,68 +402,68 @@
                 </div>
             </div>
             <div class="metrica">
-                <h3>📈 Total Ventas</h3>
+                <div class="icono-eyebrow">📈 Total ventas</div>
                 <div class="valor" id="totalVentas">0</div>
                 <div class="detalles">
                     <span id="ingresoTotal">$0 ingresos</span>
-                    <span id="ventasPromedio">$0 promedio</span>
+                    <span id="ventasPromedio">$0 prom.</span>
                 </div>
             </div>
-            <div class="metrica promedio">
-                <h3>⏰ Última Actualización</h3>
-                <div class="valor" id="ultimaSinc" style="font-size: 1.2rem; color: #888;">--:--</div>
-                <div class="detalles"><span id="estadoSinc">Cargando...</span></div>
+            <div class="metrica">
+                <div class="icono-eyebrow">⏰ Última actualización</div>
+                <div class="valor" id="ultimaSinc" style="font-size: 1.3rem; color: var(--texto-tenue);">--:--</div>
+                <div class="detalles"><span id="estadoSinc">Cargando…</span></div>
             </div>
         </div>
 
         <!-- GRÁFICAS -->
         <div class="graficas">
             <div class="grafica-container">
-                <h2>📊 Ventas por Hora (Hoy)</h2>
+                <h2>Ventas por hora (hoy)</h2>
                 <canvas id="graficoHoras"></canvas>
             </div>
             <div class="grafica-container">
-                <h2>👥 Ventas por Vendedor</h2>
+                <h2>Ventas por vendedor</h2>
                 <canvas id="graficoVendedores"></canvas>
             </div>
         </div>
 
         <!-- TABLA -->
         <div class="tabla-ventas">
-            <h2>📋 Últimas Ventas</h2>
+            <h2>Últimas ventas</h2>
             <table>
                 <thead><tr><th>Hora</th><th>Vendedor</th><th>Cliente</th><th>Cantidad</th><th>Método</th><th>Monto</th></tr></thead>
                 <tbody id="tablaVentasBody">
-                    <tr><td colspan="6" class="estado-vacio"><h3>⏳ Cargando ventas...</h3></td></tr>
+                    <tr><td colspan="6" class="estado-vacio"><h3>Cargando ventas…</h3></td></tr>
                 </tbody>
             </table>
         </div>
 
         <!-- BOTONES -->
         <div class="botones-accion">
-            <a href="registro-ventas-centralizado.html" class="btn btn-primary">➕ Registrar Venta</a>
-            <button class="btn btn-secondary" onclick="generarDatosEjemplo()">📊 Datos Ejemplo</button>
+            <a href="registro-ventas-centralizado.html" class="btn btn-primary">➕ Registrar venta</a>
+            <button class="btn btn-secondary" onclick="generarDatosEjemplo()">📊 Datos ejemplo</button>
             <button class="btn btn-secondary" onclick="exportarDatos()">📥 Exportar</button>
         </div>
 
         <!-- FIDELIZACIÓN -->
-        <div style="background: rgba(26,26,26,0.9); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); margin-top: 25px;">
-            <h2 style="color: #eee; margin-bottom: 16px; font-size: 1rem;">🎫 Fidelización</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
-                    <h3 style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Clientes</h3>
-                    <div style="color: #fff; font-size: 1.5rem; font-weight: 700;" id="fidelizacionClientes">0</div>
+        <div class="panel-fidelizacion">
+            <h2>Fidelización</h2>
+            <div class="fidelizacion-grid">
+                <div class="fidelizacion-stat">
+                    <h3>Clientes</h3>
+                    <div class="num" id="fidelizacionClientes">0</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
-                    <h3 style="color: #888; font-size: 0.75rem; text-transform: uppercase;">TOKs Hoy</h3>
-                    <div style="color: #fff; font-size: 1.5rem; font-weight: 700;" id="fidelizacionToksHoy">0</div>
+                <div class="fidelizacion-stat">
+                    <h3>TOKs hoy</h3>
+                    <div class="num" id="fidelizacionToksHoy">0</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
-                    <h3 style="color: #888; font-size: 0.75rem; text-transform: uppercase;">NFTs Activos</h3>
-                    <div style="color: #fff; font-size: 1.5rem; font-weight: 700;" id="fidelizacionNftsActivos">0</div>
+                <div class="fidelizacion-stat">
+                    <h3>NFTs activos</h3>
+                    <div class="num" id="fidelizacionNftsActivos">0</div>
                 </div>
             </div>
-            <a href="fidelizacion.html" class="btn btn-primary">🎫 Ver Panel Fidelización</a>
+            <a href="fidelizacion.html" class="btn btn-primary">Ver panel de fidelización</a>
         </div>
     </div>
 
@@ -343,40 +471,42 @@
     <script src="config.js"></script>
     <script src="base-datos-centralizada.js"></script>
     <script src="fidelizacion.js"></script>
-
     <script>
         // Variables globales
         let chartHoras = null;
         let chartVendedores = null;
         let dashboardInicializado = false;
 
-        /**
-         * Inicia el dashboard
-         */
+        const PALETA = {
+            trigo: 'rgba(212, 168, 87, 0.75)',
+            trigoLinea: 'rgba(212, 168, 87, 1)',
+            horno: 'rgba(194, 104, 62, 0.75)',
+            hornoLinea: 'rgba(194, 104, 62, 1)',
+            salvia: 'rgba(123, 168, 138, 0.75)',
+            salviaLinea: 'rgba(123, 168, 138, 1)',
+            azul: 'rgba(120, 144, 196, 0.75)',
+            azulLinea: 'rgba(120, 144, 196, 1)',
+            terra: 'rgba(176, 120, 90, 0.75)',
+            terraLinea: 'rgba(176, 120, 90, 1)'
+        };
+
         function iniciarDashboard() {
             if (dashboardInicializado) return;
             dashboardInicializado = true;
-
             console.log('🚀 Iniciando Dashboard Central');
 
-            // Esperar a que bd esté disponible
             const esperarBD = setInterval(() => {
                 if (typeof bd !== 'undefined' && bd !== null) {
                     clearInterval(esperarBD);
                     console.log('✅ BD detectada, inicializando...');
-                    
-                    // Cargar datos
                     bd.sincronizarConServidor().then(() => {
                         actualizarDashboard();
                         crearGraficas();
                     });
-                    
-                    // Auto-actualizar
                     setInterval(actualizarDashboard, 5000);
                 }
             }, 500);
 
-            // Timeout por si no se carga
             setTimeout(() => {
                 if (!dashboardInicializado) {
                     console.warn('⚠️ BD no cargada, usando datos de ejemplo');
@@ -388,26 +518,19 @@
             }, 5000);
         }
 
-        /**
-         * Genera datos de ejemplo (fallback)
-         */
         function generarDatosEjemplo() {
             if (typeof bd !== 'undefined' && bd !== null) {
-                // Usar BD real
                 const ventas = bd.obtenerTodasLasVentas();
                 if (ventas.length === 0) {
-                    // Si no hay ventas, crear ejemplo
                     const productos = ['Tortilla', 'Pan', 'Galleta', 'Pastel'];
                     const vendedores = ['María', 'Juan', 'Carlos', 'Ana'];
                     const metodos = ['Efectivo', 'Tarjeta', 'Transferencia'];
-                    
                     for (let i = 0; i < 10; i++) {
                         const cantidad = Math.floor(Math.random() * 5) + 1;
                         const monto = cantidad * (typeof CONFIG !== 'undefined' ? CONFIG.PRECIO_UNITARIO : 75);
                         const hora = Math.floor(Math.random() * 12) + 8;
                         const fecha = new Date();
                         fecha.setHours(hora, Math.floor(Math.random() * 60), 0);
-                        
                         bd.registrarVenta({
                             vendedorNombre: vendedores[Math.floor(Math.random() * vendedores.length)],
                             cliente: `Cliente ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
@@ -426,9 +549,6 @@
             actualizarDashboard();
         }
 
-        /**
-         * Actualiza todo el dashboard
-         */
         function actualizarDashboard() {
             let stats = null;
             let ventas = [];
@@ -439,23 +559,14 @@
             }
 
             if (!stats) {
-                // Datos de fallback
-                stats = {
-                    totalVentas: 0,
-                    ingresoTotal: 0,
-                    ventasHoy: 0,
-                    ingresoHoy: 0,
-                    porcentajeMeta: 0,
-                    ventaPromedio: 0
-                };
+                stats = { totalVentas: 0, ingresoTotal: 0, ventasHoy: 0, ingresoHoy: 0, porcentajeMeta: 0, ventaPromedio: 0 };
                 ventas = [];
             }
 
-            // Actualizar métricas
             document.getElementById('ingresoHoy').textContent = `$${Math.round(stats.ingresoHoy || 0)}`;
             document.getElementById('ventasHoy').textContent = `${stats.ventasHoy || 0} ventas`;
-            document.getElementById('promedio').textContent = stats.ventasHoy > 0 ? 
-                `$${Math.round(stats.ingresoHoy / stats.ventasHoy)} promedio` : '$0 promedio';
+            document.getElementById('promedio').textContent = stats.ventasHoy > 0 ?
+                `$${Math.round(stats.ingresoHoy / stats.ventasHoy)} prom.` : '$0 prom.';
 
             const porcentaje = Math.round(stats.porcentajeMeta || 0);
             document.getElementById('porcentajeMeta').textContent = `${porcentaje}%`;
@@ -468,36 +579,27 @@
 
             document.getElementById('totalVentas').textContent = stats.totalVentas || 0;
             document.getElementById('ingresoTotal').textContent = `$${Math.round(stats.ingresoTotal || 0).toLocaleString('es-MX')} ingresos`;
-            document.getElementById('ventasPromedio').textContent = stats.totalVentas > 0 ? 
-                `$${Math.round(stats.ventaPromedio).toLocaleString('es-MX')} promedio` : 'Sin datos';
+            document.getElementById('ventasPromedio').textContent = stats.totalVentas > 0 ?
+                `$${Math.round(stats.ventaPromedio).toLocaleString('es-MX')} prom.` : 'Sin datos';
 
-            // Última sincronización
             const ahora = new Date();
             document.getElementById('ultimaSinc').textContent = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('estadoSinc').textContent = 'Actualizado ahora';
 
-            // Actualizar tabla
             actualizarTablaVentas(ventas.slice(0, 10));
 
-            // Actualizar gráficas
             if (chartHoras) actualizarGraficaHoras(ventas);
             if (chartVendedores) actualizarGraficaVendedores(ventas);
 
-            // Actualizar fidelización
             actualizarFidelizacion();
         }
 
-        /**
-         * Actualiza la tabla de ventas
-         */
         function actualizarTablaVentas(ventas) {
             const tbody = document.getElementById('tablaVentasBody');
-            
             if (!ventas || ventas.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="estado-vacio"><h3>📭 No hay ventas registradas</h3></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="estado-vacio"><h3>Todavía no hay ventas registradas</h3></td></tr>`;
                 return;
             }
-
             tbody.innerHTML = ventas.map(v => `
                 <tr>
                     <td>${new Date(v.fechaRegistro).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</td>
@@ -510,36 +612,31 @@
             `).join('');
         }
 
-        /**
-         * Crea las gráficas
-         */
         function crearGraficas() {
-            // Gráfica de horas
             const ctxHoras = document.getElementById('graficoHoras').getContext('2d');
             chartHoras = new Chart(ctxHoras, {
                 type: 'bar',
                 data: {
                     labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [{
-                        label: 'Ventas por Hora',
+                        label: 'Ventas por hora',
                         data: Array(24).fill(0),
-                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
-                        borderColor: 'rgba(102, 126, 234, 1)',
-                        borderWidth: 2,
-                        borderRadius: 6
+                        backgroundColor: PALETA.trigo,
+                        borderColor: PALETA.trigoLinea,
+                        borderWidth: 1.5,
+                        borderRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, ticks: { color: '#888' } },
-                        x: { ticks: { color: '#888', maxTicksLimit: 12 } }
+                        y: { beginAtZero: true, ticks: { color: '#a99c8c' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        x: { ticks: { color: '#a99c8c', maxTicksLimit: 12 }, grid: { display: false } }
                     }
                 }
             });
 
-            // Gráfica de vendedores
             const ctxVendedores = document.getElementById('graficoVendedores').getContext('2d');
             chartVendedores = new Chart(ctxVendedores, {
                 type: 'doughnut',
@@ -547,84 +644,54 @@
                     labels: [],
                     datasets: [{
                         data: [],
-                        backgroundColor: [
-                            'rgba(102, 126, 234, 0.7)',
-                            'rgba(118, 75, 162, 0.7)',
-                            'rgba(38, 166, 154, 0.7)',
-                            'rgba(255, 167, 38, 0.7)',
-                            'rgba(33, 150, 243, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(102, 126, 234, 1)',
-                            'rgba(118, 75, 162, 1)',
-                            'rgba(38, 166, 154, 1)',
-                            'rgba(255, 167, 38, 1)',
-                            'rgba(33, 150, 243, 1)'
-                        ],
-                        borderWidth: 2
+                        backgroundColor: [PALETA.trigo, PALETA.horno, PALETA.salvia, PALETA.azul, PALETA.terra],
+                        borderColor: [PALETA.trigoLinea, PALETA.hornoLinea, PALETA.salviaLinea, PALETA.azulLinea, PALETA.terraLinea],
+                        borderWidth: 1.5
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#ccc' } }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { color: '#a99c8c' } } }
                 }
             });
 
-            // Cargar datos iniciales
             const ventas = (typeof bd !== 'undefined' && bd !== null) ? bd.obtenerTodasLasVentas() : [];
             actualizarGraficaHoras(ventas);
             actualizarGraficaVendedores(ventas);
         }
 
-        /**
-         * Actualiza gráfica de horas
-         */
         function actualizarGraficaHoras(ventas) {
             if (!chartHoras) return;
-            
             const ventasPorHora = {};
             ventas.forEach(v => {
                 const hora = new Date(v.fechaRegistro).getHours();
                 ventasPorHora[hora] = (ventasPorHora[hora] || 0) + (v.monto || 0);
             });
-
             const datos = Array.from({length: 24}, (_, i) => ventasPorHora[i] || 0);
             chartHoras.data.datasets[0].data = datos;
             chartHoras.update();
         }
 
-        /**
-         * Actualiza gráfica de vendedores
-         */
         function actualizarGraficaVendedores(ventas) {
             if (!chartVendedores) return;
-            
             const ventasPorVendedor = {};
             ventas.forEach(v => {
                 const nombre = v.vendedorNombre || 'Desconocido';
                 ventasPorVendedor[nombre] = (ventasPorVendedor[nombre] || 0) + (v.monto || 0);
             });
-
             const vendedores = Object.keys(ventasPorVendedor);
             const montos = Object.values(ventasPorVendedor);
-
             chartVendedores.data.labels = vendedores;
             chartVendedores.data.datasets[0].data = montos;
             chartVendedores.update();
         }
 
-        /**
-         * Actualiza métricas de fidelización
-         */
         function actualizarFidelizacion() {
             try {
                 if (typeof sistemaFidelizacion !== 'undefined' && sistemaFidelizacion) {
-                    const resumen = sistemaFidelizacion.obtenerResumenGeneral ? 
-                        sistemaFidelizacion.obtenerResumenGeneral() : 
+                    const resumen = sistemaFidelizacion.obtenerResumenGeneral ?
+                        sistemaFidelizacion.obtenerResumenGeneral() :
                         { totalClientes: 0, toksOtorgadosHoy: 0, nftsActivos: 0 };
-                    
                     document.getElementById('fidelizacionClientes').textContent = resumen.totalClientes || 0;
                     document.getElementById('fidelizacionToksHoy').textContent = resumen.toksOtorgadosHoy || 0;
                     document.getElementById('fidelizacionNftsActivos').textContent = resumen.nftsActivos || 0;
@@ -634,22 +701,17 @@
             }
         }
 
-        /**
-         * Exporta los datos
-         */
         function exportarDatos() {
             let ventas = [];
             if (typeof bd !== 'undefined' && bd !== null) {
                 ventas = bd.obtenerTodasLasVentas();
             }
-
             const datos = {
                 ventas: ventas,
                 totalVentas: ventas.length,
                 ingresoTotal: ventas.reduce((s, v) => s + (v.monto || 0), 0),
                 exportadoEn: new Date().toISOString()
             };
-
             const blob = new Blob([JSON.stringify(datos, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -659,16 +721,13 @@
             URL.revokeObjectURL(url);
         }
 
-        // Exponer funciones globalmente
         window.generarDatosEjemplo = generarDatosEjemplo;
         window.exportarDatos = exportarDatos;
 
-        // Escuchar eventos
         window.addEventListener('sincronizacionCompleta', () => {
             console.log('🔄 Sincronización completada');
             actualizarDashboard();
         });
-
         window.addEventListener('ventaRegistrada', () => {
             console.log('📝 Nueva venta registrada');
             actualizarDashboard();
@@ -677,4 +736,5 @@
         console.log('📊 Dashboard listo');
     </script>
 </body>
-    </html>
+</html>
+
