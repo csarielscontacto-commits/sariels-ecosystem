@@ -2,26 +2,25 @@
  * CONFIGURACIÓN CENTRALIZADA
  * Versión simplificada y estable
  */
-
 const CONFIG = {
     // Precios y moneda
     PRECIO_UNITARIO: 75,
     MONEDA: 'MXN',
-    
+
     // Metas
     METAS: {
         DIARIA: 10000,
         SEMANAL: 70000,
         MENSUAL: 300000
     },
-    
+
     // Base de datos
     DATABASE: {
         SYNC_INTERVAL: 5000, // 5 segundos
         URL_GIST: 'https://api.github.com/gists/1234567890', // ¡CAMBIA ESTO!
         GIST_ID: '1234567890' // ¡CAMBIA ESTO!
     },
-    
+
     // Almacenamiento local
     STORAGE_KEYS: {
         VENTAS: 'ventas_centralizadas',
@@ -29,7 +28,12 @@ const CONFIG = {
         LAST_SYNC: 'ultimo_sincronismo',
         VENDEDOR_ACTUAL: 'vendedor_actual'
     },
-    
+
+    // Almacenamiento de fidelización (NFT por contador de transacciones)
+    STORAGE: {
+        NFT_CLIENTES_KEY: 'nft_clientes_estado'
+    },
+
     // Web3 / Blockchain (opcional)
     WEB3_REWARDS: {
         REWARD_NFT_ADDRESS: '0x...',
