@@ -1,3 +1,11 @@
+// --- 0. CONFIGURACIÓN DE NUBE (PENDIENTE DE ACTIVAR) ---
+// Cuando tengas tus datos de Supabase, solo escribe aquí tu URL y Key.
+const NUBE = {
+    url: 'AQUI_PEGARAS_TU_URL_DE_SUPABASE',
+    key: 'AQUI_PEGARAS_TU_ANON_KEY'
+};
+// const supabase = supabase.createClient(NUBE.url, NUBE.key); // Esto lo activaremos luego
+
 // --- 1. Verificación de seguridad legal ---
 function verificarAcceso() {
     if (!localStorage.getItem('aceptoTerminos')) {
@@ -67,16 +75,9 @@ function renderContactos() {
 }
 
 // --- Acciones de Usuario ---
-function renderizarAccionesFidelizacion(id, contenedor) {
-    const toks = 150; 
-    if (toks >= 100) {
-        contenedor.innerHTML += `
-            <div class="fidelizacion-box" style="margin-top: 15px; border-top: 1px solid var(--linea); padding-top: 10px;">
-                <p style="color: var(--trigo); font-size: 0.9em; margin-bottom: 8px;">⭐ Elegible para NFT: ${toks} TOKs</p>
-                <button class="btn-accion btn-web3" onclick="iniciarCanjeNFT('${id}')" style="width:100%; background: var(--salvia); border: none; padding: 10px; border-radius: 6px; cursor: pointer;">💎 Canjear NFT / Mint</button>
-            </div>
-        `;
-    }
+function irAChat(id) {
+    // Aquí es donde en el futuro llamaremos a CometChat
+    alert("Conectando con el Ecosistema Sariel: Chat para " + id);
 }
 
 function abrirPerfil(id) {
@@ -86,36 +87,15 @@ function abrirPerfil(id) {
     document.getElementById('perfilAvatarGrande').innerHTML = avatarHTML(p);
     document.getElementById('perfilNombreModal').textContent = p.nombre;
     
-    // Lógica de privacidad
     const esContacto = relaciones[id] === 'contacto';
     const telDisplay = (p.privacidad === 'publico' || esContacto) ? p.telefono : '🔒 Número privado';
     document.getElementById('perfilTelefonoModal').textContent = telDisplay;
     
-    const nivelEl = document.getElementById('perfilNivelModal');
-    nivelEl.textContent = `${emojiNivel(p.nivel)} ${p.nivel}`;
-    nivelEl.className = `nivel-chip ${p.nivel}`;
-    
-    const acciones = document.getElementById('perfilAccionesModal');
-    acciones.innerHTML = '';
-    
-    if (esContacto) {
-        acciones.innerHTML = `<button class="btn-accion btn-mensaje" style="flex:1;" onclick="cerrarModal(); irAChat('${id}')">💬 Enviar mensaje</button>`;
-        if (p.privacidad === 'publico' || esContacto) {
-            acciones.innerHTML += `<button class="btn-accion" onclick="window.open('https://wa.me/${p.telefono.replace(/\s/g, '')}', '_blank')" style="background:#25D366; color:white; margin-top:5px;">📱 WhatsApp</button>`;
-        }
-        renderizarAccionesFidelizacion(id, acciones);
-    } else if (relaciones[id] === 'solicitud_enviada') {
-        acciones.innerHTML = `<button class="btn-accion" disabled>Solicitud enviada</button>`;
-    } else {
-        acciones.innerHTML = `<button class="btn-accion" onclick="enviarSolicitud('${id}'); cerrarModal();">➕ Agregar contacto</button>`;
-    }
     document.getElementById('modalPerfil').classList.add('activo');
 }
 
 function cerrarModal() { document.getElementById('modalPerfil').classList.remove('activo'); }
-function mostrarToast(mensaje) { /* ... tu lógica de toast existente ... */ }
 
 // --- Inicialización ---
 cargarDatos();
 renderContactos();
-// (Asegúrate de mantener tus otras funciones de renderizado abajo)
