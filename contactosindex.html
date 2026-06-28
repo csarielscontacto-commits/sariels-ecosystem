@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Red - Sariel's Ecosystem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --masa: #1c1714;
+            --masa-alta: #251e19;
+            --panel: #2a221c;
+            --linea: rgba(212, 168, 87, 0.12);
+            --trigo: #d4a857;
+            --trigo-suave: rgba(212, 168, 87, 0.14);
+            --horno: #c2683e;
+            --salvia: #7ba88a;
+            --salvia-suave: rgba(123, 168, 138, 0.14);
+            --texto: #f3ece2;
+            --texto-tenue: #a99c8c;
+            --texto-debil: #6b6055;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at 15% 0%, rgba(212, 168, 87, 0.07), transparent 40%),
+                radial-gradient(circle at 100% 30%, rgba(194, 104, 62, 0.06), transparent 45%),
+                var(--masa);
+            min-height: 100vh;
+            color: var(--texto);
+            padding-bottom: 40px;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header p { color: var(--texto-tenue); font-size: 0.85rem; margin-top: 2px; }
+
+        .buscador { position: relative; margin-bottom: 20px; }
+        .buscador input {
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--linea);
+            border-radius: 14px;
+            padding: 12px 16px 12px 42px;
+            color: var(--texto);
+            font-size: 0.95rem;
+        }
+        .buscador input:focus { outline: none; border-color: var(--trigo); }
+        .buscador .icono-buscar { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--texto-debil); }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid var(--linea); }
+        .tab {
+            background: none; border: none; color: var(--texto-debil);
+            padding: 10px 4px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+            border-bottom: 2px solid transparent; margin-right: 16px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .tab.activo { color: var(--trigo); border-bottom-color: var(--trigo); }
+        .tab .contador-badge { background: var(--horno); color: white; font-size: 0.68rem; padding: 1px 7px; border-radius: 50px; font-weight: 700; }
+
+        .persona-card {
+            background: var(--panel); border: 1px solid var(--linea); border-radius: 14px;
+            padding: 14px 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+        }
+        .avatar {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--trigo), var(--horno));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--masa); font-size: 1.1rem;
+            flex-shrink: 0; overflow: hidden; cursor: pointer;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .persona-info { flex: 1; min-width: 0; cursor: pointer; }
+        .persona-info .nombre { font-weight: 600; font-size: 0.95rem; }
+        .persona-info .meta { font-size: 0.78rem; color: var(--texto-tenue); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+
+        .nivel-chip { font-size: 0.66rem; padding: 1px 8px; border-radius: 50px; font-weight: 700; text-transform: uppercase; }
+        .nivel-chip.bronce { background: rgba(184, 115, 51, 0.18); color: #d99b5f; }
+        .nivel-chip.plata { background: rgba(192, 194, 200, 0.18); color: #c0c2c8; }
+        .nivel-chip.oro { background: rgba(232, 194, 82, 0.18); color: #e8c252; }
+        .nivel-chip.diamante { background: rgba(126, 200, 227, 0.18); color: #7ec8e3; }
+
+        .acciones-persona { display: flex; gap: 8px; flex-shrink: 0; }
+        .btn-accion { border: none; border-radius: 10px; padding: 9px 14px; font-weight: 700; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+        .btn-agregar { background: linear-gradient(135deg, var(--trigo), var(--horno)); color: var(--masa); }
+        .btn-pendiente { background: var(--masa-alta); color: var(--texto-debil); border: 1px solid var(--linea); cursor: default; }
+        .btn-mensaje { background: var(--salvia-suave); color: var(--salvia); }
+        .btn-aceptar { background: var(--salvia); color: var(--masa); }
+        .btn-rechazar { background: transparent; color: var(--texto-debil); border: 1px solid var(--linea); }
+
+        .estado-vacio { text-align: center; padding: 50px 20px; color: var(--texto-debil); }
+        .estado-vacio .icono { font-size: 2.2rem; margin-bottom: 10px; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+        .modal-overlay.activo { display: flex; }
+        .modal-box { background: var(--panel); border: 1px solid var(--linea); border-radius: 18px; padding: 26px; max-width: 380px; width: 100%; text-align: center; }
+        .modal-box .avatar-grande {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--trigo), var(--horno));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--masa); font-size: 2rem; margin: 0 auto 14px; overflow: hidden;
+        }
+        .modal-box .avatar-grande img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-box h3 { font-family: 'Fraunces', serif; font-size: 1.25rem; margin-bottom: 6px; }
+        .modal-box .telefono { color: var(--texto-tenue); font-size: 0.88rem; margin-bottom: 12px; }
+        .modal-box .nivel-chip { font-size: 0.75rem; padding: 4px 12px; margin-bottom: 18px; display: inline-block; }
+        .modal-acciones { display: flex; gap: 10px; margin-top: 6px; }
+        .modal-acciones button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 700; font-size: 0.88rem; cursor: pointer; }
+
+        .mi-perfil-card {
+            background: var(--panel); border: 1px solid var(--linea); border-radius: 16px;
+            padding: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+        }
+        .mi-perfil-card .avatar { width: 56px; height: 56px; font-size: 1.3rem; }
+        .mi-perfil-card .nombre { font-weight: 700; font-size: 1.05rem; }
+        .mi-perfil-card .sub { color: var(--texto-tenue); font-size: 0.8rem; margin-top: 2px; }
+
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--salvia); color: var(--masa); padding: 12px 20px; border-radius: 10px;
+            font-weight: 600; font-size: 0.88rem; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 60;
+        }
+        .toast.activo { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 480px) {
+            .persona-card { flex-wrap: wrap; }
+            .acciones-persona { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🌾 Mi Red</h1>
+                <p>Tu comunidad dentro de Sariel's Ecosystem</p>
+            </div>
+        </div>
+
+        <div class="mi-perfil-card">
+            <label for="inputFotoPerfil" style="cursor:pointer;">
+                <div class="avatar" id="miAvatarPreview">T</div>
+            </label>
+            <input type="file" id="inputFotoPerfil" accept="image/*" style="display:none;" onchange="cambiarFotoPerfil(event)">
+            <div>
+                <div class="nombre" id="miNombre">Tú</div>
+                <div class="sub">Toca tu foto para cambiarla · <span id="miContactosCount">0</span> contactos</div>
+            </div>
+        </div>
+
+        <div class="buscador">
+            <span class="icono-buscar">🔍</span>
+            <input type="text" id="inputBuscar" placeholder="Buscar clientes por nombre..." oninput="renderBuscar()">
+        </div>
+
+        <div class="tabs">
+            <button class="tab activo" data-tab="contactos" onclick="cambiarTab('contactos')">Mis contactos</button>
+            <button class="tab" data-tab="solicitudes" onclick="cambiarTab('solicitudes')">
+                Solicitudes <span class="contador-badge" id="badgeSolicitudes" style="display:none;">0</span>
+            </button>
+            <button class="tab" data-tab="descubrir" onclick="cambiarTab('descubrir')">Descubrir</button>
+        </div>
+
+        <div id="tab-contactos"><div id="listaContactos"></div></div>
+        <div id="tab-solicitudes" style="display:none;"><div id="listaSolicitudes"></div></div>
+        <div id="tab-descubrir" style="display:none;"><div id="listaDescubrir"></div></div>
+    </div>
+
+    <div class="modal-overlay" id="modalPerfil">
+        <div class="modal-box">
+            <div class="avatar-grande" id="perfilAvatarGrande"></div>
+            <h3 id="perfilNombreModal"></h3>
+            <p class="telefono" id="perfilTelefonoModal"></p>
+            <span class="nivel-chip" id="perfilNivelModal"></span>
+            <div class="modal-acciones" id="perfilAccionesModal"></div>
+            <div style="margin-top:10px;">
+                <button style="width:100%; padding:11px; border-radius:10px; background:transparent; border:1px solid var(--linea); color:var(--texto-debil); font-weight:600; cursor:pointer;" onclick="cerrarModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let miPerfil = { nombre: 'Tú', telefono: '55 0000 0000', fotoPerfil: null };
+
+        let todosLosClientes = [
+            { id: 'cli_001', nombre: 'María García', telefono: '55 1234 5678', nivel: 'oro', fotoPerfil: null },
+            { id: 'cli_002', nombre: 'Carlos Ruiz', telefono: '55 2345 6789', nivel: 'plata', fotoPerfil: null },
+            { id: 'cli_003', nombre: 'Ana López', telefono: '55 3456 7890', nivel: 'diamante', fotoPerfil: null },
+            { id: 'cli_004', nombre: 'Luis Morales', telefono: '55 4567 8901', nivel: 'bronce', fotoPerfil: null },
+            { id: 'cli_005', nombre: 'Pedro Sánchez', telefono: '55 5678 9012', nivel: 'plata', fotoPerfil: null },
+            { id: 'cli_006', nombre: 'Lupita Vega', telefono: '55 6789 0123', nivel: 'bronce', fotoPerfil: null },
+        ];
+
+        let relaciones = {
+            'cli_001': 'contacto',
+            'cli_002': 'contacto',
+            'cli_003': 'solicitud_recibida',
+            'cli_004': 'solicitud_enviada',
+        };
+
+        function emojiNivel(nivel) {
+            return { bronce: '🥉', plata: '🥈', oro: '🥇', diamante: '💎' }[nivel] || '🍪';
+        }
+
+        function avatarHTML(persona) {
+            return persona.fotoPerfil ? `<img src="${persona.fotoPerfil}" alt="${persona.nombre}">` : persona.nombre.charAt(0);
+        }
+
+        function renderContactos() {
+            const ids = Object.keys(relaciones).filter(id => relaciones[id] === 'contacto');
+            const cont = document.getElementById('listaContactos');
+
+            if (ids.length === 0) {
+                cont.innerHTML = `<div class="estado-vacio"><div class="icono">👥</div>Todavía no tienes contactos.<br>Ve a "Descubrir" para agregar clientes.</div>`;
+                document.getElementById('miContactosCount').textContent = '0';
+                return;
+            }
+
+            document.getElementById('miContactosCount').textContent = ids.length;
+
+            cont.innerHTML = ids.map(id => {
+                const p = todosLosClientes.find(c => c.id === id);
+                return `
+                    <div class="persona-card">
+                        <div class="avatar" onclick="abrirPerfil('${p.id}')">${avatarHTML(p)}</div>
+                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
+                            <div class="nombre">${p.nombre}</div>
+                            <div class="meta"><span class="nivel-chip ${p.nivel}">${emojiNivel(p.nivel)} ${p.nivel}</span></div>
+                        </div>
+                        <div class="acciones-persona">
+                            <button class="btn-accion btn-mensaje" onclick="irAChat('${p.id}')">💬 Chat</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSolicitudes() {
+            const ids = Object.keys(relaciones).filter(id => relaciones[id] === 'solicitud_recibida');
+            const cont = document.getElementById('listaSolicitudes');
+            const badge = document.getElementById('badgeSolicitudes');
+
+            if (ids.length === 0) {
+                badge.style.display = 'none';
+                cont.innerHTML = `<div class="estado-vacio"><div class="icono">📭</div>No tienes solicitudes pendientes.</div>`;
+                return;
+            }
+
+            badge.style.display = 'inline-block';
+            badge.textContent = ids.length;
+
+            cont.innerHTML = ids.map(id => {
+                const p = todosLosClientes.find(c => c.id === id);
+                return `
+                    <div class="persona-card">
+                        <div class="avatar" onclick="abrirPerfil('${p.id}')">${avatarHTML(p)}</div>
+                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
+                            <div class="nombre">${p.nombre}</div>
+                            <div class="meta"><span class="nivel-chip ${p.nivel}">${emojiNivel(p.nivel)} ${p.nivel}</span></div>
+                        </div>
+                        <div class="acciones-persona">
+                            <button class="btn-accion btn-aceptar" onclick="aceptarSolicitud('${p.id}')">Aceptar</button>
+                            <button class="btn-accion btn-rechazar" onclick="rechazarSolicitud('${p.id}')">Rechazar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDescubrir(filtro = '') {
+            const cont = document.getElementById('listaDescubrir');
+            const ids = todosLosClientes
+                .filter(c => !relaciones[c.id] || relaciones[c.id] === 'solicitud_enviada')
+                .filter(c => c.nombre.toLowerCase().includes(filtro.toLowerCase()))
+                .map(c => c.id);
+
+            if (ids.length === 0) {
+                cont.innerHTML = `<div class="estado-vacio"><div class="icono">🔎</div>No hay más clientes para descubrir.</div>`;
+                return;
+            }
+
+            cont.innerHTML = ids.map(id => {
+                const p = todosLosClientes.find(c => c.id === id);
+                const enviada = relaciones[id] === 'solicitud_enviada';
+                return `
+                    <div class="persona-card">
+                        <div class="avatar" onclick="abrirPerfil('${p.id}')">${avatarHTML(p)}</div>
+                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
+                            <div class="nombre">${p.nombre}</div>
+                            <div class="meta"><span class="nivel-chip ${p.nivel}">${emojiNivel(p.nivel)} ${p.nivel}</span></div>
+                        </div>
+                        <div class="acciones-persona">
+                            ${enviada
+                                ? `<button class="btn-accion btn-pendiente" disabled>Solicitud enviada</button>`
+                                : `<button class="btn-accion btn-agregar" onclick="enviarSolicitud('${p.id}')">➕ Agregar</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderBuscar() {
+            const valor = document.getElementById('inputBuscar').value;
+            renderDescubrir(valor);
+            cambiarTab('descubrir');
+        }
+
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('activo', t.dataset.tab === tab));
+            document.getElementById('tab-contactos').style.display = tab === 'contactos' ? 'block' : 'none';
+            document.getElementById('tab-solicitudes').style.display = tab === 'solicitudes' ? 'block' : 'none';
+            document.getElementById('tab-descubrir').style.display = tab === 'descubrir' ? 'block' : 'none';
+        }
+
+        function enviarSolicitud(id) {
+            relaciones[id] = 'solicitud_enviada';
+            renderDescubrir(document.getElementById('inputBuscar').value);
+            mostrarToast('✅ Solicitud enviada');
+        }
+
+        function aceptarSolicitud(id) {
+            relaciones[id] = 'contacto';
+            renderSolicitudes();
+            renderContactos();
+            mostrarToast('🎉 Ahora son contactos');
+        }
+
+        function rechazarSolicitud(id) {
+            delete relaciones[id];
+            renderSolicitudes();
+            mostrarToast('Solicitud rechazada');
+        }
+
+        function irAChat(id) {
+            const p = todosLosClientes.find(c => c.id === id);
+            mostrarToast(`Abriendo chat con ${p.nombre}... (pendiente de conectar CometChat)`);
+        }
+
+        function abrirPerfil(id) {
+            const p = todosLosClientes.find(c => c.id === id);
+            if (!p) return;
+
+            document.getElementById('perfilAvatarGrande').innerHTML = avatarHTML(p);
+            document.getElementById('perfilNombreModal').textContent = p.nombre;
+            document.getElementById('perfilTelefonoModal').textContent = p.telefono;
+            const nivelEl = document.getElementById('perfilNivelModal');
+            nivelEl.textContent = `${emojiNivel(p.nivel)} ${p.nivel}`;
+            nivelEl.className = `nivel-chip ${p.nivel}`;
+
+            const acciones = document.getElementById('perfilAccionesModal');
+            const estado = relaciones[id];
+
+            if (estado === 'contacto') {
+                acciones.innerHTML = `<button class="btn-accion btn-mensaje" style="flex:1;" onclick="cerrarModal(); irAChat('${id}')">💬 Enviar mensaje</button>`;
+            } else if (estado === 'solicitud_enviada') {
+                acciones.innerHTML = `<button class="btn-accion btn-pendiente" style="flex:1;" disabled>Solicitud enviada</button>`;
+            } else if (estado === 'solicitud_recibida') {
+                acciones.innerHTML = `
+                    <button class="btn-accion btn-aceptar" onclick="aceptarSolicitud('${id}'); cerrarModal();">Aceptar</button>
+                    <button class="btn-accion btn-rechazar" onclick="rechazarSolicitud('${id}'); cerrarModal();">Rechazar</button>
+                `;
+            } else {
+                acciones.innerHTML = `<button class="btn-accion btn-agregar" style="flex:1;" onclick="enviarSolicitud('${id}'); cerrarModal();">➕ Agregar contacto</button>`;
+            }
+
+            document.getElementById('modalPerfil').classList.add('activo');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalPerfil').classList.remove('activo');
+        }
+
+        function cambiarFotoPerfil(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                miPerfil.fotoPerfil = e.target.result;
+                document.getElementById('miAvatarPreview').innerHTML = `<img src="${e.target.result}" alt="Tú">`;
+                mostrarToast('✅ Foto de perfil actualizada');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.classList.add('activo');
+            setTimeout(() => toast.classList.remove('activo'), 2800);
+        }
+
+        renderContactos();
+        renderSolicitudes();
+        renderDescubrir();
+    </script>
+</body>
+  </html>
