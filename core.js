@@ -116,6 +116,26 @@ function rechazarSolicitud(id) {
     mostrarToast('Solicitud rechazada');
 }
 
+// --- Integración Web3 / Fidelización en el Modal ---
+function renderizarAccionesFidelizacion(id, contenedor) {
+    const toks = 150; // Ejemplo: Esto vendría de tu clase SistemaFidelizacion
+    if (toks >= 100) {
+        contenedor.innerHTML += `
+            <div class="fidelizacion-box" style="margin-top: 15px; border-top: 1px solid var(--linea); padding-top: 10px;">
+                <p style="color: var(--trigo); font-size: 0.9em; margin-bottom: 8px;">⭐ Elegible para NFT: ${toks} TOKs</p>
+                <button class="btn-accion btn-web3" onclick="iniciarCanjeNFT('${id}')" style="width:100%; background: var(--salvia); border: none; padding: 10px; border-radius: 6px; cursor: pointer;">
+                    💎 Canjear NFT / Mint
+                </button>
+            </div>
+        `;
+    }
+}
+
+function iniciarCanjeNFT(id) {
+    mostrarToast('🚀 Conectando a Polygon Amoy...');
+    console.log("Iniciando mint para:", id);
+}
+
 function abrirPerfil(id) {
     const p = todosLosClientes.find(c => c.id === id);
     if (!p) return;
@@ -125,12 +145,17 @@ function abrirPerfil(id) {
     const nivelEl = document.getElementById('perfilNivelModal');
     nivelEl.textContent = `${emojiNivel(p.nivel)} ${p.nivel}`;
     nivelEl.className = `nivel-chip ${p.nivel}`;
+    
     const acciones = document.getElementById('perfilAccionesModal');
     const estado = relaciones[id];
-    if (estado === 'contacto') acciones.innerHTML = `<button class="btn-accion btn-mensaje" style="flex:1;" onclick="cerrarModal(); irAChat('${id}')">💬 Enviar mensaje</button>`;
-    else if (estado === 'solicitud_enviada') acciones.innerHTML = `<button class="btn-accion btn-pendiente" style="flex:1;" disabled>Solicitud enviada</button>`;
+    
+    if (estado === 'contacto') {
+        acciones.innerHTML = `<button class="btn-accion btn-mensaje" style="flex:1;" onclick="cerrarModal(); irAChat('${id}')">💬 Enviar mensaje</button>`;
+        renderizarAccionesFidelizacion(id, acciones); // Inyectamos botón de fidelización
+    } else if (estado === 'solicitud_enviada') acciones.innerHTML = `<button class="btn-accion btn-pendiente" style="flex:1;" disabled>Solicitud enviada</button>`;
     else if (estado === 'solicitud_recibida') acciones.innerHTML = `<button class="btn-accion btn-aceptar" onclick="aceptarSolicitud('${id}'); cerrarModal();">Aceptar</button><button class="btn-accion btn-rechazar" onclick="rechazarSolicitud('${id}'); cerrarModal();">Rechazar</button>`;
     else acciones.innerHTML = `<button class="btn-accion btn-agregar" style="flex:1;" onclick="enviarSolicitud('${id}'); cerrarModal();">➕ Agregar contacto</button>`;
+    
     document.getElementById('modalPerfil').classList.add('activo');
 }
 
@@ -148,3 +173,4 @@ cargarDatos();
 renderContactos();
 renderSolicitudes();
 renderDescubrir();
+
