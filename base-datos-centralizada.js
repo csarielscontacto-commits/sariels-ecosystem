@@ -1,18 +1,18 @@
 /**
- * SISTEMA CENTRALIZADO: CONEXIÓN AUTOMÁTICA
+ * SISTEMA CENTRALIZADO: CONEXIÓN AUTOMÁTICA A SUPABASE
  */
 class BaseDatosCentralizada {
     constructor() {
         this.supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-        // Esta clave es pública y necesaria para que el sistema se conecte a tu tabla
-        this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5NTY4MDB9.SU_CLAVE_AQUI_O_YA_CONFIGURADA'; 
+        // PEGA AQUÍ ABAJO TU CLAVE API (ANON PUBLIC) - CÓPIALA DE SETTINGS > API
+        this.supabaseKey = 'AQUI_VA_TU_CLAVE_ANON_PUBLIC'; 
         this.ventasLocales = [];
         this.inicializar();
     }
 
     inicializar() {
         this.cargarVentasLocales();
-        console.log('✅ Sistema conectado a: ' + this.supabaseUrl);
+        console.log('✅ Sistema conectado a la nube en: ' + this.supabaseUrl);
     }
 
     cargarVentasLocales() {
@@ -42,13 +42,16 @@ class BaseDatosCentralizada {
             });
 
             if (response.ok) {
-                console.log('🚀 ¡Venta enviada a la base de datos!');
+                console.log('🚀 ¡Éxito! Venta enviada a la base de datos.');
+            } else {
+                const errorData = await response.text();
+                console.error('❌ Error al guardar en Supabase:', errorData);
             }
         } catch (e) {
             console.error('❌ Error de conexión:', e);
         }
 
-        // Guardar localmente
+        // Guardar localmente y disparar evento para el Dashboard
         this.ventasLocales.push(nuevaVenta);
         localStorage.setItem('ventas_centralizadas', JSON.stringify(this.ventasLocales));
         window.dispatchEvent(new CustomEvent('ventaRegistrada', { detail: nuevaVenta }));
@@ -56,3 +59,4 @@ class BaseDatosCentralizada {
 }
 
 window.bd = new BaseDatosCentralizada();
+
