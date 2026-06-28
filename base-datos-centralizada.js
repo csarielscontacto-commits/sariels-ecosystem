@@ -5,7 +5,7 @@ class BaseDatosCentralizada {
     constructor() {
         this.supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
         // PEGA AQUÍ ABAJO TU CLAVE API (ANON PUBLIC) - CÓPIALA DE SETTINGS > API
-        this.supabaseKey = 'AQUI_VA_TU_CLAVE_ANON_PUBLIC'; 
+        this.supabaseKey = 'sb_publishable_GWNmmwICFc2dkJx2BXdY8Q_-5qAC-Dg'; 
         this.ventasLocales = [];
         this.inicializar();
     }
