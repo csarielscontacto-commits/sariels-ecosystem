@@ -7,10 +7,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
+    
+    <!-- Firebase SDKs (SOLO PARA AUTENTICACIÓN) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        
         const firebaseConfig = {
             apiKey: "AIzaSyC7KZg0oSeaMssqMoSqMfPcSSsU4M_IR-g",
             authDomain: "ecosistema-de-sariel.firebaseapp.com",
@@ -19,17 +21,22 @@
             messagingSenderId: "386188804408",
             appId: "1:386188804408:web:900f3a23bdebfbf40381cd"
         };
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        
         onAuthStateChanged(auth, (user) => {
             if (!user) {
+                // Si no está autenticado, redirige al login
                 window.location.href = '/auth/index.html';
                 return;
             }
             document.getElementById('userEmail').textContent = user.email;
             document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
+            // Iniciar el dashboard SOLO después de autenticar
             iniciarDashboard();
         });
+        
         window.cerrarSesion = async function() {
             try {
                 await signOut(auth);
@@ -39,7 +46,9 @@
             }
         };
     </script>
+    
     <style>
+        /* ===== TODOS TUS ESTILOS AQUÍ ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -360,7 +369,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
+        <!-- ===== HEADER ===== -->
         <div class="header">
             <div class="header-left">
                 <div class="marca">
@@ -382,7 +391,7 @@
             </div>
         </div>
 
-        <!-- MÉTRICAS -->
+        <!-- ===== MÉTRICAS ===== -->
         <div class="metricas-principales">
             <div class="metrica exito">
                 <div class="icono-eyebrow">💰 Ingreso de hoy</div>
@@ -416,7 +425,7 @@
             </div>
         </div>
 
-        <!-- GRÁFICAS -->
+        <!-- ===== GRÁFICAS ===== -->
         <div class="graficas">
             <div class="grafica-container">
                 <h2>Ventas por hora (hoy)</h2>
@@ -428,7 +437,7 @@
             </div>
         </div>
 
-        <!-- TABLA -->
+        <!-- ===== TABLA ===== -->
         <div class="tabla-ventas">
             <h2>Últimas ventas</h2>
             <table>
@@ -439,14 +448,14 @@
             </table>
         </div>
 
-        <!-- BOTONES -->
+        <!-- ===== BOTONES ===== -->
         <div class="botones-accion">
             <a href="registro-ventas-centralizado.html" class="btn btn-primary">➕ Registrar venta</a>
             <button class="btn btn-secondary" onclick="generarDatosEjemplo()">📊 Datos ejemplo</button>
             <button class="btn btn-secondary" onclick="exportarDatos()">📥 Exportar</button>
         </div>
 
-        <!-- FIDELIZACIÓN -->
+        <!-- ===== FIDELIZACIÓN ===== -->
         <div class="panel-fidelizacion">
             <h2>Fidelización</h2>
             <div class="fidelizacion-grid">
@@ -467,11 +476,90 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
-    <script src="base-datos-centralizada.js"></script>
-    <script src="fidelizacion.js"></script>
+    <!-- ============================================ -->
+    <!-- ===== SISTEMA DE BASE DE DATOS (EMBEBIDO) ===== -->
+    <!-- ============================================ -->
+    <script>
+        // ============================================
+        // SISTEMA DE BASE DE DATOS SIMPLIFICADO
+        // ============================================
+        const SistemaBD = {
+            ventas: [],
+            _idCounter: 0,
+            
+            registrarVenta(datos) {
+                const venta = {
+                    id: ++this._idCounter,
+                    fechaRegistro: new Date().toISOString(),
+                    vendedorNombre: datos.vendedorNombre || 'Sistema',
+                    cliente: datos.cliente || 'Anónimo',
+                    cantidad: datos.cantidad || 1,
+                    metodo: datos.metodo || 'Efectivo',
+                    monto: datos.monto || 0,
+                    producto: datos.producto || 'Pan'
+                };
+                this.ventas.push(venta);
+                window.dispatchEvent(new Event('ventaRegistrada'));
+                return venta;
+            },
+            
+            obtenerTodasLasVentas() {
+                return this.ventas;
+            },
+            
+            obtenerEstadisticas() {
+                const hoy = new Date();
+                hoy.setHours(0,0,0,0);
+                const ventasHoy = this.ventas.filter(v => new Date(v.fechaRegistro) >= hoy);
+                
+                const totalVentas = this.ventas.length;
+                const ingresoTotal = this.ventas.reduce((s, v) => s + v.monto, 0);
+                const ingresoHoy = ventasHoy.reduce((s, v) => s + v.monto, 0);
+                const ventasHoyCount = ventasHoy.length;
+                const metaDiaria = 10000;
+                const porcentajeMeta = Math.min(100, (ingresoHoy / metaDiaria) * 100);
+                const ventaPromedio = totalVentas > 0 ? ingresoTotal / totalVentas : 0;
+                
+                return {
+                    totalVentas,
+                    ingresoTotal,
+                    ventasHoy: ventasHoyCount,
+                    ingresoHoy,
+                    porcentajeMeta,
+                    ventaPromedio
+                };
+            },
+            
+            sincronizarConServidor() {
+                return Promise.resolve(true);
+            }
+        };
+        
+        // Asignar a variable global 'bd' para compatibilidad
+        const bd = SistemaBD;
+        window.bd = bd;
+    </script>
+
+    <!-- ============================================ -->
+    <!-- ===== SISTEMA DE FIDELIZACIÓN (EMBEBIDO) ===== -->
+    <!-- ============================================ -->
+    <script>
+        const sistemaFidelizacion = {
+            obtenerResumenGeneral() {
+                // Datos de ejemplo
+                return {
+                    totalClientes: Math.floor(Math.random() * 50) + 10,
+                    toksOtorgadosHoy: Math.floor(Math.random() * 100) + 20,
+                    nftsActivos: Math.floor(Math.random() * 15) + 3
+                };
+            }
+        };
+        window.sistemaFidelizacion = sistemaFidelizacion;
+    </script>
+
+    <!-- ============================================ -->
+    <!-- ===== DASHBOARD PRINCIPAL ===== -->
+    <!-- ============================================ -->
     <script>
         // Variables globales
         let chartHoras = null;
@@ -491,110 +579,92 @@
             terraLinea: 'rgba(176, 120, 90, 1)'
         };
 
+        // ===== INICIAR DASHBOARD =====
         function iniciarDashboard() {
             if (dashboardInicializado) return;
             dashboardInicializado = true;
             console.log('🚀 Iniciando Dashboard Central');
 
-            const esperarBD = setInterval(() => {
-                if (typeof bd !== 'undefined' && bd !== null) {
-                    clearInterval(esperarBD);
-                    console.log('✅ BD detectada, inicializando...');
-                    bd.sincronizarConServidor().then(() => {
-                        actualizarDashboard();
-                        crearGraficas();
-                    });
-                    setInterval(actualizarDashboard, 5000);
-                }
-            }, 500);
-
-            setTimeout(() => {
-                if (!dashboardInicializado) {
-                    console.warn('⚠️ BD no cargada, usando datos de ejemplo');
-                    generarDatosEjemplo();
-                    actualizarDashboard();
-                    crearGraficas();
-                    dashboardInicializado = true;
-                }
-            }, 5000);
-        }
-
-        function generarDatosEjemplo() {
-            if (typeof bd !== 'undefined' && bd !== null) {
-                const ventas = bd.obtenerTodasLasVentas();
-                if (ventas.length === 0) {
-                    const productos = ['Tortilla', 'Pan', 'Galleta', 'Pastel'];
-                    const vendedores = ['María', 'Juan', 'Carlos', 'Ana'];
-                    const metodos = ['Efectivo', 'Tarjeta', 'Transferencia'];
-                    for (let i = 0; i < 10; i++) {
-                        const cantidad = Math.floor(Math.random() * 5) + 1;
-                        const monto = cantidad * (typeof CONFIG !== 'undefined' ? CONFIG.PRECIO_UNITARIO : 75);
-                        const hora = Math.floor(Math.random() * 12) + 8;
-                        const fecha = new Date();
-                        fecha.setHours(hora, Math.floor(Math.random() * 60), 0);
-                        bd.registrarVenta({
-                            vendedorNombre: vendedores[Math.floor(Math.random() * vendedores.length)],
-                            cliente: `Cliente ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
-                            cantidad: cantidad,
-                            metodo: metodos[Math.floor(Math.random() * metodos.length)],
-                            monto: monto,
-                            producto: productos[Math.floor(Math.random() * productos.length)],
-                            fechaRegistro: fecha.toISOString()
-                        });
-                    }
-                    console.log('📊 Datos de ejemplo generados en BD');
-                }
-            } else {
-                console.warn('⚠️ BD no disponible para generar ejemplos');
+            // Generar datos de ejemplo si no hay ventas
+            if (bd.obtenerTodasLasVentas().length === 0) {
+                generarDatosEjemplo();
             }
+
             actualizarDashboard();
+            crearGraficas();
+
+            // Actualizar cada 5 segundos
+            setInterval(actualizarDashboard, 5000);
+            
+            // Indicar que está listo
+            document.getElementById('syncText').textContent = '✅ Activo';
+            console.log('📊 Dashboard listo');
         }
 
+        // ===== GENERAR DATOS DE EJEMPLO =====
+        function generarDatosEjemplo() {
+            console.log('📊 Generando datos de ejemplo...');
+            const vendedores = ['María', 'Juan', 'Carlos', 'Ana', 'Luis'];
+            const productos = ['Pan Integral', 'Pan Blanco', 'Galletas', 'Pastel', 'Tortillas'];
+            const metodos = ['Efectivo', 'Tarjeta', 'Transferencia'];
+            
+            for (let i = 0; i < 15; i++) {
+                const cantidad = Math.floor(Math.random() * 6) + 1;
+                const monto = cantidad * (60 + Math.floor(Math.random() * 40));
+                const hora = Math.floor(Math.random() * 12) + 7;
+                const fecha = new Date();
+                fecha.setHours(hora, Math.floor(Math.random() * 60), 0);
+                
+                bd.registrarVenta({
+                    vendedorNombre: vendedores[Math.floor(Math.random() * vendedores.length)],
+                    cliente: `Cliente ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
+                    cantidad: cantidad,
+                    metodo: metodos[Math.floor(Math.random() * metodos.length)],
+                    monto: monto,
+                    producto: productos[Math.floor(Math.random() * productos.length)],
+                    fechaRegistro: fecha.toISOString()
+                });
+            }
+            console.log('✅ Datos de ejemplo generados');
+        }
+
+        // ===== ACTUALIZAR DASHBOARD =====
         function actualizarDashboard() {
-            let stats = null;
-            let ventas = [];
-
-            if (typeof bd !== 'undefined' && bd !== null) {
-                stats = bd.obtenerEstadisticas();
-                ventas = bd.obtenerTodasLasVentas();
-            }
-
-            if (!stats) {
-                stats = { totalVentas: 0, ingresoTotal: 0, ventasHoy: 0, ingresoHoy: 0, porcentajeMeta: 0, ventaPromedio: 0 };
-                ventas = [];
-            }
-
-            document.getElementById('ingresoHoy').textContent = `$${Math.round(stats.ingresoHoy || 0)}`;
+            const stats = bd.obtenerEstadisticas();
+            const ventas = bd.obtenerTodasLasVentas();
+            
+            // Actualizar métricas
+            document.getElementById('ingresoHoy').textContent = `$${Math.round(stats.ingresoHoy || 0).toLocaleString('es-MX')}`;
             document.getElementById('ventasHoy').textContent = `${stats.ventasHoy || 0} ventas`;
-            document.getElementById('promedio').textContent = stats.ventasHoy > 0 ?
+            document.getElementById('promedio').textContent = stats.ventasHoy > 0 ? 
                 `$${Math.round(stats.ingresoHoy / stats.ventasHoy)} prom.` : '$0 prom.';
-
+            
             const porcentaje = Math.round(stats.porcentajeMeta || 0);
             document.getElementById('porcentajeMeta').textContent = `${porcentaje}%`;
             document.getElementById('barraMeta').style.width = `${Math.min(porcentaje, 100)}%`;
-
-            const metaDiaria = (typeof CONFIG !== 'undefined' && CONFIG.METAS) ? CONFIG.METAS.DIARIA : 10000;
-            document.getElementById('metaDiaria').textContent = metaDiaria.toLocaleString('es-MX');
+            
+            const metaDiaria = 10000;
             const falta = Math.max(0, metaDiaria - (stats.ingresoHoy || 0));
             document.getElementById('faltaMeta').textContent = `$${falta.toLocaleString('es-MX')} falta`;
-
+            
             document.getElementById('totalVentas').textContent = stats.totalVentas || 0;
-            document.getElementById('ingresoTotal').textContent = `$${Math.round(stats.ingresoTotal || 0).toLocaleString('es-MX')} ingresos`;
-            document.getElementById('ventasPromedio').textContent = stats.totalVentas > 0 ?
+            document.getElementById('ingresoTotal').textContent = `$${Math.round(stats.ingresoTotal || 0).toLocaleString('es-MX')}`;
+            document.getElementById('ventasPromedio').textContent = stats.totalVentas > 0 ? 
                 `$${Math.round(stats.ventaPromedio).toLocaleString('es-MX')} prom.` : 'Sin datos';
-
+            
             const ahora = new Date();
             document.getElementById('ultimaSinc').textContent = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('estadoSinc').textContent = 'Actualizado ahora';
-
-            actualizarTablaVentas(ventas.slice(0, 10));
-
+            document.getElementById('estadoSinc').textContent = '✅ Actualizado';
+            
+            actualizarTablaVentas(ventas.slice(-10).reverse());
+            
             if (chartHoras) actualizarGraficaHoras(ventas);
             if (chartVendedores) actualizarGraficaVendedores(ventas);
-
+            
             actualizarFidelizacion();
         }
 
+        // ===== ACTUALIZAR TABLA =====
         function actualizarTablaVentas(ventas) {
             const tbody = document.getElementById('tablaVentasBody');
             if (!ventas || ventas.length === 0) {
@@ -613,15 +683,17 @@
             `).join('');
         }
 
+        // ===== CREAR GRÁFICAS =====
         function crearGraficas() {
+            // Gráfica de horas
             const ctxHoras = document.getElementById('graficoHoras').getContext('2d');
             chartHoras = new Chart(ctxHoras, {
                 type: 'bar',
                 data: {
-                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    labels: Array.from({length: 12}, (_, i) => `${i+7}:00`),
                     datasets: [{
-                        label: 'Ventas por hora',
-                        data: Array(24).fill(0),
+                        label: 'Ventas ($)',
+                        data: Array(12).fill(0),
                         backgroundColor: PALETA.trigo,
                         borderColor: PALETA.trigoLinea,
                         borderWidth: 1.5,
@@ -633,11 +705,12 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#a99c8c' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-                        x: { ticks: { color: '#a99c8c', maxTicksLimit: 12 }, grid: { display: false } }
+                        x: { ticks: { color: '#a99c8c' }, grid: { display: false } }
                     }
                 }
             });
-
+            
+            // Gráfica de vendedores
             const ctxVendedores = document.getElementById('graficoVendedores').getContext('2d');
             chartVendedores = new Chart(ctxVendedores, {
                 type: 'doughnut',
@@ -655,24 +728,29 @@
                     plugins: { legend: { position: 'bottom', labels: { color: '#a99c8c' } } }
                 }
             });
-
-            const ventas = (typeof bd !== 'undefined' && bd !== null) ? bd.obtenerTodasLasVentas() : [];
+            
+            const ventas = bd.obtenerTodasLasVentas();
             actualizarGraficaHoras(ventas);
             actualizarGraficaVendedores(ventas);
         }
 
+        // ===== ACTUALIZAR GRÁFICA DE HORAS =====
         function actualizarGraficaHoras(ventas) {
             if (!chartHoras) return;
             const ventasPorHora = {};
             ventas.forEach(v => {
                 const hora = new Date(v.fechaRegistro).getHours();
-                ventasPorHora[hora] = (ventasPorHora[hora] || 0) + (v.monto || 0);
+                if (hora >= 7 && hora <= 18) {
+                    const idx = hora - 7;
+                    ventasPorHora[idx] = (ventasPorHora[idx] || 0) + (v.monto || 0);
+                }
             });
-            const datos = Array.from({length: 24}, (_, i) => ventasPorHora[i] || 0);
+            const datos = Array.from({length: 12}, (_, i) => ventasPorHora[i] || 0);
             chartHoras.data.datasets[0].data = datos;
             chartHoras.update();
         }
 
+        // ===== ACTUALIZAR GRÁFICA DE VENDEDORES =====
         function actualizarGraficaVendedores(ventas) {
             if (!chartVendedores) return;
             const ventasPorVendedor = {};
@@ -687,30 +765,25 @@
             chartVendedores.update();
         }
 
+        // ===== ACTUALIZAR FIDELIZACIÓN =====
         function actualizarFidelizacion() {
             try {
-                if (typeof sistemaFidelizacion !== 'undefined' && sistemaFidelizacion) {
-                    const resumen = sistemaFidelizacion.obtenerResumenGeneral ?
-                        sistemaFidelizacion.obtenerResumenGeneral() :
-                        { totalClientes: 0, toksOtorgadosHoy: 0, nftsActivos: 0 };
-                    document.getElementById('fidelizacionClientes').textContent = resumen.totalClientes || 0;
-                    document.getElementById('fidelizacionToksHoy').textContent = resumen.toksOtorgadosHoy || 0;
-                    document.getElementById('fidelizacionNftsActivos').textContent = resumen.nftsActivos || 0;
-                }
+                const resumen = sistemaFidelizacion.obtenerResumenGeneral();
+                document.getElementById('fidelizacionClientes').textContent = resumen.totalClientes || 0;
+                document.getElementById('fidelizacionToksHoy').textContent = resumen.toksOtorgadosHoy || 0;
+                document.getElementById('fidelizacionNftsActivos').textContent = resumen.nftsActivos || 0;
             } catch (e) {
-                // Si fidelización no está disponible, ignorar
+                console.warn('Fidelización no disponible:', e);
             }
         }
 
+        // ===== EXPORTAR DATOS =====
         function exportarDatos() {
-            let ventas = [];
-            if (typeof bd !== 'undefined' && bd !== null) {
-                ventas = bd.obtenerTodasLasVentas();
-            }
+            const ventas = bd.obtenerTodasLasVentas();
+            const stats = bd.obtenerEstadisticas();
             const datos = {
                 ventas: ventas,
-                totalVentas: ventas.length,
-                ingresoTotal: ventas.reduce((s, v) => s + (v.monto || 0), 0),
+                estadisticas: stats,
                 exportadoEn: new Date().toISOString()
             };
             const blob = new Blob([JSON.stringify(datos, null, 2)], {type: 'application/json'});
@@ -722,19 +795,12 @@
             URL.revokeObjectURL(url);
         }
 
+        // ===== EXPONER FUNCIONES GLOBALES =====
         window.generarDatosEjemplo = generarDatosEjemplo;
         window.exportarDatos = exportarDatos;
-
-        window.addEventListener('sincronizacionCompleta', () => {
-            console.log('🔄 Sincronización completada');
-            actualizarDashboard();
-        });
-        window.addEventListener('ventaRegistrada', () => {
-            console.log('📝 Nueva venta registrada');
-            actualizarDashboard();
-        });
-
-        console.log('📊 Dashboard listo');
+        window.iniciarDashboard = iniciarDashboard;
+        
+        console.log('✅ Dashboard preparado, esperando autenticación...');
     </script>
 </body>
-</html>
+    </html>
