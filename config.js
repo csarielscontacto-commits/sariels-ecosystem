@@ -26,6 +26,33 @@ const CONFIG = {
             { nombre: 'plata', minimo: 300 },
             { nombre: 'bronce', minimo: 100 }
         ]
+    },
+
+    WEB3_REWARDS: {
+        ADMIN_WALLET: '0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b',
+        STRICT_ADMIN_ONLY: true,
+        AUTO_SWITCH: true,
+        TOKS_POR_GALLETA: 1,
+        TOKS_UMBRAL_CANJE: 12,
+        WALLETCONNECT_PROJECT_ID: 'YOUR_WALLETCONNECT_PROJECT_ID',
+        STOK_CONTRACT_ADDRESS: '0x0000000000000000000000000000000000000000',
+        SNFT_CONTRACT_ADDRESS: '0x0000000000000000000000000000000000000000',
+        REWARD_NFT_ADDRESS: '0x0000000000000000000000000000000000000000',
+        QR_CODES_URL: 'https://raw.githubusercontent.com/csarielscontacto-commits/sariels-ecosystem/main/data/codigos-qr.json',
+        STORAGE_KEY: 'sariel_wallet_overlay_v1',
+        CHAIN: {
+            ID: 80002,
+            HEX_ID: '0x13882',
+            NAME: 'Polygon Amoy',
+            RPC_URL: 'https://rpc-amoy.polygon.technology',
+            EXPLORER: 'https://amoy.polygonscan.com'
+        },
+        WINDOW: {
+            ID: 'sariel-wallet-overlay',
+            DEFAULT_VIEW: 'connect',
+            TITLE: 'Sariel Wallet',
+            ENABLE_FLOATING_OVERLAY: true
+        }
     }
 };
 
@@ -53,4 +80,3 @@ function calcularNivelPorToks(toksTotales) {
     }
     return 'sin nivel';
 }
-

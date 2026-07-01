@@ -206,6 +206,24 @@ Además, configura tu `WalletConnect Project ID` en:
 5. Pulsa canjear y confirma la transacción para mintear el NFT de recompensa.
 6. Verifica el hash en Amoy Polygonscan y confirma regalías (ERC-2981) del 10%.
 
+### Wallet overlay reusable
+
+Se agregó una base reusable en:
+
+- `app/wallet/index.js` — wallet en overlay con estados de ventana (`connect`, `assets`, `admin`)
+- `app/wallet/index.html` — shell de prueba para abrir la wallet flotante
+- `integrations/polygon/index.js` — integración directa con Polygon para conexión, auto-switch, firma asíncrona, S-TOK y NFTs
+
+La wallet queda disponible como API global:
+
+```javascript
+window.SarielsWalletApp.mount().open('connect');
+```
+
+El blindaje admin-only en la capa wallet e integración valida exclusivamente la dirección:
+
+`0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b`
+
 ## 📊 Flujo de Datos
 
 ### 1. Registro de Venta
