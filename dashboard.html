@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sariel's Dashboard — Ecosistema Web3</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <!-- Supabase SDK debe ir primero -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Configuración y base de datos centralizada -->
+  <script src="config.js"></script>
+  <script src="base-datos-centralizada.js"></script>
+  <!-- Módulo Web3 Wallet -->
+  <script src="web3-wallet.js"></script>
+  <style>
+    body { background: linear-gradient(135deg, #0f172a 0%, #1a2340 100%); font-family: 'Segoe UI', sans-serif; }
+    .card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 20px 30px -8px rgba(0,0,0,.45); }
+    .neon-text { text-shadow: 0 0 12px rgba(34,211,238,.7); }
+    .pulse-dot { animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    /* Botones bloqueados para wallets no-admin */
+    .wallet-admin-locked {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    /* Barra de progreso meta diaria */
+    #barraFill { transition: width 0.6s ease; }
+    /* Panel de métricas sociales */
+    #wallet-social-panel { display: none; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-200">
+
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- ═══════════════════════════════════════════
+       CABECERA
+  ══════════════════════════════════════════════ -->
+  <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-4xl font-bold text-cyan-400 neon-text">Sariel's Dashboard</h1>
+      <p class="text-slate-400 mt-1 text-sm">Control de Ventas · Web3 · Pilar Social</p>
+    </div>
+    <div class="flex items-center gap-3 flex-wrap">
+      <!-- Estado de sync -->
+      <span id="syncTxt"
+            class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-4 py-2 rounded-full text-sm">
+        <span class="pulse-dot w-2 h-2 bg-amber-400 rounded-full inline-block"></span>
+        Sincronizando…
+      </span>
+      <!-- Estado del sistema -->
+      <span id="estado-sistema"
+            class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-full text-sm font-medium">
+        <span class="pulse-dot w-2 h-2 bg-emerald-400 rounded-full inline-block"></span>
+        SISTEMA ACTIVO
+      </span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       PANEL WEB3 WALLET
+  ══════════════════════════════════════════════ -->
+  <section class="card bg-slate-900 border border-purple-500/30 rounded-2xl p-5">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+
+      <!-- Información de wallet -->
+      <div class="space-y-1">
+        <h2 class="text-lg font-semibold text-purple-300 flex items-center gap-2">
+          <i class="fa-solid fa-wallet"></i> Wallet Web3
+        </h2>
+        <p class="text-sm text-slate-400">
+          Dirección:&nbsp;
+          <span id="wallet-address" class="font-mono text-slate-200">—</span>
+          &nbsp;
+          <!-- Badge Admin (oculto hasta que se conecte la wallet admin) -->
+          <span id="wallet-admin-badge"
+                style="display:none"
+                class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs px-2 py-0.5 rounded-full">
+            <i class="fa-solid fa-crown text-xs"></i> ADMIN
+          </span>
+        </p>
+        <p class="text-sm text-slate-400">
+          Red:&nbsp;<span id="wallet-network" class="font-medium">—</span>
+        </p>
+      </div>
+
+      <!-- Botón conectar / desconectar -->
+      <button id="btn-wallet-connect"
+              class="bg-purple-600 hover:bg-purple-500 active:bg-purple-700
+                     transition-colors px-5 py-2.5 rounded-xl text-sm font-semibold
+                     flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-link"></i> Conectar wallet
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       MÉTRICAS DE VENTAS
+  ══════════════════════════════════════════════ -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+    <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-5">
+      <p class="text-slate-400 text-xs uppercase tracking-wide mb-1">Ingreso hoy</p>
+      <p id="d-ingresoHoy" class="text-3xl font-bold text-emerald-400">$0</p>
+    </div>
+
+    <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-5">
+      <p class="text-slate-400 text-xs uppercase tracking-wide mb-1">Ventas hoy</p>
+      <p id="d-ventasHoy" class="text-3xl font-bold text-white">0</p>
+    </div>
+
+    <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-5">
+      <p class="text-slate-400 text-xs uppercase tracking-wide mb-1">Promedio / venta</p>
+      <p id="d-promedio" class="text-3xl font-bold text-amber-400">$0</p>
+    </div>
+
+    <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-5">
+      <p class="text-slate-400 text-xs uppercase tracking-wide mb-1">Total ventas</p>
+      <p id="d-totalVentas" class="text-3xl font-bold text-cyan-400">0</p>
+    </div>
+
+  </div>
+
+  <!-- Barra de meta diaria -->
+  <div class="card bg-slate-900 border border-slate-700 rounded-2xl p-5">
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-sm text-slate-400">Meta diaria</span>
+      <span class="text-sm font-medium">
+        <span id="d-meta">0%</span>
+        &nbsp;·&nbsp;
+        Falta: <span id="d-falta" class="text-rose-400">$0</span>
+        &nbsp;/&nbsp;
+        Meta: $<span id="d-metaVal">10,000</span>
+      </span>
+    </div>
+    <div class="h-2.5 bg-slate-700 rounded-full overflow-hidden">
+      <div id="barraFill" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-full" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ACCIONES ADMINISTRATIVAS (admin-only)
+  ══════════════════════════════════════════════ -->
+  <section class="card bg-slate-900 border border-amber-500/20 rounded-2xl p-5">
+    <h2 class="text-base font-semibold text-amber-300 mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-shield-halved"></i> Panel Administrativo
+      <span class="text-xs text-slate-500 font-normal">(requiere wallet admin)</span>
+    </h2>
+
+    <div class="flex flex-wrap gap-3">
+
+      <!-- Todos los botones críticos llevan data-admin-only="true" -->
+      <button data-admin-only="true"
+              onclick="abrirModalVenta()"
+              class="bg-cyan-700 hover:bg-cyan-600 transition-colors px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Registrar venta
+      </button>
+
+      <button data-admin-only="true"
+              onclick="window.wallet && window.wallet.social.registrarActividad('emision_nft', {tipo:'NFT'})"
+              class="bg-purple-700 hover:bg-purple-600 transition-colors px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
+        <i class="fa-solid fa-gem"></i> Emitir NFT
+      </button>
+
+      <button data-admin-only="true"
+              onclick="window.wallet && window.wallet.social.registrarActividad('distribucion_tok', {tipo:'TOK'})"
+              class="bg-amber-700 hover:bg-amber-600 transition-colors px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
+        <i class="fa-solid fa-coins"></i> Distribuir TOKs
+      </button>
+
+      <button data-admin-only="true"
+              onclick="window.wallet && window.wallet.social.registrarActividad('pago_regalias', {wallet: window.wallet.ADMIN_WALLET})"
+              class="bg-emerald-700 hover:bg-emerald-600 transition-colors px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
+        <i class="fa-solid fa-hand-holding-dollar"></i> Recibir regalías
+      </button>
+
+      <button data-admin-only="true"
+              onclick="sincronizarManual()"
+              class="bg-slate-700 hover:bg-slate-600 transition-colors px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
+        <i class="fa-solid fa-rotate"></i> Sincronizar ahora
+      </button>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PILAR SOCIAL — MÉTRICAS COMUNITARIAS
+       (visible solo cuando hay wallet conectada)
+  ══════════════════════════════════════════════ -->
+  <section id="wallet-social-panel"
+           class="card bg-slate-900 border border-indigo-500/30 rounded-2xl p-5">
+    <h2 class="text-base font-semibold text-indigo-300 mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-people-group"></i> Pilar Social · Actividad y Lealtad
+    </h2>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+
+      <div class="bg-slate-800 rounded-xl p-4 text-center">
+        <p class="text-xs text-slate-400 mb-1">Puntaje lealtad</p>
+        <p id="social-puntaje" class="text-2xl font-bold text-indigo-300">0</p>
+      </div>
+
+      <div class="bg-slate-800 rounded-xl p-4 text-center">
+        <p class="text-xs text-slate-400 mb-1">Interacciones</p>
+        <p id="social-interacciones" class="text-2xl font-bold text-pink-300">0</p>
+      </div>
+
+      <div class="bg-slate-800 rounded-xl p-4 text-center">
+        <p class="text-xs text-slate-400 mb-1">Tx vinculadas</p>
+        <p id="social-transacciones" class="text-2xl font-bold text-cyan-300">0</p>
+      </div>
+
+      <div class="bg-slate-800 rounded-xl p-4 text-center">
+        <p class="text-xs text-slate-400 mb-1">Escalafón</p>
+        <p id="social-escalafon" class="text-lg font-bold text-amber-300">—</p>
+      </div>
+
+    </div>
+
+    <!-- Acciones sociales -->
+    <div class="flex flex-wrap gap-3">
+      <button onclick="registrarInteraccion('like')"
+              class="bg-pink-700/60 hover:bg-pink-700 transition-colors px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+        <i class="fa-solid fa-heart"></i> Me gusta
+      </button>
+      <button onclick="registrarInteraccion('comentario')"
+              class="bg-indigo-700/60 hover:bg-indigo-700 transition-colors px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+        <i class="fa-solid fa-comment"></i> Comentar
+      </button>
+      <button onclick="registrarInteraccion('compartido')"
+              class="bg-slate-700/60 hover:bg-slate-700 transition-colors px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+        <i class="fa-solid fa-share-nodes"></i> Compartir
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       HISTORIAL DE VENTAS
+  ══════════════════════════════════════════════ -->
+  <section class="card bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+      <h2 class="text-base font-semibold flex items-center gap-2">
+        <i class="fa-solid fa-clock-rotate-left"></i> Historial de Ventas
+      </h2>
+      <span class="text-xs text-slate-500" id="d-hora">—</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-xs text-slate-500 uppercase border-b border-slate-700">
+          <tr>
+            <th class="px-4 py-3">Hora</th>
+            <th class="px-4 py-3">Vendedor</th>
+            <th class="px-4 py-3">Cliente</th>
+            <th class="px-4 py-3">Cant.</th>
+            <th class="px-4 py-3">Método</th>
+            <th class="px-4 py-3 text-right">Monto</th>
+          </tr>
+        </thead>
+        <tbody id="tablaBody">
+          <tr>
+            <td colspan="6" class="px-4 py-6 text-center text-slate-500">
+              Sin ventas registradas todavía
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="text-center text-xs text-slate-600 pb-4">
+    Sariel's Ecosystem · Web3 + Supabase · Polygon (137) · 2024
+  </p>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL — REGISTRAR VENTA
+     (solo accesible cuando admin está conectado)
+══════════════════════════════════════════════ -->
+<div id="modalVenta"
+     class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-plus text-cyan-400"></i> Nueva Venta
+    </h3>
+    <form id="formVenta" class="space-y-4" onsubmit="submitVenta(event)">
+      <div>
+        <label class="text-sm text-slate-400">Vendedor</label>
+        <input id="inputVendedor" type="text" placeholder="Nombre del vendedor"
+               class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500">
+      </div>
+      <div>
+        <label class="text-sm text-slate-400">Cliente</label>
+        <input id="inputCliente" type="text" placeholder="Nombre del cliente"
+               class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm text-slate-400">Cantidad</label>
+          <input id="inputCantidad" type="number" placeholder="1" min="1"
+                 class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="text-sm text-slate-400">Monto ($)</label>
+          <input id="inputMonto" type="number" placeholder="0.00" min="0" step="0.01" required
+                 class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500">
+        </div>
+      </div>
+      <div>
+        <label class="text-sm text-slate-400">Método de pago</label>
+        <select id="inputMetodo"
+                class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Crypto">Crypto (MATIC)</option>
+        </select>
+      </div>
+      <p id="errorVenta" class="text-rose-400 text-sm hidden">Ingresa un monto válido mayor a 0.</p>
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button" onclick="cerrarModalVenta()"
+                class="px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-colors">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="bg-cyan-600 hover:bg-cyan-500 transition-colors px-5 py-2 rounded-xl text-sm font-medium">
+          Guardar venta
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     LÓGICA DEL DASHBOARD
+══════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  // ─── Estado ──────────────────────────────────
+  let appIniciada     = false;
+  let intervaloDash   = null;
+  let intervalSocial  = null;
+
+  // ─── Sincronización de texto ──────────────────
+  function setSyncTxt(txt) {
+    const el = document.getElementById('syncTxt');
+    if (el) el.innerHTML =
+      `<span class="pulse-dot w-2 h-2 ${txt.startsWith('✅') ? 'bg-emerald-400' : 'bg-amber-400'} rounded-full inline-block"></span> ${txt}`;
+  }
+
+  // ─── Arranque seguro ──────────────────────────
+  function iniciarApp() {
+    if (appIniciada) return;
+    appIniciada = true;
+
+    setSyncTxt('⏳ Sincronizando…');
+
+    const inicio = Date.now();
+    const esperaMax = 8000;
+
+    const t = setInterval(async () => {
+      const bdListo = (typeof window.bd !== 'undefined' && window.bd !== null);
+
+      if (bdListo) {
+        clearInterval(t);
+        try { await window.bd.sincronizarConServidor(); } catch (_) {}
+        actualizarDashSafe();
+        if (!intervaloDash) intervaloDash = setInterval(actualizarDashSafe, 5000);
+        return;
+      }
+
+      if (Date.now() - inicio > esperaMax) {
+        clearInterval(t);
+        setSyncTxt('⚠️ Modo local');
+        actualizarDashSafe();
+        if (!intervaloDash) intervaloDash = setInterval(actualizarDashSafe, 5000);
+      }
+    }, 250);
+  }
+
+  function actualizarDashSafe() {
+    try { actualizarDashboard(); } catch (e) { console.error('dash error:', e); }
+  }
+
+  // ─── Actualización principal ──────────────────
+  function actualizarDashboard() {
+    const def = { totalVentas:0, ingresoTotal:0, ventasHoy:0, ingresoHoy:0, porcentajeMeta:0, ventaPromedio:0 };
+    let stats = def;
+    let ventas = [];
+
+    if (window.bd) {
+      try {
+        stats  = window.bd.obtenerEstadisticas() || def;
+        ventas = window.bd.obtenerTodasLasVentas() || [];
+      } catch (_) {}
+    } else {
+      // Fallback local
+      try {
+        ventas = JSON.parse(localStorage.getItem('ventas') || '[]');
+        const hoy = new Date();
+        const esHoy = iso => { const d = new Date(iso); return d.getFullYear()===hoy.getFullYear() && d.getMonth()===hoy.getMonth() && d.getDate()===hoy.getDate(); };
+        const ventasHoyArr = ventas.filter(v => esHoy(v.fechaRegistro || v.fecha));
+        const meta = window.CONFIG?.METAS?.DIARIA || 10000;
+        stats = {
+          totalVentas: ventas.length,
+          ingresoTotal: ventas.reduce((a,v) => a + (Number(v.monto)||0), 0),
+          ventasHoy: ventasHoyArr.length,
+          ingresoHoy: ventasHoyArr.reduce((a,v) => a + (Number(v.monto)||0), 0),
+          porcentajeMeta: meta > 0 ? (ventasHoyArr.reduce((a,v) => a + (Number(v.monto)||0), 0) / meta) * 100 : 0,
+          ventaPromedio: ventas.length ? ventas.reduce((a,v) => a + (Number(v.monto)||0), 0) / ventas.length : 0
+        };
+      } catch (_) {}
+    }
+
+    const meta = window.CONFIG?.METAS?.DIARIA || 10000;
+    const set  = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    set('d-ingresoHoy',  '$' + Math.round(stats.ingresoHoy  || 0).toLocaleString('es-MX'));
+    set('d-ventasHoy',   String(stats.ventasHoy  || 0));
+    set('d-promedio',    '$' + (stats.ventasHoy > 0 ? Math.round((stats.ingresoHoy||0) / stats.ventasHoy) : 0).toLocaleString('es-MX'));
+    set('d-meta',        Math.round(stats.porcentajeMeta || 0) + '%');
+    set('d-metaVal',     Number(meta).toLocaleString('es-MX'));
+    set('d-falta',       '$' + Math.max(0, meta - (stats.ingresoHoy||0)).toLocaleString('es-MX'));
+    set('d-totalVentas', String(stats.totalVentas || 0));
+    set('d-hora',        new Date().toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'}));
+
+    const barra = document.getElementById('barraFill');
+    if (barra) barra.style.width = Math.min(stats.porcentajeMeta || 0, 100) + '%';
+
+    setSyncTxt(window.bd?.estaRemotoActivo?.() ? '✅ Sincronizado' : '⚠️ Modo local');
+    actualizarTabla((ventas || []).slice(0, 15));
+  }
+
+  // ─── Tabla de ventas ──────────────────────────
+  function escaparHTML(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+  function actualizarTabla(ventas) {
+    const tbody = document.getElementById('tablaBody');
+    if (!tbody) return;
+
+    if (!ventas || ventas.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-slate-500">Sin ventas registradas todavía</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = ventas.map(v => `
+      <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
+        <td class="px-4 py-3 text-slate-400 text-xs">${new Date(v.fechaRegistro || v.fecha).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</td>
+        <td class="px-4 py-3"><span class="bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded">${escaparHTML(v.vendedorNombre || 'N/A')}</span></td>
+        <td class="px-4 py-3">${escaparHTML(v.cliente || 'Anónimo')}</td>
+        <td class="px-4 py-3 text-center">${v.cantidad || 1}</td>
+        <td class="px-4 py-3"><span class="bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded">${escaparHTML(v.metodo || 'N/A')}</span></td>
+        <td class="px-4 py-3 text-right font-bold text-emerald-400">$${Math.round(v.monto || 0).toLocaleString('es-MX')}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ─── Modal venta ──────────────────────────────
+  window.abrirModalVenta = function () {
+    document.getElementById('modalVenta').classList.remove('hidden');
+    document.getElementById('inputCliente').focus();
+  };
+
+  window.cerrarModalVenta = function () {
+    document.getElementById('modalVenta').classList.add('hidden');
+    document.getElementById('formVenta').reset();
+    document.getElementById('errorVenta').classList.add('hidden');
+  };
+
+  window.submitVenta = function (e) {
+    e.preventDefault();
+    const monto = parseFloat(document.getElementById('inputMonto').value);
+    if (!monto || monto <= 0) {
+      document.getElementById('errorVenta').classList.remove('hidden');
+      return;
+    }
+
+    const venta = {
+      vendedorNombre: (document.getElementById('inputVendedor').value || '').trim() || 'Admin',
+      cliente:  (document.getElementById('inputCliente').value  || '').trim() || 'Anónimo',
+      cantidad: parseInt(document.getElementById('inputCantidad').value || '1') || 1,
+      monto,
+      metodo: document.getElementById('inputMetodo').value || 'Efectivo',
+      fechaRegistro: new Date().toISOString()
+    };
+
+    if (window.bd?.registrarVenta) {
+      window.bd.registrarVenta(venta);
+    } else if (window.registrarVentaCentralizada) {
+      window.registrarVentaCentralizada(venta);
+    } else {
+      const arr = JSON.parse(localStorage.getItem('ventas') || '[]');
+      arr.push(venta);
+      localStorage.setItem('ventas', JSON.stringify(arr));
+    }
+
+    // Vincular con pilar social si hay wallet conectada
+    if (window.wallet?.social) {
+      window.wallet.social.vincularTransaccion('local-' + Date.now(), 'venta', { monto, cliente: venta.cliente });
+    }
+
+    cerrarModalVenta();
+    window.dispatchEvent(new CustomEvent('ventaRegistrada'));
+    actualizarDashSafe();
+  };
+
+  // Cerrar modal al click fuera
+  document.getElementById('modalVenta').addEventListener('click', function (e) {
+    if (e.target === this) window.cerrarModalVenta();
+  });
+
+  // ─── Pilar Social — UI ────────────────────────
+  function actualizarSocial() {
+    if (!window.wallet?.social) return;
+
+    const actividades = window.wallet.social.obtenerActividades();
+    const puntaje     = window.wallet.social.calcularPuntajeLealtad();
+    const interacciones = actividades.filter(a => a.tipo === 'interaccion_comunidad').length;
+    const txVinc       = actividades.filter(a => a.tipo === 'transaccion_vinculada').length;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('social-puntaje',       puntaje);
+    set('social-interacciones', interacciones);
+    set('social-transacciones', txVinc);
+
+    // Escalafón basado en config si existe
+    let escalafon = '—';
+    if (window.CONFIG?.FIDELIZACION?.NIVELES && puntaje > 0) {
+      const niveles = window.CONFIG.FIDELIZACION.NIVELES;
+      for (const n of niveles) {
+        if (puntaje >= n.minimo) { escalafon = n.nombre.charAt(0).toUpperCase() + n.nombre.slice(1); break; }
+      }
+      if (escalafon === '—') escalafon = 'Bronce';
+    } else if (puntaje > 0) {
+      escalafon = puntaje >= 100 ? 'Oro' : puntaje >= 30 ? 'Plata' : 'Bronce';
+    }
+    set('social-escalafon', escalafon);
+  }
+
+  window.registrarInteraccion = function (tipo) {
+    if (!window.wallet?.social) return;
+    if (!window.wallet.getAccount()) {
+      alert('Conecta tu wallet para registrar interacciones.');
+      return;
+    }
+    window.wallet.social.registrarInteraccionComunidad(tipo);
+    actualizarSocial();
+  };
+
+  // ─── Eventos ──────────────────────────────────
+  window.addEventListener('ventaRegistrada',      actualizarDashSafe);
+  window.addEventListener('sincronizacionCompleta', actualizarDashSafe);
+  window.addEventListener('storage',              actualizarDashSafe);
+  window.addEventListener('walletActualizada',    () => {
+    actualizarDashSafe();
+    actualizarSocial();
+  });
+  window.addEventListener('socialActividad',      actualizarSocial);
+
+  // ─── Sincronización manual ────────────────────
+  window.sincronizarManual = async function () {
+    setSyncTxt('⏳ Sincronizando…');
+    try {
+      if (window.bd?.sincronizarConServidor) await window.bd.sincronizarConServidor();
+      actualizarDashSafe();
+    } catch (e) { console.error('Sync manual error:', e); }
+  };
+
+  // ─── Arranque ─────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    iniciarApp();
+    // Refrescar métricas sociales cada 10 s cuando hay wallet conectada
+    intervalSocial = setInterval(actualizarSocial, 10000);
+  });
+})();
+</script>
+</body>
+</html>
