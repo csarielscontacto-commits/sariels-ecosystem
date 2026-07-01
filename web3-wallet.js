@@ -252,6 +252,7 @@
   // (IA, fidelización, P2P) puedan llamarlos.
   // ─────────────────────────────────────────────
   const socialLog = [];
+  const SOCIAL_LOG_MAX = 500; // límite para evitar crecimiento ilimitado en sesiones largas
 
   function registrarActividadSocial(tipo, datos = {}) {
     const entrada = {
@@ -260,6 +261,9 @@
       timestamp: new Date().toISOString(),
       ...datos
     };
+    if (socialLog.length >= SOCIAL_LOG_MAX) {
+      socialLog.shift(); // descartar la entrada más antigua
+    }
     socialLog.push(entrada);
 
     // Emitir evento para que la UI / módulos externos puedan reaccionar

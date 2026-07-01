@@ -437,27 +437,77 @@
   }
 
   // ─── Tabla de ventas ──────────────────────────
-  function escaparHTML(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+  function setText(el, value) { if (el) el.textContent = value; }
+
+  function crearCeldaBadge(clsSpan, valor) {
+    const td   = document.createElement('td');
+    td.className = 'px-4 py-3';
+    const span = document.createElement('span');
+    span.className  = clsSpan;
+    span.textContent = valor;
+    td.appendChild(span);
+    return td;
+  }
 
   function actualizarTabla(ventas) {
     const tbody = document.getElementById('tablaBody');
     if (!tbody) return;
 
+    tbody.textContent = ''; // limpiar sin innerHTML
+
     if (!ventas || ventas.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-slate-500">Sin ventas registradas todavía</td></tr>';
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.className = 'px-4 py-6 text-center text-slate-500';
+      td.textContent = 'Sin ventas registradas todavía';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
       return;
     }
 
-    tbody.innerHTML = ventas.map(v => `
-      <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
-        <td class="px-4 py-3 text-slate-400 text-xs">${new Date(v.fechaRegistro || v.fecha).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</td>
-        <td class="px-4 py-3"><span class="bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded">${escaparHTML(v.vendedorNombre || 'N/A')}</span></td>
-        <td class="px-4 py-3">${escaparHTML(v.cliente || 'Anónimo')}</td>
-        <td class="px-4 py-3 text-center">${v.cantidad || 1}</td>
-        <td class="px-4 py-3"><span class="bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded">${escaparHTML(v.metodo || 'N/A')}</span></td>
-        <td class="px-4 py-3 text-right font-bold text-emerald-400">$${Math.round(v.monto || 0).toLocaleString('es-MX')}</td>
-      </tr>
-    `).join('');
+    ventas.forEach(v => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-slate-800 hover:bg-slate-800/50 transition-colors';
+
+      // Hora
+      const tdHora = document.createElement('td');
+      tdHora.className = 'px-4 py-3 text-slate-400 text-xs';
+      const fechaStr = v.fechaRegistro || v.fecha;
+      tdHora.textContent = fechaStr
+        ? new Date(fechaStr).toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'})
+        : '—';
+
+      // Vendedor
+      const tdVendedor = crearCeldaBadge(
+        'bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded',
+        String(v.vendedorNombre || 'N/A')
+      );
+
+      // Cliente
+      const tdCliente = document.createElement('td');
+      tdCliente.className = 'px-4 py-3';
+      tdCliente.textContent = String(v.cliente || 'Anónimo');
+
+      // Cantidad
+      const tdCant = document.createElement('td');
+      tdCant.className = 'px-4 py-3 text-center';
+      tdCant.textContent = String(Number(v.cantidad) || 1);
+
+      // Método
+      const tdMetodo = crearCeldaBadge(
+        'bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded',
+        String(v.metodo || 'N/A')
+      );
+
+      // Monto
+      const tdMonto = document.createElement('td');
+      tdMonto.className = 'px-4 py-3 text-right font-bold text-emerald-400';
+      tdMonto.textContent = '$' + Math.round(Number(v.monto) || 0).toLocaleString('es-MX');
+
+      tr.append(tdHora, tdVendedor, tdCliente, tdCant, tdMetodo, tdMonto);
+      tbody.appendChild(tr);
+    });
   }
 
   // ─── Modal venta ──────────────────────────────
@@ -528,10 +578,11 @@
     set('social-interacciones', interacciones);
     set('social-transacciones', txVinc);
 
-    // Escalafón basado en config si existe
+    // Escalafón basado en config si existe (asegurar orden descendente por minimo)
     let escalafon = '—';
     if (window.CONFIG?.FIDELIZACION?.NIVELES && puntaje > 0) {
-      const niveles = window.CONFIG.FIDELIZACION.NIVELES;
+      const niveles = [...window.CONFIG.FIDELIZACION.NIVELES]
+        .sort((a, b) => b.minimo - a.minimo);
       for (const n of niveles) {
         if (puntaje >= n.minimo) { escalafon = n.nombre.charAt(0).toUpperCase() + n.nombre.slice(1); break; }
       }
