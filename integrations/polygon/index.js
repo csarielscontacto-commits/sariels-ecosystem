@@ -241,7 +241,7 @@
                         params: [{
                             chainId: this.config.chain.hexId,
                             chainName: this.config.chain.name,
-                            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+                            nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
                             rpcUrls: [this.config.chain.rpcUrl],
                             blockExplorerUrls: [this.config.chain.explorer]
                         }]
