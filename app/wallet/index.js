@@ -549,5 +549,4 @@
     };
 
     global.SarielWalletApp = global.SarielWalletApp || global.createSarielWalletApp();
-    global.SarielsWalletApp = global.SarielsWalletApp || global.SarielWalletApp;
 }(window));
