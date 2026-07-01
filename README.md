@@ -217,8 +217,14 @@ Se agregó una base reusable en:
 La wallet queda disponible como API global:
 
 ```javascript
-window.SarielsWalletApp.mount().open('connect');
+window.SarielWalletApp.mount().open('connect');
 ```
+
+La shell de prueba `app/wallet/index.html` usa los vendors locales ya incluidos en `assets/vendor/`:
+
+- `ethers.umd.min.js`
+- `web3modal.min.js`
+- `walletconnect-web3-provider.min.js`
 
 El blindaje admin-only en la capa wallet e integración valida exclusivamente la dirección:
 

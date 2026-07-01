@@ -8,6 +8,9 @@
     const TITLE = (global.CONFIG && global.CONFIG.WEB3_REWARDS && global.CONFIG.WEB3_REWARDS.WINDOW
         ? global.CONFIG.WEB3_REWARDS.WINDOW.TITLE
         : 'Sariel Wallet') || 'Sariel Wallet';
+    const ADMIN_WALLET = (global.CONFIG && global.CONFIG.WEB3_REWARDS
+        ? global.CONFIG.WEB3_REWARDS.ADMIN_WALLET
+        : '0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b') || '0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b';
     const VIEW_IDS = ['connect', 'assets', 'admin'];
 
     function shortAddress(value) {
@@ -347,7 +350,7 @@
                                 <div class="sariel-wallet-row">
                                     <button type="button" class="sariel-wallet-button" data-action="adminMint">Mint reward admin-only</button>
                                 </div>
-                                <div class="sariel-wallet-muted">Solo la wallet 0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b puede ejecutar funciones administrativas.</div>
+                                <div class="sariel-wallet-muted">Solo la wallet ${ADMIN_WALLET} puede ejecutar funciones administrativas.</div>
                             </div>
                         </section>
                     </div>
@@ -545,5 +548,6 @@
         return new WalletOverlayApp(options);
     };
 
-    global.SarielsWalletApp = global.SarielsWalletApp || global.createSarielWalletApp();
+    global.SarielWalletApp = global.SarielWalletApp || global.createSarielWalletApp();
+    global.SarielsWalletApp = global.SarielsWalletApp || global.SarielWalletApp;
 }(window));
