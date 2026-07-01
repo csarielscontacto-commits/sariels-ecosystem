@@ -252,6 +252,9 @@
 
         mount(target) {
             if (this.root) return this;
+            if (!this.integration && global.SarielPolygon && global.SarielPolygon.createIntegration) {
+                this.integration = global.SarielPolygon.createIntegration(this.options.polygon);
+            }
             if (!this.integration) {
                 throw new Error('La integración Polygon no está cargada.');
             }
