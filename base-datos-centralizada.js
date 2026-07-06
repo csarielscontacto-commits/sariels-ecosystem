@@ -165,7 +165,6 @@
         }
       });
 
-      // Ping rápido a la tabla (si falla, se queda local)
       const ping = supabase.from(TABLA).select("id", { count: "exact", head: true });
       const { error } = await withTimeout(ping, TIMEOUT_MS, "Ping Supabase excedió tiempo");
 
@@ -208,7 +207,6 @@
   async function pushRemoto(ventaNorm) {
     if (!remotoActivo || !supabase) return { ok: false, local: true };
 
-    // Enviamos solo columnas esperadas por la tabla
     const payload = {
       vendedorId: ventaNorm.vendedorId,
       vendedorNombre: ventaNorm.vendedorNombre,
@@ -239,6 +237,16 @@
       return ordenarDescPorFecha(leerLocal());
     },
 
+    obtenerVentasDeHoy() {
+      try {
+        const ventas = leerLocal();
+        return ventasDelDia(Array.isArray(ventas) ? ventas : []);
+      } catch (e) {
+        warn("obtenerVentasDeHoy:", e?.message || e);
+        return [];
+      }
+    },
+
     obtenerEstadisticas() {
       return obtenerStats(leerLocal());
     },
@@ -258,7 +266,6 @@
     },
 
     registrarVenta(venta) {
-      // 1) Guardar local inmediato (UX)
       const v = normalizarVenta({ ...venta, sincronizado: false });
       const arr = leerLocal();
       arr.push(v);
@@ -267,10 +274,8 @@
       emitir("ventaRegistrada", { venta: v });
       actualizarEstadoSync("⏳ Sincronizando…");
 
-      // 2) Intentar remoto en background
       pushRemoto(v)
         .then(() => {
-          // marcar sincronizado en local
           const actual = leerLocal().map((x) =>
             x.idLocal === v.idLocal ? { ...x, sincronizado: true } : x
           );
@@ -287,7 +292,6 @@
     },
 
     async sincronizarConServidor() {
-      // Nunca cuelga: siempre resuelve
       try {
         if (remotoActivo) {
           await pullRemoto();
@@ -307,14 +311,10 @@
     }
   };
 
-  // Compatibilidad con tu código existente
   window.bd = bd;
   window.obtenerVentasCentralizadas = () => bd.obtenerTodasLasVentas();
   window.registrarVentaCentralizada = (venta) => bd.registrarVenta(venta);
 
-  // =========================
-  // Bootstrap seguro (anti-bloqueo)
-  // =========================
   async function bootstrap() {
     if (inicializado) return;
     inicializado = true;
@@ -327,7 +327,6 @@
       if (remotoActivo) {
         await bd.recargarDesdeRemoto();
       } else {
-        // Modo local inmediato
         emitir("sincronizacionCompleta", { modo: "local" });
         actualizarEstadoSync("⚠️ Modo local");
       }
@@ -338,10 +337,10 @@
     }
   }
 
-  // Arranque
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bootstrap);
   } else {
     bootstrap();
   }
 })();
+
