@@ -106,15 +106,12 @@
     </section>
   </main>
 
+  <!-- Orden correcto de dependencias -->
   <script src="./config.js"></script>
   <script src="./base-datos-centralizada.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
   <script>
-  /* =========================================================
-     BLOQUE DASHBOARD CORREGIDO (anti-trabado "Sincronizando...")
-     ========================================================= */
-
   let chartHoras = null;
   let chartVendedores = null;
   let appIniciada = false;
@@ -133,11 +130,13 @@
 
     const inicio = Date.now();
     const esperaMax = 7000;
+
     const t = setInterval(async () => {
       const bdListo = (typeof window.bd !== 'undefined' && window.bd !== null);
 
       if (bdListo) {
         clearInterval(t);
+
         try {
           await window.bd.sincronizarConServidor();
         } catch (e) {
@@ -176,6 +175,7 @@
   }
 
   function crearGraficasSeguras() {
+    if (typeof Chart === 'undefined') return; // Chart.js aún no cargó
     try {
       if (!chartHoras || !chartVendedores) {
         crearGraficas();
@@ -220,6 +220,7 @@
     }
 
     const metaDiaria = (window.CONFIG && window.CONFIG.METAS) ? window.CONFIG.METAS.DIARIA : 10000;
+
     const setText = (id, value) => {
       const el = document.getElementById(id);
       if (el) el.textContent = value;
@@ -253,7 +254,9 @@
     if (chartHoras) actualizarGraficaHoras(ventas || []);
     if (chartVendedores) actualizarGraficaVendedores(ventas || []);
 
-    try { actualizarFidelizacion(); } catch (_) {}
+    if (typeof window.actualizarFidelizacion === 'function') {
+      try { window.actualizarFidelizacion(); } catch (_) {}
+    }
   }
 
   function actualizarTabla(ventas) {
