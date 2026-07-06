@@ -1,43 +1,161 @@
-<script>
-/* =========================================================
-   BLOQUE DASHBOARD CORREGIDO (anti-trabado "Sincronizando...")
-   ========================================================= */
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard Central | Sariels Ecosystem</title>
 
-let chartHoras = null;
-let chartVendedores = null;
-let appIniciada = false;
-let intervaloDashboard = null;
+  <style>
+    :root{
+      --bg:#0f1115; --panel:#171a21; --muted:#a99c8c; --text:#e8e1d8;
+      --ok:#7ba88a; --warn:#d4a857; --line:rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+    .sync{font-weight:600}
+    .sub{font-size:.9rem;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+    .k{font-size:.85rem;color:var(--muted)}
+    .v{font-size:1.25rem;font-weight:700;margin-top:6px}
+    .meta{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+    .barra{height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:8px 0}
+    .barra > div{height:100%;width:0;background:linear-gradient(90deg,var(--warn),#c2683e)}
+    .charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .tableWrap{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid var(--line);font-size:.92rem}
+    th{text-align:left;color:var(--muted)}
+    .badge{padding:3px 8px;border-radius:999px;font-size:.8rem}
+    .badge-v{background:rgba(123,168,138,.2);border:1px solid rgba(123,168,138,.45)}
+    .badge-m{background:rgba(212,168,87,.18);border:1px solid rgba(212,168,87,.45)}
+    .vacio{text-align:center;color:var(--muted)}
+    @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}}
+    @media (max-width:560px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="topbar">
+      <div>
+        <h1 style="margin:0 0 4px 0;font-size:1.2rem;">Dashboard Central</h1>
+        <div id="syncTxt" class="sync">⏳ Sincronizando…</div>
+        <div id="d-syncSub" class="sub">Inicializando…</div>
+      </div>
+      <div class="sub">Hora: <span id="d-hora">--:--</span></div>
+    </header>
 
-/* ---------------------------
-   Utilidades UI Sync
---------------------------- */
-function setSyncTxt(txt) {
-  const el = document.getElementById('syncTxt');
-  if (el) el.textContent = txt;
-}
+    <section class="grid">
+      <article class="card">
+        <div class="k">Ingreso hoy</div>
+        <div id="d-ingresoHoy" class="v">$0</div>
+      </article>
+      <article class="card">
+        <div class="k">Ventas hoy</div>
+        <div id="d-ventasHoy" class="v">0</div>
+      </article>
+      <article class="card">
+        <div class="k">Promedio por venta</div>
+        <div id="d-promedio" class="v">$0</div>
+      </article>
+      <article class="card">
+        <div class="k">Meta diaria</div>
+        <div id="d-meta" class="v">0%</div>
+      </article>
+    </section>
 
-/* ---------------------------
-   Inicialización segura
---------------------------- */
-function iniciarApp() {
-  if (appIniciada) return;
-  appIniciada = true;
+    <section class="meta">
+      <div class="k">Progreso contra meta (<span id="d-metaVal">0</span>)</div>
+      <div class="barra"><div id="d-barraFill"></div></div>
+      <div id="d-falta" class="sub">$0 falta</div>
+      <div class="sub" style="margin-top:8px;">
+        Total ventas: <strong id="d-totalVentas">0</strong> ·
+        Ingreso total: <strong id="d-ingresoTotal">$0</strong>
+      </div>
+    </section>
 
-  setSyncTxt('⏳ Sincronizando…');
+    <section class="charts">
+      <article class="card">
+        <div class="k" style="margin-bottom:8px;">Ingresos por hora</div>
+        <canvas id="graficoHoras" height="120"></canvas>
+      </article>
+      <article class="card">
+        <div class="k" style="margin-bottom:8px;">Ingresos por vendedor</div>
+        <canvas id="graficoVendedores" height="120"></canvas>
+      </article>
+    </section>
 
-  // Espera corta por window.bd (cargado por base-datos-centralizada.js)
-  const inicio = Date.now();
-  const esperaMax = 7000; // 7s anti-bloqueo
-  const t = setInterval(async () => {
-    const bdListo = (typeof window.bd !== 'undefined' && window.bd !== null);
+    <section class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Vendedor</th>
+            <th>Cliente</th>
+            <th>Cantidad</th>
+            <th>Método</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
+        <tbody id="tablaBody">
+          <tr><td colspan="6" class="vacio">Sin ventas registradas todavía</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
 
-    if (bdListo) {
-      clearInterval(t);
-      try {
-        await window.bd.sincronizarConServidor();
-      } catch (e) {
-        console.warn('sincronizarConServidor error:', e);
-      } finally {
+  <script src="./config.js"></script>
+  <script src="./base-datos-centralizada.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+  /* =========================================================
+     BLOQUE DASHBOARD CORREGIDO (anti-trabado "Sincronizando...")
+     ========================================================= */
+
+  let chartHoras = null;
+  let chartVendedores = null;
+  let appIniciada = false;
+  let intervaloDashboard = null;
+
+  function setSyncTxt(txt) {
+    const el = document.getElementById('syncTxt');
+    if (el) el.textContent = txt;
+  }
+
+  function iniciarApp() {
+    if (appIniciada) return;
+    appIniciada = true;
+
+    setSyncTxt('⏳ Sincronizando…');
+
+    const inicio = Date.now();
+    const esperaMax = 7000;
+    const t = setInterval(async () => {
+      const bdListo = (typeof window.bd !== 'undefined' && window.bd !== null);
+
+      if (bdListo) {
+        clearInterval(t);
+        try {
+          await window.bd.sincronizarConServidor();
+        } catch (e) {
+          console.warn('sincronizarConServidor error:', e);
+        } finally {
+          actualizarDashboardSegura();
+          crearGraficasSeguras();
+
+          if (!intervaloDashboard) {
+            intervaloDashboard = setInterval(actualizarDashboardSegura, 5000);
+          }
+        }
+        return;
+      }
+
+      if (Date.now() - inicio > esperaMax) {
+        clearInterval(t);
+        setSyncTxt('⚠️ Modo local');
         actualizarDashboardSegura();
         crearGraficasSeguras();
 
@@ -45,254 +163,182 @@ function iniciarApp() {
           intervaloDashboard = setInterval(actualizarDashboardSegura, 5000);
         }
       }
+    }, 250);
+  }
+
+  function actualizarDashboardSegura() {
+    try {
+      actualizarDashboard();
+    } catch (e) {
+      console.error('actualizarDashboard error:', e);
+      setSyncTxt('⚠️ Error UI');
+    }
+  }
+
+  function crearGraficasSeguras() {
+    try {
+      if (!chartHoras || !chartVendedores) {
+        crearGraficas();
+      }
+    } catch (e) {
+      console.error('crearGraficas error:', e);
+    }
+  }
+
+  function actualizarDashboard() {
+    const statsDefault = { totalVentas:0, ingresoTotal:0, ventasHoy:0, ingresoHoy:0, porcentajeMeta:0, ventaPromedio:0 };
+    let stats = statsDefault;
+    let ventas = [];
+
+    if (typeof window.bd !== 'undefined' && window.bd !== null) {
+      try {
+        stats = window.bd.obtenerEstadisticas() || statsDefault;
+        ventas = window.bd.obtenerTodasLasVentas() || [];
+      } catch (e) {
+        console.warn('Error leyendo bd:', e);
+      }
+    } else {
+      try {
+        ventas = JSON.parse(localStorage.getItem('ventas') || '[]');
+        const totalVentas = ventas.length;
+        const ingresoTotal = ventas.reduce((a,v)=>a+(Number(v.monto)||0),0);
+        const hoy = new Date();
+        const esHoy = (iso) => {
+          const d = new Date(iso);
+          return d.getFullYear()===hoy.getFullYear() && d.getMonth()===hoy.getMonth() && d.getDate()===hoy.getDate();
+        };
+        const ventasHoyArr = ventas.filter(v=>esHoy(v.fechaRegistro));
+        const ventasHoy = ventasHoyArr.length;
+        const ingresoHoy = ventasHoyArr.reduce((a,v)=>a+(Number(v.monto)||0),0);
+        const meta = (window.CONFIG && window.CONFIG.METAS) ? window.CONFIG.METAS.DIARIA : 10000;
+        stats = {
+          totalVentas, ingresoTotal, ventasHoy, ingresoHoy,
+          porcentajeMeta: meta>0 ? (ingresoHoy/meta)*100 : 0,
+          ventaPromedio: totalVentas? ingresoTotal/totalVentas : 0
+        };
+      } catch (_) {}
+    }
+
+    const metaDiaria = (window.CONFIG && window.CONFIG.METAS) ? window.CONFIG.METAS.DIARIA : 10000;
+    const setText = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
+
+    setText('d-ingresoHoy', '$' + Math.round(stats.ingresoHoy||0).toLocaleString('es-MX'));
+    setText('d-ventasHoy', String(stats.ventasHoy||0));
+    setText('d-promedio', '$' + (stats.ventasHoy > 0 ? Math.round((stats.ingresoHoy||0)/(stats.ventasHoy)) : 0).toLocaleString('es-MX'));
+    setText('d-meta', Math.round(stats.porcentajeMeta||0) + '%');
+
+    const barra = document.getElementById('d-barraFill');
+    if (barra) barra.style.width = Math.min(stats.porcentajeMeta||0, 100) + '%';
+
+    setText('d-metaVal', Number(metaDiaria).toLocaleString('es-MX'));
+    setText('d-falta', '$' + Math.max(0, metaDiaria-(stats.ingresoHoy||0)).toLocaleString('es-MX') + ' falta');
+    setText('d-totalVentas', String(stats.totalVentas||0));
+    setText('d-ingresoTotal', '$' + Math.round(stats.ingresoTotal||0).toLocaleString('es-MX'));
+
+    const ahora = new Date();
+    setText('d-hora', ahora.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}));
+    setText('d-syncSub', 'Actualizado ahora');
+
+    if (window.bd && window.bd.estaRemotoActivo && window.bd.estaRemotoActivo()) {
+      setSyncTxt('✅ Sincronizado');
+    } else {
+      setSyncTxt('⚠️ Modo local');
+    }
+
+    actualizarTabla((ventas || []).slice(0, 10));
+
+    if (chartHoras) actualizarGraficaHoras(ventas || []);
+    if (chartVendedores) actualizarGraficaVendedores(ventas || []);
+
+    try { actualizarFidelizacion(); } catch (_) {}
+  }
+
+  function actualizarTabla(ventas) {
+    const tbody = document.getElementById('tablaBody');
+    if (!tbody) return;
+
+    if (!ventas || ventas.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="vacio">Sin ventas registradas todavía</td></tr>';
       return;
     }
 
-    if (Date.now() - inicio > esperaMax) {
-      clearInterval(t);
-      // fallback visual y funcional local
-      setSyncTxt('⚠️ Modo local');
-      actualizarDashboardSegura();
-      crearGraficasSeguras();
+    tbody.innerHTML = ventas.map(v => `
+      <tr>
+        <td>${new Date(v.fechaRegistro).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</td>
+        <td><span class="badge badge-v">${v.vendedorNombre || 'N/A'}</span></td>
+        <td>${v.cliente || 'Anónimo'}</td>
+        <td>${v.cantidad || 0}</td>
+        <td><span class="badge badge-m">${v.metodo || 'N/A'}</span></td>
+        <td><strong>$${Math.round(v.monto || 0).toLocaleString('es-MX')}</strong></td>
+      </tr>
+    `).join('');
+  }
 
-      if (!intervaloDashboard) {
-        intervaloDashboard = setInterval(actualizarDashboardSegura, 5000);
-      }
+  function crearGraficas() {
+    if (typeof Chart === 'undefined') return;
+
+    const PALETA = {
+      t:'rgba(212,168,87,.75)', tL:'rgba(212,168,87,1)',
+      h:'rgba(194,104,62,.75)', hL:'rgba(194,104,62,1)',
+      s:'rgba(123,168,138,.75)', sL:'rgba(123,168,138,1)',
+      a:'rgba(120,144,196,.75)', aL:'rgba(120,144,196,1)',
+      r:'rgba(176,120,90,.75)', rL:'rgba(176,120,90,1)'
+    };
+
+    const cH = document.getElementById('graficoHoras');
+    const cV = document.getElementById('graficoVendedores');
+    if (!cH || !cV) return;
+
+    if (!chartHoras) {
+      chartHoras = new Chart(cH.getContext('2d'), {
+        type:'bar',
+        data:{ labels:Array.from({length:24},(_,i)=>`${i}:00`), datasets:[{ label:'Ventas', data:Array(24).fill(0), backgroundColor:PALETA.t, borderColor:PALETA.tL, borderWidth:1.5, borderRadius:4 }]},
+        options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,ticks:{color:'#a99c8c'},grid:{color:'rgba(255,255,255,.04)'}}, x:{ticks:{color:'#a99c8c',maxTicksLimit:12},grid:{display:false}} } }
+      });
     }
-  }, 250);
-}
 
-/* ---------------------------
-   Dashboard seguro (no rompe)
---------------------------- */
-function actualizarDashboardSegura() {
-  try {
-    actualizarDashboard();
-  } catch (e) {
-    console.error('actualizarDashboard error:', e);
-    setSyncTxt('⚠️ Error UI');
-  }
-}
-
-function crearGraficasSeguras() {
-  try {
-    if (!chartHoras || !chartVendedores) {
-      crearGraficas();
+    if (!chartVendedores) {
+      chartVendedores = new Chart(cV.getContext('2d'), {
+        type:'doughnut',
+        data:{ labels:[], datasets:[{ data:[], backgroundColor:[PALETA.t,PALETA.h,PALETA.s,PALETA.a,PALETA.r], borderColor:[PALETA.tL,PALETA.hL,PALETA.sL,PALETA.aL,PALETA.rL], borderWidth:1.5 }]},
+        options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#a99c8c'}}} }
+      });
     }
-  } catch (e) {
-    console.error('crearGraficas error:', e);
-  }
-}
 
-/* ---------------------------
-   Tu lógica de actualización
---------------------------- */
-function actualizarDashboard() {
-  const statsDefault = { totalVentas:0, ingresoTotal:0, ventasHoy:0, ingresoHoy:0, porcentajeMeta:0, ventaPromedio:0 };
-  let stats = statsDefault;
-  let ventas = [];
-
-  if (typeof window.bd !== 'undefined' && window.bd !== null) {
-    try {
-      stats = window.bd.obtenerEstadisticas() || statsDefault;
-      ventas = window.bd.obtenerTodasLasVentas() || [];
-    } catch (e) {
-      console.warn('Error leyendo bd:', e);
-    }
-  } else {
-    // fallback local directo por si bd no está
-    try {
-      ventas = JSON.parse(localStorage.getItem('ventas') || '[]');
-      const totalVentas = ventas.length;
-      const ingresoTotal = ventas.reduce((a,v)=>a+(Number(v.monto)||0),0);
-      const hoy = new Date();
-      const esHoy = (iso) => {
-        const d = new Date(iso);
-        return d.getFullYear()===hoy.getFullYear() && d.getMonth()===hoy.getMonth() && d.getDate()===hoy.getDate();
-      };
-      const ventasHoyArr = ventas.filter(v=>esHoy(v.fechaRegistro));
-      const ventasHoy = ventasHoyArr.length;
-      const ingresoHoy = ventasHoyArr.reduce((a,v)=>a+(Number(v.monto)||0),0);
-      const meta = (window.CONFIG && window.CONFIG.METAS) ? window.CONFIG.METAS.DIARIA : 10000;
-      stats = {
-        totalVentas,
-        ingresoTotal,
-        ventasHoy,
-        ingresoHoy,
-        porcentajeMeta: meta>0 ? (ingresoHoy/meta)*100 : 0,
-        ventaPromedio: totalVentas? ingresoTotal/totalVentas : 0
-      };
-    } catch (_) {}
+    const ventas = (window.bd && window.bd.obtenerTodasLasVentas) ? window.bd.obtenerTodasLasVentas() : [];
+    actualizarGraficaHoras(ventas);
+    actualizarGraficaVendedores(ventas);
   }
 
-  const metaDiaria = (window.CONFIG && window.CONFIG.METAS) ? window.CONFIG.METAS.DIARIA : 10000;
-
-  const setText = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-  };
-
-  setText('d-ingresoHoy', '$' + Math.round(stats.ingresoHoy||0).toLocaleString('es-MX'));
-  setText('d-ventasHoy', String(stats.ventasHoy||0));
-  setText('d-promedio', '$' + (stats.ventasHoy > 0 ? Math.round((stats.ingresoHoy||0)/(stats.ventasHoy)) : 0).toLocaleString('es-MX'));
-  setText('d-meta', Math.round(stats.porcentajeMeta||0) + '%');
-
-  const barra = document.getElementById('d-barraFill');
-  if (barra) barra.style.width = Math.min(stats.porcentajeMeta||0, 100) + '%';
-
-  setText('d-metaVal', Number(metaDiaria).toLocaleString('es-MX'));
-  setText('d-falta', '$' + Math.max(0, metaDiaria-(stats.ingresoHoy||0)).toLocaleString('es-MX') + ' falta');
-  setText('d-totalVentas', String(stats.totalVentas||0));
-  setText('d-ingresoTotal', '$' + Math.round(stats.ingresoTotal||0).toLocaleString('es-MX'));
-
-  const ahora = new Date();
-  setText('d-hora', ahora.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}));
-  setText('d-syncSub', 'Actualizado ahora');
-
-  // Sync label por estado real
-  if (window.bd && window.bd.estaRemotoActivo && window.bd.estaRemotoActivo()) {
-    setSyncTxt('✅ Sincronizado');
-  } else {
-    setSyncTxt('⚠️ Modo local');
-  }
-
-  actualizarTabla((ventas || []).slice(0, 10));
-
-  if (chartHoras) actualizarGraficaHoras(ventas || []);
-  if (chartVendedores) actualizarGraficaVendedores(ventas || []);
-
-  try { actualizarFidelizacion(); } catch (_) {}
-}
-
-/* ---------------------------
-   Tabla
---------------------------- */
-function actualizarTabla(ventas) {
-  const tbody = document.getElementById('tablaBody');
-  if (!tbody) return;
-
-  if (!ventas || ventas.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="vacio">Sin ventas registradas todavía</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = ventas.map(v => `
-    <tr>
-      <td>${new Date(v.fechaRegistro).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</td>
-      <td><span class="badge badge-v">${v.vendedorNombre || 'N/A'}</span></td>
-      <td>${v.cliente || 'Anónimo'}</td>
-      <td>${v.cantidad || 0}</td>
-      <td><span class="badge badge-m">${v.metodo || 'N/A'}</span></td>
-      <td><strong>$${Math.round(v.monto || 0).toLocaleString('es-MX')}</strong></td>
-    </tr>
-  `).join('');
-}
-
-/* ---------------------------
-   Gráficas
---------------------------- */
-function crearGraficas() {
-  if (typeof Chart === 'undefined') return;
-
-  const PALETA = {
-    t:'rgba(212,168,87,.75)', tL:'rgba(212,168,87,1)',
-    h:'rgba(194,104,62,.75)', hL:'rgba(194,104,62,1)',
-    s:'rgba(123,168,138,.75)', sL:'rgba(123,168,138,1)',
-    a:'rgba(120,144,196,.75)', aL:'rgba(120,144,196,1)',
-    r:'rgba(176,120,90,.75)', rL:'rgba(176,120,90,1)'
-  };
-
-  const cH = document.getElementById('graficoHoras');
-  const cV = document.getElementById('graficoVendedores');
-  if (!cH || !cV) return;
-
-  const ctxH = cH.getContext('2d');
-  const ctxV = cV.getContext('2d');
-
-  if (!chartHoras) {
-    chartHoras = new Chart(ctxH, {
-      type:'bar',
-      data:{
-        labels:Array.from({length:24},(_,i)=>`${i}:00`),
-        datasets:[{
-          label:'Ventas',
-          data:Array(24).fill(0),
-          backgroundColor:PALETA.t,
-          borderColor:PALETA.tL,
-          borderWidth:1.5,
-          borderRadius:4
-        }]
-      },
-      options:{
-        responsive:true,
-        plugins:{legend:{display:false}},
-        scales:{
-          y:{beginAtZero:true,ticks:{color:'#a99c8c'},grid:{color:'rgba(255,255,255,.04)'}},
-          x:{ticks:{color:'#a99c8c',maxTicksLimit:12},grid:{display:false}}
-        }
-      }
+  function actualizarGraficaHoras(ventas) {
+    if (!chartHoras) return;
+    const por = {};
+    (ventas || []).forEach(v => {
+      const h = new Date(v.fechaRegistro).getHours();
+      por[h] = (por[h] || 0) + (Number(v.monto) || 0);
     });
+    chartHoras.data.datasets[0].data = Array.from({length:24},(_,i)=>por[i]||0);
+    chartHoras.update();
   }
 
-  if (!chartVendedores) {
-    chartVendedores = new Chart(ctxV, {
-      type:'doughnut',
-      data:{
-        labels:[],
-        datasets:[{
-          data:[],
-          backgroundColor:[PALETA.t,PALETA.h,PALETA.s,PALETA.a,PALETA.r],
-          borderColor:[PALETA.tL,PALETA.hL,PALETA.sL,PALETA.aL,PALETA.rL],
-          borderWidth:1.5
-        }]
-      },
-      options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#a99c8c'}}} }
+  function actualizarGraficaVendedores(ventas) {
+    if (!chartVendedores) return;
+    const por = {};
+    (ventas || []).forEach(v => {
+      const n = v.vendedorNombre || 'Desconocido';
+      por[n] = (por[n] || 0) + (Number(v.monto) || 0);
     });
+    chartVendedores.data.labels = Object.keys(por);
+    chartVendedores.data.datasets[0].data = Object.values(por);
+    chartVendedores.update();
   }
 
-  const ventas = (window.bd && window.bd.obtenerTodasLasVentas) ? window.bd.obtenerTodasLasVentas() : [];
-  actualizarGraficaHoras(ventas);
-  actualizarGraficaVendedores(ventas);
-}
-
-function actualizarGraficaHoras(ventas) {
-  if (!chartHoras) return;
-  const por = {};
-  (ventas || []).forEach(v => {
-    const h = new Date(v.fechaRegistro).getHours();
-    por[h] = (por[h] || 0) + (Number(v.monto) || 0);
-  });
-  chartHoras.data.datasets[0].data = Array.from({length:24},(_,i)=>por[i]||0);
-  chartHoras.update();
-}
-
-function actualizarGraficaVendedores(ventas) {
-  if (!chartVendedores) return;
-  const por = {};
-  (ventas || []).forEach(v => {
-    const n = v.vendedorNombre || 'Desconocido';
-    por[n] = (por[n] || 0) + (Number(v.monto) || 0);
-  });
-  chartVendedores.data.labels = Object.keys(por);
-  chartVendedores.data.datasets[0].data = Object.values(por);
-  chartVendedores.update();
-}
-
-/* ---------------------------
-   Evento sincronización
---------------------------- */
-window.addEventListener('sincronizacionCompleta', () => {
-  actualizarDashboardSegura();
-});
-
-window.addEventListener('ventaRegistrada', () => {
-  actualizarDashboardSegura();
-});
-
-/* ---------------------------
-   Arranque final
---------------------------- */
-document.addEventListener('DOMContentLoaded', () => {
-  iniciarApp();
-});
-    </script>
+  window.addEventListener('sincronizacionCompleta', actualizarDashboardSegura);
+  window.addEventListener('ventaRegistrada', actualizarDashboardSegura);
+  document.addEventListener('DOMContentLoaded', iniciarApp);
+  </script>
+</body>
+</html>
