@@ -14,6 +14,9 @@ function iniciarApp() {
 
   setSyncTxt('⏳ Sincronizando…');
 
+  // 1) Pintar de inmediato con datos locales para evitar pantalla "colgada"
+  actualizarDashboardSegura();
+
   const inicio = Date.now();
   const esperaMax = 7000;
 
@@ -40,7 +43,7 @@ function iniciarApp() {
 
     if (Date.now() - inicio > esperaMax) {
       clearInterval(t);
-      setSyncTxt('⚠️ Modo local');
+      setSyncTxt('⚠️ Modo local (sin conexión remota)');
       actualizarDashboardSegura();
       crearGraficasSeguras();
 
@@ -57,6 +60,8 @@ function actualizarDashboardSegura() {
   } catch (e) {
     console.error('actualizarDashboard error:', e);
     setSyncTxt('⚠️ Error UI');
+    const sub = document.getElementById('d-syncSub');
+    if (sub) sub.textContent = 'No se pudo renderizar el dashboard. Revisa conexión/configuración.';
   }
 }
 
@@ -71,6 +76,8 @@ function crearGraficasSeguras() {
         return setTimeout(tryCrear, 250);
       }
       console.warn('Chart.js no cargó a tiempo');
+      const sub = document.getElementById('d-syncSub');
+      if (sub) sub.textContent = 'Datos cargados sin gráficas (Chart.js no disponible).';
       return;
     }
 
@@ -165,12 +172,13 @@ function actualizarDashboard() {
 
   const ahora = new Date();
   setText('d-hora', ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }));
-  setText('d-syncSub', 'Actualizado ahora');
 
   if (window.bd && window.bd.estaRemotoActivo && window.bd.estaRemotoActivo()) {
     setSyncTxt('✅ Sincronizado');
+    setText('d-syncSub', 'Datos remotos conectados');
   } else {
     setSyncTxt('⚠️ Modo local');
+    setText('d-syncSub', 'Mostrando datos locales (sin conexión remota)');
   }
 
   actualizarTabla((ventas || []).slice(0, 10));
