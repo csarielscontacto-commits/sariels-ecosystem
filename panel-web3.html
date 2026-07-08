@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Panel Web3 | Sariel's Ecosystem</title>
+  <meta name="description" content="Panel Web3 para conectar wallet, pagos USDT/USDC y generar QR de cobro" />
+  <style>
+    :root{
+      --bg:#0f1115;
+      --panel:#171a21;
+      --panel-2:#1e2430;
+      --text:#e8e1d8;
+      --muted:#a99c8c;
+      --line:rgba(255,255,255,.10);
+      --ok:#7ba88a;
+      --warn:#d4a857;
+      --danger:#d66b6b;
+      --brand:#c2683e;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px}
+    .top{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+      margin-bottom:14px
+    }
+    .title{margin:0;font-size:1.2rem}
+    .sub{color:var(--muted);font-size:.92rem}
+    .btn{
+      border:1px solid var(--line);background:var(--panel-2);color:var(--text);
+      border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer
+    }
+    .btn:hover{filter:brightness(1.06)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-brand{
+      background:linear-gradient(135deg,var(--warn),var(--brand));
+      color:#1b130f;border-color:rgba(212,168,87,.5)
+    }
+    .btn-ok{
+      background:rgba(123,168,138,.18);border-color:rgba(123,168,138,.45)
+    }
+    .btn-danger{
+      background:rgba(214,107,107,.14);border-color:rgba(214,107,107,.45)
+    }
+    .grid{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:12px;
+    }
+    .card{
+      background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px
+    }
+    .h{font-size:.95rem;font-weight:700;margin:0 0 10px}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px}
+    label{font-size:.82rem;color:var(--muted)}
+    input,select,textarea{
+      width:100%;padding:10px 11px;border-radius:10px;border:1px solid var(--line);
+      background:#11151d;color:var(--text);outline:none
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--warn)}
+    textarea{min-height:76px;resize:vertical}
+    .wallet-box{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      background:#11151d;border:1px dashed var(--line);border-radius:12px;padding:10px
+    }
+    .chip{
+      display:inline-flex;align-items:center;gap:6px;
+      border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:.8rem
+    }
+    .chip.ok{border-color:rgba(123,168,138,.45);background:rgba(123,168,138,.13)}
+    .chip.warn{border-color:rgba(212,168,87,.45);background:rgba(212,168,87,.12)}
+    .pay-links{
+      display:grid;grid-template-columns:1fr;gap:10px
+    }
+    .pay-item{
+      border:1px solid var(--line);border-radius:12px;padding:10px;background:#121821
+    }
+    .pay-item .k{font-size:.82rem;color:var(--muted)}
+    .pay-item .v{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:.8rem;word-break:break-all
+    }
+    .qr-wrap{
+      display:grid;place-items:center;
+      background:#0f131a;border:1px dashed var(--line);border-radius:14px;padding:14px;min-height:320px
+    }
+    #qrcode canvas,#qrcode img{max-width:100%;height:auto;background:#fff;padding:10px;border-radius:10px}
+    .small{font-size:.78rem}
+    .divider{height:1px;background:var(--line);margin:12px 0}
+    .right-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .warning{
+      border:1px solid rgba(212,168,87,.4);
+      background:rgba(212,168,87,.1);
+      color:#f2d8a6;
+      border-radius:10px;
+      padding:10px;
+      font-size:.84rem
+    }
+    .okbox{
+      border:1px solid rgba(123,168,138,.45);
+      background:rgba(123,168,138,.12);
+      color:#d5eadb;
+      border-radius:10px;padding:10px;font-size:.84rem
+    }
+    .footer-note{margin-top:12px;color:var(--muted);font-size:.8rem}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div>
+        <h1 class="title">🔗 Panel Web3</h1>
+        <div class="sub">Conecta tu wallet, administra links de pago USDT/USDC y genera QR de cobro</div>
+      </div>
+      <div class="right-actions">
+        <a class="btn" href="./dashboard-central.html" style="text-decoration:none;display:inline-block;">← Dashboard</a>
+        <button class="btn btn-brand" id="btnConnect">Conectar Wallet</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- Columna izquierda -->
+      <article class="card">
+        <h2 class="h">1) Estado de Wallet</h2>
+        <div class="wallet-box">
+          <span id="walletStatus" class="chip warn">● No conectada</span>
+          <span id="walletChain" class="chip">Red: --</span>
+          <span id="walletAddress" class="chip">Dirección: --</span>
+          <button class="btn btn-danger" id="btnDisconnect" disabled>Desconectar</button>
+        </div>
+        <div class="footer-note">
+          Requiere MetaMask en navegador. Si usas móvil, abre esta página desde el navegador interno de tu wallet.
+        </div>
+
+        <div class="divider"></div>
+
+        <h2 class="h">2) Links de pago (USDT / USDC)</h2>
+        <div class="warning">
+          Pega aquí tus links reales de cobro (Coinbase Commerce, NOWPayments, etc.).  
+          Este panel solo abre esos links.
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <div class="field">
+            <label for="usdtPayLink">Link de pago USDT</label>
+            <input id="usdtPayLink" type="url" placeholder="https://..." />
+          </div>
+          <div class="field">
+            <label for="usdcPayLink">Link de pago USDC</label>
+            <input id="usdcPayLink" type="url" placeholder="https://..." />
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn btn-ok" id="btnSaveLinks">Guardar links</button>
+          <button class="btn" id="btnOpenUSDT">Abrir pago USDT</button>
+          <button class="btn" id="btnOpenUSDC">Abrir pago USDC</button>
+        </div>
+
+        <div class="pay-links" style="margin-top:10px;">
+          <div class="pay-item">
+            <div class="k">USDT actual</div>
+            <div class="v" id="viewUSDT">No configurado</div>
+          </div>
+          <div class="pay-item">
+            <div class="k">USDC actual</div>
+            <div class="v" id="viewUSDC">No configurado</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Columna derecha -->
+      <article class="card">
+        <h2 class="h">3) Generador QR de cobro</h2>
+
+        <div class="row">
+          <div class="field">
+            <label for="coin">Moneda</label>
+            <select id="coin">
+              <option value="USDT">USDT</option>
+              <option value="USDC">USDC</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="network">Red</label>
+            <select id="network">
+              <option value="ERC20">ERC20 (Ethereum)</option>
+              <option value="TRC20">TRC20 (Tron)</option>
+              <option value="BEP20">BEP20 (BNB Chain)</option>
+              <option value="POLYGON">Polygon</option>
+              <option value="SOL">Solana</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="walletToReceive">Wallet de cobro (dirección destino)</label>
+            <input id="walletToReceive" type="text" placeholder="Pega aquí la dirección donde recibirás el pago" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="amount">Monto (ej. 25.50)</label>
+            <input id="amount" type="number" min="0" step="0.000001" placeholder="0.00" />
+          </div>
+          <div class="field">
+            <label for="reference">Referencia / Orden</label>
+            <input id="reference" type="text" placeholder="ORD-1001" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="note">Concepto (opcional)</label>
+            <textarea id="note" placeholder="Ej: Pago membresía julio"></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn btn-brand" id="btnGenerateQR">Generar QR</button>
+          <button class="btn" id="btnCopyRequest">Copiar request</button>
+          <button class="btn" id="btnDownloadQR">Descargar QR</button>
+        </div>
+
+        <div class="okbox" style="margin-top:10px;">
+          Request generado:
+          <div id="requestPreview" class="small" style="margin-top:6px;word-break:break-all;opacity:.95;">Aún no generado</div>
+        </div>
+
+        <div class="qr-wrap" style="margin-top:10px;">
+          <div id="qrcode"></div>
+        </div>
+
+        <div class="footer-note">
+          Consejo: siempre confirma que la <strong>red</strong> del envío coincida con la red de tu wallet.
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Librería QR -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <script>
+    /********************************************************
+     * CONFIG LOCAL
+     ********************************************************/
+    const STORAGE_KEYS = {
+      usdtLink: 'sariel_web3_usdt_link',
+      usdcLink: 'sariel_web3_usdc_link',
+      receiveWallet: 'sariel_web3_receive_wallet'
+    };
+
+    let qrInstance = null;
+    let lastRequestString = '';
+
+    const el = {
+      btnConnect: document.getElementById('btnConnect'),
+      btnDisconnect: document.getElementById('btnDisconnect'),
+      walletStatus: document.getElementById('walletStatus'),
+      walletChain: document.getElementById('walletChain'),
+      walletAddress: document.getElementById('walletAddress'),
+
+      usdtPayLink: document.getElementById('usdtPayLink'),
+      usdcPayLink: document.getElementById('usdcPayLink'),
+      btnSaveLinks: document.getElementById('btnSaveLinks'),
+      btnOpenUSDT: document.getElementById('btnOpenUSDT'),
+      btnOpenUSDC: document.getElementById('btnOpenUSDC'),
+      viewUSDT: document.getElementById('viewUSDT'),
+      viewUSDC: document.getElementById('viewUSDC'),
+
+      coin: document.getElementById('coin'),
+      network: document.getElementById('network'),
+      walletToReceive: document.getElementById('walletToReceive'),
+      amount: document.getElementById('amount'),
+      reference: document.getElementById('reference'),
+      note: document.getElementById('note'),
+      btnGenerateQR: document.getElementById('btnGenerateQR'),
+      btnCopyRequest: document.getElementById('btnCopyRequest'),
+      btnDownloadQR: document.getElementById('btnDownloadQR'),
+      requestPreview: document.getElementById('requestPreview'),
+      qrcode: document.getElementById('qrcode')
+    };
+
+    /********************************************************
+     * UTILIDADES
+     ********************************************************/
+    function shortAddr(addr){
+      if(!addr || addr.length < 10) return addr || '--';
+      return addr.slice(0,6) + '…' + addr.slice(-4);
+    }
+
+    function chainNameFromHex(chainIdHex){
+      const map = {
+        '0x1':'Ethereum Mainnet',
+        '0x89':'Polygon',
+        '0x38':'BNB Chain',
+        '0xa4b1':'Arbitrum One',
+        '0xa':'Optimism',
+        '0x7a69':'Hardhat Local'
+      };
+      return map[chainIdHex] || `Chain ${chainIdHex}`;
+    }
+
+    function isValidUrl(url){
+      try { new URL(url); return true; } catch { return false; }
+    }
+
+    function showWalletDisconnected(){
+      el.walletStatus.textContent = '● No conectada';
+      el.walletStatus.className = 'chip warn';
+      el.walletChain.textContent = 'Red: --';
+      el.walletAddress.textContent = 'Dirección: --';
+      el.btnDisconnect.disabled = true;
+    }
+
+    function showWalletConnected(address, chainIdHex){
+      el.walletStatus.textContent = '● Conectada';
+      el.walletStatus.className = 'chip ok';
+      el.walletChain.textContent = 'Red: ' + chainNameFromHex(chainIdHex);
+      el.walletAddress.textContent = 'Dirección: ' + shortAddr(address);
+      el.btnDisconnect.disabled = false;
+    }
+
+    function loadLinks(){
+      const usdt = localStorage.getItem(STORAGE_KEYS.usdtLink) || '';
+      const usdc = localStorage.getItem(STORAGE_KEYS.usdcLink) || '';
+      const rw   = localStorage.getItem(STORAGE_KEYS.receiveWallet) || '';
+
+      el.usdtPayLink.value = usdt;
+      el.usdcPayLink.value = usdc;
+      el.walletToReceive.value = rw;
+
+      el.viewUSDT.textContent = usdt || 'No configurado';
+      el.viewUSDC.textContent = usdc || 'No configurado';
+    }
+
+    function saveLinks(){
+      localStorage.setItem(STORAGE_KEYS.usdtLink, el.usdtPayLink.value.trim());
+      localStorage.setItem(STORAGE_KEYS.usdcLink, el.usdcPayLink.value.trim());
+      localStorage.setItem(STORAGE_KEYS.receiveWallet, el.walletToReceive.value.trim());
+      loadLinks();
+      alert('✅ Links y wallet guardados');
+    }
+
+    function openPayLink(type){
+      const key = type === 'USDT' ? STORAGE_KEYS.usdtLink : STORAGE_KEYS.usdcLink;
+      const url = (localStorage.getItem(key) || '').trim();
+      if(!url){
+        alert(`Primero configura el link de pago ${type}`);
+        return;
+      }
+      if(!isValidUrl(url)){
+        alert(`El link de ${type} no es válido`);
+        return;
+      }
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // Estructura simple portable para QR (texto JSON)
+    function buildPaymentRequest(){
+      const coin = el.coin.value.trim();
+      const network = el.network.value.trim();
+      const address = el.walletToReceive.value.trim();
+      const amount = el.amount.value.trim();
+      const reference = el.reference.value.trim();
+      const note = el.note.value.trim();
+
+      if(!address){
+        throw new Error('Debes indicar la wallet de cobro');
+      }
+
+      const payload = {
+        app: "SarielsEcosystem",
+        type: "crypto_payment_request",
+        coin,
+        network,
+        address,
+        amount: amount || null,
+        reference: reference || null,
+        note: note || null,
+        createdAt: new Date().toISOString()
+      };
+
+      return JSON.stringify(payload);
+    }
+
+    function generateQR(text){
+      el.qrcode.innerHTML = '';
+      qrInstance = new QRCode(el.qrcode, {
+        text,
+        width: 250,
+        height: 250,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    async function copyRequest(){
+      if(!lastRequestString){
+        alert('Primero genera un QR');
+        return;
+      }
+      try{
+        await navigator.clipboard.writeText(lastRequestString);
+        alert('✅ Request copiado');
+      }catch{
+        alert('No se pudo copiar automáticamente');
+      }
+    }
+
+    function downloadQR(){
+      const canvas = el.qrcode.querySelector('canvas');
+      const img = el.qrcode.querySelector('img');
+
+      if(!canvas && !img){
+        alert('Primero genera un QR');
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.download = `qr-cobro-${Date.now()}.png`;
+
+      if(canvas){
+        link.href = canvas.toDataURL('image/png');
+      }else{
+        link.href = img.src;
+      }
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    /********************************************************
+     * WALLET (MetaMask)
+     ********************************************************/
+    async function connectWallet(){
+      if(typeof window.ethereum === 'undefined'){
+        alert('No se detectó MetaMask. Instálalo para conectar wallet.');
+        return;
+      }
+
+      try{
+        const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+        const chainId = await window.ethereum.request({ method:'eth_chainId' });
+
+        const address = accounts && accounts[0] ? accounts[0] : null;
+        if(!address){
+          showWalletDisconnected();
+          return;
+        }
+
+        showWalletConnected(address, chainId);
+
+        // si el campo wallet de cobro está vacío, lo autocompleta
+        if(!el.walletToReceive.value.trim()){
+          el.walletToReceive.value = address;
+          localStorage.setItem(STORAGE_KEYS.receiveWallet, address);
+        }
+      }catch(err){
+        console.error(err);
+        alert('No se pudo conectar la wallet');
+      }
+    }
+
+    function disconnectWalletUIOnly(){
+      // En MetaMask no existe "desconectar" por JS estándar.
+      // Solo limpiamos estado visual local.
+      showWalletDisconnected();
+      alert('Wallet desconectada en este panel (estado local).');
+    }
+
+    async function checkIfAlreadyConnected(){
+      if(typeof window.ethereum === 'undefined'){
+        showWalletDisconnected();
+        return;
+      }
+      try{
+        const accounts = await window.ethereum.request({ method:'eth_accounts' });
+        const chainId = await window.ethereum.request({ method:'eth_chainId' });
+        if(accounts && accounts.length){
+          showWalletConnected(accounts[0], chainId);
+        }else{
+          showWalletDisconnected();
+        }
+      }catch{
+        showWalletDisconnected();
+      }
+    }
+
+    function bindWalletEvents(){
+      if(typeof window.ethereum === 'undefined') return;
+
+      window.ethereum.on('accountsChanged', (accounts)=>{
+        if(accounts && accounts.length){
+          window.ethereum.request({ method:'eth_chainId' })
+            .then(chainId => showWalletConnected(accounts[0], chainId))
+            .catch(()=>showWalletDisconnected());
+        }else{
+          showWalletDisconnected();
+        }
+      });
+
+      window.ethereum.on('chainChanged', async (chainId)=>{
+        try{
+          const accounts = await window.ethereum.request({ method:'eth_accounts' });
+          if(accounts && accounts.length){
+            showWalletConnected(accounts[0], chainId);
+          }else{
+            showWalletDisconnected();
+          }
+        }catch{
+          showWalletDisconnected();
+        }
+      });
+    }
+
+    /********************************************************
+     * EVENTOS
+     ********************************************************/
+    el.btnConnect.addEventListener('click', connectWallet);
+    el.btnDisconnect.addEventListener('click', disconnectWalletUIOnly);
+
+    el.btnSaveLinks.addEventListener('click', saveLinks);
+    el.btnOpenUSDT.addEventListener('click', ()=>openPayLink('USDT'));
+    el.btnOpenUSDC.addEventListener('click', ()=>openPayLink('USDC'));
+
+    el.btnGenerateQR.addEventListener('click', ()=>{
+      try{
+        localStorage.setItem(STORAGE_KEYS.receiveWallet, el.walletToReceive.value.trim());
+        const req = buildPaymentRequest();
+        lastRequestString = req;
+        el.requestPreview.textContent = req;
+        generateQR(req);
+      }catch(err){
+        alert('⚠️ ' + err.message);
+      }
+    });
+
+    el.btnCopyRequest.addEventListener('click', copyRequest);
+    el.btnDownloadQR.addEventListener('click', downloadQR);
+
+    /********************************************************
+     * INIT
+     ********************************************************/
+    (function init(){
+      loadLinks();
+      checkIfAlreadyConnected();
+      bindWalletEvents();
+    })();
+  </script>
+</body>
+  </html>
