@@ -1,30 +1,30 @@
-let chartHoras = null;
-let chartVendedores = null;
-let appIniciada = false;
-let intervaloDashboard = null;
+// Reemplaza SOLO esta función en tu archivo:
+function crearGraficasSeguras() {
+  // Espera activa corta por si Chart.js con defer aún no está listo
+  let intentos = 0;
+  const maxIntentos = 20; // ~5s
 
-function setSyncTxt(txt) {
-  const el = document.getElementById('syncTxt');
-  if (el) el.textContent = txt;
+  const tryCrear = () => {
+    if (typeof window.Chart === 'undefined') {
+      intentos += 1;
+      if (intentos < maxIntentos) {
+        return setTimeout(tryCrear, 250);
+      }
+      console.warn('Chart.js no cargó a tiempo');
+      return;
+    }
+
+    try {
+      if (!chartHoras || !chartVendedores) {
+        crearGraficas();
+      }
+    } catch (e) {
+      console.error('crearGraficas error:', e);
+    }
+  };
+
+  tryCrear();
 }
-
-function iniciarApp() {
-  if (appIniciada) return;
-  appIniciada = true;
-
-  setSyncTxt('⏳ Sincronizando…');
-
-  const inicio = Date.now();
-  const esperaMax = 7000;
-
-  const t = setInterval(async () => {
-    const bdListo = (typeof window.bd !== 'undefined' && window.bd !== null);
-
-    if (bdListo) {
-      clearInterval(t);
-
-      try {
-        await window.bd.sincronizarConServidor();
       } catch (e) {
         console.warn('sincronizarConServidor error:', e);
       } finally {
