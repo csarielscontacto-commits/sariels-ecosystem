@@ -1,30 +1,30 @@
-// Reemplaza SOLO esta función en tu archivo:
-function crearGraficasSeguras() {
-  // Espera activa corta por si Chart.js con defer aún no está listo
-  let intentos = 0;
-  const maxIntentos = 20; // ~5s
+let chartHoras = null;
+let chartVendedores = null;
+let appIniciada = false;
+let intervaloDashboard = null;
 
-  const tryCrear = () => {
-    if (typeof window.Chart === 'undefined') {
-      intentos += 1;
-      if (intentos < maxIntentos) {
-        return setTimeout(tryCrear, 250);
-      }
-      console.warn('Chart.js no cargó a tiempo');
-      return;
-    }
-
-    try {
-      if (!chartHoras || !chartVendedores) {
-        crearGraficas();
-      }
-    } catch (e) {
-      console.error('crearGraficas error:', e);
-    }
-  };
-
-  tryCrear();
+function setSyncTxt(txt) {
+  const el = document.getElementById('syncTxt');
+  if (el) el.textContent = txt;
 }
+
+function iniciarApp() {
+  if (appIniciada) return;
+  appIniciada = true;
+
+  setSyncTxt('⏳ Sincronizando…');
+
+  const inicio = Date.now();
+  const esperaMax = 7000;
+
+  const t = setInterval(async () => {
+    const bdListo = (typeof window.bd !== 'undefined' && window.bd !== null);
+
+    if (bdListo) {
+      clearInterval(t);
+
+      try {
+        await window.bd.sincronizarConServidor();
       } catch (e) {
         console.warn('sincronizarConServidor error:', e);
       } finally {
@@ -61,14 +61,29 @@ function actualizarDashboardSegura() {
 }
 
 function crearGraficasSeguras() {
-  if (typeof Chart === 'undefined') return;
-  try {
-    if (!chartHoras || !chartVendedores) {
-      crearGraficas();
+  let intentos = 0;
+  const maxIntentos = 20;
+
+  const tryCrear = () => {
+    if (typeof window.Chart === 'undefined') {
+      intentos += 1;
+      if (intentos < maxIntentos) {
+        return setTimeout(tryCrear, 250);
+      }
+      console.warn('Chart.js no cargó a tiempo');
+      return;
     }
-  } catch (e) {
-    console.error('crearGraficas error:', e);
-  }
+
+    try {
+      if (!chartHoras || !chartVendedores) {
+        crearGraficas();
+      }
+    } catch (e) {
+      console.error('crearGraficas error:', e);
+    }
+  };
+
+  tryCrear();
 }
 
 function actualizarDashboard() {
@@ -193,11 +208,11 @@ function crearGraficas() {
   if (typeof Chart === 'undefined') return;
 
   const PALETA = {
-    t:'rgba(212,168,87,.75)', tL:'rgba(212,168,87,1)',
-    h:'rgba(194,104,62,.75)', hL:'rgba(194,104,62,1)',
-    s:'rgba(123,168,138,.75)', sL:'rgba(123,168,138,1)',
-    a:'rgba(120,144,196,.75)', aL:'rgba(120,144,196,1)',
-    r:'rgba(176,120,90,.75)', rL:'rgba(176,120,90,1)'
+    t: 'rgba(212,168,87,.75)', tL: 'rgba(212,168,87,1)',
+    h: 'rgba(194,104,62,.75)', hL: 'rgba(194,104,62,1)',
+    s: 'rgba(123,168,138,.75)', sL: 'rgba(123,168,138,1)',
+    a: 'rgba(120,144,196,.75)', aL: 'rgba(120,144,196,1)',
+    r: 'rgba(176,120,90,.75)', rL: 'rgba(176,120,90,1)'
   };
 
   const cH = document.getElementById('graficoHoras');
@@ -206,24 +221,24 @@ function crearGraficas() {
 
   if (!chartHoras) {
     chartHoras = new Chart(cH.getContext('2d'), {
-      type:'bar',
-      data:{
-        labels:Array.from({length:24},(_,i)=>`${i}:00`),
-        datasets:[{
-          label:'Ingresos',
-          data:Array(24).fill(0),
-          backgroundColor:PALETA.t,
-          borderColor:PALETA.tL,
-          borderWidth:1.5,
-          borderRadius:6
+      type: 'bar',
+      data: {
+        labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+        datasets: [{
+          label: 'Ingresos',
+          data: Array(24).fill(0),
+          backgroundColor: PALETA.t,
+          borderColor: PALETA.tL,
+          borderWidth: 1.5,
+          borderRadius: 6
         }]
       },
-      options:{
-        responsive:true,
-        plugins:{ legend:{ display:false } },
-        scales:{
-          y:{ beginAtZero:true, ticks:{color:'#a99c8c'}, grid:{color:'rgba(255,255,255,.04)'} },
-          x:{ ticks:{color:'#a99c8c',maxTicksLimit:12}, grid:{display:false} }
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { color: '#a99c8c' }, grid: { color: 'rgba(255,255,255,.04)' } },
+          x: { ticks: { color: '#a99c8c', maxTicksLimit: 12 }, grid: { display: false } }
         }
       }
     });
@@ -231,19 +246,19 @@ function crearGraficas() {
 
   if (!chartVendedores) {
     chartVendedores = new Chart(cV.getContext('2d'), {
-      type:'doughnut',
-      data:{
-        labels:[],
-        datasets:[{
-          data:[],
-          backgroundColor:[PALETA.t,PALETA.h,PALETA.s,PALETA.a,PALETA.r],
-          borderColor:[PALETA.tL,PALETA.hL,PALETA.sL,PALETA.aL,PALETA.rL],
-          borderWidth:1.5
+      type: 'doughnut',
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: [PALETA.t, PALETA.h, PALETA.s, PALETA.a, PALETA.r],
+          borderColor: [PALETA.tL, PALETA.hL, PALETA.sL, PALETA.aL, PALETA.rL],
+          borderWidth: 1.5
         }]
       },
-      options:{
-        responsive:true,
-        plugins:{ legend:{ position:'bottom', labels:{color:'#a99c8c'} } }
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#a99c8c' } } }
       }
     });
   }
