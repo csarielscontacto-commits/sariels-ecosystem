@@ -61,7 +61,7 @@ function actualizarDashboardSegura() {
 }
 
 function crearGraficasSeguras() {
-  if (typeof Chart === 'undefined') return; // Chart.js aún no cargó
+  if (typeof Chart === 'undefined') return;
   try {
     if (!chartHoras || !chartVendedores) {
       crearGraficas();
@@ -72,7 +72,15 @@ function crearGraficasSeguras() {
 }
 
 function actualizarDashboard() {
-  const statsDefault = { totalVentas:0, ingresoTotal:0, ventasHoy:0, ingresoHoy:0, porcentajeMeta:0, ventaPromedio:0 };
+  const statsDefault = {
+    totalVentas: 0,
+    ingresoTotal: 0,
+    ventasHoy: 0,
+    ingresoHoy: 0,
+    porcentajeMeta: 0,
+    ventaPromedio: 0
+  };
+
   let stats = statsDefault;
   let ventas = [];
 
@@ -87,20 +95,30 @@ function actualizarDashboard() {
     try {
       ventas = JSON.parse(localStorage.getItem('ventas') || '[]');
       const totalVentas = ventas.length;
-      const ingresoTotal = ventas.reduce((a,v)=>a+(Number(v.monto)||0),0);
+      const ingresoTotal = ventas.reduce((a, v) => a + (Number(v.monto) || 0), 0);
+
       const hoy = new Date();
       const esHoy = (iso) => {
         const d = new Date(iso);
-        return d.getFullYear()===hoy.getFullYear() && d.getMonth()===hoy.getMonth() && d.getDate()===hoy.getDate();
+        return (
+          d.getFullYear() === hoy.getFullYear() &&
+          d.getMonth() === hoy.getMonth() &&
+          d.getDate() === hoy.getDate()
+        );
       };
-      const ventasHoyArr = ventas.filter(v=>esHoy(v.fechaRegistro));
+
+      const ventasHoyArr = ventas.filter((v) => esHoy(v.fechaRegistro));
       const ventasHoy = ventasHoyArr.length;
-      const ingresoHoy = ventasHoyArr.reduce((a,v)=>a+(Number(v.monto)||0),0);
+      const ingresoHoy = ventasHoyArr.reduce((a, v) => a + (Number(v.monto) || 0), 0);
       const meta = (window.CONFIG && window.CONFIG.METAS) ? window.CONFIG.METAS.DIARIA : 10000;
+
       stats = {
-        totalVentas, ingresoTotal, ventasHoy, ingresoHoy,
-        porcentajeMeta: meta>0 ? (ingresoHoy/meta)*100 : 0,
-        ventaPromedio: totalVentas? ingresoTotal/totalVentas : 0
+        totalVentas,
+        ingresoTotal,
+        ventasHoy,
+        ingresoHoy,
+        porcentajeMeta: meta > 0 ? (ingresoHoy / meta) * 100 : 0,
+        ventaPromedio: totalVentas ? ingresoTotal / totalVentas : 0
       };
     } catch (_) {}
   }
@@ -112,21 +130,26 @@ function actualizarDashboard() {
     if (el) el.textContent = value;
   };
 
-  setText('d-ingresoHoy', '$' + Math.round(stats.ingresoHoy||0).toLocaleString('es-MX'));
-  setText('d-ventasHoy', String(stats.ventasHoy||0));
-  setText('d-promedio', '$' + (stats.ventasHoy > 0 ? Math.round((stats.ingresoHoy||0)/(stats.ventasHoy)) : 0).toLocaleString('es-MX'));
-  setText('d-meta', Math.round(stats.porcentajeMeta||0) + '%');
+  setText('d-ingresoHoy', '$' + Math.round(stats.ingresoHoy || 0).toLocaleString('es-MX'));
+  setText('d-ventasHoy', String(stats.ventasHoy || 0));
+  setText(
+    'd-promedio',
+    '$' + (stats.ventasHoy > 0
+      ? Math.round((stats.ingresoHoy || 0) / stats.ventasHoy)
+      : 0).toLocaleString('es-MX')
+  );
+  setText('d-meta', Math.round(stats.porcentajeMeta || 0) + '%');
 
   const barra = document.getElementById('d-barraFill');
-  if (barra) barra.style.width = Math.min(stats.porcentajeMeta||0, 100) + '%';
+  if (barra) barra.style.width = Math.min(stats.porcentajeMeta || 0, 100) + '%';
 
   setText('d-metaVal', Number(metaDiaria).toLocaleString('es-MX'));
-  setText('d-falta', '$' + Math.max(0, metaDiaria-(stats.ingresoHoy||0)).toLocaleString('es-MX') + ' falta');
-  setText('d-totalVentas', String(stats.totalVentas||0));
-  setText('d-ingresoTotal', '$' + Math.round(stats.ingresoTotal||0).toLocaleString('es-MX'));
+  setText('d-falta', '$' + Math.max(0, metaDiaria - (stats.ingresoHoy || 0)).toLocaleString('es-MX') + ' falta');
+  setText('d-totalVentas', String(stats.totalVentas || 0));
+  setText('d-ingresoTotal', '$' + Math.round(stats.ingresoTotal || 0).toLocaleString('es-MX'));
 
   const ahora = new Date();
-  setText('d-hora', ahora.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}));
+  setText('d-hora', ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }));
   setText('d-syncSub', 'Actualizado ahora');
 
   if (window.bd && window.bd.estaRemotoActivo && window.bd.estaRemotoActivo()) {
@@ -156,7 +179,7 @@ function actualizarTabla(ventas) {
 
   tbody.innerHTML = ventas.map(v => `
     <tr>
-      <td>${new Date(v.fechaRegistro).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td>${new Date(v.fechaRegistro).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</td>
       <td><span class="badge badge-v">${v.vendedorNombre || 'N/A'}</span></td>
       <td>${v.cliente || 'Anónimo'}</td>
       <td>${v.cantidad || 0}</td>
@@ -184,16 +207,44 @@ function crearGraficas() {
   if (!chartHoras) {
     chartHoras = new Chart(cH.getContext('2d'), {
       type:'bar',
-      data:{ labels:Array.from({length:24},(_,i)=>`${i}:00`), datasets:[{ label:'Ventas', data:Array(24).fill(0), backgroundColor:PALETA.t, borderColor:PALETA.tL, borderWidth:1.5, borderRadius:6 }]},
-      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,ticks:{color:'#a99c8c'},grid:{color:'rgba(255,255,255,.04)'}}, x:{ticks:{color:'#a99c8c',maxTicksLimit:12},grid:{display:false}} } }
+      data:{
+        labels:Array.from({length:24},(_,i)=>`${i}:00`),
+        datasets:[{
+          label:'Ingresos',
+          data:Array(24).fill(0),
+          backgroundColor:PALETA.t,
+          borderColor:PALETA.tL,
+          borderWidth:1.5,
+          borderRadius:6
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ display:false } },
+        scales:{
+          y:{ beginAtZero:true, ticks:{color:'#a99c8c'}, grid:{color:'rgba(255,255,255,.04)'} },
+          x:{ ticks:{color:'#a99c8c',maxTicksLimit:12}, grid:{display:false} }
+        }
+      }
     });
   }
 
   if (!chartVendedores) {
     chartVendedores = new Chart(cV.getContext('2d'), {
       type:'doughnut',
-      data:{ labels:[], datasets:[{ data:[], backgroundColor:[PALETA.t,PALETA.h,PALETA.s,PALETA.a,PALETA.r], borderColor:[PALETA.tL,PALETA.hL,PALETA.sL,PALETA.aL,PALETA.rL], borderWidth:1.5 }]},
-      options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#a99c8c'}}} }
+      data:{
+        labels:[],
+        datasets:[{
+          data:[],
+          backgroundColor:[PALETA.t,PALETA.h,PALETA.s,PALETA.a,PALETA.r],
+          borderColor:[PALETA.tL,PALETA.hL,PALETA.sL,PALETA.aL,PALETA.rL],
+          borderWidth:1.5
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ position:'bottom', labels:{color:'#a99c8c'} } }
+      }
     });
   }
 
@@ -209,7 +260,7 @@ function actualizarGraficaHoras(ventas) {
     const h = new Date(v.fechaRegistro).getHours();
     por[h] = (por[h] || 0) + (Number(v.monto) || 0);
   });
-  chartHoras.data.datasets[0].data = Array.from({length:24},(_,i)=>por[i]||0);
+  chartHoras.data.datasets[0].data = Array.from({ length: 24 }, (_, i) => por[i] || 0);
   chartHoras.update();
 }
 
