@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Ventas - Sariel's</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="base-datos-centralizada.js"></script>
     <style>
         * {
             margin: 0;
@@ -203,7 +206,7 @@
     </div>
 
     <script>
-        const PRECIO_UNITARIO = 75;
+        const PRECIO_UNITARIO = (window.CONFIG && window.CONFIG.PRECIO_UNITARIO) || 75;
         let vendedorActual = null;
         
         // Inicializar vendedor
@@ -261,24 +264,28 @@
             const total = cantidad * PRECIO_UNITARIO;
             
             const venta = {
-                id: 'venta_' + Date.now(),
                 vendedorId: vendedorActual.id,
                 vendedorNombre: vendedorActual.nombre,
                 cantidad: cantidad,
-                cliente: cliente,
+                cliente: cliente || 'Anónimo',
                 metodo: metodo,
                 monto: total,
-                fecha: new Date().toISOString(),
-                timestamp: Date.now()
+                fechaRegistro: new Date().toISOString()
             };
             
-            // Guardar en localStorage
-            let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
-            ventas.push(venta);
-            localStorage.setItem('ventas', JSON.stringify(ventas));
-            
-            // Disparar evento para que otros tabs se enteren
-            window.dispatchEvent(new CustomEvent('ventaNueva', { detail: venta }));
+            // Guardar a través del sistema centralizado (sincroniza con Supabase).
+            // Esto también guarda en localStorage internamente y dispara los
+            // eventos 'ventaRegistrada' / 'sincronizacionCompleta' que ya
+            // escuchan el dashboard y otras pestañas.
+            if (typeof window.registrarVentaCentralizada === 'function') {
+                window.registrarVentaCentralizada(venta);
+            } else {
+                // Respaldo si algo falla al cargar el sistema centralizado
+                let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+                ventas.push(venta);
+                localStorage.setItem('ventas', JSON.stringify(ventas));
+                window.dispatchEvent(new CustomEvent('ventaNueva', { detail: venta }));
+            }
             
             // Mostrar mensaje de éxito
             const successMsg = document.getElementById('successMessage');
