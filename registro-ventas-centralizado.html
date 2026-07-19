@@ -1,465 +1,362 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Venta - Sariel's Ecosystem</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
-            width: 100%;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        h1 {
-            color: #333;
-            font-size: 1.8em;
-        }
-        
-        .botones-header {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .link-btn {
-            background: #26a69a;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.9em;
-            transition: background 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .link-btn:hover {
-            background: #1e7f76;
-        }
-        
-        .link-btn.secondary {
-            background: #999;
-        }
-        
-        .link-btn.secondary:hover {
-            background: #777;
-        }
-        
-        .info-sync {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196f3;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .info-sync p {
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .sync-badge {
-            display: inline-block;
-            background: #26a69a;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
-        
-        .sync-badge.desincronizado {
-            background: #ffa726;
-        }
-        
-        .vendedor-info {
-            background: #f3e5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #764ba2;
-        }
-        
-        .vendedor-info p {
-            margin: 5px 0;
-            color: #333;
-        }
-        
-        .vendedor-badge {
-            display: inline-block;
-            background: #764ba2;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
+/**
+ * registro-ventas-centralizado.js
+ * Motor completo para registro de ventas con sincronización a Supabase
+ */
+(function () {
+  "use strict";
 
-        .autocomplete-wrapper {
-            position: relative;
-        }
+  let vendedorActual = null;
+  let clienteFidelizacionSeleccionado = null;
 
-        .autocomplete-results {
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-            display: none;
-            z-index: 10;
-            overflow: hidden;
-        }
+  // =========================
+  // Vendedor (local)
+  // =========================
+  function obtenerOCrearVendedor() {
+    let vendedorId = localStorage.getItem('vendedorActual');
 
-        .autocomplete-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f1f1;
-        }
+    if (!vendedorId) {
+      const vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+      const numeroVendedor = vendedores.length + 1;
+      vendedorId = 'vendedor_' + numeroVendedor;
+      vendedores.push({
+        id: vendedorId,
+        nombre: 'Vendedor ' + numeroVendedor,
+        numero: numeroVendedor,
+        fechaRegistro: new Date().toISOString()
+      });
+      localStorage.setItem('vendedores', JSON.stringify(vendedores));
+      localStorage.setItem('vendedorActual', vendedorId);
+    }
 
-        .autocomplete-item:last-child {
-            border-bottom: none;
-        }
+    const vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+    return vendedores.find(v => v.id === vendedorId);
+  }
 
-        .autocomplete-item:hover {
-            background: #f5f7ff;
-        }
+  window.cambiarVendedor = function () {
+    const vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+    const nombres = vendedores.map(v => v.nombre);
+    const nuevo = prompt('Vendedores disponibles:\n' + nombres.join('\n') + '\n\nEscribe el nombre del vendedor:', '');
+    if (nuevo && nuevo.trim()) {
+      const encontrado = vendedores.find(v => v.nombre === nuevo.trim());
+      if (encontrado) {
+        localStorage.setItem('vendedorActual', encontrado.id);
+        vendedorActual = encontrado;
+        document.getElementById('vendedorBadge').textContent = vendedorActual.nombre;
+        actualizarEstadisticasVendedor();
+      } else {
+        alert('Vendedor no encontrado. Usando el actual.');
+      }
+    }
+  };
 
-        .cliente-fidelizacion-info {
-            display: none;
-            margin-top: 10px;
-            padding: 12px;
-            border-radius: 8px;
-            background: #f0f4ff;
-            color: #4b5cc4;
-            font-size: 0.92em;
-            border-left: 4px solid #667eea;
-        }
+  // =========================
+  // Estadísticas del vendedor
+  // =========================
+  function actualizarEstadisticasVendedor() {
+    if (!vendedorActual || !window.bd) return;
+    
+    try {
+      const todas = window.bd.obtenerTodasLasVentas();
+      const deHoy = window.bd.obtenerVentasDeHoy();
 
-        .cliente-fidelizacion-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
+      const delVendedor = todas.filter(v => v.vendedorId === vendedorActual.id);
+      const delVendedorHoy = deHoy.filter(v => v.vendedorId === vendedorActual.id);
 
-        .mini-btn {
-            background: #eef1ff;
-            color: #4b5cc4;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 0.9em;
-            cursor: pointer;
-            width: auto;
+      const ingresoHoy = delVendedorHoy.reduce((s, v) => s + (Number(v.monto) || 0), 0);
+      const ingresoTotal = delVendedor.reduce((s, v) => s + (Number(v.monto) || 0), 0);
+
+      const ventasHoyEl = document.getElementById('ventasHoyVendedor');
+      const ingresoHoyEl = document.getElementById('ingresoHoyVendedor');
+      const totalVentasEl = document.getElementById('totalVentasVendedor');
+      const totalIngresoEl = document.getElementById('totalIngresoVendedor');
+
+      if (ventasHoyEl) ventasHoyEl.textContent = delVendedorHoy.length;
+      if (ingresoHoyEl) ingresoHoyEl.textContent = '$' + ingresoHoy.toLocaleString();
+      if (totalVentasEl) totalVentasEl.textContent = delVendedor.length;
+      if (totalIngresoEl) totalIngresoEl.textContent = '$' + ingresoTotal.toLocaleString();
+    } catch (error) {
+      console.warn('Error actualizando estadísticas:', error);
+    }
+  }
+
+  // =========================
+  // Estado de sincronización
+  // =========================
+  function actualizarBadgeSync() {
+    const badge = document.getElementById('syncBadge');
+    if (!badge || !window.bd) return;
+    
+    try {
+      if (window.bd.estaRemotoActivo()) {
+        badge.textContent = '✅ Sincronizado';
+        badge.classList.remove('desincronizado');
+        badge.style.background = '#26a69a';
+      } else {
+        badge.textContent = '⚠️ Modo local';
+        badge.classList.add('desincronizado');
+        badge.style.background = '#ffa726';
+      }
+    } catch (error) {
+      console.warn('Error actualizando badge:', error);
+    }
+  }
+
+  // =========================
+  // Precio total
+  // =========================
+  function actualizarPrecioTotal() {
+    const precioUnitario = (window.CONFIG && window.CONFIG.PRECIO_UNITARIO) || 75;
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
+    const total = cantidad * precioUnitario;
+    const precioTotalEl = document.getElementById('precioTotal');
+    if (precioTotalEl) {
+      precioTotalEl.textContent = `Total: $${total.toLocaleString()} MXN`;
+    }
+  }
+
+  // =========================
+  // Envío del formulario
+  // =========================
+  function manejarEnvio(e) {
+    e.preventDefault();
+
+    const precioUnitario = (window.CONFIG && window.CONFIG.PRECIO_UNITARIO) || 75;
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
+    const cliente = document.getElementById('cliente').value.trim();
+    const metodo = document.getElementById('metodo').value;
+    const total = cantidad * precioUnitario;
+
+    const successMsg = document.getElementById('successMessage');
+    const errorMsg = document.getElementById('errorMessage');
+    if (successMsg) successMsg.style.display = 'none';
+    if (errorMsg) errorMsg.style.display = 'none';
+
+    if (!metodo) {
+      if (errorMsg) {
+        errorMsg.textContent = '❌ Selecciona un método de pago.';
+        errorMsg.style.display = 'block';
+      }
+      return;
+    }
+
+    const venta = {
+      vendedorId: vendedorActual ? vendedorActual.id : null,
+      vendedorNombre: vendedorActual ? vendedorActual.nombre : 'N/A',
+      cantidad: cantidad,
+      cliente: cliente || 'Anónimo',
+      metodo: metodo,
+      monto: total,
+      fechaRegistro: new Date().toISOString()
+    };
+
+    // Si hay cliente de fidelización seleccionado
+    if (clienteFidelizacionSeleccionado) {
+      venta.clienteFidelizacionId = clienteFidelizacionSeleccionado.id;
+      venta.clienteFidelizacionNombre = clienteFidelizacionSeleccionado.nombre;
+      
+      if (typeof window.sistemaFidelizacion !== 'undefined') {
+        try {
+          const toks = Math.floor(total / 75) * 10;
+          window.sistemaFidelizacion.agregarTOKs(clienteFidelizacionSeleccionado.id, toks);
+          console.log(`✅ ${toks} TOKs otorgados a ${clienteFidelizacionSeleccionado.nombre}`);
+        } catch (error) {
+          console.warn('Error otorgando TOKs:', error);
         }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
+      }
+    }
+
+    try {
+      if (typeof window.registrarVentaCentralizada === 'function') {
+        window.registrarVentaCentralizada(venta);
+        if (successMsg) {
+          successMsg.textContent = '✅ Venta registrada y sincronizada';
+          successMsg.style.display = 'block';
         }
-        
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
+      } else {
+        let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+        ventas.push(venta);
+        localStorage.setItem('ventas', JSON.stringify(ventas));
+        if (successMsg) {
+          successMsg.textContent = '✅ Venta registrada (modo local)';
+          successMsg.style.display = 'block';
         }
-        
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-        
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .precio-display {
-            font-size: 1.5em;
-            color: #667eea;
-            font-weight: bold;
-            text-align: center;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 8px;
-        }
-        
-        .success-message {
-            display: none;
-            background: #26a69a;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            animation: slideIn 0.3s ease;
-        }
-        
-        .error-message {
-            display: none;
-            background: #ef5350;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .info-box {
-            background: #f0f4ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .info-box strong {
-            display: block;
-            margin-bottom: 8px;
-            color: #667eea;
-        }
-        
-        .info-box p {
-            color: #555;
-            font-size: 0.9em;
-            margin: 5px 0;
-        }
-        
-        .estadisticas-vendedor {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 2px solid rgba(118, 75, 162, 0.2);
-        }
-        
-        .stat {
-            text-align: center;
-        }
-        
-        .stat-valor {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #764ba2;
-        }
-        
-        .stat-label {
-            font-size: 0.8em;
-            color: #999;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
+      }
+
+      setTimeout(() => {
+        if (successMsg) successMsg.style.display = 'none';
+      }, 3000);
+
+      document.getElementById('ventasForm').reset();
+      document.getElementById('cantidad').value = 1;
+      actualizarPrecioTotal();
+      actualizarEstadisticasVendedor();
+      
+      limpiarClienteFidelizacion();
+      
+    } catch (error) {
+      console.error('Error registrando venta:', error);
+      if (errorMsg) {
+        errorMsg.textContent = '❌ Error al registrar: ' + error.message;
+        errorMsg.style.display = 'block';
+      }
+    }
+  }
+
+  // =========================
+  // Funciones de Fidelización
+  // =========================
+  function limpiarClienteFidelizacion() {
+    clienteFidelizacionSeleccionado = null;
+    const input = document.getElementById('clienteFidelizacion');
+    const info = document.getElementById('clienteFidelizacionInfo');
+    const registrarBtn = document.getElementById('registrarClienteFidelizacionBtn');
+    const limpiarBtn = document.getElementById('limpiarClienteFidelizacionBtn');
+    
+    if (input) input.value = '';
+    if (info) info.style.display = 'none';
+    if (registrarBtn) registrarBtn.style.display = 'none';
+    if (limpiarBtn) limpiarBtn.style.display = 'none';
+  }
+
+  function mostrarClienteFidelizacion(cliente) {
+    if (!cliente) return;
+    
+    clienteFidelizacionSeleccionado = cliente;
+    const infoDiv = document.getElementById('clienteFidelizacionInfo');
+    if (infoDiv) {
+      infoDiv.style.display = 'block';
+      infoDiv.innerHTML = `
+        <strong>${cliente.nombre}</strong><br>
+        TOKs: ${cliente.toks || 0} | 
+        Nivel: ${cliente.nivel || 'Sin nivel'} | 
+        Descuento: ${cliente.descuento || 0}%
+      `;
+    }
+    
+    const registrarBtn = document.getElementById('registrarClienteFidelizacionBtn');
+    const limpiarBtn = document.getElementById('limpiarClienteFidelizacionBtn');
+    if (registrarBtn) registrarBtn.style.display = 'none';
+    if (limpiarBtn) limpiarBtn.style.display = 'inline-block';
+  }
+
+  function buscarClientes(query) {
+    if (!query || query.length < 2) return [];
+    
+    if (typeof window.sistemaFidelizacion === 'undefined') {
+      console.warn('Sistema de fidelización no disponible');
+      return [];
+    }
+    
+    try {
+      const clientes = window.sistemaFidelizacion.obtenerClientes();
+      return clientes.filter(c => 
+        c.nombre && c.nombre.toLowerCase().includes(query.toLowerCase())
+      );
+    } catch (error) {
+      console.warn('Error buscando clientes:', error);
+      return [];
+    }
+  }
+
+  // =========================
+  // Inicialización
+  // =========================
+  function iniciar() {
+    try {
+      vendedorActual = obtenerOCrearVendedor();
+      
+      const badge = document.getElementById('vendedorBadge');
+      if (badge) badge.textContent = vendedorActual.nombre;
+
+      actualizarPrecioTotal();
+      
+      if (window.bd) {
+        actualizarEstadisticasVendedor();
+        actualizarBadgeSync();
+      } else {
+        console.warn('Base de datos no disponible, esperando...');
+        document.addEventListener('bdReady', () => {
+          actualizarEstadisticasVendedor();
+          actualizarBadgeSync();
+        });
+      }
+
+      const cantidadInput = document.getElementById('cantidad');
+      if (cantidadInput) {
+        cantidadInput.addEventListener('input', actualizarPrecioTotal);
+      }
+
+      const form = document.getElementById('ventasForm');
+      if (form) {
+        form.addEventListener('submit', manejarEnvio);
+      }
+
+      // Autocompletado de clientes fidelización
+      const clienteInput = document.getElementById('clienteFidelizacion');
+      if (clienteInput) {
+        clienteInput.addEventListener('input', function() {
+          const results = buscarClientes(this.value);
+          const resultsDiv = document.getElementById('clienteFidelizacionResultados');
+          
+          if (results.length > 0 && resultsDiv) {
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = results.map(c => `
+              <div class="autocomplete-item" data-id="${c.id}">
+                ${c.nombre} (${c.toks || 0} TOKs)
+              </div>
+            `).join('');
             
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            h1 {
-                font-size: 1.5em;
-            }
-            
-            .botones-header {
-                width: 100%;
-            }
-            
-            .link-btn {
-                flex: 1;
-                text-align: center;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>💳 Registrar Venta</h1>
-            <div class="botones-header">
-                <a href="dashboard-central.html" class="link-btn">📊 Dashboard</a>
-                <a href="panel-web3.html" class="link-btn" style="background:#667eea;">🔗 Web3</a>
-                <button class="link-btn secondary" onclick="cambiarVendedor()">🔄 Cambiar Vendedor</button>
-            </div>
-        </div>
+            resultsDiv.querySelectorAll('.autocomplete-item').forEach(item => {
+              item.addEventListener('click', function() {
+                const cliente = results.find(c => c.id === this.dataset.id);
+                if (cliente) {
+                  document.getElementById('clienteFidelizacion').value = cliente.nombre;
+                  mostrarClienteFidelizacion(cliente);
+                  resultsDiv.style.display = 'none';
+                }
+              });
+            });
+          } else if (resultsDiv) {
+            resultsDiv.style.display = 'none';
+          }
+        });
         
-        <!-- Estado de Sincronización -->
-        <div class="info-sync">
-            <p>Estado de sincronización:</p>
-            <span class="sync-badge" id="syncBadge">Verificando...</span>
-        </div>
-        
-        <!-- Información del Vendedor -->
-        <div class="vendedor-info">
-            <p><strong>Vendedor Asignado:</strong></p>
-            <p><span class="vendedor-badge" id="vendedorBadge">Cargando...</span></p>
-            
-            <div class="estadisticas-vendedor">
-                <div class="stat">
-                    <div class="stat-valor" id="ventasHoyVendedor">0</div>
-                    <div class="stat-label">Ventas hoy</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-valor" id="ingresoHoyVendedor">$0</div>
-                    <div class="stat-label">Ingreso hoy</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-valor" id="totalVentasVendedor">0</div>
-                    <div class="stat-label">Total ventas</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-valor" id="totalIngresoVendedor">$0</div>
-                    <div class="stat-label">Total ingreso</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mensajes -->
-        <div class="success-message" id="successMessage">
-            ✅ ¡Venta registrada exitosamente!
-        </div>
-        <div class="error-message" id="errorMessage">
-            ❌ Error al registrar la venta. Intenta de nuevo.
-        </div>
-        
-        <!-- Instrucciones -->
-        <div class="info-box">
-            <strong>⚠️ Instrucciones:</strong>
-            <p>1. 📱 Escanea el QR del cliente o busca su nombre</p>
-            <p>2. ✏️ Completa los datos del formulario</p>
-            <p>3. 💾 Presiona "Registrar Venta"</p>
-            <p style="color: #26a69a; margin-top: 8px; font-weight: 600;">✨ Todos los datos se sincronizarán automáticamente con el dashboard central</p>
-        </div>
-        
-        <!-- Formulario -->
-        <form id="ventasForm">
-            <div class="form-group">
-                <label for="cantidad">Cantidad de productos:</label>
-                <input type="number" id="cantidad" min="1" value="1" required>
-            </div>
-            
-            <div class="precio-display" id="precioTotal">
-                Total: $75.00 MXN
-            </div>
-            
-            <div class="form-group">
-                <label for="cliente">Nombre del cliente:</label>
-                <input type="text" id="cliente" placeholder="Ej: Juan García" required>
-            </div>
+        clienteInput.addEventListener('blur', function() {
+          setTimeout(() => {
+            const resultsDiv = document.getElementById('clienteFidelizacionResultados');
+            if (resultsDiv) resultsDiv.style.display = 'none';
+          }, 300);
+        });
+      }
 
-            <div class="form-group">
-                <label for="clienteFidelizacion">Asociar cliente fidelización (opcional):</label>
-                <div class="autocomplete-wrapper">
-                    <input type="text" id="clienteFidelizacion" placeholder="Buscar cliente registrado por nombre">
-                    <div class="autocomplete-results" id="clienteFidelizacionResultados"></div>
-                </div>
-                <div class="cliente-fidelizacion-actions">
-                    <button type="button" class="mini-btn" id="registrarClienteFidelizacionBtn" style="display: none;">
-                        ➕ Registrar como nuevo cliente
-                    </button>
-                    <button type="button" class="mini-btn" id="limpiarClienteFidelizacionBtn" style="display: none;">
-                        ✖️ Quitar asociación
-                    </button>
-                </div>
-                <div class="cliente-fidelizacion-info" id="clienteFidelizacionInfo"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="metodo">Método de pago:</label>
-                <select id="metodo" required>
-                    <option value="">-- Seleccionar --</option>
-                    <option value="efectivo">💵 Efectivo</option>
-                    <option value="transferencia">💳 Transferencia bancaria</option>
-                    <option value="tarjeta">🏧 Tarjeta de crédito/débito</option>
-                    <option value="usdt">🪙 USDT</option>
-                    <option value="usdc">🪙 USDC</option>
-                    <option value="otro">📝 Otro</option>
-                </select>
-            </div>
-            
-            <button type="submit" id="submitBtn">📊 Registrar Venta</button>
-        </form>
-    </div>
+      const limpiarBtn = document.getElementById('limpiarClienteFidelizacionBtn');
+      if (limpiarBtn) {
+        limpiarBtn.addEventListener('click', limpiarClienteFidelizacion);
+      }
 
-    <!-- Scripts (orden correcto) -->
-    <script src="config.js"></script>
-    <script src="base-datos-centralizada.js"></script>
-    <script src="fidelizacion.js"></script>
-    <script src="scripts/registro-ventas-centralizado.js"></script>
-</body>
-    </html>
+      window.addEventListener('sincronizacionCompleta', () => {
+        actualizarBadgeSync();
+        actualizarEstadisticasVendedor();
+      });
+      
+      window.addEventListener('ventaRegistrada', actualizarEstadisticasVendedor);
+
+      console.log('✅ Registro de ventas inicializado correctamente');
+      console.log('👤 Vendedor:', vendedorActual.nombre);
+
+    } catch (error) {
+      console.error('Error en inicialización:', error);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+  } else {
+    iniciar();
+  }
+
+  window.actualizarEstadisticasVendedor = actualizarEstadisticasVendedor;
+  window.actualizarBadgeSync = actualizarBadgeSync;
+  window.actualizarPrecioTotal = actualizarPrecioTotal;
+
+})();
