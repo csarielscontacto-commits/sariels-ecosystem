@@ -1,135 +1,227 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sariel's Nexus | Universal Gateway</title>
-  <meta name="description" content="Sariel's Nexus - Plataforma interdimensional con Dashboard Cuántico, Red Neural y Web3 Cósmica" />
-  <meta name="theme-color" content="#05080f" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-  
-  <style>
-    :root {
-      --space-deep: #05080f;
-      --space-mid: #0a1428;
-      --nebula-1: #6c2bd9;
-      --nebula-2: #ff6b9d;
-      --nebula-3: #00d4ff;
-      --gold-cosmic: #f7d44a;
-      --text-primary: #e8f0f8;
-      --text-secondary: #8ba3c7;
-      --text-muted: #4a6a8a;
-      --border: rgba(255,255,255,0.08);
-      --border-glow: rgba(0,212,255,0.25);
-      --radius: 24px;
-    }
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:var(--space-deep);color:var(--text-primary);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
-    #star-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
-    .nebula{position:fixed;border-radius:50%;filter:blur(90px);opacity:0.18;pointer-events:none;z-index:0}
-    .nebula-1{width:700px;height:700px;background:radial-gradient(circle,var(--nebula-1),transparent 70%);top:-15%;right:-15%;animation:drift 20s alternate infinite}
-    .nebula-2{width:600px;height:600px;background:radial-gradient(circle,var(--nebula-2),transparent 70%);bottom:-15%;left:-15%;animation:drift 25s alternate-reverse infinite}
-    .nebula-3{width:800px;height:800px;background:radial-gradient(circle,var(--nebula-3),transparent 70%);top:30%;left:30%;opacity:0.06;animation:drift 30s alternate infinite}
-    @keyframes drift{to{transform:translate(40px,-40px) scale(1.15)}}
-    ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-thumb{background:linear-gradient(var(--nebula-3),var(--nebula-1));border-radius:10px}
-    
-    .app{position:relative;z-index:1;max-width:1320px;margin:0 auto;padding:24px 28px 50px}
-    .header{display:flex;justify-content:space-between;align-items:center;padding:18px 0;margin-bottom:32px;border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
-    .logo{display:flex;align-items:center;gap:14px;text-decoration:none}
-    .logo-icon{font-size:2.4rem;filter:drop-shadow(0 0 20px rgba(0,212,255,.5));animation:pulse 3s infinite}
-    @keyframes pulse{50%{transform:scale(1.1);filter:drop-shadow(0 0 30px var(--gold-cosmic))}}
-    .logo-text{font-family:'Orbitron';font-weight:900;font-size:1.8rem;letter-spacing:1px;background:linear-gradient(90deg,#fff,var(--nebula-3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .logo-badge{font-family:'Orbitron';font-size:.55rem;background:linear-gradient(135deg,var(--nebula-1),var(--nebula-2));padding:4px 14px;border-radius:99px;color:#fff;font-weight:700;letter-spacing:1px;box-shadow:0 0 20px rgba(108,43,217,.4)}
-    .status-badge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);padding:8px 18px;border-radius:99px;font-family:'Orbitron';font-size:.65rem;letter-spacing:1px;color:var(--nebula-3)}
-    .status-dot{width:7px;height:7px;background:var(--nebula-3);border-radius:50%;box-shadow:0 0 12px var(--nebula-3);animation:blink 1.2s infinite}
-    @keyframes blink{50%{opacity:.4;transform:scale(.8)}}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sariel's Nexus | Universal Gateway</title>
+<meta name="description" content="Sariel's Nexus - Gateway al multiverso" />
 
-    .hero{position:relative;border:1px solid var(--border);border-radius:var(--radius);padding:50px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.01));backdrop-filter:blur(20px);overflow:hidden;margin-bottom:36px}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(600px circle at var(--mx,50%) var(--my,50%),rgba(0,212,255,.08),transparent 40%);pointer-events:none;transition:.2s}
-    .hero-title{font-family:'Orbitron';font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.1;margin-bottom:14px}
-    .hero-title .highlight{background:linear-gradient(90deg,var(--gold-cosmic),var(--nebula-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .hero-sub{color:var(--text-secondary);font-size:1.1rem;max-width:600px}
-    .hero-metrics{display:flex;gap:48px;margin-top:32px;padding-top:28px;border-top:1px solid var(--border);flex-wrap:wrap}
-    .metric-value{font-family:'Orbitron';font-size:1.8rem;font-weight:700;background:linear-gradient(90deg,var(--gold-cosmic),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .metric-label{font-family:'Orbitron';font-size:.6rem;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+<!-- Font Awesome (acceso diferido) -->
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'" />
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:26px}
-    .card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:var(--radius);padding:30px;backdrop-filter:blur(16px);transform-style:preserve-3d;transition:all .5s cubic-bezier(.23,1,.32,1)}
-    .card:hover{transform:translateY(-8px) rotateX(2deg) rotateY(-2deg);border-color:var(--border-glow);box-shadow:0 20px 60px rgba(0,0,0,.5), 0 0 40px rgba(0,212,255,.12)}
-    .card-glow{position:absolute;inset:0;border-radius:var(--radius);background:radial-gradient(400px circle at var(--mx,50%) var(--my,50%),rgba(0,212,255,.12),transparent 40%);opacity:0;transition:.4s;pointer-events:none}
-    .card:hover .card-glow{opacity:1}
-    .card-icon{font-size:3rem;margin-bottom:18px;display:inline-block;transform:translateZ(30px)}
-    .card h2{font-family:'Orbitron';font-size:1.25rem;margin-bottom:8px;letter-spacing:.5px}
-    .card p{color:var(--text-secondary);font-size:.92rem;line-height:1.7;margin-bottom:18px}
-    .card-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
-    .tag{font-family:'Orbitron';font-size:.5rem;padding:5px 12px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text-muted);letter-spacing:1px;text-transform:uppercase}
-    
-    .card-actions{display:flex;gap:12px}
-    .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border-radius:99px;padding:13px 20px;font-family:'Orbitron';font-size:.75rem;font-weight:700;letter-spacing:.5px;transition:.3s;border:1px solid var(--border);color:var(--text-primary);background:rgba(255,255,255,.04)}
-    .btn:hover{transform:scale(1.03);background:rgba(255,255,255,.08)}
-    .btn-primary{background:linear-gradient(135deg,var(--nebula-1),var(--nebula-2));border-color:transparent;color:#fff;box-shadow:0 0 25px rgba(108,43,217,.35)}
-    .btn-primary:hover{box-shadow:0 0 40px rgba(255,107,157,.45);filter:brightness(1.1)}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
-    .footer{margin-top:60px;padding-top:28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;color:var(--text-muted);font-family:'Orbitron';font-size:.7rem}
-    .footer-links{display:flex;gap:22px} .footer-links a{color:inherit;text-decoration:none;transition:.3s} .footer-links a:hover{color:var(--nebula-3)}
-    .footer-social{display:flex;gap:14px;font-size:1.1rem} .footer-social a{color:inherit;transition:.3s} .footer-social a:hover{color:#fff;transform:translateY(-2px)}
+<style>
+/* Variables cósmicas + reset básico */
+:root {
+  --space-deep: #05080f;
+  --space-mid: #0a1428;
+  --space-light: #101f3a;
+  --nebula-1: #6c2bd9;
+  --nebula-2: #ff6b9d;
+  --nebula-3: #00d4ff;
+  --gold-cosmic: #f7d44a;
+  --text-primary: #e8f0f8;
+  --text-secondary: #8ba3c7;
+  --border: rgba(0, 212, 255, 0.08);
+  --shadow-neon: 0 0 40px rgba(0, 212, 255, 0.1);
+  --radius: 20px;
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Reset básico */
+* {margin: 0; padding: 0; box-sizing: border-box;}
+body {
+  background: var(--space-deep);
+  font-family:'Space Grotesk','Inter',system-ui,sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
 
-    @media(max-width:768px){.app{padding:16px}.hero{padding:28px 22px}.header{flex-direction:column;align-items:flex-start;gap:14px}}
-  </style>
-</head>
-<body>
-  <canvas id="star-canvas"></canvas>
-  <div class="nebula nebula-1"></div><div class="nebula nebula-2"></div><div class="nebula nebula-3"></div>
+/* Fondo estrellado */
+#stars-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
 
-  <div class="app">
-    <header class="header">
-      <a href="#" class="logo"><span class="logo-icon">🌌</span><span class="logo-text">Sariel's</span><span class="logo-badge">Nexus</span></a>
-      <div class="status-badge"><span class="status-dot"></span>Quantum Link • ONLINE</div>
-    </header>
+/* Nebulosas Fondo (para efecto de profundidad) */
+.div-nubula {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+.nebula1 {width: 700px; height: 700px; background: var(--nebula-1); top: -15%; right: -15%; }
+.nebula2 {width: 600px; height: 600px; background: var(--nebula-2); bottom: -15%; left: -15%; animation-delay: -8s;}
+.nebula3 {width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.06; animation-delay: -15s; }
 
-    <section class="hero" id="hero">
-      <h1 class="hero-title">Portal al <span class="highlight">Universo</span> Descentralizado</h1>
-      <p class="hero-sub">Sincroniza tu conciencia digital con el ecosistema cuántico. Dashboard interdimensional, Red Neural y Web3 Cósmica en un solo Nexus.</p>
-      <div class="hero-metrics">
-        <div class="metric"><div class="metric-value">∞</div><div class="metric-label">Dimensiones Activas</div></div>
-        <div class="metric"><div class="metric-value">⚛️ 99.9%</div><div class="metric-label">Quantum Ready</div></div>
-        <div class="metric"><div class="metric-value">🌀 12.4k</div><div class="metric-label">Nodos Sincronizados</div></div>
-      </div>
-    </section>
+@keyframes nebula-drift {
+  0% {transform: translate(0,0) scale(1);}
+  100% {transform: translate(40px, -30px) scale(1.15);}
+}
 
-    <section class="grid">
-      <article class="card"><div class="card-glow"></div><div class="card-icon">🌀</div><h2>Dashboard Cuántico</h2><p>Visualiza métricas del multiverso en tiempo real. Análisis predictivo con inteligencia cuántica.</p><div class="card-tags"><span class="tag">Quantum AI</span><span class="tag">Multiverso</span><span class="tag">Predictivo</span></div><div class="card-actions"><a href="./dashboard-central.html" class="btn btn-primary"><i class="fas fa-chart-line"></i> Acceder</a><a href="#" class="btn"><i class="fas fa-info-circle"></i> Info</a></div></article>
-      <article class="card"><div class="card-glow"></div><div class="card-icon">🧬</div><h2>Red Neural</h2><p>Conexión con conciencias digitales. Descubre seres interdimensionales y sincroniza nodos.</p><div class="card-tags"><span class="tag">Neural Link</span><span class="tag">Sincronía</span><span class="tag">Expansión</span></div><div class="card-actions"><a href="./mi-red.html" class="btn btn-primary"><i class="fas fa-users"></i> Conectar</a><a href="#" class="btn"><i class="fas fa-user-plus"></i> Invitar</a></div></article>
-      <article class="card"><div class="card-glow"></div><div class="card-icon">⚡</div><h2>Web3 Cósmica</h2><p>Puente interdimensional para transacciones cuánticas. Conecta wallets universales.</p><div class="card-tags"><span class="tag">Blockchain</span><span class="tag">Cosmic Swap</span><span class="tag">Portal</span></div><div class="card-actions"><a href="./panel-web3.html" class="btn btn-primary"><i class="fas fa-wallet"></i> Abrir Portal</a><a href="#" class="btn"><i class="fas fa-qrcode"></i> QR</a></div></article>
-    </section>
+/* Layout principal */
+.app {max-width: 1300px; margin: 0 auto; padding: 20px 24px; position: relative; z-index: 1;}
 
-    <footer class="footer">
-      <span>🌌 Sariel's Nexus v∞ — Trascendiendo el tiempo y el espacio</span>
-      <div class="footer-links"><a href="#">Documentación</a><a href="#">API Cuántica</a><a href="#">GitHub</a></div>
-      <div class="footer-social"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-discord"></i></a><a href="#"><i class="fab fa-reddit-alien"></i></a></div>
-    </footer>
-  </div>
+/* Header y estilos */
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 0 20px; border-bottom: 1px solid var(--border);
+  margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+  backdrop-filter: blur(10px);
+}
+.logo {
+  display: flex; align-items: center; gap: 14px; text-decoration: none;
+}
+.logo-icon {
+  font-size: 2.4rem;
+  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3)); }
+  50% { filter: drop-shadow(0 0 40px rgba(247, 212, 74, 0.4)); }
+}
+.logo-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--text-primary), var(--quantum), var(--nebula-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
+}
+.logo-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.5rem;
+  background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 0 30px rgba(108, 43, 217, 0.3);
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+@keyframes badge-pulse{
+  0%,100% {box-shadow: 0 0 30px rgba(108, 43, 217, 0.3);}
+  50% {box-shadow: 0 0 60px rgba(255, 107, 157, 0.4);}
+}
 
-  <script src="/sariels-ecosystem/config.js"></script>
-  <script src="/sariels-ecosystem/base-datos-centralizada.js"></script>
-  <script>
-    // Canvas de estrellas ultra ligero
-    const canvas = document.getElementById('star-canvas'), ctx = canvas.getContext('2d');
-    let stars = [];
-    function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; stars = Array.from({length: 250}, () => ({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5+0.2, o: Math.random()*0.8+0.2, s: Math.random()*0.5+0.2})) }
-    function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); stars.forEach(st=>{ ctx.beginPath(); ctx.arc(st.x,st.y,st.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${st.o})`; ctx.fill(); st.o += (Math.random()-0.5)*0.02; }); requestAnimationFrame(draw); }
-    resize(); draw(); window.addEventListener('resize', resize);
+.header-actions {
+  display: flex; align-items: center; gap: 16px;
+}
+.status-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  color: var(--quantum);
+  font-family:'Orbitron', monospace;
+  letter-spacing: 1px;
+  backdrop-filter: blur(10px);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  background: var(--quantum);
+  border-radius: 50%;
+  animation: quantum-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+}
+@keyframes quantum-pulse {
+  0%, 100% {opacity:1; transform: scale(1); box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);}
+  50% {opacity:0.5; transform: scale(0.7); box-shadow: 0 0 40px rgba(0, 229, 255, 0.8);}
+}
 
-    // Glow que sigue al mouse
-    document.querySelectorAll('.card, .hero').forEach(el=>{
-      el.addEventListener('mousemove', e=>{
-        const r = el.getBoundingClientRect();
-        el.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
-        el.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
-      });
+/* HERO */
+.hero {
+  background: linear-gradient(145deg, rgba(0,212,255,0.04), rgba(108,43,217,0.04));
+  border: 1px solid var(--border¡Claro! Para que las estrellas, el meteorito y las letras se vean correctamente, hay que revisar algunos detalles y asegurarnos de que el script de las estrellas funciona bien, además de ajustar el código de renderizado y la posición de los elementos. Algunos problemas comunes son:
+
+- **El canvas de estrellas no está redimensionado correctamente** al inicio o al redimensionar la ventana.
+- **La animación de estrellas puede estar desactivada por error** o por conflicto con otros scripts o estilos.
+- **El código de dibujo de estrellas puede tener errores** o no estar actualizado.
+- **El script de estrellas puede no estar en ejecución o haber sido interrumpido**.
+- **Los elementos de texto y meteoritos están estilizados en el CSS**, pero si el script de estrellas "se va" o hay conflictos, se ve todo negro o sin estrellas.
+
+Voy a ofrecerte una versión simplificada, corregida y funcional del script de estrellas, que asegura que se dibujan correctamente y que las estrellas aparecen en el fondo sin desaparecer.
+
+---
+
+### Código ajustado para mostrar estrellas y meteorito
+
+He añadido:
+
+- **Función `animate()` bien llamada** con `requestAnimationFrame`.
+- **Redimensionamiento correcto del canvas**.
+- **Dibujo correcto de estrellas** con `canvas`.
+- **Lógica simple para las estrellas** para que no desaparezcan.
+
+Aquí tienes el código final, solo reemplaza la parte del script y el `canvas` en tu código:
+
+```html
+<canvas id="stars-canvas"></canvas>
+
+<script>
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+
+let stars = [];
+const starCount = 200;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function createStars() {
+  stars = [];
+  for (let i = 0; i < starCount; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.5 + 0.5,
+      speed: Math.random() * 0.5 + 0.2,
     });
-    console.log('🌌 Sariel Nexus PRO cargado');
-  </script>
-</body>
-    </html>
+  }
+}
+createStars();
+
+function animate() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // suave borrado para el efecto de movimiento
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (const star of stars) {
+    star.x -= star.speed; // las estrellas se mueven
+    if (star.x < 0) {
+      star.x = canvas.width;
+      star.y = Math.random() * canvas.height;
+      star.size = Math.random() * 1.5 + 0.5;
+    }
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+  }
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
