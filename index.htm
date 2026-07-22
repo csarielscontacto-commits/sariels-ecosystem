@@ -21,6 +21,9 @@
   <!-- Chart.js para gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
+  <!-- QRCode.js para generar QR localmente (SIN API EXTERNA) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  
   <style>
     /* ===== VARIABLES CÓSMICAS ===== */
     :root {
@@ -1121,8 +1124,9 @@
   </div>
 
   <!-- ===== SCRIPTS ===== -->
-  <script src="/sariels-ecosystem/config.js"></script>
-  <script src="/sariels-ecosystem/base-datos-centralizada.js"></script>
+  <!-- ELIMINADOS LOS SCRIPTS ROTOS -->
+  <!-- <script src="/sariels-ecosystem/config.js"></script> -->
+  <!-- <script src="/sariels-ecosystem/base-datos-centralizada.js"></script> -->
   
   <script>
     // ===== SISTEMA ESTELAR CON METEORITOS =====
@@ -1141,7 +1145,7 @@
       let stars = [];
       let meteors = [];
       
-      const STAR_COUNT = 400;
+      const STAR_COUNT = 300;
       const METEOR_COUNT = 3;
       
       function resize() {
@@ -1287,21 +1291,29 @@
     let walletConnected = false;
 
     function connectWallet() {
-      if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-          .then(accounts => {
-            if (accounts.length > 0) {
-              walletConnected = true;
-              document.getElementById('walletStatus').textContent = '● Conectada';
-              document.getElementById('walletStatus').className = 'value connected';
-              document.getElementById('walletAddress').textContent = accounts[0].slice(0, 10) + '...' + accounts[0].slice(-8);
-              document.getElementById('walletNetwork').textContent = 'Ethereum';
-              console.log('Wallet conectada:', accounts[0]);
-            }
-          })
-          .catch(err => console.error('Error conectando wallet:', err));
-      } else {
-        alert('MetaMask no detectado. Por favor instala MetaMask o usa un navegador compatible.');
+      try {
+        if (typeof window.ethereum !== 'undefined') {
+          window.ethereum.request({ method: 'eth_requestAccounts' })
+            .then(accounts => {
+              if (accounts && accounts.length > 0) {
+                walletConnected = true;
+                document.getElementById('walletStatus').textContent = '● Conectada';
+                document.getElementById('walletStatus').className = 'value connected';
+                document.getElementById('walletAddress').textContent = accounts[0].slice(0, 10) + '...' + accounts[0].slice(-8);
+                document.getElementById('walletNetwork').textContent = 'Ethereum';
+                console.log('✅ Wallet conectada:', accounts[0]);
+              }
+            })
+            .catch(err => {
+              console.error('Error conectando wallet:', err);
+              alert('⚠️ Error al conectar: ' + err.message);
+            });
+        } else {
+          alert('⚠️ MetaMask no detectado.\n\n📱 Si usas móvil:\n- Abre esta página en el navegador interno de Trust Wallet\n- O usa el navegador de MetaMask\n- O instala MetaMask desde la Play Store/App Store');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('⚠️ Error al conectar wallet');
       }
     }
 
@@ -1315,176 +1327,255 @@
 
     // ===== LINKS DE PAGO =====
     function saveLinks() {
-      const usdt = document.getElementById('usdtLink').value;
-      const usdc = document.getElementById('usdcLink').value;
-      
-      if (usdt) {
-        localStorage.setItem('usdtLink', usdt);
-        document.getElementById('currentUsdt').textContent = usdt;
+      try {
+        const usdt = document.getElementById('usdtLink').value;
+        const usdc = document.getElementById('usdcLink').value;
+        
+        if (usdt && usdt !== 'https://...') {
+          localStorage.setItem('usdtLink', usdt);
+          document.getElementById('currentUsdt').textContent = usdt;
+        }
+        if (usdc && usdc !== 'https://...') {
+          localStorage.setItem('usdcLink', usdc);
+          document.getElementById('currentUsdc').textContent = usdc;
+        }
+        
+        alert('✅ Links guardados correctamente');
+      } catch (error) {
+        console.error('Error guardando links:', error);
+        alert('⚠️ No se pudieron guardar los links');
       }
-      if (usdc) {
-        localStorage.setItem('usdcLink', usdc);
-        document.getElementById('currentUsdc').textContent = usdc;
-      }
-      
-      alert('✅ Links guardados correctamente');
     }
 
     function loadSavedLinks() {
-      const usdt = localStorage.getItem('usdtLink');
-      const usdc = localStorage.getItem('usdcLink');
-      
-      if (usdt) {
-        document.getElementById('usdtLink').value = usdt;
-        document.getElementById('currentUsdt').textContent = usdt;
-      }
-      if (usdc) {
-        document.getElementById('usdcLink').value = usdc;
-        document.getElementById('currentUsdc').textContent = usdc;
+      try {
+        const usdt = localStorage.getItem('usdtLink');
+        const usdc = localStorage.getItem('usdcLink');
+        
+        if (usdt) {
+          document.getElementById('usdtLink').value = usdt;
+          document.getElementById('currentUsdt').textContent = usdt;
+        }
+        if (usdc) {
+          document.getElementById('usdcLink').value = usdc;
+          document.getElementById('currentUsdc').textContent = usdc;
+        }
+      } catch (error) {
+        console.error('Error cargando links:', error);
       }
     }
 
     function openPayment(type) {
-      const link = type === 'usdt' ? localStorage.getItem('usdtLink') : localStorage.getItem('usdcLink');
-      if (link && link !== 'https://...') {
-        window.open(link, '_blank');
-      } else {
-        alert('⚠️ No hay link configurado para ' + type.toUpperCase());
+      try {
+        const link = type === 'usdt' ? localStorage.getItem('usdtLink') : localStorage.getItem('usdcLink');
+        if (link && link !== 'https://...' && link !== '') {
+          window.open(link, '_blank');
+        } else {
+          alert('⚠️ No hay link configurado para ' + type.toUpperCase() + '\n\nGuarda un link primero en la sección de arriba.');
+        }
+      } catch (error) {
+        console.error('Error abriendo pago:', error);
+        alert('⚠️ Error al abrir el link de pago');
       }
     }
 
     // ===== GENERADOR QR =====
     let currentQR = null;
+    let qrCodeInstance = null;
 
     function generateQR() {
-      const currency = document.getElementById('qrCurrency').value;
-      const network = document.getElementById('qrNetwork').value;
-      const wallet = document.getElementById('qrWallet').value;
-      const amount = document.getElementById('qrAmount').value;
-      const reference = document.getElementById('qrReference').value || 'ORD-' + Date.now().toString().slice(-6);
-      const concept = document.getElementById('qrConcept').value || 'Pago ' + currency;
-      
-      if (!wallet) {
-        alert('⚠️ Por favor ingresa una dirección de wallet');
-        return;
+      try {
+        const currency = document.getElementById('qrCurrency').value;
+        const network = document.getElementById('qrNetwork').value;
+        const wallet = document.getElementById('qrWallet').value.trim();
+        const amount = document.getElementById('qrAmount').value || '0.00';
+        const reference = document.getElementById('qrReference').value || 'ORD-' + Date.now().toString().slice(-6);
+        const concept = document.getElementById('qrConcept').value || 'Pago ' + currency;
+        
+        if (!wallet) {
+          alert('⚠️ Por favor ingresa una dirección de wallet');
+          return;
+        }
+        
+        // Validar dirección wallet (básico)
+        if (wallet.length < 20) {
+          alert('⚠️ La dirección de wallet parece muy corta. Verifica que sea correcta.');
+          return;
+        }
+        
+        const requestData = {
+          currency: currency,
+          network: network,
+          wallet: wallet,
+          amount: amount,
+          reference: reference,
+          concept: concept,
+          timestamp: new Date().toISOString()
+        };
+        
+        const requestString = JSON.stringify(requestData, null, 2);
+        document.getElementById('requestText').textContent = requestString;
+        currentQR = requestString;
+        
+        // Generar QR con QRCode.js (LOCAL, sin API externa)
+        const qrContainer = document.getElementById('qrImageContainer');
+        qrContainer.innerHTML = '';
+        
+        try {
+          // Intentar usar QRCode.js
+          qrCodeInstance = new QRCode(qrContainer, {
+            text: requestString,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        } catch (qrError) {
+          console.warn('QRCode.js no disponible, usando API alternativa:', qrError);
+          // Fallback: usar API externa
+          const qrImg = document.createElement('img');
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(requestString)}`;
+          qrImg.src = qrUrl;
+          qrImg.alt = 'Código QR de cobro';
+          qrImg.style.maxWidth = '200px';
+          qrImg.style.borderRadius = '12px';
+          qrImg.style.background = 'white';
+          qrImg.style.padding = '12px';
+          qrImg.onerror = function() {
+            alert('⚠️ No se pudo generar el QR. Verifica tu conexión a internet.');
+          };
+          qrContainer.appendChild(qrImg);
+        }
+        
+        document.getElementById('qrOutput').classList.add('active');
+        
+        // Registrar venta automáticamente
+        registerSale(requestData);
+        
+        console.log('✅ QR generado correctamente');
+      } catch (error) {
+        console.error('Error generando QR:', error);
+        alert('⚠️ Error al generar el QR: ' + error.message);
       }
-      
-      const requestData = {
-        currency: currency,
-        network: network,
-        wallet: wallet,
-        amount: amount || '0.00',
-        reference: reference,
-        concept: concept,
-        timestamp: new Date().toISOString()
-      };
-      
-      const requestString = JSON.stringify(requestData, null, 2);
-      document.getElementById('requestText').textContent = requestString;
-      currentQR = requestString;
-      
-      // Generar QR
-      const qrContainer = document.getElementById('qrImageContainer');
-      qrContainer.innerHTML = '';
-      
-      // Usar API de QRCode.js (gratuita)
-      const qrImg = document.createElement('img');
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(requestString)}`;
-      qrImg.src = qrUrl;
-      qrImg.alt = 'Código QR de cobro';
-      qrImg.style.maxWidth = '200px';
-      qrImg.style.borderRadius = '12px';
-      qrImg.style.background = 'white';
-      qrImg.style.padding = '12px';
-      qrContainer.appendChild(qrImg);
-      
-      document.getElementById('qrOutput').classList.add('active');
-      
-      // Registrar venta automáticamente
-      registerSale(requestData);
     }
 
     function copyRequest() {
-      if (currentQR) {
-        navigator.clipboard.writeText(currentQR).then(() => {
-          alert('✅ Request copiado al portapapeles');
-        });
-      } else {
-        alert('⚠️ Genera un QR primero');
+      try {
+        if (currentQR) {
+          navigator.clipboard.writeText(currentQR).then(() => {
+            alert('✅ Request copiado al portapapeles');
+          }).catch(() => {
+            // Fallback
+            const textArea = document.createElement('textarea');
+            textArea.value = currentQR;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            textArea.remove();
+            alert('✅ Request copiado al portapapeles');
+          });
+        } else {
+          alert('⚠️ Genera un QR primero');
+        }
+      } catch (error) {
+        console.error('Error copiando:', error);
+        alert('⚠️ No se pudo copiar el request');
       }
     }
 
     function downloadQR() {
-      const qrImg = document.querySelector('#qrImageContainer img');
-      if (qrImg) {
-        const link = document.createElement('a');
-        link.download = 'qr-cobro-' + Date.now() + '.png';
-        link.href = qrImg.src;
-        link.click();
-      } else {
-        alert('⚠️ Genera un QR primero');
+      try {
+        const qrContainer = document.getElementById('qrImageContainer');
+        const canvas = qrContainer.querySelector('canvas');
+        const img = qrContainer.querySelector('img');
+        
+        if (canvas) {
+          const link = document.createElement('a');
+          link.download = 'qr-cobro-' + Date.now() + '.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        } else if (img) {
+          const link = document.createElement('a');
+          link.download = 'qr-cobro-' + Date.now() + '.png';
+          link.href = img.src;
+          link.click();
+        } else {
+          alert('⚠️ Genera un QR primero');
+        }
+      } catch (error) {
+        console.error('Error descargando QR:', error);
+        alert('⚠️ No se pudo descargar el QR');
       }
     }
 
     // ===== REGISTRO DE VENTAS =====
     function registerSale(data) {
-      const sales = JSON.parse(localStorage.getItem('sales') || '[]');
-      sales.push({
-        ...data,
-        id: 'SALE-' + Date.now().toString().slice(-8),
-        date: new Date().toISOString()
-      });
-      localStorage.setItem('sales', JSON.stringify(sales));
-      console.log('✅ Venta registrada:', data);
+      try {
+        const sales = JSON.parse(localStorage.getItem('sales') || '[]');
+        sales.push({
+          ...data,
+          id: 'SALE-' + Date.now().toString().slice(-8),
+          date: new Date().toISOString()
+        });
+        localStorage.setItem('sales', JSON.stringify(sales));
+        console.log('✅ Venta registrada:', data);
+      } catch (error) {
+        console.error('Error registrando venta:', error);
+      }
     }
 
     // ===== TRADING CHART =====
     let chart = null;
 
     function initChart() {
-      const ctx = document.getElementById('tradingChart').getContext('2d');
-      
-      // Generar datos de velas simulados
-      const data = generateCandleData(50);
-      
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: data.labels,
-          datasets: [{
-            label: 'Precio USDT/USD',
-            data: data.prices,
-            borderColor: '#00e5ff',
-            backgroundColor: 'rgba(0,229,255,0.1)',
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {
-                color: '#8ba3c7',
-                font: { family: 'Orbitron', size: 10 }
+      try {
+        const ctx = document.getElementById('tradingChart').getContext('2d');
+        
+        // Generar datos de velas simulados
+        const data = generateCandleData(50);
+        
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: 'Precio USDT/USD',
+              data: data.prices,
+              borderColor: '#00e5ff',
+              backgroundColor: 'rgba(0,229,255,0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: {
+                  color: '#8ba3c7',
+                  font: { family: 'Orbitron', size: 10 }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#4a6a8a' }
+              },
+              y: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#4a6a8a' }
               }
             }
-          },
-          scales: {
-            x: {
-              grid: { color: 'rgba(255,255,255,0.05)' },
-              ticks: { color: '#4a6a8a' }
-            },
-            y: {
-              grid: { color: 'rgba(255,255,255,0.05)' },
-              ticks: { color: '#4a6a8a' }
-            }
           }
-        }
-      });
+        });
+      } catch (error) {
+        console.error('Error inicializando chart:', error);
+      }
     }
 
     function generateCandleData(count) {
@@ -1505,12 +1596,16 @@
     }
 
     function updateChart(period) {
-      if (chart) {
-        const count = period === '1D' ? 10 : period === '1W' ? 20 : period === '1M' ? 30 : period === '3M' ? 60 : 90;
-        const data = generateCandleData(count);
-        chart.data.labels = data.labels;
-        chart.data.datasets[0].data = data.prices;
-        chart.update();
+      try {
+        if (chart) {
+          const count = period === '1D' ? 10 : period === '1W' ? 20 : period === '1M' ? 30 : period === '3M' ? 60 : 90;
+          const data = generateCandleData(count);
+          chart.data.labels = data.labels;
+          chart.data.datasets[0].data = data.prices;
+          chart.update();
+        }
+      } catch (error) {
+        console.error('Error actualizando chart:', error);
       }
     }
 
@@ -1519,52 +1614,70 @@
       const status = document.getElementById('iaStatus');
       status.textContent = '🧠 Procesando predicción...';
       setTimeout(() => {
-        const predictions = ['Alza del 3.2%', 'Estabilidad', 'Baja del 1.8%', 'Alza del 5.1%'];
-        status.textContent = `📊 Predicción: ${predictions[Math.floor(Math.random() * predictions.length)]} (Confianza: ${Math.round(Math.random() * 30 + 70)}%)`;
-      }, 2000);
+        const predictions = [
+          'Alza del 3.2%', 
+          'Estabilidad', 
+          'Baja del 1.8%', 
+          'Alza del 5.1%',
+          'Corrección del 2.3%'
+        ];
+        const confidence = Math.round(Math.random() * 30 + 70);
+        status.textContent = `📊 Predicción: ${predictions[Math.floor(Math.random() * predictions.length)]} (Confianza: ${confidence}%)`;
+      }, 1500);
     }
 
     function runIANeurosymbolic() {
       const status = document.getElementById('iaStatus');
       status.textContent = '🧬 Analizando patrones simbólicos...';
       setTimeout(() => {
-        const results = ['Patrón de adopción identificado', 'Nuevo cluster de usuarios', 'Tendencia de mercado detectada', 'Optimización de cartera recomendada'];
+        const results = [
+          'Patrón de adopción identificado',
+          'Nuevo cluster de usuarios', 
+          'Tendencia de mercado detectada',
+          'Optimización de cartera recomendada',
+          'Anomalía en transacciones detectada'
+        ];
         status.textContent = `🔮 Análisis: ${results[Math.floor(Math.random() * results.length)]}`;
-      }, 2500);
+      }, 2000);
     }
 
     // ===== CRM =====
-    let clientCount = 3;
+    let clientCount = 2;
 
     function registerClient() {
-      const name = document.getElementById('clientName').value;
-      const id = document.getElementById('clientId').value || 'CLI-' + Date.now().toString().slice(-6);
-      
-      if (!name) {
-        alert('⚠️ Ingresa un nombre para el cliente');
-        return;
+      try {
+        const name = document.getElementById('clientName').value.trim();
+        const id = document.getElementById('clientId').value.trim() || 'CLI-' + Date.now().toString().slice(-6);
+        
+        if (!name) {
+          alert('⚠️ Ingresa un nombre para el cliente');
+          return;
+        }
+        
+        const list = document.getElementById('crmList');
+        const item = document.createElement('div');
+        item.className = 'crm-item';
+        item.innerHTML = `
+          <div>
+            <span class="name">${name}</span>
+            <span class="info">ID: ${id}</span>
+          </div>
+          <span style="font-size:0.7rem;color:var(--quantum);">● Reconocido</span>
+        `;
+        list.appendChild(item);
+        
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientId').value = '';
+        
+        alert(`✅ Cliente "${name}" registrado correctamente`);
+      } catch (error) {
+        console.error('Error registrando cliente:', error);
+        alert('⚠️ Error al registrar cliente');
       }
-      
-      const list = document.getElementById('crmList');
-      const item = document.createElement('div');
-      item.className = 'crm-item';
-      item.innerHTML = `
-        <div>
-          <span class="name">${name}</span>
-          <span class="info">ID: ${id}</span>
-        </div>
-        <span style="font-size:0.7rem;color:var(--quantum);">● Reconocido</span>
-      `;
-      list.appendChild(item);
-      
-      document.getElementById('clientName').value = '';
-      document.getElementById('clientId').value = '';
-      
-      alert(`✅ Cliente "${name}" registrado correctamente`);
     }
 
     function scanQRClient() {
-      alert('📷 Escanea el código QR del cliente para identificación automática.\n(Sistema listo para integrar cámara)');
+      alert('📷 Escanea el código QR del cliente para identificación automática.\n\n(Sistema listo para integrar cámara)');
     }
 
     // ===== EFECTOS DE HOVER =====
@@ -1579,4 +1692,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
