@@ -8,7 +8,7 @@
     
     <!-- Open Graph -->
     <meta property="og:title" content="Sariel's Nexus - Mi Red Ultra" />
-    <meta property="og:description" content="Red social descentralizada con chat, videollamadas, grupos, pagos, IA y más" />
+    <meta property="og:description" content="Red social descentralizada con chat, videollamadas, grupos, Web3 y más" />
     <meta property="og:type" content="website" />
     
     <!-- Font Awesome -->
@@ -391,6 +391,48 @@
             letter-spacing: 0.5px;
         }
 
+        /* ===== WALLET (MetaMask) ===== */
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        .wallet-section .wallet-address {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .wallet-section .wallet-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.6rem;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+        }
+
+        .wallet-badge.connected {
+            background: rgba(0,184,148,0.2);
+            color: var(--success);
+            border: 1px solid rgba(0,184,148,0.3);
+        }
+
+        .wallet-badge.disconnected {
+            background: rgba(255,51,102,0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255,51,102,0.3);
+        }
+
         /* ===== BUSCADOR ===== */
         .search-box {
             position: relative;
@@ -634,7 +676,7 @@
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
-            bottom: 30px;
+            bottom: 100px;
             left: 50%;
             transform: translateX(-50%) translateY(80px);
             background: var(--success);
@@ -716,6 +758,187 @@
         .persona-card:nth-child(4) { animation-delay: 0.15s; }
         .persona-card:nth-child(5) { animation-delay: 0.2s; }
 
+        /* ===== MARQUINHOS (Asistente flotante) ===== */
+        .marquinhos-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .marquinhos-bubble {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4a373, #c2683e);
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 8px 32px rgba(212,168,87,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .marquinhos-bubble:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 40px rgba(212,168,87,0.4);
+        }
+
+        .marquinhos-bubble .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            background: #ff3366;
+            border-radius: 50%;
+            border: 2px solid #05080f;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .marquinhos-window {
+            display: none;
+            width: 380px;
+            height: 520px;
+            background: rgba(10,20,40,0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            flex-direction: column;
+            overflow: hidden;
+            padding: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+        }
+
+        .marquinhos-window.open {
+            display: flex;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .marquinhos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+
+        .marquinhos-header h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
+        }
+
+        .marquinhos-header .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .marquinhos-header .close-btn:hover { color: var(--text-primary); }
+
+        .marquinhos-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding-right: 4px;
+        }
+
+        .marquinhos-messages::-webkit-scrollbar { width: 4px; }
+        .marquinhos-messages::-webkit-scrollbar-thumb { background: var(--gold-cosmic); border-radius: 2px; }
+
+        .marquinhos-message {
+            padding: 8px 14px;
+            margin-bottom: 6px;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .marquinhos-message.user {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.15);
+            margin-left: auto;
+            color: var(--text-primary);
+        }
+
+        .marquinhos-message.bot {
+            background: rgba(212,168,87,0.1);
+            border: 1px solid rgba(212,168,87,0.15);
+            margin-right: auto;
+            color: var(--text-secondary);
+        }
+
+        .marquinhos-message .msg-user {
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 2px;
+        }
+
+        .marquinhos-input-area {
+            display: flex;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .marquinhos-input-area input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .marquinhos-input-area input:focus {
+            border-color: var(--quantum);
+            box-shadow: 0 0 20px rgba(0,212,255,0.05);
+        }
+
+        .marquinhos-input-area button {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border: none;
+            border-radius: 10px;
+            color: #0a0c10;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+        }
+
+        .marquinhos-input-area button:hover { transform: scale(1.05); }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .app { padding: 16px; }
@@ -729,6 +952,7 @@
             .tabs { gap: 0; }
             .tab { padding: 10px 14px; font-size: 0.6rem; }
             .modal-content { padding: 24px; margin: 16px; }
+            .marquinhos-window { width: 320px; height: 460px; right: -10px; }
         }
 
         @media (max-width: 480px) {
@@ -738,6 +962,8 @@
             .search-box input { padding: 12px 16px 12px 40px; font-size: 0.85rem; }
             .search-box .shortcuts { display: none; }
             .modal-actions .btn { min-width: 80px; font-size: 0.6rem; padding: 8px 12px; }
+            .marquinhos-window { width: 290px; height: 420px; right: -5px; }
+            .marquinhos-bubble { width: 54px; height: 54px; font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -765,6 +991,7 @@
                 <a href="./dashboard-central.html" class="btn"><i class="fas fa-chart-line"></i> Dashboard</a>
                 <a href="./panel-web3.html" class="btn"><i class="fas fa-wallet"></i> Web3</a>
                 <a href="./fidelizacion.html" class="btn"><i class="fas fa-gem"></i> Fidelización</a>
+                <a href="./trading.html" class="btn btn-gold"><i class="fas fa-chart-bar"></i> Trading</a>
             </div>
         </header>
 
@@ -784,6 +1011,18 @@
                 <div class="stat"><div class="number" id="statSolicitudes">0</div><div class="label">Solicitudes</div></div>
                 <div class="stat"><div class="number" id="statGrupos">0</div><div class="label">Grupos</div></div>
             </div>
+        </div>
+
+        <!-- ===== WALLET (MetaMask) ===== -->
+        <div class="wallet-section" id="walletSection">
+            <button class="btn btn-sm btn-primary" id="btnConnectWallet">
+                <i class="fas fa-plug"></i> Conectar Wallet
+            </button>
+            <button class="btn btn-sm btn-danger" id="btnDisconnectWallet" style="display:none;">
+                <i class="fas fa-power-off"></i> Desconectar
+            </button>
+            <span class="wallet-address" id="walletAddressDisplay">--</span>
+            <span class="wallet-badge disconnected" id="walletStatusBadge">● Desconectado</span>
         </div>
 
         <!-- BUSCADOR -->
@@ -828,11 +1067,12 @@
                 <a href="./dashboard-central.html">📊 Dashboard</a>
                 <a href="./registro-ventas-centralizado.html">📝 Ventas</a>
                 <a href="./fidelizacion.html">🎫 Fidelización</a>
+                <a href="./trading.html">📈 Trading</a>
             </div>
         </footer>
     </div>
 
-    <!-- ===== MODAL ===== -->
+    <!-- ===== MODAL PERFIL ===== -->
     <div class="modal-overlay" id="modalPerfil">
         <div class="modal-content">
             <div class="modal-avatar" id="modalAvatar">👤</div>
@@ -848,9 +1088,44 @@
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
+    <!-- ===== MARQUINHOS ASISTENTE ===== -->
+    <div class="marquinhos-container" id="marquinhosContainer">
+        <div class="marquinhos-bubble" id="marquinhosBubble">
+            🧠
+            <span class="notification-dot" id="marquinhosDot" style="display:none;"></span>
+        </div>
+        <div class="marquinhos-window" id="marquinhosWindow">
+            <div class="marquinhos-header">
+                <h3>🧠 Marquinhos · Asistente</h3>
+                <button class="close-btn" id="marquinhosClose">✕</button>
+            </div>
+            <div class="marquinhos-messages" id="marquinhosMessages">
+                <div class="marquinhos-message bot">
+                    <div class="msg-user">🧠 Marquinhos</div>
+                    Hola. Buscas los sevillanos de hoy?
+                </div>
+            </div>
+            <div class="marquinhos-input-area">
+                <input type="text" id="marquinhosInput" placeholder="Escribe un mensaje...">
+                <button id="marquinhosSend">Enviar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== SCRIPTS ===== -->
     <script src="./config.js"></script>
     <script src="./base-datos-centralizada.js"></script>
+    <!-- Marquinhos Engine y UI -->
+    <script type="module">
+        // ===== IMPORT MARQUINHOS =====
+        import { Engine } from './marquinhos-engine.js';
+        import { MarquinhosUI } from './marquinhos-ui.js';
+        
+        // Inicializar Marquinhos UI
+        const marquinhosUI = new MarquinhosUI();
+        
+        console.log('🧠 Marquinhos asistente cargado correctamente');
+    </script>
     
     <script>
         // ===== SISTEMA ESTELAR =====
@@ -858,6 +1133,8 @@
             console.log('🌌 Sariel\'s Digital Assets - Mi Red Ultra');
             initStars();
             initApp();
+            initMarquinhos();
+            initWallet();
         });
 
         // ===== ESTRELLAS Y METEORITOS =====
@@ -1498,6 +1775,153 @@
             toast.classList.add('active');
             clearTimeout(toast._timeout);
             toast._timeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ===== MARQUINHOS ASISTENTE =====
+        function initMarquinhos() {
+            const bubble = document.getElementById('marquinhosBubble');
+            const windowEl = document.getElementById('marquinhosWindow');
+            const closeBtn = document.getElementById('marquinhosClose');
+            const sendBtn = document.getElementById('marquinhosSend');
+            const input = document.getElementById('marquinhosInput');
+            const messages = document.getElementById('marquinhosMessages');
+
+            let isOpen = false;
+
+            // Abrir/cerrar
+            bubble.addEventListener('click', () => {
+                isOpen = !isOpen;
+                windowEl.classList.toggle('open', isOpen);
+                if (isOpen) {
+                    // Marcar mensajes como leídos
+                    document.getElementById('marquinhosDot').style.display = 'none';
+                }
+            });
+
+            closeBtn.addEventListener('click', () => {
+                isOpen = false;
+                windowEl.classList.remove('open');
+            });
+
+            // Enviar mensaje
+            function sendMessage() {
+                const text = input.value.trim();
+                if (!text) return;
+
+                // Agregar mensaje del usuario
+                const userMsg = document.createElement('div');
+                userMsg.className = 'marquinhos-message user';
+                userMsg.innerHTML = `<div class="msg-user">👤 Tú</div>${text}`;
+                messages.appendChild(userMsg);
+
+                // Limpiar input
+                input.value = '';
+
+                // Scroll al final
+                messages.scrollTop = messages.scrollHeight;
+
+                // Simular respuesta de Marquinhos
+                setTimeout(() => {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'marquinhos-message bot';
+                    const respuestas = [
+                        '¡Excelente pregunta! Déjame pensar...',
+                        'Interesante, ¿puedes contarme más?',
+                        'Eso es algo que debes consultar con el equipo de ventas.',
+                        '¡Me encanta esa idea! ¿Cómo te puedo ayudar?',
+                        'Estoy aquí para asistirte en lo que necesites.'
+                    ];
+                    botMsg.innerHTML = `<div class="msg-user">🧠 Marquinhos</div>${respuestas[Math.floor(Math.random() * respuestas.length)]}`;
+                    messages.appendChild(botMsg);
+                    messages.scrollTop = messages.scrollHeight;
+                }, 800);
+
+                // Mostrar notificación si está cerrado
+                if (!isOpen) {
+                    document.getElementById('marquinhosDot').style.display = 'block';
+                }
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
+
+        // ===== WALLET (MetaMask) =====
+        function initWallet() {
+            const btnConnect = document.getElementById('btnConnectWallet');
+            const btnDisconnect = document.getElementById('btnDisconnectWallet');
+            const addressDisplay = document.getElementById('walletAddressDisplay');
+            const statusBadge = document.getElementById('walletStatusBadge');
+
+            let walletAddress = null;
+
+            // Cargar wallet guardada
+            const saved = localStorage.getItem('miRed_wallet');
+            if (saved) {
+                walletAddress = saved;
+                updateWalletUI(walletAddress);
+            }
+
+            btnConnect.addEventListener('click', async () => {
+                try {
+                    if (typeof window.ethereum === 'undefined') {
+                        mostrarToast('⚠️ MetaMask no detectado. Instálalo primero.', 'error');
+                        return;
+                    }
+
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    if (accounts && accounts.length > 0) {
+                        walletAddress = accounts[0];
+                        localStorage.setItem('miRed_wallet', walletAddress);
+                        updateWalletUI(walletAddress);
+                        mostrarToast('✅ Wallet conectada correctamente');
+                    }
+                } catch (error) {
+                    console.error('Error conectando wallet:', error);
+                    mostrarToast('❌ Error al conectar wallet', 'error');
+                }
+            });
+
+            btnDisconnect.addEventListener('click', () => {
+                walletAddress = null;
+                localStorage.removeItem('miRed_wallet');
+                updateWalletUI(null);
+                mostrarToast('🔒 Wallet desconectada');
+            });
+
+            function updateWalletUI(address) {
+                if (address) {
+                    const short = address.slice(0, 6) + '...' + address.slice(-4);
+                    addressDisplay.textContent = short;
+                    statusBadge.textContent = '● Conectado';
+                    statusBadge.className = 'wallet-badge connected';
+                    btnConnect.style.display = 'none';
+                    btnDisconnect.style.display = 'inline-flex';
+                } else {
+                    addressDisplay.textContent = '--';
+                    statusBadge.textContent = '● Desconectado';
+                    statusBadge.className = 'wallet-badge disconnected';
+                    btnConnect.style.display = 'inline-flex';
+                    btnDisconnect.style.display = 'none';
+                }
+            }
+
+            // Escuchar cambios de cuenta
+            if (window.ethereum) {
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts && accounts.length > 0) {
+                        walletAddress = accounts[0];
+                        localStorage.setItem('miRed_wallet', walletAddress);
+                        updateWalletUI(walletAddress);
+                    } else {
+                        walletAddress = null;
+                        localStorage.removeItem('miRed_wallet');
+                        updateWalletUI(null);
+                    }
+                });
+            }
         }
 
         // ===== INICIALIZAR =====
