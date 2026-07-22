@@ -3,214 +3,1049 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Red - Sariel's Ecosystem</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>Mi Red Ultra | Sariel's Nexus</title>
+    <meta name="theme-color" content="#05080f" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sariel's Nexus - Mi Red Ultra" />
+    <meta property="og:description" content="Red social descentralizada con chat, videollamadas, grupos, pagos, IA y más" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        /* ===== VARIABLES CÓSMICAS ===== */
         :root {
-            --masa: #1c1714;
-            --masa-alta: #251e19;
-            --panel: #2a221c;
-            --linea: rgba(212, 168, 87, 0.12);
-            --trigo: #d4a857;
-            --trigo-suave: rgba(212, 168, 87, 0.14);
-            --horno: #c2683e;
-            --salvia: #7ba88a;
-            --salvia-suave: rgba(123, 168, 138, 0.14);
-            --texto: #f3ece2;
-            --texto-tenue: #a99c8c;
-            --texto-debil: #6b6055;
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --space-light: #101f3a;
+            --nebula-1: #6c2bd9;
+            --nebula-2: #ff6b9d;
+            --nebula-3: #00d4ff;
+            --gold-cosmic: #f7d44a;
+            --gold-dim: rgba(247,212,74,0.15);
+            --plasma: #ff3366;
+            --quantum: #00e5ff;
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(0,212,255,0.08);
+            --border-glow: rgba(0,212,255,0.25);
+            --shadow-neon: 0 0 40px rgba(0,212,255,0.1);
+            --shadow-glow: 0 0 60px rgba(108,43,217,0.15);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --warning: #f7d44a;
+            --danger: #ff3366;
+        }
+
+        /* ===== RESET Y BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background:
-                radial-gradient(circle at 15% 0%, rgba(212, 168, 87, 0.07), transparent 40%),
-                radial-gradient(circle at 100% 30%, rgba(194, 104, 62, 0.06), transparent 45%),
-                var(--masa);
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
             min-height: 100vh;
-            color: var(--texto);
-            padding-bottom: 40px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        /* ===== FONDO ESTELAR CON CANVAS ===== */
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
+        /* ===== NEBULOSAS ===== */
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+
+        .nebula-1 { width: 700px; height: 700px; background: var(--nebula-1); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--nebula-2); bottom: -15%; left: -15%; animation-delay: -8s; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.06; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--nebula-3), var(--nebula-1)); border-radius: 3px; }
+
+        /* ===== LAYOUT ===== */
+        .app { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 20px 24px 40px; }
+
+        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 22px;
+            padding: 16px 0 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
             flex-wrap: wrap;
             gap: 12px;
+            backdrop-filter: blur(10px);
+            position: relative;
         }
-        .header h1 {
-            font-family: 'Fraunces', serif;
-            font-weight: 600;
-            font-size: 1.5rem;
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--quantum), var(--nebula-2), var(--quantum), transparent);
+            opacity: 0.3;
+        }
+
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
+            text-decoration: none;
         }
-        .header p { color: var(--texto-tenue); font-size: 0.85rem; margin-top: 2px; }
 
-        .buscador { position: relative; margin-bottom: 20px; }
-        .buscador input {
+        .logo-icon {
+            font-size: 2.4rem;
+            filter: drop-shadow(0 0 20px rgba(0,212,255,0.3));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(0,212,255,0.3)); }
+            50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--text-primary), var(--quantum), var(--nebula-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0,212,255,0.2);
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 0 30px rgba(108,43,217,0.3);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(108,43,217,0.3); }
+            50% { box-shadow: 0 0 60px rgba(255,107,157,0.4); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,212,255,0.06);
+            border: 1px solid rgba(0,212,255,0.15);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: var(--quantum);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+        .status-dot.offline { background: var(--text-muted); box-shadow: 0 0 20px rgba(74,106,138,0.3); }
+
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(0,212,255,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: scale(1.03); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--nebula-2), var(--nebula-1));
+            box-shadow: 0 0 40px rgba(108,43,217,0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #00897b, #00695c);
+            box-shadow: 0 0 40px rgba(0,184,148,0.3);
+        }
+
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(247,212,74,0.3); }
+
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(0,212,255,0.05);
+            border-color: var(--quantum);
+        }
+
+        .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
+        .btn-block { width: 100%; justify-content: center; }
+
+        /* ===== PERFIL ===== */
+        .profile-card {
+            background: rgba(10,20,40,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            flex-wrap: wrap;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--quantum), var(--nebula-1), var(--nebula-2), var(--quantum));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .profile-card:hover::before { opacity: 0.3; }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--nebula-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0a0c10;
+            flex-shrink: 0;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-avatar .edit-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: var(--quantum);
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: #0a0c10;
+            border: 2px solid var(--space-deep);
+        }
+
+        .profile-info { flex: 1; min-width: 150px; }
+        .profile-info .name {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--quantum));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .profile-info .sub { color: var(--text-secondary); font-size: 0.85rem; }
+
+        .profile-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+        .profile-stats .stat { text-align: center; }
+        .profile-stats .stat .number {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+        }
+        .profile-stats .stat .label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== BUSCADOR ===== */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
             width: 100%;
-            background: var(--panel);
-            border: 1px solid var(--linea);
-            border-radius: 14px;
-            padding: 12px 16px 12px 42px;
-            color: var(--texto);
+            padding: 14px 20px 14px 48px;
+            background: rgba(10,20,40,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
         }
-        .buscador input:focus { outline: none; border-color: var(--trigo); }
-        .buscador .icono-buscar { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--texto-debil); }
 
-        .tabs { display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid var(--linea); }
-        .tab {
-            background: none; border: none; color: var(--texto-debil);
-            padding: 10px 4px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
-            border-bottom: 2px solid transparent; margin-right: 16px;
-            display: flex; align-items: center; gap: 6px;
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--quantum);
+            box-shadow: 0 0 30px rgba(0,212,255,0.05);
         }
-        .tab.activo { color: var(--trigo); border-bottom-color: var(--trigo); }
-        .tab .contador-badge { background: var(--horno); color: white; font-size: 0.68rem; padding: 1px 7px; border-radius: 50px; font-weight: 700; }
+
+        .search-box input::placeholder { color: var(--text-muted); }
+        .search-box .icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box .shortcuts {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 4px;
+        }
+
+        .search-box .shortcuts span {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab:hover { color: var(--text-secondary); }
+        .tab.active { color: var(--quantum); border-bottom-color: var(--quantum); }
+
+        .tab .badge {
+            background: var(--danger);
+            color: white;
+            font-size: 0.55rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .tab .badge.hidden { display: none; }
+
+        /* ===== PERSONA CARD ===== */
+        .persona-card {
+            background: rgba(10,20,40,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 10px;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .persona-card:hover { transform: translateX(4px); border-color: var(--border-glow); }
+
+        .persona-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .persona-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .persona-avatar.online { border: 2px solid var(--success); }
+        .persona-avatar.offline { border: 2px solid var(--text-muted); }
+
+        .persona-info { flex: 1; min-width: 0; cursor: pointer; }
+        .persona-info .name { font-weight: 600; font-size: 0.95rem; }
+        .persona-info .meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .persona-info .meta .status-text {
+            font-size: 0.6rem;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .persona-info .meta .status-text.online { color: var(--success); }
+        .persona-info .meta .status-text.offline { color: var(--text-muted); }
+
+        .level-badge {
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+        }
+
+        .level-badge.bronze { background: rgba(184,115,51,0.2); color: #d99b5f; border: 1px solid rgba(184,115,51,0.3); }
+        .level-badge.silver { background: rgba(192,194,200,0.15); color: #c0c2c8; border: 1px solid rgba(192,194,200,0.2); }
+        .level-badge.gold { background: rgba(247,212,74,0.15); color: var(--gold-cosmic); border: 1px solid rgba(247,212,74,0.2); }
+        .level-badge.diamond { background: rgba(0,212,255,0.15); color: var(--quantum); border: 1px solid rgba(0,212,255,0.2); }
+
+        .persona-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 3rem; opacity: 0.3; margin-bottom: 12px; }
+        .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--text-secondary); }
+        .empty-state p { font-size: 0.9rem; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: rgba(10,20,40,0.95);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            max-width: 440px;
+            width: 100%;
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--quantum), var(--nebula-1), var(--nebula-2), var(--quantum));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.2;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .modal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            overflow: hidden;
+        }
+        .modal-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .modal-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .modal-level { display: block; text-align: center; margin-bottom: 16px; }
+        .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .modal-actions .btn { flex: 1; justify-content: center; min-width: 100px; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--success);
+            color: #0a0c10;
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            box-shadow: var(--shadow-neon);
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 48px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--quantum), transparent);
+            opacity: 0.2;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links a:hover { color: var(--quantum); }
+
+        /* ===== ANIMACIONES ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
         .persona-card {
-            background: var(--panel); border: 1px solid var(--linea); border-radius: 14px;
-            padding: 14px 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+            animation: fadeInUp 0.3s ease-out forwards;
         }
-        .avatar {
-            width: 50px; height: 50px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--trigo), var(--horno));
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; color: var(--masa); font-size: 1.1rem;
-            flex-shrink: 0; overflow: hidden; cursor: pointer;
+
+        .persona-card:nth-child(2) { animation-delay: 0.05s; }
+        .persona-card:nth-child(3) { animation-delay: 0.1s; }
+        .persona-card:nth-child(4) { animation-delay: 0.15s; }
+        .persona-card:nth-child(5) { animation-delay: 0.2s; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .app { padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .logo-text { font-size: 1.2rem; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .profile-card { flex-direction: column; align-items: center; text-align: center; }
+            .profile-stats { justify-content: center; }
+            .persona-card { flex-wrap: wrap; }
+            .persona-actions { width: 100%; justify-content: flex-end; }
+            .tabs { gap: 0; }
+            .tab { padding: 10px 14px; font-size: 0.6rem; }
+            .modal-content { padding: 24px; margin: 16px; }
         }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .persona-info { flex: 1; min-width: 0; cursor: pointer; }
-        .persona-info .nombre { font-weight: 600; font-size: 0.95rem; }
-        .persona-info .meta { font-size: 0.78rem; color: var(--texto-tenue); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
-
-        .nivel-chip { font-size: 0.66rem; padding: 1px 8px; border-radius: 50px; font-weight: 700; text-transform: uppercase; }
-        .nivel-chip.bronce { background: rgba(184, 115, 51, 0.18); color: #d99b5f; }
-        .nivel-chip.plata { background: rgba(192, 194, 200, 0.18); color: #c0c2c8; }
-        .nivel-chip.oro { background: rgba(232, 194, 82, 0.18); color: #e8c252; }
-        .nivel-chip.diamante { background: rgba(126, 200, 227, 0.18); color: #7ec8e3; }
-
-        .acciones-persona { display: flex; gap: 8px; flex-shrink: 0; }
-        .btn-accion { border: none; border-radius: 10px; padding: 9px 14px; font-weight: 700; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
-        .btn-agregar { background: linear-gradient(135deg, var(--trigo), var(--horno)); color: var(--masa); }
-        .btn-pendiente { background: var(--masa-alta); color: var(--texto-debil); border: 1px solid var(--linea); cursor: default; }
-        .btn-mensaje { background: var(--salvia-suave); color: var(--salvia); }
-        .btn-aceptar { background: var(--salvia); color: var(--masa); }
-        .btn-rechazar { background: transparent; color: var(--texto-debil); border: 1px solid var(--linea); }
-
-        .estado-vacio { text-align: center; padding: 50px 20px; color: var(--texto-debil); }
-        .estado-vacio .icono { font-size: 2.2rem; margin-bottom: 10px; }
-
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); align-items: center; justify-content: center; padding: 16px; z-index: 50; }
-        .modal-overlay.activo { display: flex; }
-        .modal-box { background: var(--panel); border: 1px solid var(--linea); border-radius: 18px; padding: 26px; max-width: 380px; width: 100%; text-align: center; }
-        .modal-box .avatar-grande {
-            width: 90px; height: 90px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--trigo), var(--horno));
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; color: var(--masa); font-size: 2rem; margin: 0 auto 14px; overflow: hidden;
-        }
-        .modal-box .avatar-grande img { width: 100%; height: 100%; object-fit: cover; }
-        .modal-box h3 { font-family: 'Fraunces', serif; font-size: 1.25rem; margin-bottom: 6px; }
-        .modal-box .telefono { color: var(--texto-tenue); font-size: 0.88rem; margin-bottom: 12px; }
-        .modal-box .nivel-chip { font-size: 0.75rem; padding: 4px 12px; margin-bottom: 18px; display: inline-block; }
-        .modal-acciones { display: flex; gap: 10px; margin-top: 6px; }
-        .modal-acciones button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 700; font-size: 0.88rem; cursor: pointer; }
-
-        .mi-perfil-card {
-            background: var(--panel); border: 1px solid var(--linea); border-radius: 16px;
-            padding: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
-        }
-        .mi-perfil-card .avatar { width: 56px; height: 56px; font-size: 1.3rem; }
-        .mi-perfil-card .nombre { font-weight: 700; font-size: 1.05rem; }
-        .mi-perfil-card .sub { color: var(--texto-tenue); font-size: 0.8rem; margin-top: 2px; }
-
-        .toast {
-            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: var(--salvia); color: var(--masa); padding: 12px 20px; border-radius: 10px;
-            font-weight: 600; font-size: 0.88rem; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 60;
-        }
-        .toast.activo { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         @media (max-width: 480px) {
-            .persona-card { flex-wrap: wrap; }
-            .acciones-persona { width: 100%; justify-content: flex-end; }
+            .btn { font-size: 0.6rem; padding: 8px 14px; }
+            .profile-avatar { width: 50px; height: 50px; font-size: 1.4rem; }
+            .persona-avatar { width: 40px; height: 40px; font-size: 0.9rem; }
+            .search-box input { padding: 12px 16px 12px 40px; font-size: 0.85rem; }
+            .search-box .shortcuts { display: none; }
+            .modal-actions .btn { min-width: 80px; font-size: 0.6rem; padding: 8px 12px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div>
-                <h1>🌾 Mi Red</h1>
-                <p>Tu comunidad dentro de Sariel's Ecosystem</p>
-            </div>
-        </div>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
 
-        <div class="mi-perfil-card">
-            <label for="inputFotoPerfil" style="cursor:pointer;">
-                <div class="avatar" id="miAvatarPreview">T</div>
-            </label>
+    <!-- ===== CONTENIDO ===== -->
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="./index.html" class="logo">
+                <span class="logo-icon">🌌</span>
+                <span class="logo-text">Sariel's</span>
+                <span class="logo-badge">Red Ultra</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online" id="statusDot"></span>
+                    <span id="statusLabel">En línea</span>
+                </div>
+                <a href="./dashboard-central.html" class="btn"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="./panel-web3.html" class="btn"><i class="fas fa-wallet"></i> Web3</a>
+                <a href="./fidelizacion.html" class="btn"><i class="fas fa-gem"></i> Fidelización</a>
+            </div>
+        </header>
+
+        <!-- PERFIL -->
+        <div class="profile-card">
+            <div class="profile-avatar" id="profileAvatar" onclick="document.getElementById('inputFotoPerfil').click()">
+                <span id="avatarText">T</span>
+                <div class="edit-badge"><i class="fas fa-camera"></i></div>
+            </div>
             <input type="file" id="inputFotoPerfil" accept="image/*" style="display:none;" onchange="cambiarFotoPerfil(event)">
-            <div>
-                <div class="nombre" id="miNombre">Tú</div>
-                <div class="sub">Toca tu foto para cambiarla · <span id="miContactosCount">0</span> contactos</div>
+            <div class="profile-info">
+                <div class="name" id="profileName">Tú</div>
+                <div class="sub" id="profileSub">🌾 Fundador · Sariel's Ecosystem</div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat"><div class="number" id="statContactos">0</div><div class="label">Contactos</div></div>
+                <div class="stat"><div class="number" id="statSolicitudes">0</div><div class="label">Solicitudes</div></div>
+                <div class="stat"><div class="number" id="statGrupos">0</div><div class="label">Grupos</div></div>
             </div>
         </div>
 
-        <div class="buscador">
-            <span class="icono-buscar">🔍</span>
-            <input type="text" id="inputBuscar" placeholder="Buscar clientes por nombre..." oninput="renderBuscar()">
+        <!-- BUSCADOR -->
+        <div class="search-box">
+            <i class="fas fa-search icon"></i>
+            <input type="text" id="inputBuscar" placeholder="Buscar personas, grupos o mensajes..." oninput="renderBuscar()">
+            <div class="shortcuts"><span>⌘K</span></div>
         </div>
 
+        <!-- TABS -->
         <div class="tabs">
-            <button class="tab activo" data-tab="contactos" onclick="cambiarTab('contactos')">Mis contactos</button>
-            <button class="tab" data-tab="solicitudes" onclick="cambiarTab('solicitudes')">
-                Solicitudes <span class="contador-badge" id="badgeSolicitudes" style="display:none;">0</span>
+            <button class="tab active" data-tab="contactos" onclick="cambiarTab('contactos')">
+                <i class="fas fa-users"></i> Contactos
             </button>
-            <button class="tab" data-tab="descubrir" onclick="cambiarTab('descubrir')">Descubrir</button>
+            <button class="tab" data-tab="solicitudes" onclick="cambiarTab('solicitudes')">
+                <i class="fas fa-user-plus"></i> Solicitudes
+                <span class="badge hidden" id="badgeSolicitudes">0</span>
+            </button>
+            <button class="tab" data-tab="descubrir" onclick="cambiarTab('descubrir')">
+                <i class="fas fa-compass"></i> Descubrir
+            </button>
+            <button class="tab" data-tab="grupos" onclick="cambiarTab('grupos')">
+                <i class="fas fa-layer-group"></i> Grupos
+            </button>
+            <button class="tab" data-tab="mensajes" onclick="cambiarTab('mensajes')">
+                <i class="fas fa-comment-dots"></i> Mensajes
+                <span class="badge" id="badgeMensajes">3</span>
+            </button>
         </div>
 
+        <!-- TABS CONTENIDO -->
         <div id="tab-contactos"><div id="listaContactos"></div></div>
         <div id="tab-solicitudes" style="display:none;"><div id="listaSolicitudes"></div></div>
         <div id="tab-descubrir" style="display:none;"><div id="listaDescubrir"></div></div>
+        <div id="tab-grupos" style="display:none;"><div id="listaGrupos"></div></div>
+        <div id="tab-mensajes" style="display:none;"><div id="listaMensajes"></div></div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">🌌 Sariel's Digital Assets — Red Social Ultra Descentralizada</span>
+            <div class="footer-links">
+                <a href="./dashboard-central.html">📊 Dashboard</a>
+                <a href="./registro-ventas-centralizado.html">📝 Ventas</a>
+                <a href="./fidelizacion.html">🎫 Fidelización</a>
+            </div>
+        </footer>
     </div>
 
+    <!-- ===== MODAL ===== -->
     <div class="modal-overlay" id="modalPerfil">
-        <div class="modal-box">
-            <div class="avatar-grande" id="perfilAvatarGrande"></div>
-            <h3 id="perfilNombreModal"></h3>
-            <p class="telefono" id="perfilTelefonoModal"></p>
-            <span class="nivel-chip" id="perfilNivelModal"></span>
-            <div class="modal-acciones" id="perfilAccionesModal"></div>
-            <div style="margin-top:10px;">
-                <button style="width:100%; padding:11px; border-radius:10px; background:transparent; border:1px solid var(--linea); color:var(--texto-debil); font-weight:600; cursor:pointer;" onclick="cerrarModal()">Cerrar</button>
+        <div class="modal-content">
+            <div class="modal-avatar" id="modalAvatar">👤</div>
+            <h3 class="modal-title" id="modalNombre">Nombre</h3>
+            <p class="modal-sub" id="modalTelefono">📱 Teléfono</p>
+            <span class="level-badge" id="modalNivel">🌟 Nivel</span>
+            <div class="modal-actions" id="modalAcciones">
+                <button class="btn btn-primary" onclick="cerrarModal()">Cerrar</button>
             </div>
         </div>
     </div>
 
+    <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
+    <!-- ===== SCRIPTS ===== -->
+    <script src="./config.js"></script>
+    <script src="./base-datos-centralizada.js"></script>
+    
     <script>
-        let miPerfil = { nombre: 'Tú', telefono: '55 0000 0000', fotoPerfil: null };
+        // ===== SISTEMA ESTELAR =====
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🌌 Sariel\'s Digital Assets - Mi Red Ultra');
+            initStars();
+            initApp();
+        });
+
+        // ===== ESTRELLAS Y METEORITOS =====
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            let meteors = [];
+            
+            const STAR_COUNT = 300;
+            const METEOR_COUNT = 3;
+            
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.8 + 0.3,
+                        speed: Math.random() * 0.02 + 0.005,
+                        opacity: Math.random() * 0.8 + 0.2,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            
+            function createMeteor() {
+                return {
+                    x: Math.random() * width * 0.8,
+                    y: Math.random() * height * 0.3,
+                    speed: Math.random() * 3 + 4,
+                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+                    opacity: Math.random() * 0.6 + 0.4,
+                    active: true,
+                    trail: []
+                };
+            }
+            
+            function initMeteors() {
+                meteors = [];
+                for (let i = 0; i < METEOR_COUNT; i++) {
+                    const meteor = createMeteor();
+                    meteor.x = Math.random() * width;
+                    meteor.y = Math.random() * height * 0.2;
+                    meteors.push(meteor);
+                }
+            }
+            
+            function updateStars() {
+                for (let star of stars) {
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+            }
+            
+            function updateMeteors() {
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    meteor.x += Math.cos(meteor.angle) * meteor.speed;
+                    meteor.y += Math.sin(meteor.angle) * meteor.speed;
+                    meteor.trail.push({ x: meteor.x, y: meteor.y });
+                    if (meteor.trail.length > 20) meteor.trail.shift();
+                    if (meteor.x > width + 100 || meteor.y > height + 100) {
+                        meteor.active = false;
+                        setTimeout(() => {
+                            const newMeteor = createMeteor();
+                            newMeteor.x = Math.random() * width * 0.3;
+                            newMeteor.y = Math.random() * height * 0.2;
+                            Object.assign(meteor, newMeteor);
+                            meteor.active = true;
+                        }, Math.random() * 3000 + 2000);
+                    }
+                }
+            }
+            
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    if (star.radius > 1.2) {
+                        ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
+                        ctx.shadowBlur = 10;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+                
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    for (let i = 0; i < meteor.trail.length; i++) {
+                        const point = meteor.trail[i];
+                        const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
+                        const radius = (i / meteor.trail.length) * 2;
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
+                        ctx.fill();
+                    }
+                    const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                    gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
+                    gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
+                    ctx.shadowBlur = 30;
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+            
+            function animate() {
+                updateStars();
+                updateMeteors();
+                draw();
+                requestAnimationFrame(animate);
+            }
+            
+            resize();
+            createStars();
+            initMeteors();
+            animate();
+            
+            window.addEventListener('resize', () => {
+                resize();
+                createStars();
+            });
+        }
+
+        // ===== APP PRINCIPAL =====
+        function initApp() {
+            cargarDatosLocales();
+            renderAll();
+            actualizarContadores();
+            
+            window.addEventListener('storage', () => {
+                cargarDatosLocales();
+                renderAll();
+                actualizarContadores();
+            });
+            
+            window.addEventListener('sincronizacionCompleta', () => {
+                cargarDatosLocales();
+                renderAll();
+                actualizarContadores();
+            });
+        }
+
+        // ===== DATOS =====
+        let miPerfil = {
+            nombre: 'Tú',
+            telefono: '55 0000 0000',
+            fotoPerfil: null,
+            nivel: 'diamante'
+        };
 
         let todosLosClientes = [
-            { id: 'cli_001', nombre: 'María García', telefono: '55 1234 5678', nivel: 'oro', fotoPerfil: null },
-            { id: 'cli_002', nombre: 'Carlos Ruiz', telefono: '55 2345 6789', nivel: 'plata', fotoPerfil: null },
-            { id: 'cli_003', nombre: 'Ana López', telefono: '55 3456 7890', nivel: 'diamante', fotoPerfil: null },
-            { id: 'cli_004', nombre: 'Luis Morales', telefono: '55 4567 8901', nivel: 'bronce', fotoPerfil: null },
-            { id: 'cli_005', nombre: 'Pedro Sánchez', telefono: '55 5678 9012', nivel: 'plata', fotoPerfil: null },
-            { id: 'cli_006', nombre: 'Lupita Vega', telefono: '55 6789 0123', nivel: 'bronce', fotoPerfil: null },
+            { id: 'cli_001', nombre: 'María García', telefono: '55 1234 5678', nivel: 'gold', fotoPerfil: null, online: true, ultimaConexion: '2026-07-20T10:30:00' },
+            { id: 'cli_002', nombre: 'Carlos Ruiz', telefono: '55 2345 6789', nivel: 'silver', fotoPerfil: null, online: false, ultimaConexion: '2026-07-19T22:15:00' },
+            { id: 'cli_003', nombre: 'Ana López', telefono: '55 3456 7890', nivel: 'diamond', fotoPerfil: null, online: true, ultimaConexion: '2026-07-20T11:45:00' },
+            { id: 'cli_004', nombre: 'Luis Morales', telefono: '55 4567 8901', nivel: 'bronze', fotoPerfil: null, online: false, ultimaConexion: '2026-07-18T18:30:00' },
+            { id: 'cli_005', nombre: 'Pedro Sánchez', telefono: '55 5678 9012', nivel: 'silver', fotoPerfil: null, online: true, ultimaConexion: '2026-07-20T09:00:00' },
+            { id: 'cli_006', nombre: 'Lupita Vega', telefono: '55 6789 0123', nivel: 'bronze', fotoPerfil: null, online: false, ultimaConexion: '2026-07-19T15:20:00' },
+            { id: 'cli_007', nombre: 'Jorge Méndez', telefono: '55 7890 1234', nivel: 'gold', fotoPerfil: null, online: true, ultimaConexion: '2026-07-20T12:10:00' },
+            { id: 'cli_008', nombre: 'Sofía Herrera', telefono: '55 8901 2345', nivel: 'diamond', fotoPerfil: null, online: false, ultimaConexion: '2026-07-19T20:45:00' }
         ];
 
         let relaciones = {
@@ -218,14 +1053,65 @@
             'cli_002': 'contacto',
             'cli_003': 'solicitud_recibida',
             'cli_004': 'solicitud_enviada',
+            'cli_007': 'contacto'
         };
 
+        let grupos = [
+            { id: 'grp_001', nombre: '🌾 Estrategia de Ventas', miembros: 5, ultimoMensaje: 'Hoy a las 10:30 AM' },
+            { id: 'grp_002', nombre: '🎯 Metas Semanales', miembros: 3, ultimoMensaje: 'Ayer a las 6:00 PM' }
+        ];
+
+        let mensajes = [
+            { id: 'msg_001', de: 'María García', mensaje: '¿Listo para la reunión de hoy?', hora: '10:30 AM', leido: false },
+            { id: 'msg_002', de: 'Ana López', mensaje: '¡Excelente trabajo en la presentación!', hora: '9:15 AM', leido: false },
+            { id: 'msg_003', de: 'Pedro Sánchez', mensaje: '¿Puedes revisar el nuevo diseño?', hora: '8:45 AM', leido: false }
+        ];
+
+        let contactoFavoritos = ['cli_001', 'cli_007'];
+
+        // ===== FUNCIONES DE ALMACENAMIENTO =====
+        function cargarDatosLocales() {
+            try {
+                const guardado = localStorage.getItem('miRed_datos');
+                if (guardado) {
+                    const datos = JSON.parse(guardado);
+                    if (datos.miPerfil) miPerfil = datos.miPerfil;
+                    if (datos.relaciones) relaciones = datos.relaciones;
+                    if (datos.contactoFavoritos) contactoFavoritos = datos.contactoFavoritos;
+                }
+            } catch (e) {
+                console.warn('Error cargando datos locales:', e);
+            }
+        }
+
+        function guardarDatosLocales() {
+            try {
+                localStorage.setItem('miRed_datos', JSON.stringify({
+                    miPerfil: miPerfil,
+                    relaciones: relaciones,
+                    contactoFavoritos: contactoFavoritos
+                }));
+            } catch (e) {
+                console.warn('Error guardando datos:', e);
+            }
+        }
+
+        // ===== RENDERIZADO =====
         function emojiNivel(nivel) {
-            return { bronce: '🥉', plata: '🥈', oro: '🥇', diamante: '💎' }[nivel] || '🍪';
+            const map = { 'bronze': '🥉', 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
+            return map[nivel] || '⭐';
+        }
+
+        function nivelTexto(nivel) {
+            const map = { 'bronze': 'Bronce', 'silver': 'Plata', 'gold': 'Oro', 'diamond': 'Diamante' };
+            return map[nivel] || nivel;
         }
 
         function avatarHTML(persona) {
-            return persona.fotoPerfil ? `<img src="${persona.fotoPerfil}" alt="${persona.nombre}">` : persona.nombre.charAt(0);
+            if (persona.fotoPerfil) {
+                return `<img src="${persona.fotoPerfil}" alt="${persona.nombre}">`;
+            }
+            return persona.nombre.charAt(0);
         }
 
         function renderContactos() {
@@ -233,24 +1119,39 @@
             const cont = document.getElementById('listaContactos');
 
             if (ids.length === 0) {
-                cont.innerHTML = `<div class="estado-vacio"><div class="icono">👥</div>Todavía no tienes contactos.<br>Ve a "Descubrir" para agregar clientes.</div>`;
-                document.getElementById('miContactosCount').textContent = '0';
+                cont.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">👥</div>
+                        <h3>Sin contactos aún</h3>
+                        <p>Ve a "Descubrir" para encontrar personas y expandir tu red.</p>
+                    </div>
+                `;
                 return;
             }
 
-            document.getElementById('miContactosCount').textContent = ids.length;
-
             cont.innerHTML = ids.map(id => {
                 const p = todosLosClientes.find(c => c.id === id);
+                const esFavorito = contactoFavoritos.includes(id);
+                
                 return `
                     <div class="persona-card">
-                        <div class="avatar" onclick="abrirPerfil('${p.id}')">${avatarHTML(p)}</div>
-                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
-                            <div class="nombre">${p.nombre}</div>
-                            <div class="meta"><span class="nivel-chip ${p.nivel}">${emojiNivel(p.nivel)} ${p.nivel}</span></div>
+                        <div class="persona-avatar ${p.online ? 'online' : 'offline'}" onclick="abrirPerfil('${p.id}')">
+                            ${avatarHTML(p)}
                         </div>
-                        <div class="acciones-persona">
-                            <button class="btn-accion btn-mensaje" onclick="irAChat('${p.id}')">💬 Chat</button>
+                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
+                            <div class="name">${p.nombre} ${esFavorito ? '⭐' : ''}</div>
+                            <div class="meta">
+                                <span class="level-badge ${p.nivel}">${emojiNivel(p.nivel)} ${nivelTexto(p.nivel)}</span>
+                                <span class="status-text ${p.online ? 'online' : 'offline'}">${p.online ? '● En línea' : '○ Desconectado'}</span>
+                            </div>
+                        </div>
+                        <div class="persona-actions">
+                            <button class="btn btn-sm btn-success" onclick="irAChat('${p.id}')"><i class="fas fa-comment"></i></button>
+                            <button class="btn btn-sm btn-outline" onclick="toggleFavorito('${p.id}')">
+                                <i class="fas ${esFavorito ? 'fa-star' : 'fa-star-o'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarContacto('${p.id}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-primary" onclick="iniciarVideollamada('${p.id}')"><i class="fas fa-video"></i></button>
                         </div>
                     </div>
                 `;
@@ -260,29 +1161,35 @@
         function renderSolicitudes() {
             const ids = Object.keys(relaciones).filter(id => relaciones[id] === 'solicitud_recibida');
             const cont = document.getElementById('listaSolicitudes');
-            const badge = document.getElementById('badgeSolicitudes');
 
             if (ids.length === 0) {
-                badge.style.display = 'none';
-                cont.innerHTML = `<div class="estado-vacio"><div class="icono">📭</div>No tienes solicitudes pendientes.</div>`;
+                cont.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin solicitudes pendientes</h3>
+                        <p>No tienes solicitudes de amistad esperando.</p>
+                    </div>
+                `;
                 return;
             }
-
-            badge.style.display = 'inline-block';
-            badge.textContent = ids.length;
 
             cont.innerHTML = ids.map(id => {
                 const p = todosLosClientes.find(c => c.id === id);
                 return `
                     <div class="persona-card">
-                        <div class="avatar" onclick="abrirPerfil('${p.id}')">${avatarHTML(p)}</div>
-                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
-                            <div class="nombre">${p.nombre}</div>
-                            <div class="meta"><span class="nivel-chip ${p.nivel}">${emojiNivel(p.nivel)} ${p.nivel}</span></div>
+                        <div class="persona-avatar ${p.online ? 'online' : 'offline'}" onclick="abrirPerfil('${p.id}')">
+                            ${avatarHTML(p)}
                         </div>
-                        <div class="acciones-persona">
-                            <button class="btn-accion btn-aceptar" onclick="aceptarSolicitud('${p.id}')">Aceptar</button>
-                            <button class="btn-accion btn-rechazar" onclick="rechazarSolicitud('${p.id}')">Rechazar</button>
+                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
+                            <div class="name">${p.nombre}</div>
+                            <div class="meta">
+                                <span class="level-badge ${p.nivel}">${emojiNivel(p.nivel)} ${nivelTexto(p.nivel)}</span>
+                                <span style="color:var(--warning);">🕒 Solicitud pendiente</span>
+                            </div>
+                        </div>
+                        <div class="persona-actions">
+                            <button class="btn btn-sm btn-success" onclick="aceptarSolicitud('${p.id}')"><i class="fas fa-check"></i> Aceptar</button>
+                            <button class="btn btn-sm btn-danger" onclick="rechazarSolicitud('${p.id}')"><i class="fas fa-times"></i></button>
                         </div>
                     </div>
                 `;
@@ -297,7 +1204,13 @@
                 .map(c => c.id);
 
             if (ids.length === 0) {
-                cont.innerHTML = `<div class="estado-vacio"><div class="icono">🔎</div>No hay más clientes para descubrir.</div>`;
+                cont.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔎</div>
+                        <h3>No hay más personas para descubrir</h3>
+                        <p>¡Ya has conocido a todos! Vuelve más tarde para nuevas conexiones.</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -306,20 +1219,96 @@
                 const enviada = relaciones[id] === 'solicitud_enviada';
                 return `
                     <div class="persona-card">
-                        <div class="avatar" onclick="abrirPerfil('${p.id}')">${avatarHTML(p)}</div>
-                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
-                            <div class="nombre">${p.nombre}</div>
-                            <div class="meta"><span class="nivel-chip ${p.nivel}">${emojiNivel(p.nivel)} ${p.nivel}</span></div>
+                        <div class="persona-avatar ${p.online ? 'online' : 'offline'}" onclick="abrirPerfil('${p.id}')">
+                            ${avatarHTML(p)}
                         </div>
-                        <div class="acciones-persona">
+                        <div class="persona-info" onclick="abrirPerfil('${p.id}')">
+                            <div class="name">${p.nombre}</div>
+                            <div class="meta">
+                                <span class="level-badge ${p.nivel}">${emojiNivel(p.nivel)} ${nivelTexto(p.nivel)}</span>
+                                <span class="status-text ${p.online ? 'online' : 'offline'}">${p.online ? '● En línea' : '○ Desconectado'}</span>
+                            </div>
+                        </div>
+                        <div class="persona-actions">
                             ${enviada
-                                ? `<button class="btn-accion btn-pendiente" disabled>Solicitud enviada</button>`
-                                : `<button class="btn-accion btn-agregar" onclick="enviarSolicitud('${p.id}')">➕ Agregar</button>`
+                                ? `<button class="btn btn-sm" disabled style="color:var(--text-muted);"><i class="fas fa-clock"></i> Enviada</button>`
+                                : `<button class="btn btn-sm btn-primary" onclick="enviarSolicitud('${p.id}')">
+                                    <i class="fas fa-user-plus"></i> Agregar
+                                   </button>`
                             }
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function renderGrupos() {
+            const cont = document.getElementById('listaGrupos');
+
+            if (grupos.length === 0) {
+                cont.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📁</div>
+                        <h3>Sin grupos</h3>
+                        <p>Únete a grupos o crea uno para colaborar con tu red.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cont.innerHTML = grupos.map(g => `
+                <div class="persona-card">
+                    <div class="persona-avatar" style="background:linear-gradient(135deg,var(--nebula-3),var(--nebula-1));">
+                        <i class="fas fa-users" style="font-size:1.2rem;"></i>
+                    </div>
+                    <div class="persona-info" onclick="abrirGrupo('${g.id}')">
+                        <div class="name">${g.nombre}</div>
+                        <div class="meta">
+                            <span>👥 ${g.miembros} miembros</span>
+                            <span style="color:var(--text-muted);">📩 ${g.ultimoMensaje}</span>
+                        </div>
+                    </div>
+                    <div class="persona-actions">
+                        <button class="btn btn-sm btn-outline" onclick="abrirGrupo('${g.id}')">
+                            <i class="fas fa-arrow-right"></i> Entrar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMensajes() {
+            const cont = document.getElementById('listaMensajes');
+
+            if (mensajes.length === 0) {
+                cont.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">💬</div>
+                        <h3>Sin mensajes</h3>
+                        <p>Tus conversaciones aparecerán aquí.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cont.innerHTML = mensajes.map(m => `
+                <div class="persona-card" style="${!m.leido ? 'border-left:3px solid var(--quantum);' : ''}">
+                    <div class="persona-avatar" style="background:linear-gradient(135deg,var(--gold-cosmic),var(--nebula-2));">
+                        ${m.de.charAt(0)}
+                    </div>
+                    <div class="persona-info" onclick="leerMensaje('${m.id}')">
+                        <div class="name">${m.de} ${!m.leido ? '<span style="color:var(--quantum);font-size:0.6rem;">● Nuevo</span>' : ''}</div>
+                        <div class="meta">
+                            <span>${m.mensaje}</span>
+                            <span style="color:var(--text-muted);">🕐 ${m.hora}</span>
+                        </div>
+                    </div>
+                    <div class="persona-actions">
+                        <button class="btn btn-sm btn-primary" onclick="leerMensaje('${m.id}')"><i class="fas fa-reply"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarMensaje('${m.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function renderBuscar() {
@@ -328,69 +1317,163 @@
             cambiarTab('descubrir');
         }
 
+        function actualizarContadores() {
+            const contactos = Object.keys(relaciones).filter(id => relaciones[id] === 'contacto').length;
+            const solicitudes = Object.keys(relaciones).filter(id => relaciones[id] === 'solicitud_recibida').length;
+            const gruposCount = grupos.length;
+            const noLeidos = mensajes.filter(m => !m.leido).length;
+
+            document.getElementById('statContactos').textContent = contactos;
+            document.getElementById('statSolicitudes').textContent = solicitudes;
+            document.getElementById('statGrupos').textContent = gruposCount;
+
+            const badgeSolicitudes = document.getElementById('badgeSolicitudes');
+            if (solicitudes > 0) {
+                badgeSolicitudes.textContent = solicitudes;
+                badgeSolicitudes.classList.remove('hidden');
+            } else {
+                badgeSolicitudes.classList.add('hidden');
+            }
+
+            const badgeMensajes = document.getElementById('badgeMensajes');
+            badgeMensajes.textContent = noLeidos > 0 ? noLeidos : '0';
+        }
+
+        function renderAll() {
+            renderContactos();
+            renderSolicitudes();
+            renderDescubrir('');
+            renderGrupos();
+            renderMensajes();
+            actualizarContadores();
+            guardarDatosLocales();
+        }
+
+        // ===== TABS =====
         function cambiarTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('activo', t.dataset.tab === tab));
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            
             document.getElementById('tab-contactos').style.display = tab === 'contactos' ? 'block' : 'none';
             document.getElementById('tab-solicitudes').style.display = tab === 'solicitudes' ? 'block' : 'none';
             document.getElementById('tab-descubrir').style.display = tab === 'descubrir' ? 'block' : 'none';
+            document.getElementById('tab-grupos').style.display = tab === 'grupos' ? 'block' : 'none';
+            document.getElementById('tab-mensajes').style.display = tab === 'mensajes' ? 'block' : 'none';
         }
 
+        // ===== ACCIONES =====
         function enviarSolicitud(id) {
             relaciones[id] = 'solicitud_enviada';
-            renderDescubrir(document.getElementById('inputBuscar').value);
-            mostrarToast('✅ Solicitud enviada');
+            renderAll();
+            mostrarToast('✅ Solicitud enviada correctamente');
         }
 
         function aceptarSolicitud(id) {
             relaciones[id] = 'contacto';
-            renderSolicitudes();
-            renderContactos();
+            renderAll();
             mostrarToast('🎉 Ahora son contactos');
         }
 
         function rechazarSolicitud(id) {
             delete relaciones[id];
-            renderSolicitudes();
-            mostrarToast('Solicitud rechazada');
+            renderAll();
+            mostrarToast('❌ Solicitud rechazada');
+        }
+
+        function eliminarContacto(id) {
+            if (confirm('¿Seguro que quieres eliminar este contacto?')) {
+                delete relaciones[id];
+                renderAll();
+                mostrarToast('🗑️ Contacto eliminado');
+            }
+        }
+
+        function toggleFavorito(id) {
+            const index = contactoFavoritos.indexOf(id);
+            if (index > -1) {
+                contactoFavoritos.splice(index, 1);
+                mostrarToast('⭐ Quitado de favoritos');
+            } else {
+                contactoFavoritos.push(id);
+                mostrarToast('⭐ Agregado a favoritos');
+            }
+            renderAll();
         }
 
         function irAChat(id) {
             const p = todosLosClientes.find(c => c.id === id);
-            mostrarToast(`Abriendo chat con ${p.nombre}... (pendiente de conectar CometChat)`);
+            mostrarToast(`💬 Abriendo chat con ${p.nombre}... (WebSocket en desarrollo)`);
+        }
+
+        function iniciarVideollamada(id) {
+            const p = todosLosClientes.find(c => c.id === id);
+            mostrarToast(`📹 Iniciando videollamada con ${p.nombre}... (WebRTC en desarrollo)`);
         }
 
         function abrirPerfil(id) {
             const p = todosLosClientes.find(c => c.id === id);
             if (!p) return;
 
-            document.getElementById('perfilAvatarGrande').innerHTML = avatarHTML(p);
-            document.getElementById('perfilNombreModal').textContent = p.nombre;
-            document.getElementById('perfilTelefonoModal').textContent = p.telefono;
-            const nivelEl = document.getElementById('perfilNivelModal');
-            nivelEl.textContent = `${emojiNivel(p.nivel)} ${p.nivel}`;
-            nivelEl.className = `nivel-chip ${p.nivel}`;
+            document.getElementById('modalAvatar').innerHTML = avatarHTML(p);
+            document.getElementById('modalNombre').textContent = p.nombre;
+            document.getElementById('modalTelefono').textContent = `📱 ${p.telefono}`;
+            document.getElementById('modalNivel').textContent = `${emojiNivel(p.nivel)} ${nivelTexto(p.nivel)}`;
+            document.getElementById('modalNivel').className = `level-badge ${p.nivel}`;
 
-            const acciones = document.getElementById('perfilAccionesModal');
+            const acciones = document.getElementById('modalAcciones');
             const estado = relaciones[id];
 
             if (estado === 'contacto') {
-                acciones.innerHTML = `<button class="btn-accion btn-mensaje" style="flex:1;" onclick="cerrarModal(); irAChat('${id}')">💬 Enviar mensaje</button>`;
+                acciones.innerHTML = `
+                    <button class="btn btn-success" onclick="cerrarModal(); irAChat('${id}')"><i class="fas fa-comment"></i> Mensaje</button>
+                    <button class="btn btn-primary" onclick="cerrarModal(); iniciarVideollamada('${id}')"><i class="fas fa-video"></i> Llamada</button>
+                    <button class="btn btn-outline" onclick="cerrarModal()">Cerrar</button>
+                `;
             } else if (estado === 'solicitud_enviada') {
-                acciones.innerHTML = `<button class="btn-accion btn-pendiente" style="flex:1;" disabled>Solicitud enviada</button>`;
+                acciones.innerHTML = `
+                    <button class="btn" disabled style="color:var(--text-muted);">⏳ Enviada</button>
+                    <button class="btn btn-outline" onclick="cerrarModal()">Cerrar</button>
+                `;
             } else if (estado === 'solicitud_recibida') {
                 acciones.innerHTML = `
-                    <button class="btn-accion btn-aceptar" onclick="aceptarSolicitud('${id}'); cerrarModal();">Aceptar</button>
-                    <button class="btn-accion btn-rechazar" onclick="rechazarSolicitud('${id}'); cerrarModal();">Rechazar</button>
+                    <button class="btn btn-success" onclick="aceptarSolicitud('${id}'); cerrarModal();"><i class="fas fa-check"></i> Aceptar</button>
+                    <button class="btn btn-danger" onclick="rechazarSolicitud('${id}'); cerrarModal();"><i class="fas fa-times"></i></button>
                 `;
             } else {
-                acciones.innerHTML = `<button class="btn-accion btn-agregar" style="flex:1;" onclick="enviarSolicitud('${id}'); cerrarModal();">➕ Agregar contacto</button>`;
+                acciones.innerHTML = `
+                    <button class="btn btn-primary" onclick="enviarSolicitud('${id}'); cerrarModal();"><i class="fas fa-user-plus"></i> Agregar</button>
+                    <button class="btn btn-outline" onclick="cerrarModal()">Cerrar</button>
+                `;
             }
 
-            document.getElementById('modalPerfil').classList.add('activo');
+            document.getElementById('modalPerfil').classList.add('active');
         }
 
         function cerrarModal() {
-            document.getElementById('modalPerfil').classList.remove('activo');
+            document.getElementById('modalPerfil').classList.remove('active');
+        }
+
+        function abrirGrupo(id) {
+            const g = grupos.find(g => g.id === id);
+            mostrarToast(`📂 Abriendo grupo: ${g.nombre}`);
+        }
+
+        function leerMensaje(id) {
+            const m = mensajes.find(m => m.id === id);
+            if (m) {
+                m.leido = true;
+                renderAll();
+                mostrarToast(`💬 Leyendo mensaje de ${m.de}: ${m.mensaje}`);
+            }
+        }
+
+        function eliminarMensaje(id) {
+            if (confirm('¿Eliminar este mensaje?')) {
+                mensajes = mensajes.filter(m => m.id !== id);
+                renderAll();
+                mostrarToast('🗑️ Mensaje eliminado');
+            }
         }
 
         function cambiarFotoPerfil(event) {
@@ -399,22 +1482,34 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 miPerfil.fotoPerfil = e.target.result;
-                document.getElementById('miAvatarPreview').innerHTML = `<img src="${e.target.result}" alt="Tú">`;
+                document.getElementById('avatarText').innerHTML = `<img src="${e.target.result}" alt="Tú">`;
+                document.getElementById('avatarText').style.padding = '0';
+                guardarDatosLocales();
                 mostrarToast('✅ Foto de perfil actualizada');
             };
             reader.readAsDataURL(file);
         }
 
-        function mostrarToast(mensaje) {
+        // ===== TOAST =====
+        function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
             toast.textContent = mensaje;
-            toast.classList.add('activo');
-            setTimeout(() => toast.classList.remove('activo'), 2800);
+            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('active'), 3000);
         }
 
-        renderContactos();
-        renderSolicitudes();
-        renderDescubrir();
+        // ===== INICIALIZAR =====
+        renderAll();
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cerrarModal();
+        });
+
+        document.getElementById('modalPerfil').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
     </script>
 </body>
 </html>
