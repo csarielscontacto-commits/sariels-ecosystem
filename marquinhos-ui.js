@@ -14,6 +14,9 @@ export class MarquinhosUI {
     }
 
     init() {
+        // ===== CARGAR POSICIÓN UNA SOLA VEZ =====
+        const posGuardada = this.cargarPosicion();
+
         document.documentElement.style.setProperty('--m-primary', this.config.theme.primary);
         document.documentElement.style.setProperty('--m-blur', this.config.theme.blur);
         document.documentElement.style.setProperty('--m-width', this.config.ui.width);
@@ -43,7 +46,7 @@ export class MarquinhosUI {
         `;
         document.body.appendChild(container);
 
-        // ===== ESTILOS =====
+        // ===== ESTILOS CON POSICIÓN CORREGIDA =====
         const style = document.createElement('style');
         style.textContent = `
             #marquinhos-container {
@@ -51,10 +54,9 @@ export class MarquinhosUI {
                 z-index: 9999;
                 touch-action: none;
                 user-select: none;
-                left: ${this.cargarPosicion().x || 'auto'};
-                top: ${this.cargarPosicion().y || 'auto'};
-                bottom: ${this.cargarPosicion().x ? 'auto' : '20px'};
-                right: ${this.cargarPosicion().x ? 'auto' : '20px'};
+                ${posGuardada 
+                    ? `left: ${posGuardada.x}px; top: ${posGuardada.y}px;` 
+                    : 'bottom: 20px; right: 20px;'}
             }
             .m-burbuja {
                 width: 64px;
@@ -327,8 +329,11 @@ export class MarquinhosUI {
         let newX = clientX - this.dragOffsetX;
         let newY = clientY - this.dragOffsetY;
 
+        // ===== TAMAÑO REAL DE LA BURBUJA (dinámico) =====
+        const bubbleRect = bubble.getBoundingClientRect();
+        const bubbleSize = bubbleRect.width;
+
         // Limitar dentro del viewport
-        const bubbleSize = 64;
         const maxX = window.innerWidth - bubbleSize;
         const maxY = window.innerHeight - bubbleSize;
         newX = Math.max(0, Math.min(newX, maxX));
@@ -361,11 +366,13 @@ export class MarquinhosUI {
         } catch (e) { return null; }
     }
 
-    // ===== DETECTAR COLISIONES =====
+    // ===== DETECTAR COLISIONES (CORREGIDO) =====
     detectarColisiones(container) {
         const bubble = container.querySelector('.m-burbuja');
         setInterval(() => {
             if (!bubble) return;
+            
+            // Obtener posición REAL actual de la burbuja
             const rectBurbuja = bubble.getBoundingClientRect();
             const criticos = document.querySelectorAll('.elemento-critico');
             let colision = false;
@@ -380,10 +387,22 @@ export class MarquinhosUI {
 
             // Ajustar posición si colisiona (mover hacia arriba)
             if (colision) {
-                const currentTop = parseFloat(container.style.top) || 0;
+                // Obtener posición actual desde el DOM (NO desde container.style)
+                const currentLeft = rectBurbuja.left;
+                const currentTop = rectBurbuja.top;
+                
+                // Calcular nueva posición (subir 80px)
                 const newTop = Math.max(0, currentTop - 80);
+                const newLeft = Math.max(0, currentLeft);
+                
+                // Aplicar la nueva posición en px
+                container.style.left = newLeft + 'px';
                 container.style.top = newTop + 'px';
-                this.guardarPosicion(parseFloat(container.style.left) || 0, newTop);
+                container.style.right = 'auto';
+                container.style.bottom = 'auto';
+                
+                // Guardar la nueva posición en localStorage
+                this.guardarPosicion(newLeft, newTop);
             }
         }, 300);
     }
