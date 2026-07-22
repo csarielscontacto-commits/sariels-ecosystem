@@ -3,291 +3,1027 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel Web3 TOK Rewards - Ecosistema de Sariel</title>
+  <title>Fidelización TOK Rewards | Sariel's Nexus</title>
+  <meta name="theme-color" content="#05080f" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Sariel's Nexus - Fidelización TOK Rewards" />
+  <meta property="og:description" content="Sistema de fidelización con TOKs y NFTs en Polygon Amoy" />
+  <meta property="og:type" content="website" />
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ===== VARIABLES CÓSMICAS ===== */
     :root {
-      --bg: #050b08;
-      --panel: #0d1713;
-      --panel-2: #13211c;
-      --line: #1f3d33;
-      --text: #e6fff3;
-      --muted: #9ccab5;
+      --space-deep: #05080f;
+      --space-mid: #0a1428;
+      --space-light: #101f3a;
+      --nebula-1: #6c2bd9;
+      --nebula-2: #ff6b9d;
+      --nebula-3: #00d4ff;
+      --gold-cosmic: #f7d44a;
+      --gold-dim: rgba(247,212,74,0.15);
+      --plasma: #ff3366;
+      --quantum: #00e5ff;
+      --text-primary: #e8f0f8;
+      --text-secondary: #8ba3c7;
+      --text-muted: #4a6a8a;
+      --border: rgba(0,212,255,0.08);
+      --border-glow: rgba(0,212,255,0.25);
+      --shadow-neon: 0 0 40px rgba(0,212,255,0.1);
+      --shadow-glow: 0 0 60px rgba(108,43,217,0.15);
+      --radius: 20px;
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      --success: #00b894;
+      --warning: #f7d44a;
       --green: #28f79a;
-      --danger: #ff6f91;
+    }
+
+    /* ===== RESET Y BASE ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
+      background: var(--space-deep);
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
       min-height: 100vh;
-      font-family: Inter, 'Segoe UI', Tahoma, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 10% 10%, rgba(40, 247, 154, 0.2), transparent 35%),
-        radial-gradient(circle at 90% 20%, rgba(40, 247, 154, 0.12), transparent 35%),
-        var(--bg);
-      padding: 18px;
+      overflow-x: hidden;
+      position: relative;
     }
 
-    .container {
-      max-width: 1024px;
+    /* ===== FONDO ESTELAR CON CANVAS ===== */
+    #stars-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ===== NEBULOSAS DE FONDO ===== */
+    .nebula {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+      animation: nebula-drift 25s ease-in-out infinite alternate;
+    }
+
+    .nebula-1 {
+      width: 700px;
+      height: 700px;
+      background: var(--nebula-1);
+      top: -15%;
+      right: -15%;
+    }
+
+    .nebula-2 {
+      width: 600px;
+      height: 600px;
+      background: var(--nebula-2);
+      bottom: -15%;
+      left: -15%;
+      animation-delay: -8s;
+    }
+
+    .nebula-3 {
+      width: 500px;
+      height: 500px;
+      background: var(--nebula-3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -15s;
+      opacity: 0.06;
+    }
+
+    @keyframes nebula-drift {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, -30px) scale(1.15); }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--space-deep);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--nebula-3), var(--nebula-1));
+      border-radius: 3px;
+    }
+
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
       margin: 0 auto;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(12, 26, 20, 0.96), rgba(8, 16, 13, 0.96));
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-      overflow: hidden;
+      padding: 20px 24px 40px;
     }
 
+    /* ===== HEADER ===== */
     .header {
-      padding: 24px;
-      border-bottom: 1px solid var(--line);
       display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
       justify-content: space-between;
       align-items: center;
-    }
-
-    .header h1 { font-size: 1.6rem; margin-bottom: 8px; }
-    .header p { color: var(--muted); }
-
-    .back-link {
-      color: var(--green);
-      text-decoration: none;
-      font-weight: 700;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 14px;
-      background: rgba(13, 30, 22, 0.8);
-    }
-
-    .grid {
-      padding: 24px;
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 16px;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      background: linear-gradient(180deg, var(--panel), var(--panel-2));
-      border-radius: 16px;
-      padding: 18px;
-    }
-
-    .card h2 { margin-bottom: 12px; font-size: 1.15rem; }
-
-    .wallet-box { display: grid; gap: 12px; }
-
-    .wallet-row {
-      display: flex;
+      padding: 16px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--quantum), var(--nebula-2), var(--quantum), transparent);
+      opacity: 0.3;
+    }
+
+    .logo {
+      display: flex;
       align-items: center;
+      gap: 14px;
+      text-decoration: none;
     }
 
-    .address {
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9rem;
-      color: #b6f8d8;
-      word-break: break-all;
+    .logo-icon {
+      font-size: 2.4rem;
+      filter: drop-shadow(0 0 20px rgba(0,212,255,0.3));
+      animation: pulse-glow 3s ease-in-out infinite;
     }
 
-    .badge {
+    @keyframes pulse-glow {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(0,212,255,0.3)); }
+      50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); }
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--text-primary), var(--quantum), var(--nebula-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 40px rgba(0,212,255,0.2);
+    }
+
+    .logo-badge {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.5rem;
+      background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+      color: white;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      -webkit-text-fill-color: white;
+      box-shadow: 0 0 30px rgba(108,43,217,0.3);
+      animation: badge-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(108,43,217,0.3); }
+      50% { box-shadow: 0 0 60px rgba(255,107,157,0.4); }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.15);
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 0.65rem;
+      color: var(--quantum);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 1px;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: quantum-pulse 1.5s ease-in-out infinite;
+    }
+
+    .status-dot.active {
+      background: var(--green);
+      box-shadow: 0 0 20px rgba(40,247,154,0.5);
+    }
+
+    .status-dot.inactive {
+      background: var(--text-muted);
+      box-shadow: 0 0 20px rgba(74,106,138,0.3);
+    }
+
+    @keyframes quantum-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* ===== BOTONES ===== */
+    .btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      border: 1px solid var(--line);
-      background: #13231c;
-      color: var(--muted);
-    }
-
-    .badge.ok {
-      border-color: rgba(40, 247, 154, 0.5);
-      color: #8ff3c7;
-      background: #0e271d;
-    }
-
-    .counter {
-      display: grid;
       gap: 8px;
-      text-align: center;
-      background: rgba(40, 247, 154, 0.08);
-      border: 1px solid rgba(40, 247, 154, 0.32);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .counter .value {
-      font-size: 2.4rem;
-      line-height: 1;
-      font-weight: 800;
-      color: var(--green);
-      text-shadow: 0 0 22px rgba(40, 247, 154, 0.35);
-    }
-
-    .helper {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .actions {
-      display: grid;
-      gap: 10px;
-    }
-
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 0.95rem;
-      font-weight: 700;
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background: rgba(0,212,255,0.03);
+      color: var(--text-primary);
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
       cursor: pointer;
-      transition: transform .15s ease, opacity .15s ease;
+      transition: var(--transition);
+      text-decoration: none;
     }
 
-    button:hover { transform: translateY(-1px); }
-    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn:hover {
+      transform: scale(1.03);
+      border-color: var(--border-glow);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
 
     .btn-primary {
-      background: linear-gradient(135deg, #2efaa2, #1cd783);
+      background: linear-gradient(135deg, var(--green), #1cd783);
+      border-color: transparent;
       color: #04130b;
+      -webkit-text-fill-color: #04130b;
     }
 
-    .btn-secondary {
-      border: 1px solid var(--line);
-      background: #11221c;
-      color: #bafbd9;
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1cd783, #14b86f);
+      box-shadow: 0 0 40px rgba(40,247,154,0.3);
     }
 
-    .btn-redeem {
-      background: linear-gradient(135deg, #22ee94, #14b86f);
-      color: #042b18;
+    .btn-success {
+      background: linear-gradient(135deg, #00b894, #00897b);
+      border-color: transparent;
+      color: white;
+      -webkit-text-fill-color: white;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: linear-gradient(135deg, #00897b, #00695c);
+      box-shadow: 0 0 40px rgba(0,184,148,0.3);
     }
 
     .btn-danger {
-      background: #2c151c;
-      color: #ffabc0;
-      border: 1px solid #4a1d29;
+      background: rgba(255,51,102,0.15);
+      border-color: rgba(255,51,102,0.3);
+      color: var(--plasma);
     }
 
-    .status {
-      margin: 0 24px 24px;
-      border-radius: 12px;
-      padding: 12px 14px;
-      border: 1px solid var(--line);
-      background: #0f1d18;
-      color: var(--muted);
-      min-height: 44px;
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(255,51,102,0.25);
+      border-color: var(--plasma);
+    }
+
+    .btn-outline {
+      border-color: var(--border);
+      background: transparent;
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: rgba(0,212,255,0.05);
+      border-color: var(--quantum);
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.6rem;
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* ===== GRID ===== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== TARJETAS ===== */
+    .card {
+      background: rgba(10,20,40,0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--quantum), var(--nebula-1), var(--nebula-2), var(--quantum));
+      background-size: 300% 300%;
+      border-radius: var(--radius);
+      z-index: -1;
+      opacity: 0;
+      transition: var(--transition);
+      animation: border-flow 4s ease-in-out infinite;
+    }
+
+    @keyframes border-flow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card:hover::before {
+      opacity: 0.3;
+    }
+
+    .card-header {
       display: flex;
       align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .status.success {
-      border-color: rgba(40, 247, 154, 0.45);
-      color: #8ff3c7;
-      background: #0c241a;
+    .card-header i {
+      font-size: 1.5rem;
+      color: var(--quantum);
     }
 
-    .status.error {
-      border-color: rgba(255, 111, 145, 0.4);
-      color: #ffc2d0;
-      background: #2b141b;
+    .card-header h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--text-primary), var(--quantum));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .list {
-      display: grid;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .list li {
-      list-style: none;
-      border: 1px solid var(--line);
+    /* ===== WALLET ===== */
+    .wallet-address {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: rgba(8, 17, 13, 0.75);
-      padding: 10px 12px;
-      font-size: 0.88rem;
-      color: #a9d6be;
+      padding: 12px 16px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+      margin: 10px 0;
     }
 
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
+    .wallet-address.connected {
+      color: var(--green);
+      border-color: rgba(40,247,154,0.3);
+    }
+
+    .badge-network {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-family: 'Orbitron', monospace;
+      border: 1px solid var(--border);
+    }
+
+    .badge-network.success {
+      border-color: rgba(40,247,154,0.4);
+      color: var(--green);
+      background: rgba(40,247,154,0.08);
+    }
+
+    .badge-network.warning {
+      border-color: rgba(247,212,74,0.3);
+      color: var(--warning);
+      background: rgba(247,212,74,0.08);
+    }
+
+    .badge-network.error {
+      border-color: rgba(255,51,102,0.3);
+      color: var(--plasma);
+      background: rgba(255,51,102,0.08);
+    }
+
+    /* ===== TOK COUNTER ===== */
+    .tok-counter {
+      text-align: center;
+      background: rgba(40,247,154,0.06);
+      border: 1px solid rgba(40,247,154,0.2);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .tok-counter .value {
+      font-family: 'Orbitron', monospace;
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--green);
+      text-shadow: 0 0 40px rgba(40,247,154,0.3);
+    }
+
+    .tok-counter .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .tok-counter .hint {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    /* ===== STATUS ===== */
+    .status-message {
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 52px;
+    }
+
+    .status-message.success {
+      border-color: rgba(40,247,154,0.3);
+      color: var(--green);
+      background: rgba(40,247,154,0.06);
+    }
+
+    .status-message.error {
+      border-color: rgba(255,51,102,0.3);
+      color: var(--plasma);
+      background: rgba(255,51,102,0.06);
+    }
+
+    .status-message i {
+      font-size: 1.2rem;
+    }
+
+    /* ===== CONFIG ===== */
+    .config-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .config-item:last-child {
+      border-bottom: none;
+    }
+
+    .config-item .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.3px;
+    }
+
+    .config-item .value {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+
+    /* ===== EVENT LOG ===== */
+    .event-log {
+      display: grid;
+      gap: 6px;
+      margin-top: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .event-item {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.2);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .event-item .time {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+
+    .event-item.success {
+      border-color: rgba(40,247,154,0.2);
+      color: var(--green);
+    }
+
+    .event-item.error {
+      border-color: rgba(255,51,102,0.2);
+      color: var(--plasma);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      margin-top: 48px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: relative;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--quantum), transparent);
+      opacity: 0.2;
+    }
+
+    .footer-text {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.5px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      transition: var(--transition);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-links a:hover {
+      color: var(--quantum);
+    }
+
+    /* ===== ANIMACIONES ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .card {
+      animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .app {
+        padding: 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .logo-text {
+        font-size: 1.2rem;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tok-counter .value {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn {
+        font-size: 0.6rem;
+        padding: 8px 14px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .config-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div>
-        <h1>🟢 Panel Web3 Rewards (Polygon Amoy)</h1>
-        <p>Conecta wallet (desktop/móvil QR), suma TOKs por galleta y canjea NFT al umbral de 12 TOKs.</p>
+  <!-- ===== FONDO ESTELAR CON CANVAS ===== -->
+  <canvas id="stars-canvas"></canvas>
+  
+  <!-- ===== NEBULOSAS ===== -->
+  <div class="nebula nebula-1"></div>
+  <div class="nebula nebula-2"></div>
+  <div class="nebula nebula-3"></div>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <div class="app">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <a href="./index.html" class="logo">
+        <span class="logo-icon">🌌</span>
+        <span class="logo-text">Sariel's</span>
+        <span class="logo-badge">Fidelización</span>
+      </a>
+      <div class="header-actions">
+        <div class="status-badge">
+          <span class="status-dot inactive" id="statusDot"></span>
+          <span id="statusLabel">Desconectado</span>
+        </div>
+        <a href="./dashboard-central.html" class="btn">
+          <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="./panel-web3.html" class="btn">
+          <i class="fas fa-wallet"></i> Panel Web3
+        </a>
       </div>
-      <a class="back-link" href="dashboard-central.html">⬅ Volver al dashboard</a>
+    </header>
+
+    <!-- ===== STATUS MESSAGE ===== -->
+    <div class="status-message" id="statusMessage">
+      <i class="fas fa-info-circle"></i>
+      <span id="statusText">Listo para iniciar. Conecta una wallet para comenzar.</span>
     </div>
 
-    <div class="grid">
-      <section class="card">
-        <h2>👛 Conexión de billetera</h2>
-        <div class="wallet-box">
-          <div class="wallet-row">
-            <button id="btnConnect" class="btn-primary">Conectar wallet (QR móvil)</button>
-            <button id="btnDisconnect" class="btn-danger" disabled>Desconectar</button>
+    <!-- ===== GRID PRINCIPAL ===== -->
+    <div class="main-grid">
+      
+      <!-- ===== WALLET ===== -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-wallet"></i>
+          <h2>Conexión de Billetera</h2>
+        </div>
+        
+        <div class="wallet-address" id="walletAddress">Sin wallet conectada</div>
+        
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
+          <button id="btnConnect" class="btn btn-primary">
+            <i class="fas fa-plug"></i> Conectar Wallet
+          </button>
+          <button id="btnDisconnect" class="btn btn-danger" disabled>
+            <i class="fas fa-power-off"></i> Desconectar
+          </button>
+          <button id="btnSwitchNetwork" class="btn btn-outline btn-sm" disabled>
+            <i class="fas fa-exchange-alt"></i> Cambiar a Polygon Amoy
+          </button>
+        </div>
+        
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <span id="chainBadge" class="badge-network">Red no detectada</span>
+        </div>
+        
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:10px;">
+          <i class="fas fa-info-circle"></i> Se soporta wallet inyectada (desktop) y WalletConnect con QR (móvil).
+        </p>
+      </div>
+
+      <!-- ===== TOK REWARDS ===== -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-cookie-bite"></i>
+          <h2>TOK Rewards</h2>
+        </div>
+        
+        <div class="tok-counter">
+          <div class="value" id="tokBalance">0</div>
+          <div class="label">TOKs actuales</div>
+          <div class="hint" id="tokHint">Compra 12 galletas para desbloquear el canje NFT.</div>
+        </div>
+        
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button id="btnRegisterPurchase" class="btn btn-success btn-block" disabled>
+            <i class="fas fa-shopping-cart"></i> Registrar compra de galleta (+1 TOK)
+          </button>
+          <button id="btnRedeem" class="btn btn-primary btn-block" disabled>
+            <i class="fas fa-gem"></i> Canjear 12 TOKs y Mint NFT
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== CONFIGURACIÓN ===== -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-cog"></i>
+          <h2>Configuración On-Chain</h2>
+        </div>
+        
+        <div class="config-item">
+          <span class="label">Contrato NFT (Amoy)</span>
+          <span class="value" id="contractAddressLabel">No configurado</span>
+        </div>
+        <div class="config-item">
+          <span class="label">Admin / Regalías</span>
+          <span class="value">0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b</span>
+        </div>
+        <div class="config-item">
+          <span class="label">Royalty</span>
+          <span class="value">10% (ERC2981)</span>
+        </div>
+        <div class="config-item">
+          <span class="label">Red</span>
+          <span class="value">Polygon Amoy (Chain ID: 80002)</span>
+        </div>
+        <div class="config-item">
+          <span class="label">Umbral de Canje</span>
+          <span class="value">12 TOKs</span>
+        </div>
+      </div>
+
+      <!-- ===== EVENT LOG ===== -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-list-ul"></i>
+          <h2>Últimos Eventos</h2>
+        </div>
+        
+        <div class="event-log" id="eventLog">
+          <div class="event-item">
+            <span class="time">[Sistema]</span> Panel listo. Esperando conexión de billetera.
           </div>
-          <div id="walletAddress" class="address">Sin wallet conectada</div>
-          <div class="wallet-row">
-            <span id="chainBadge" class="badge">Red no detectada</span>
-            <button id="btnSwitchNetwork" class="btn-secondary" disabled>Cambiar a Polygon Amoy</button>
-          </div>
-          <p class="helper">Se soporta wallet inyectada (desktop) y WalletConnect con QR (móvil) como flujo estándar.</p>
         </div>
-      </section>
+      </div>
 
-      <section class="card">
-        <h2>🍪 TOK Rewards</h2>
-        <div class="counter">
-          <div>TOKs actuales (wallet conectada)</div>
-          <div id="tokBalance" class="value">0</div>
-          <div id="tokHint" class="helper">Compra 12 galletas para desbloquear el canje NFT.</div>
-        </div>
-
-        <div class="actions">
-          <button id="btnRegisterPurchase" class="btn-secondary" disabled>Registrar compra de galleta (+1 TOK)</button>
-          <button id="btnRedeem" class="btn-redeem" disabled>Canjear 12 TOKs y Mint NFT</button>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>⚙️ Configuración on-chain</h2>
-        <p class="helper">Contrato NFT (Amoy): <span id="contractAddressLabel" class="address" style="display:block; margin-top:8px;">No configurado</span></p>
-        <p class="helper" style="margin-top:10px;">Admin / regalías / autoridad: <span class="address" style="display:block; margin-top:8px;">0x8F742964244AE588dF7C5B2b27Ded374fDdAd69b</span></p>
-        <p class="helper" style="margin-top:10px;">Royalty: 10% (ERC2981)</p>
-      </section>
-
-      <section class="card">
-        <h2>📜 Últimos eventos</h2>
-        <ul id="eventLog" class="list"></ul>
-      </section>
     </div>
 
-    <div id="status" class="status">Listo para iniciar. Conecta una wallet para comenzar.</div>
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+      <span class="footer-text">
+        🌌 Sariel's Digital Assets — Fidelización TOK Rewards en Polygon Amoy
+      </span>
+      <div class="footer-links">
+        <a href="./dashboard-central.html">📊 Dashboard Central</a>
+        <a href="./registro-ventas-centralizado.html">📝 Registrar Venta</a>
+        <a href="./panel-web3.html">🔗 Panel Web3</a>
+      </div>
+    </footer>
   </div>
 
-  <script src="config.js"></script>
-  <script src="assets/vendor/ethers.umd.min.js"></script>
-  <script src="assets/vendor/web3modal.min.js"></script>
-  <script src="assets/vendor/walletconnect-web3-provider.min.js"></script>
+  <!-- ===== SCRIPTS ===== -->
+  <script src="./config.js"></script>
+  <script src="./assets/vendor/ethers.umd.min.js"></script>
+  <script src="./assets/vendor/web3modal.min.js"></script>
+  <script src="./assets/vendor/walletconnect-web3-provider.min.js"></script>
+  
   <script>
+    // ===== SISTEMA ESTELAR =====
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🌌 Sariel\'s Digital Assets - Fidelización TOK Rewards');
+      initStars();
+      initApp();
+    });
+
+    // ===== ESTRELLAS Y METEORITOS =====
+    function initStars() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let stars = [];
+      let meteors = [];
+      
+      const STAR_COUNT = 300;
+      const METEOR_COUNT = 3;
+      
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      
+      function createStars() {
+        stars = [];
+        for (let i = 0; i < STAR_COUNT; i++) {
+          stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 1.8 + 0.3,
+            speed: Math.random() * 0.02 + 0.005,
+            opacity: Math.random() * 0.8 + 0.2,
+            twinkleSpeed: Math.random() * 0.02 + 0.01,
+            twinklePhase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+      
+      function createMeteor() {
+        return {
+          x: Math.random() * width * 0.8,
+          y: Math.random() * height * 0.3,
+          speed: Math.random() * 3 + 4,
+          angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.6 + 0.4,
+          active: true,
+          trail: []
+        };
+      }
+      
+      function initMeteors() {
+        meteors = [];
+        for (let i = 0; i < METEOR_COUNT; i++) {
+          const meteor = createMeteor();
+          meteor.x = Math.random() * width;
+          meteor.y = Math.random() * height * 0.2;
+          meteors.push(meteor);
+        }
+      }
+      
+      function updateStars() {
+        for (let star of stars) {
+          star.twinklePhase += star.twinkleSpeed;
+          star.y += star.speed;
+          if (star.y > height) {
+            star.y = 0;
+            star.x = Math.random() * width;
+          }
+        }
+      }
+      
+      function updateMeteors() {
+        for (let meteor of meteors) {
+          if (!meteor.active) continue;
+          meteor.x += Math.cos(meteor.angle) * meteor.speed;
+          meteor.y += Math.sin(meteor.angle) * meteor.speed;
+          meteor.trail.push({ x: meteor.x, y: meteor.y });
+          if (meteor.trail.length > 20) meteor.trail.shift();
+          if (meteor.x > width + 100 || meteor.y > height + 100) {
+            meteor.active = false;
+            setTimeout(() => {
+              const newMeteor = createMeteor();
+              newMeteor.x = Math.random() * width * 0.3;
+              newMeteor.y = Math.random() * height * 0.2;
+              Object.assign(meteor, newMeteor);
+              meteor.active = true;
+            }, Math.random() * 3000 + 2000);
+          }
+        }
+      }
+      
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        
+        for (let star of stars) {
+          const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.fill();
+          if (star.radius > 1.2) {
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+        }
+        
+        for (let meteor of meteors) {
+          if (!meteor.active) continue;
+          for (let i = 0; i < meteor.trail.length; i++) {
+            const point = meteor.trail[i];
+            const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
+            const radius = (i / meteor.trail.length) * 2;
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
+            ctx.fill();
+          }
+          const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
+          gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+          gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
+          gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+          ctx.beginPath();
+          ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+          ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
+          ctx.shadowBlur = 30;
+          ctx.beginPath();
+          ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+      
+      function animate() {
+        updateStars();
+        updateMeteors();
+        draw();
+        requestAnimationFrame(animate);
+      }
+      
+      resize();
+      createStars();
+      initMeteors();
+      animate();
+      
+      window.addEventListener('resize', () => {
+        resize();
+        createStars();
+      });
+    }
+
+    // ===== APP PRINCIPAL =====
     const APP = {
       provider: null,
       web3Provider: null,
@@ -304,20 +1040,42 @@
       ]
     };
 
-    const CHAIN_ID = Number(CONFIG?.WEB3_REWARDS?.CHAIN?.ID || 80002);
-    const CHAIN_HEX = CONFIG?.WEB3_REWARDS?.CHAIN?.HEX_ID || '0x13882';
-    const CHAIN_NAME = CONFIG?.WEB3_REWARDS?.CHAIN?.NAME || 'Polygon Amoy';
-    const RPC_URL = CONFIG?.WEB3_REWARDS?.CHAIN?.RPC_URL || 'https://rpc-amoy.polygon.technology';
-    const EXPLORER = CONFIG?.WEB3_REWARDS?.CHAIN?.EXPLORER || 'https://amoy.polygonscan.com';
-    const UMBRAL = Number(CONFIG?.WEB3_REWARDS?.TOKS_UMBRAL_CANJE || 12);
-    const CONTRACT_ADDRESS = CONFIG?.WEB3_REWARDS?.REWARD_NFT_ADDRESS || '';
-    const WALLETCONNECT_PROJECT_ID = CONFIG?.WEB3_REWARDS?.WALLETCONNECT_PROJECT_ID || '';
+    const CONFIG_WEB3 = {
+      CHAIN_ID: 80002,
+      CHAIN_HEX: '0x13882',
+      CHAIN_NAME: 'Polygon Amoy',
+      RPC_URL: 'https://rpc-amoy.polygon.technology',
+      EXPLORER: 'https://amoy.polygonscan.com',
+      UMBRAL: 12,
+      CONTRACT_ADDRESS: CONFIG?.WEB3_REWARDS?.REWARD_NFT_ADDRESS || '',
+      WALLETCONNECT_PROJECT_ID: CONFIG?.WEB3_REWARDS?.WALLETCONNECT_PROJECT_ID || ''
+    };
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // ===== DOM REFS =====
+    const DOM = {
+      walletAddress: document.getElementById('walletAddress'),
+      chainBadge: document.getElementById('chainBadge'),
+      tokBalance: document.getElementById('tokBalance'),
+      tokHint: document.getElementById('tokHint'),
+      statusText: document.getElementById('statusText'),
+      statusMessage: document.getElementById('statusMessage'),
+      statusDot: document.getElementById('statusDot'),
+      statusLabel: document.getElementById('statusLabel'),
+      eventLog: document.getElementById('eventLog'),
+      contractAddress: document.getElementById('contractAddressLabel'),
+      btnConnect: document.getElementById('btnConnect'),
+      btnDisconnect: document.getElementById('btnDisconnect'),
+      btnSwitchNetwork: document.getElementById('btnSwitchNetwork'),
+      btnRegisterPurchase: document.getElementById('btnRegisterPurchase'),
+      btnRedeem: document.getElementById('btnRedeem')
+    };
+
+    // ===== INIT =====
+    function initApp() {
       initModal();
       bindEvents();
       renderBaseState();
-    });
+    }
 
     function initModal() {
       if (!window.Web3Modal?.default) {
@@ -331,9 +1089,9 @@
           walletconnect: {
             package: window.WalletConnectProvider?.default || window.WalletConnectProvider,
             options: {
-              projectId: WALLETCONNECT_PROJECT_ID,
-              rpc: { [CHAIN_ID]: RPC_URL },
-              chainId: CHAIN_ID,
+              projectId: CONFIG_WEB3.WALLETCONNECT_PROJECT_ID,
+              rpc: { [CONFIG_WEB3.CHAIN_ID]: CONFIG_WEB3.RPC_URL },
+              chainId: CONFIG_WEB3.CHAIN_ID,
               qrcode: true,
               showQrModal: true
             }
@@ -344,26 +1102,27 @@
     }
 
     function bindEvents() {
-      document.getElementById('btnConnect').addEventListener('click', connectWallet);
-      document.getElementById('btnDisconnect').addEventListener('click', disconnectWallet);
-      document.getElementById('btnSwitchNetwork').addEventListener('click', switchToAmoy);
-      document.getElementById('btnRegisterPurchase').addEventListener('click', registerCookiePurchase);
-      document.getElementById('btnRedeem').addEventListener('click', redeemAndMint);
+      DOM.btnConnect.addEventListener('click', connectWallet);
+      DOM.btnDisconnect.addEventListener('click', disconnectWallet);
+      DOM.btnSwitchNetwork.addEventListener('click', switchToAmoy);
+      DOM.btnRegisterPurchase.addEventListener('click', registerCookiePurchase);
+      DOM.btnRedeem.addEventListener('click', redeemAndMint);
     }
 
     function renderBaseState() {
-      const label = CONTRACT_ADDRESS && /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS)
-        ? CONTRACT_ADDRESS
+      const label = CONFIG_WEB3.CONTRACT_ADDRESS && /^0x[a-fA-F0-9]{40}$/.test(CONFIG_WEB3.CONTRACT_ADDRESS)
+        ? CONFIG_WEB3.CONTRACT_ADDRESS
         : 'No configurado (actualiza CONFIG.WEB3_REWARDS.REWARD_NFT_ADDRESS)';
-      document.getElementById('contractAddressLabel').textContent = label;
+      DOM.contractAddress.textContent = label;
 
       addLog('Panel listo. Esperando conexión de billetera.');
-      if (!WALLETCONNECT_PROJECT_ID || WALLETCONNECT_PROJECT_ID === 'YOUR_WALLETCONNECT_PROJECT_ID') {
+      if (!CONFIG_WEB3.WALLETCONNECT_PROJECT_ID || CONFIG_WEB3.WALLETCONNECT_PROJECT_ID === 'YOUR_WALLETCONNECT_PROJECT_ID') {
         addLog('Configura WALLETCONNECT_PROJECT_ID para conexión QR móvil en producción.');
       }
       updateUI();
     }
 
+    // ===== WALLET =====
     async function connectWallet() {
       try {
         if (!APP.web3Modal) initModal();
@@ -410,18 +1169,18 @@
       try {
         await APP.provider.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: CHAIN_HEX }]
+          params: [{ chainId: CONFIG_WEB3.CHAIN_HEX }]
         });
       } catch (switchError) {
         if (switchError?.code === 4902) {
           await APP.provider.request({
             method: 'wallet_addEthereumChain',
             params: [{
-              chainId: CHAIN_HEX,
-              chainName: CHAIN_NAME,
+              chainId: CONFIG_WEB3.CHAIN_HEX,
+              chainName: CONFIG_WEB3.CHAIN_NAME,
               nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-              rpcUrls: [RPC_URL],
-              blockExplorerUrls: [EXPLORER]
+              rpcUrls: [CONFIG_WEB3.RPC_URL],
+              blockExplorerUrls: [CONFIG_WEB3.EXPLORER]
             }]
           });
         } else {
@@ -461,6 +1220,7 @@
       APP.provider.on('disconnect', APP.providerListeners.disconnect);
     }
 
+    // ===== STATE MANAGEMENT =====
     function readState() {
       try {
         return JSON.parse(localStorage.getItem(APP.storageKey) || '{}');
@@ -497,21 +1257,22 @@
       writeState(state);
     }
 
+    // ===== ACTIONS =====
     function registerCookiePurchase() {
       if (!APP.walletAddress) return;
       const ws = getWalletState(APP.walletAddress);
 
-      if (ws.toks >= UMBRAL) {
-        setStatus(`Ya alcanzaste ${UMBRAL} TOKs. Canjea primero para evitar doble umbral.`, 'error');
+      if (ws.toks >= CONFIG_WEB3.UMBRAL) {
+        setStatus(`Ya alcanzaste ${CONFIG_WEB3.UMBRAL} TOKs. Canjea primero para evitar doble umbral.`, 'error');
         return;
       }
 
       ws.toks += Number(CONFIG?.WEB3_REWARDS?.TOKS_POR_GALLETA || 1);
       ws.purchases += 1;
 
-      if (ws.toks === UMBRAL) {
+      if (ws.toks === CONFIG_WEB3.UMBRAL) {
         ws.thresholdCycle += 1;
-        addLog(`Umbral de ${UMBRAL} TOKs alcanzado para ${shortAddress(APP.walletAddress)}.`);
+        addLog(`Umbral de ${CONFIG_WEB3.UMBRAL} TOKs alcanzado para ${shortAddress(APP.walletAddress)}.`);
       }
 
       saveWalletState(APP.walletAddress, ws);
@@ -524,8 +1285,8 @@
 
       const ws = getWalletState(APP.walletAddress);
 
-      if (ws.toks !== UMBRAL) {
-        setStatus(`El canje se habilita exactamente en ${UMBRAL} TOKs.`, 'error');
+      if (ws.toks !== CONFIG_WEB3.UMBRAL) {
+        setStatus(`El canje se habilita exactamente en ${CONFIG_WEB3.UMBRAL} TOKs.`, 'error');
         return;
       }
 
@@ -534,12 +1295,12 @@
         return;
       }
 
-      if (!/^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS)) {
+      if (!/^0x[a-fA-F0-9]{40}$/.test(CONFIG_WEB3.CONTRACT_ADDRESS)) {
         setStatus('Configura la dirección del contrato NFT en CONFIG.WEB3_REWARDS.REWARD_NFT_ADDRESS.', 'error');
         return;
       }
 
-      if (APP.chainId !== CHAIN_ID) {
+      if (APP.chainId !== CONFIG_WEB3.CHAIN_ID) {
         setStatus('Debes estar en Polygon Amoy para canjear y mintear.', 'error');
         return;
       }
@@ -548,7 +1309,7 @@
       updateUI();
 
       try {
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, APP.contractAbi, APP.signer);
+        const contract = new ethers.Contract(CONFIG_WEB3.CONTRACT_ADDRESS, APP.contractAbi, APP.signer);
         const tx = await contract.mintReward(APP.walletAddress);
         const receipt = await tx.wait();
 
@@ -568,65 +1329,85 @@
       }
     }
 
+    // ===== UI UPDATE =====
     function updateUI() {
       const connected = !!APP.walletAddress;
       const ws = connected
         ? getWalletState(APP.walletAddress)
         : { toks: 0, thresholdCycle: 0, lastRedeemedCycle: 0 };
 
-      const isAmoy = APP.chainId === CHAIN_ID;
-      const canRedeem = connected && isAmoy && !APP.mintInFlight && ws.toks === UMBRAL && ws.lastRedeemedCycle < ws.thresholdCycle;
-      const canRegisterPurchase = connected && isAmoy && ws.toks < UMBRAL && !APP.mintInFlight;
+      const isAmoy = APP.chainId === CONFIG_WEB3.CHAIN_ID;
+      const canRedeem = connected && isAmoy && !APP.mintInFlight && ws.toks === CONFIG_WEB3.UMBRAL && ws.lastRedeemedCycle < ws.thresholdCycle;
+      const canRegisterPurchase = connected && isAmoy && ws.toks < CONFIG_WEB3.UMBRAL && !APP.mintInFlight;
 
-      document.getElementById('walletAddress').textContent = connected ? APP.walletAddress : 'Sin wallet conectada';
-      document.getElementById('tokBalance').textContent = String(ws.toks || 0);
+      // Wallet
+      DOM.walletAddress.textContent = connected ? APP.walletAddress : 'Sin wallet conectada';
+      DOM.walletAddress.className = `wallet-address${connected ? ' connected' : ''}`;
 
-      document.getElementById('btnConnect').disabled = connected;
-      document.getElementById('btnDisconnect').disabled = !connected;
-      document.getElementById('btnRegisterPurchase').disabled = !canRegisterPurchase;
-      document.getElementById('btnRedeem').disabled = !canRedeem;
-      document.getElementById('btnSwitchNetwork').disabled = !connected || isAmoy;
+      // TOKs
+      DOM.tokBalance.textContent = String(ws.toks || 0);
 
-      const chainBadge = document.getElementById('chainBadge');
+      // Hint
+      const faltantes = Math.max(0, CONFIG_WEB3.UMBRAL - Number(ws.toks || 0));
+      const hint = ws.toks === CONFIG_WEB3.UMBRAL
+        ? `¡Listo! Tienes exactamente ${CONFIG_WEB3.UMBRAL} TOKs. Ya puedes canjear y mintear.`
+        : `Faltan ${faltantes} TOKs para desbloquear canje.`;
+      DOM.tokHint.textContent = hint;
+
+      // Botones
+      DOM.btnConnect.disabled = connected;
+      DOM.btnDisconnect.disabled = !connected;
+      DOM.btnRegisterPurchase.disabled = !canRegisterPurchase;
+      DOM.btnRedeem.disabled = !canRedeem;
+      DOM.btnSwitchNetwork.disabled = !connected || isAmoy;
+
+      // Chain badge
       if (!connected) {
-        chainBadge.textContent = 'Red no detectada';
-        chainBadge.className = 'badge';
+        DOM.chainBadge.textContent = '🔴 Red no detectada';
+        DOM.chainBadge.className = 'badge-network error';
       } else if (isAmoy) {
-        chainBadge.textContent = '✅ Polygon Amoy conectada';
-        chainBadge.className = 'badge ok';
+        DOM.chainBadge.textContent = '✅ Polygon Amoy conectada';
+        DOM.chainBadge.className = 'badge-network success';
       } else {
-        chainBadge.textContent = `⚠️ Red actual: chainId ${APP.chainId || 'N/A'}`;
-        chainBadge.className = 'badge';
+        DOM.chainBadge.textContent = `⚠️ Red actual: chainId ${APP.chainId || 'N/A'}`;
+        DOM.chainBadge.className = 'badge-network warning';
       }
 
-      const faltantes = Math.max(0, UMBRAL - Number(ws.toks || 0));
-      const hint = ws.toks === UMBRAL
-        ? `¡Listo! Tienes exactamente ${UMBRAL} TOKs. Ya puedes canjear y mintear.`
-        : `Faltan ${faltantes} TOKs para desbloquear canje.`;
-      document.getElementById('tokHint').textContent = hint;
+      // Status dot
+      DOM.statusDot.className = `status-dot${connected ? ' active' : ' inactive'}`;
+      DOM.statusLabel.textContent = connected ? 'Conectado' : 'Desconectado';
     }
 
+    // ===== HELPERS =====
     function shortAddress(address) {
       if (!address) return '';
       return `${address.slice(0, 6)}...${address.slice(-4)}`;
     }
 
     function addLog(message) {
-      const list = document.getElementById('eventLog');
-      const item = document.createElement('li');
-      const timestamp = new Date().toLocaleString('es-MX');
-      item.textContent = `[${timestamp}] ${message}`;
-      list.prepend(item);
+      const item = document.createElement('div');
+      const timestamp = new Date().toLocaleTimeString('es-MX');
+      item.className = 'event-item';
+      item.innerHTML = `<span class="time">[${timestamp}]</span> ${message}`;
+      DOM.eventLog.prepend(item);
 
-      while (list.children.length > 8) {
-        list.removeChild(list.lastChild);
+      while (DOM.eventLog.children.length > 10) {
+        DOM.eventLog.removeChild(DOM.eventLog.lastChild);
       }
     }
 
     function setStatus(message, type = '') {
-      const el = document.getElementById('status');
-      el.textContent = message;
-      el.className = `status ${type}`.trim();
+      DOM.statusText.textContent = message;
+      DOM.statusMessage.className = `status-message${type ? ' ' + type : ''}`;
+      
+      const icon = DOM.statusMessage.querySelector('i');
+      if (type === 'success') {
+        icon.className = 'fas fa-check-circle';
+      } else if (type === 'error') {
+        icon.className = 'fas fa-exclamation-circle';
+      } else {
+        icon.className = 'fas fa-info-circle';
+      }
     }
   </script>
 </body>
