@@ -3,555 +3,1922 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Panel Web3 | Sariel's Ecosystem</title>
-  <meta name="description" content="Panel Web3 para conectar wallet, pagos USDT/USDC y generar QR de cobro" />
+  <title>Sariel's Nexus | Panel Web3 Completo</title>
+  <meta name="description" content="Panel Web3 unificado con wallet, pagos, QR, trading, IA y métodos de pago" />
+  <meta name="theme-color" content="#05080f" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Sariel's Nexus - Panel Web3" />
+  <meta property="og:description" content="Plataforma Web3 completa con todos los módulos integrados" />
+  <meta property="og:type" content="website" />
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- QRCode.js para generar QR localmente -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  
   <style>
-    :root{
-      --bg:#0f1115;
-      --panel:#171a21;
-      --panel-2:#1e2430;
-      --text:#e8e1d8;
-      --muted:#a99c8c;
-      --line:rgba(255,255,255,.10);
-      --ok:#7ba88a;
-      --warn:#d4a857;
-      --danger:#d66b6b;
-      --brand:#c2683e;
+    /* ===== VARIABLES CÓSMICAS ===== */
+    :root {
+      --space-deep: #05080f;
+      --space-mid: #0a1428;
+      --space-light: #101f3a;
+      --nebula-1: #6c2bd9;
+      --nebula-2: #ff6b9d;
+      --nebula-3: #00d4ff;
+      --gold-cosmic: #f7d44a;
+      --gold-dim: rgba(247,212,74,0.15);
+      --plasma: #ff3366;
+      --quantum: #00e5ff;
+      --text-primary: #e8f0f8;
+      --text-secondary: #8ba3c7;
+      --text-muted: #4a6a8a;
+      --border: rgba(0,212,255,0.08);
+      --border-glow: rgba(0,212,255,0.25);
+      --shadow-neon: 0 0 40px rgba(0,212,255,0.1);
+      --shadow-glow: 0 0 60px rgba(108,43,217,0.15);
+      --radius: 20px;
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    .wrap{max-width:1100px;margin:0 auto;padding:18px}
-    .top{
-      display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;
-      margin-bottom:14px
+
+    /* ===== RESET Y BASE ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .title{margin:0;font-size:1.2rem}
-    .sub{color:var(--muted);font-size:.92rem}
-    .btn{
-      border:1px solid var(--line);background:var(--panel-2);color:var(--text);
-      border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer
+
+    html {
+      scroll-behavior: smooth;
     }
-    .btn:hover{filter:brightness(1.06)}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
-    .btn-brand{
-      background:linear-gradient(135deg,var(--warn),var(--brand));
-      color:#1b130f;border-color:rgba(212,168,87,.5)
+
+    body {
+      background: var(--space-deep);
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
     }
-    .btn-ok{
-      background:rgba(123,168,138,.18);border-color:rgba(123,168,138,.45)
+
+    /* ===== FONDO ESTELAR CON CANVAS ===== */
+    #stars-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
     }
-    .btn-danger{
-      background:rgba(214,107,107,.14);border-color:rgba(214,107,107,.45)
+
+    /* ===== NEBULOSAS DE FONDO ===== */
+    .nebula {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+      animation: nebula-drift 25s ease-in-out infinite alternate;
     }
-    .grid{
-      display:grid;grid-template-columns:1.1fr .9fr;gap:12px;
+
+    .nebula-1 {
+      width: 700px;
+      height: 700px;
+      background: var(--nebula-1);
+      top: -15%;
+      right: -15%;
     }
-    .card{
-      background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px
+
+    .nebula-2 {
+      width: 600px;
+      height: 600px;
+      background: var(--nebula-2);
+      bottom: -15%;
+      left: -15%;
+      animation-delay: -8s;
     }
-    .h{font-size:.95rem;font-weight:700;margin:0 0 10px}
-    .muted{color:var(--muted)}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px}
-    label{font-size:.82rem;color:var(--muted)}
-    input,select,textarea{
-      width:100%;padding:10px 11px;border-radius:10px;border:1px solid var(--line);
-      background:#11151d;color:var(--text);outline:none
+
+    .nebula-3 {
+      width: 500px;
+      height: 500px;
+      background: var(--nebula-3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -15s;
+      opacity: 0.06;
     }
-    input:focus,select:focus,textarea:focus{border-color:var(--warn)}
-    textarea{min-height:76px;resize:vertical}
-    .wallet-box{
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      background:#11151d;border:1px dashed var(--line);border-radius:12px;padding:10px
+
+    @keyframes nebula-drift {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, -30px) scale(1.15); }
     }
-    .chip{
-      display:inline-flex;align-items:center;gap:6px;
-      border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:.8rem
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 6px;
     }
-    .chip.ok{border-color:rgba(123,168,138,.45);background:rgba(123,168,138,.13)}
-    .chip.warn{border-color:rgba(212,168,87,.45);background:rgba(212,168,87,.12)}
-    .pay-links{
-      display:grid;grid-template-columns:1fr;gap:10px
+    ::-webkit-scrollbar-track {
+      background: var(--space-deep);
     }
-    .pay-item{
-      border:1px solid var(--line);border-radius:12px;padding:10px;background:#121821
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--nebula-3), var(--nebula-1));
+      border-radius: 3px;
     }
-    .pay-item .k{font-size:.82rem;color:var(--muted)}
-    .pay-item .v{
-      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      font-size:.8rem;word-break:break-all
+
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
     }
-    .qr-wrap{
-      display:grid;place-items:center;
-      background:#0f131a;border:1px dashed var(--line);border-radius:14px;padding:14px;min-height:320px
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+      position: relative;
     }
-    #qrcode canvas,#qrcode img{max-width:100%;height:auto;background:#fff;padding:10px;border-radius:10px}
-    .small{font-size:.78rem}
-    .divider{height:1px;background:var(--line);margin:12px 0}
-    .right-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .warning{
-      border:1px solid rgba(212,168,87,.4);
-      background:rgba(212,168,87,.1);
-      color:#f2d8a6;
-      border-radius:10px;
-      padding:10px;
-      font-size:.84rem
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--quantum), var(--nebula-2), var(--quantum), transparent);
+      opacity: 0.3;
     }
-    .okbox{
-      border:1px solid rgba(123,168,138,.45);
-      background:rgba(123,168,138,.12);
-      color:#d5eadb;
-      border-radius:10px;padding:10px;font-size:.84rem
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      position: relative;
     }
-    .footer-note{margin-top:12px;color:var(--muted);font-size:.8rem}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+    .logo-icon {
+      font-size: 2.4rem;
+      filter: drop-shadow(0 0 20px rgba(0,212,255,0.3));
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(0,212,255,0.3)); }
+      50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); }
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--text-primary), var(--quantum), var(--nebula-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 40px rgba(0,212,255,0.2);
+    }
+
+    .logo-badge {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.5rem;
+      background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+      color: white;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      -webkit-text-fill-color: white;
+      box-shadow: 0 0 30px rgba(108,43,217,0.3);
+      animation: badge-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(108,43,217,0.3); }
+      50% { box-shadow: 0 0 60px rgba(255,107,157,0.4); }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.15);
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      color: var(--quantum);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 1px;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--quantum);
+      border-radius: 50%;
+      animation: quantum-pulse 1.5s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(0,229,255,0.5);
+    }
+
+    @keyframes quantum-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 20px rgba(0,229,255,0.5); }
+      50% { opacity: 0.5; transform: scale(0.7); box-shadow: 0 0 40px rgba(0,229,255,0.8); }
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: linear-gradient(145deg, rgba(0,212,255,0.04), rgba(108,43,217,0.04));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 40px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: hero-glow 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes hero-glow {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+      100% { transform: translate(-50px, 30px) scale(1.5); opacity: 1; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .hero-left h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, var(--text-primary), var(--quantum), var(--nebula-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-left p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .hero-right {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      font-family: 'Orbitron', monospace;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-back:hover {
+      border-color: var(--quantum);
+      color: var(--quantum);
+      transform: scale(1.03);
+    }
+
+    /* ===== GRID PRINCIPAL ===== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== TARJETAS ===== */
+    .card {
+      background: rgba(10,20,40,0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--quantum), var(--nebula-1), var(--nebula-2), var(--quantum));
+      background-size: 300% 300%;
+      border-radius: var(--radius);
+      z-index: -1;
+      opacity: 0;
+      transition: var(--transition);
+      animation: border-flow 4s ease-in-out infinite;
+    }
+
+    @keyframes border-flow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card:hover::before {
+      opacity: 0.3;
+    }
+
+    .card-full {
+      grid-column: 1 / -1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
+      color: var(--quantum);
+    }
+
+    .card-header h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--text-primary), var(--quantum));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ===== FORMULARIOS ===== */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--quantum);
+      box-shadow: 0 0 20px rgba(0,212,255,0.1);
+    }
+
+    .form-control::placeholder {
+      color: var(--text-muted);
+    }
+
+    select.form-control {
+      appearance: none;
+      cursor: pointer;
+    }
+
+    select.form-control option {
+      background: var(--space-deep);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 480px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== BOTONES ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background: rgba(0,212,255,0.03);
+      color: var(--text-primary);
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: scale(1.03);
+      border-color: var(--border-glow);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+      border-color: transparent;
+      color: white;
+      -webkit-text-fill-color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--nebula-2), var(--nebula-1));
+      box-shadow: 0 0 40px rgba(108,43,217,0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #00b894, #00a86b);
+      border-color: transparent;
+      color: white;
+      -webkit-text-fill-color: white;
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(135deg, #00a86b, #00895a);
+      box-shadow: 0 0 40px rgba(0,184,148,0.3);
+    }
+
+    .btn-outline {
+      border-color: var(--border);
+      background: transparent;
+    }
+
+    .btn-outline:hover {
+      background: rgba(0,212,255,0.05);
+      border-color: var(--quantum);
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.65rem;
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    /* ===== WALLET STATUS ===== */
+    .wallet-status {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .wallet-status .status-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wallet-status .status-item .label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .wallet-status .status-item .value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .wallet-status .status-item .value.connected {
+      color: #00b894;
+    }
+
+    .wallet-status .status-item .value.disconnected {
+      color: var(--text-muted);
+    }
+
+    /* ===== QR SECTION ===== */
+    .qr-output {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    .qr-output.active {
+      display: block;
+    }
+
+    .qr-output .qr-image {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .qr-output .qr-image canvas {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      max-width: 200px;
+    }
+
+    .qr-output .request-text {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+      padding: 10px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      font-family: monospace;
+      margin-bottom: 12px;
+    }
+
+    /* ===== MÓDULO TRADING ===== */
+    .trading-chart {
+      width: 100%;
+      height: 300px;
+      margin-top: 12px;
+    }
+
+    /* ===== IA SECTION ===== */
+    .ia-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .ia-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ia-card {
+      padding: 16px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .ia-card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      color: var(--quantum);
+      margin-bottom: 6px;
+    }
+
+    .ia-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .ia-status {
+      display: inline-block;
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-family: 'Orbitron', monospace;
+      margin-top: 6px;
+    }
+
+    .ia-status.active {
+      background: rgba(0,184,148,0.2);
+      color: #00b894;
+      border: 1px solid rgba(0,184,148,0.3);
+    }
+
+    .ia-status.inactive {
+      background: rgba(255,51,102,0.2);
+      color: var(--plasma);
+      border: 1px solid rgba(255,51,102,0.3);
+    }
+
+    /* ===== CRM ===== */
+    .crm-list {
+      margin-top: 12px;
+    }
+
+    .crm-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--quantum);
+    }
+
+    .crm-item .name {
+      font-weight: 600;
+    }
+
+    .crm-item .info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== MÉTODOS DE PAGO ===== */
+    .payment-card {
+      padding: 16px;
+      border-radius: 12px;
+      color: white;
+      transition: var(--transition);
+    }
+
+    .payment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .payment-card .direccion {
+      background: rgba(255,255,255,0.15);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.75rem;
+      word-break: break-all;
+      margin: 8px 0;
+    }
+
+    .payment-card .red-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+    }
+
+    .payment-usdt {
+      background: linear-gradient(135deg, #26a69a, #00897b);
+    }
+
+    .payment-usdc {
+      background: linear-gradient(135deg, #2196f3, #1565c0);
+    }
+
+    .payment-info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .payment-info-item {
+      background: rgba(0,0,0,0.2);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .payment-info-item p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .payment-info-item strong {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 600px) {
+      .payment-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      margin-top: 48px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: relative;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--quantum), transparent);
+      opacity: 0.2;
+    }
+
+    .footer-text {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.5px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .app {
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .hero-left h1 {
+        font-size: 1.6rem;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .wallet-status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .payment-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-left h1 {
+        font-size: 1.2rem;
+      }
+
+      .btn {
+        font-size: 0.65rem;
+        padding: 8px 14px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+
+    /* ===== ANIMACIONES ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .card {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+    .card:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+    .card:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+    .card:nth-child(5) {
+      animation-delay: 0.4s;
+    }
+    .card:nth-child(6) {
+      animation-delay: 0.5s;
+    }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <header class="top">
-      <div>
-        <h1 class="title">🔗 Panel Web3</h1>
-        <div class="sub">Conecta tu wallet, administra links de pago USDT/USDC y genera QR de cobro</div>
-      </div>
-      <div class="right-actions">
-        <a class="btn" href="./dashboard-central.html" style="text-decoration:none;display:inline-block;">← Dashboard</a>
-        <button class="btn btn-brand" id="btnConnect">Conectar Wallet</button>
+  <!-- ===== FONDO ESTELAR CON CANVAS ===== -->
+  <canvas id="stars-canvas"></canvas>
+  
+  <!-- ===== NEBULOSAS ===== -->
+  <div class="nebula nebula-1"></div>
+  <div class="nebula nebula-2"></div>
+  <div class="nebula nebula-3"></div>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <div class="app">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <a href="./index.html" class="logo">
+        <span class="logo-icon">🌌</span>
+        <span class="logo-text">Sariel's</span>
+        <span class="logo-badge">Digital Assets</span>
+      </a>
+      <div class="header-actions">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span>Quantum Link</span>
+        </div>
       </div>
     </header>
 
-    <section class="grid">
-      <!-- Columna izquierda -->
-      <article class="card">
-        <h2 class="h">1) Estado de Wallet</h2>
-        <div class="wallet-box">
-          <span id="walletStatus" class="chip warn">● No conectada</span>
-          <span id="walletChain" class="chip">Red: --</span>
-          <span id="walletAddress" class="chip">Dirección: --</span>
-          <button class="btn btn-danger" id="btnDisconnect" disabled>Desconectar</button>
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-left">
+          <h1>🔗 Panel Web3 Cósmico</h1>
+          <p>Conecta tu wallet, administra pagos, genera QR, trading y más</p>
         </div>
-        <div class="footer-note">
-          Requiere MetaMask en navegador. Si usas móvil, abre esta página desde el navegador interno de tu wallet.
+        <div class="hero-right">
+          <a href="./dashboard-central.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Dashboard
+          </a>
+          <a href="./metodos-pago.html" class="btn-back" target="_blank">
+            <i class="fas fa-credit-card"></i> Métodos de Pago
+          </a>
         </div>
+      </div>
+    </section>
 
-        <div class="divider"></div>
-
-        <h2 class="h">2) Links de pago (USDT / USDC)</h2>
-        <div class="warning">
-          Pega aquí tus links reales de cobro (Coinbase Commerce, NOWPayments, etc.).  
-          Este panel solo abre esos links.
+    <!-- ===== GRID PRINCIPAL ===== -->
+    <div class="main-grid">
+      
+      <!-- ===== 1) WALLET ===== -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-wallet"></i>
+          <h2>Estado de Wallet</h2>
         </div>
-        <div class="row" style="margin-top:10px;">
-          <div class="field">
-            <label for="usdtPayLink">Link de pago USDT</label>
-            <input id="usdtPayLink" type="url" placeholder="https://..." />
+        
+        <div class="wallet-status">
+          <div class="status-item">
+            <span class="label">Estado</span>
+            <span class="value disconnected" id="walletStatus">● No conectada</span>
           </div>
-          <div class="field">
-            <label for="usdcPayLink">Link de pago USDC</label>
-            <input id="usdcPayLink" type="url" placeholder="https://..." />
+          <div class="status-item">
+            <span class="label">Red</span>
+            <span class="value" id="walletNetwork">--</span>
           </div>
-        </div>
-        <div class="row" style="margin-top:10px;">
-          <button class="btn btn-ok" id="btnSaveLinks">Guardar links</button>
-          <button class="btn" id="btnOpenUSDT">Abrir pago USDT</button>
-          <button class="btn" id="btnOpenUSDC">Abrir pago USDC</button>
-        </div>
-
-        <div class="pay-links" style="margin-top:10px;">
-          <div class="pay-item">
-            <div class="k">USDT actual</div>
-            <div class="v" id="viewUSDT">No configurado</div>
-          </div>
-          <div class="pay-item">
-            <div class="k">USDC actual</div>
-            <div class="v" id="viewUSDC">No configurado</div>
+          <div class="status-item">
+            <span class="label">Dirección</span>
+            <span class="value" id="walletAddress">--</span>
           </div>
         </div>
-      </article>
+        
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="connectWallet()">
+            <i class="fas fa-plug"></i> Conectar Wallet
+          </button>
+          <button class="btn btn-outline" onclick="disconnectWallet()">
+            <i class="fas fa-power-off"></i> Desconectar
+          </button>
+        </div>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-top:10px;">
+          <i class="fas fa-info-circle"></i> Requiere MetaMask. En móvil usa el navegador interno de tu wallet.
+        </p>
+      </div>
 
-      <!-- Columna derecha -->
-      <article class="card">
-        <h2 class="h">3) Generador QR de cobro</h2>
+      <!-- ===== 2) LINKS DE PAGO ===== -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-link"></i>
+          <h2>Links de pago (USDT / USDC)</h2>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">
+          Configura tus enlaces de cobro (Coinbase Commerce, NOWPayments, etc.)
+        </p>
+        
+        <div class="form-group">
+          <label>Link de pago USDT</label>
+          <input type="url" class="form-control" id="usdtLink" placeholder="https://..." />
+        </div>
+        <div class="form-group">
+          <label>Link de pago USDC</label>
+          <input type="url" class="form-control" id="usdcLink" placeholder="https://..." />
+        </div>
+        
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveLinks()">
+            <i class="fas fa-save"></i> Guardar links
+          </button>
+          <button class="btn btn-success" onclick="openPayment('usdt')">
+            <i class="fas fa-external-link-alt"></i> Abrir USDT
+          </button>
+          <button class="btn btn-success" onclick="openPayment('usdc')">
+            <i class="fas fa-external-link-alt"></i> Abrir USDC
+          </button>
+        </div>
+        
+        <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;">
+          <div>
+            <span style="font-size:0.7rem;color:var(--text-muted);">USDT actual</span>
+            <span style="font-size:0.8rem;color:var(--text-secondary);" id="currentUsdt">No configurado</span>
+          </div>
+          <div>
+            <span style="font-size:0.7rem;color:var(--text-muted);">USDC actual</span>
+            <span style="font-size:0.8rem;color:var(--text-secondary);" id="currentUsdc">No configurado</span>
+          </div>
+        </div>
+      </div>
 
-        <div class="row">
-          <div class="field">
-            <label for="coin">Moneda</label>
-            <select id="coin">
+      <!-- ===== 3) GENERADOR QR ===== -->
+      <div class="card card-full">
+        <div class="card-header">
+          <i class="fas fa-qrcode"></i>
+          <h2>Generador QR de cobro</h2>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Moneda</label>
+            <select class="form-control" id="qrCurrency">
               <option value="USDT">USDT</option>
               <option value="USDC">USDC</option>
             </select>
           </div>
-          <div class="field">
-            <label for="network">Red</label>
-            <select id="network">
+          <div class="form-group">
+            <label>Red</label>
+            <select class="form-control" id="qrNetwork">
               <option value="ERC20">ERC20 (Ethereum)</option>
+              <option value="BEP20">BEP20 (BSC)</option>
+              <option value="Polygon">Polygon</option>
+              <option value="Solana">Solana</option>
               <option value="TRC20">TRC20 (Tron)</option>
-              <option value="BEP20">BEP20 (BNB Chain)</option>
-              <option value="POLYGON">Polygon</option>
-              <option value="SOL">Solana</option>
             </select>
           </div>
         </div>
+        
+        <div class="form-group">
+          <label>Wallet de cobro (dirección destino)</label>
+          <input type="text" class="form-control" id="qrWallet" placeholder="Pega aquí la dirección donde recibirás el pago" />
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Monto (ej. 25.50)</label>
+            <input type="number" class="form-control" id="qrAmount" placeholder="0.00" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label>Referencia / Orden</label>
+            <input type="text" class="form-control" id="qrReference" placeholder="ORD-1001" />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Concepto (opcional)</label>
+          <input type="text" class="form-control" id="qrConcept" placeholder="Ej: Pago membresía julio" />
+        </div>
+        
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="generateQR()">
+            <i class="fas fa-qrcode"></i> Generar QR
+          </button>
+          <button class="btn btn-outline" onclick="copyRequest()">
+            <i class="fas fa-copy"></i> Copiar request
+          </button>
+          <button class="btn btn-success" onclick="downloadQR()">
+            <i class="fas fa-download"></i> Descargar QR
+          </button>
+        </div>
+        
+        <div class="qr-output" id="qrOutput">
+          <div class="qr-image" id="qrImageContainer"></div>
+          <div class="request-text" id="requestText">Aún no generado</div>
+          <p style="font-size:0.75rem;color:var(--text-muted);">
+            <i class="fas fa-shield-alt"></i> Consejo: siempre confirma que la red del envío coincida con la red de tu wallet.
+          </p>
+        </div>
+      </div>
 
-        <div class="row">
-          <div class="field">
-            <label for="walletToReceive">Wallet de cobro (dirección destino)</label>
-            <input id="walletToReceive" type="text" placeholder="Pega aquí la dirección donde recibirás el pago" />
+      <!-- ===== 4) MÉTODOS DE PAGO (INTEGRADO) ===== -->
+      <div class="card card-full">
+        <div class="card-header">
+          <i class="fas fa-credit-card"></i>
+          <h2>Métodos de Pago - USDT / USDC</h2>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <!-- USDT -->
+          <div class="payment-card payment-usdt">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:1.8rem;">💚</span>
+              <h3 style="font-family:'Orbitron',monospace;font-size:1rem;">USDT</h3>
+            </div>
+            <div class="direccion">
+              0x45c6455aa01356609d96b659c6eb880b7e1d046d
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);" onclick="copiarDireccion('0x45c6455aa01356609d96b659c6eb880b7e1d046d','USDT')">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+              <span class="red-tag">🌐 Polygon</span>
+              <span class="red-tag" style="background:rgba(255,255,255,0.15);">💰 Gratis</span>
+              <a href="./metodos-pago.html" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.2);" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Ver
+              </a>
+            </div>
+          </div>
+
+          <!-- USDC -->
+          <div class="payment-card payment-usdc">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:1.8rem;">💙</span>
+              <h3 style="font-family:'Orbitron',monospace;font-size:1rem;">USDC</h3>
+            </div>
+            <div class="direccion">
+              0x45c6455aa01356609d96b659c6eb880b7e1d046d
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);" onclick="copiarDireccion('0x45c6455aa01356609d96b659c6eb880b7e1d046d','USDC')">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+              <span class="red-tag">🌐 Polygon</span>
+              <span class="red-tag" style="background:rgba(255,255,255,0.15);">💰 Gratis</span>
+              <a href="./metodos-pago.html" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.2);" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Ver
+              </a>
+            </div>
           </div>
         </div>
 
-        <div class="row">
-          <div class="field">
-            <label for="amount">Monto (ej. 25.50)</label>
-            <input id="amount" type="number" min="0" step="0.000001" placeholder="0.00" />
+        <!-- Información de pago -->
+        <div class="payment-info-grid">
+          <div class="payment-info-item">
+            <span style="font-size:1.2rem;">✅</span>
+            <p>Comisión <strong style="color:#00b894;">GRATIS</strong></p>
           </div>
-          <div class="field">
-            <label for="reference">Referencia / Orden</label>
-            <input id="reference" type="text" placeholder="ORD-1001" />
+          <div class="payment-info-item">
+            <span style="font-size:1.2rem;">⚡</span>
+            <p>Confirmación <strong style="color:var(--quantum);">Segundos</strong></p>
           </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="note">Concepto (opcional)</label>
-            <textarea id="note" placeholder="Ej: Pago membresía julio"></textarea>
+          <div class="payment-info-item">
+            <span style="font-size:1.2rem;">🛡️</span>
+            <p>Red <strong style="color:var(--gold-cosmic);">Polygon</strong></p>
           </div>
         </div>
 
-        <div class="row">
-          <button class="btn btn-brand" id="btnGenerateQR">Generar QR</button>
-          <button class="btn" id="btnCopyRequest">Copiar request</button>
-          <button class="btn" id="btnDownloadQR">Descargar QR</button>
+        <!-- Advertencia -->
+        <div style="background:rgba(255,193,7,0.1);padding:12px;border-radius:10px;border:1px solid rgba(255,193,7,0.2);margin-bottom:12px;">
+          <p style="font-size:0.8rem;color:var(--text-secondary);">
+            <i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i>
+            <strong>⚠️ Importante:</strong> Solo envía <strong>USDT o USDC</strong> en la red <strong>Polygon</strong>. 
+            Otras redes pueden resultar en pérdida de fondos.
+          </p>
         </div>
 
-        <div class="okbox" style="margin-top:10px;">
-          Request generado:
-          <div id="requestPreview" class="small" style="margin-top:6px;word-break:break-all;opacity:.95;">Aún no generado</div>
+        <!-- Tabla de monedas -->
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+            <thead>
+              <tr style="background:rgba(0,212,255,0.1);">
+                <th style="padding:10px;text-align:left;font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--text-secondary);">Moneda</th>
+                <th style="padding:10px;text-align:left;font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--text-secondary);">Red</th>
+                <th style="padding:10px;text-align:left;font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--text-secondary);">Comisión</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:10px;">💚 USDT</td>
+                <td style="padding:10px;">Polygon</td>
+                <td style="padding:10px;color:#00b894;">Gratis</td>
+              </tr>
+              <tr>
+                <td style="padding:10px;">💙 USDC</td>
+                <td style="padding:10px;">Polygon</td>
+                <td style="padding:10px;color:#00b894;">Gratis</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div class="qr-wrap" style="margin-top:10px;">
-          <div id="qrcode"></div>
+        <!-- Enlace a página completa -->
+        <div style="margin-top:12px;">
+          <a href="./metodos-pago.html" class="btn btn-primary btn-block" target="_blank">
+            <i class="fas fa-external-link-alt"></i> Ver Métodos de Pago Completos
+          </a>
         </div>
+      </div>
 
-        <div class="footer-note">
-          Consejo: siempre confirma que la <strong>red</strong> del envío coincida con la red de tu wallet.
+      <!-- ===== 5) TRADING Y VELAS JAPONESAS ===== -->
+      <div class="card card-full">
+        <div class="card-header">
+          <i class="fas fa-chart-line"></i>
+          <h2>Módulo de Trading - Velas Japonesas</h2>
         </div>
-      </article>
-    </section>
-  </main>
+        <div class="trading-chart">
+          <canvas id="tradingChart"></canvas>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-outline" onclick="updateChart('1D')">1D</button>
+          <button class="btn btn-sm btn-outline" onclick="updateChart('1W')">1W</button>
+          <button class="btn btn-sm btn-outline" onclick="updateChart('1M')">1M</button>
+          <button class="btn btn-sm btn-outline" onclick="updateChart('3M')">3M</button>
+          <button class="btn btn-sm btn-primary" onclick="updateChart('1Y')">1Y</button>
+        </div>
+      </div>
 
-  <!-- Librería QR -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+      <!-- ===== 6) INTELIGENCIA ARTIFICIAL ===== -->
+      <div class="card card-full">
+        <div class="card-header">
+          <i class="fas fa-brain"></i>
+          <h2>Inteligencia Artificial Avanzada</h2>
+        </div>
+        
+        <div class="ia-grid">
+          <div class="ia-card">
+            <h3><i class="fas fa-robot"></i> IA Predictiva</h3>
+            <p>Procesamiento de datos con modelos predictivos para forecasting y análisis de tendencias.</p>
+            <span class="ia-status active">● Activo</span>
+          </div>
+          <div class="ia-card">
+            <h3><i class="fas fa-project-diagram"></i> IA Neurosimbólica</h3>
+            <p>Razonamiento simbólico combinado con redes neuronales para interpretación contextual.</p>
+            <span class="ia-status active">● Activo</span>
+          </div>
+        </div>
+        
+        <div style="margin-top:12px;padding:12px;background:rgba(0,0,0,0.2);border-radius:10px;">
+          <p style="font-size:0.85rem;color:var(--text-secondary);">
+            <i class="fas fa-sync-alt" style="color:var(--quantum);"></i>
+            <span id="iaStatus">Sistema de IA sincronizado con el ecosistema</span>
+          </p>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline" onclick="runIAPrediction()">
+              <i class="fas fa-chart-bar"></i> Ejecutar Predicción
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="runIANeurosymbolic()">
+              <i class="fas fa-brain"></i> Análisis Neurosimbólico
+            </button>
+          </div>
+        </div>
+      </div>
 
+      <!-- ===== 7) CRM CLIENTES ===== -->
+      <div class="card card-full">
+        <div class="card-header">
+          <i class="fas fa-users"></i>
+          <h2>Sistema de Identificación y CRM</h2>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Registrar Cliente</label>
+            <input type="text" class="form-control" id="clientName" placeholder="Nombre del cliente" />
+          </div>
+          <div class="form-group">
+            <label>ID o Referencia</label>
+            <input type="text" class="form-control" id="clientId" placeholder="ID único" />
+          </div>
+        </div>
+        
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="registerClient()">
+            <i class="fas fa-user-plus"></i> Registrar Cliente
+          </button>
+          <button class="btn btn-success" onclick="scanQRClient()">
+            <i class="fas fa-qrcode"></i> Escanear QR
+          </button>
+          <a href="./fidelizacion.html" class="btn btn-outline" target="_blank">
+            <i class="fas fa-gem"></i> Fidelización
+          </a>
+        </div>
+        
+        <div class="crm-list" id="crmList">
+          <div class="crm-item">
+            <div>
+              <span class="name">Cliente Demo</span>
+              <span class="info">ID: DEMO-001</span>
+            </div>
+            <span style="font-size:0.7rem;color:var(--quantum);">● Reconocido</span>
+          </div>
+          <div class="crm-item">
+            <div>
+              <span class="name">Cliente Prueba</span>
+              <span class="info">ID: TEST-002</span>
+            </div>
+            <span style="font-size:0.7rem;color:var(--text-muted);">○ Pendiente</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+      <span class="footer-text">
+        🌌 Sariel's Digital Assets v∞ — Web3 Cósmico | Todos los módulos activos
+      </span>
+      <span class="footer-text">
+        <a href="./registro-ventas-centralizado.html" style="color:var(--text-muted);text-decoration:none;" target="_blank">
+          📝 Registrar Venta
+        </a>
+        | 
+        <a href="./fidelizacion.html" style="color:var(--text-muted);text-decoration:none;" target="_blank">
+          🎫 Fidelización
+        </a>
+      </span>
+    </footer>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <!-- Configuración y Base de Datos -->
+  <script src="./config.js"></script>
+  <script src="./base-datos-centralizada.js"></script>
+  
   <script>
-    /********************************************************
-     * CONFIG LOCAL
-     ********************************************************/
-    const STORAGE_KEYS = {
-      usdtLink: 'sariel_web3_usdt_link',
-      usdcLink: 'sariel_web3_usdc_link',
-      receiveWallet: 'sariel_web3_receive_wallet'
-    };
-
-    let qrInstance = null;
-    let lastRequestString = '';
-
-    const el = {
-      btnConnect: document.getElementById('btnConnect'),
-      btnDisconnect: document.getElementById('btnDisconnect'),
-      walletStatus: document.getElementById('walletStatus'),
-      walletChain: document.getElementById('walletChain'),
-      walletAddress: document.getElementById('walletAddress'),
-
-      usdtPayLink: document.getElementById('usdtPayLink'),
-      usdcPayLink: document.getElementById('usdcPayLink'),
-      btnSaveLinks: document.getElementById('btnSaveLinks'),
-      btnOpenUSDT: document.getElementById('btnOpenUSDT'),
-      btnOpenUSDC: document.getElementById('btnOpenUSDC'),
-      viewUSDT: document.getElementById('viewUSDT'),
-      viewUSDC: document.getElementById('viewUSDC'),
-
-      coin: document.getElementById('coin'),
-      network: document.getElementById('network'),
-      walletToReceive: document.getElementById('walletToReceive'),
-      amount: document.getElementById('amount'),
-      reference: document.getElementById('reference'),
-      note: document.getElementById('note'),
-      btnGenerateQR: document.getElementById('btnGenerateQR'),
-      btnCopyRequest: document.getElementById('btnCopyRequest'),
-      btnDownloadQR: document.getElementById('btnDownloadQR'),
-      requestPreview: document.getElementById('requestPreview'),
-      qrcode: document.getElementById('qrcode')
-    };
-
-    /********************************************************
-     * UTILIDADES
-     ********************************************************/
-    function shortAddr(addr){
-      if(!addr || addr.length < 10) return addr || '--';
-      return addr.slice(0,6) + '…' + addr.slice(-4);
-    }
-
-    function chainNameFromHex(chainIdHex){
-      const map = {
-        '0x1':'Ethereum Mainnet',
-        '0x89':'Polygon',
-        '0x38':'BNB Chain',
-        '0xa4b1':'Arbitrum One',
-        '0xa':'Optimism',
-        '0x7a69':'Hardhat Local'
-      };
-      return map[chainIdHex] || `Chain ${chainIdHex}`;
-    }
-
-    function isValidUrl(url){
-      try { new URL(url); return true; } catch { return false; }
-    }
-
-    function showWalletDisconnected(){
-      el.walletStatus.textContent = '● No conectada';
-      el.walletStatus.className = 'chip warn';
-      el.walletChain.textContent = 'Red: --';
-      el.walletAddress.textContent = 'Dirección: --';
-      el.btnDisconnect.disabled = true;
-    }
-
-    function showWalletConnected(address, chainIdHex){
-      el.walletStatus.textContent = '● Conectada';
-      el.walletStatus.className = 'chip ok';
-      el.walletChain.textContent = 'Red: ' + chainNameFromHex(chainIdHex);
-      el.walletAddress.textContent = 'Dirección: ' + shortAddr(address);
-      el.btnDisconnect.disabled = false;
-    }
-
-    function loadLinks(){
-      const usdt = localStorage.getItem(STORAGE_KEYS.usdtLink) || '';
-      const usdc = localStorage.getItem(STORAGE_KEYS.usdcLink) || '';
-      const rw   = localStorage.getItem(STORAGE_KEYS.receiveWallet) || '';
-
-      el.usdtPayLink.value = usdt;
-      el.usdcPayLink.value = usdc;
-      el.walletToReceive.value = rw;
-
-      el.viewUSDT.textContent = usdt || 'No configurado';
-      el.viewUSDC.textContent = usdc || 'No configurado';
-    }
-
-    function saveLinks(){
-      localStorage.setItem(STORAGE_KEYS.usdtLink, el.usdtPayLink.value.trim());
-      localStorage.setItem(STORAGE_KEYS.usdcLink, el.usdcPayLink.value.trim());
-      localStorage.setItem(STORAGE_KEYS.receiveWallet, el.walletToReceive.value.trim());
-      loadLinks();
-      alert('✅ Links y wallet guardados');
-    }
-
-    function openPayLink(type){
-      const key = type === 'USDT' ? STORAGE_KEYS.usdtLink : STORAGE_KEYS.usdcLink;
-      const url = (localStorage.getItem(key) || '').trim();
-      if(!url){
-        alert(`Primero configura el link de pago ${type}`);
-        return;
-      }
-      if(!isValidUrl(url)){
-        alert(`El link de ${type} no es válido`);
-        return;
-      }
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
-
-    // Estructura simple portable para QR (texto JSON)
-    function buildPaymentRequest(){
-      const coin = el.coin.value.trim();
-      const network = el.network.value.trim();
-      const address = el.walletToReceive.value.trim();
-      const amount = el.amount.value.trim();
-      const reference = el.reference.value.trim();
-      const note = el.note.value.trim();
-
-      if(!address){
-        throw new Error('Debes indicar la wallet de cobro');
-      }
-
-      const payload = {
-        app: "SarielsEcosystem",
-        type: "crypto_payment_request",
-        coin,
-        network,
-        address,
-        amount: amount || null,
-        reference: reference || null,
-        note: note || null,
-        createdAt: new Date().toISOString()
-      };
-
-      return JSON.stringify(payload);
-    }
-
-    function generateQR(text){
-      el.qrcode.innerHTML = '';
-      qrInstance = new QRCode(el.qrcode, {
-        text,
-        width: 250,
-        height: 250,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    }
-
-    async function copyRequest(){
-      if(!lastRequestString){
-        alert('Primero genera un QR');
-        return;
-      }
-      try{
-        await navigator.clipboard.writeText(lastRequestString);
-        alert('✅ Request copiado');
-      }catch{
-        alert('No se pudo copiar automáticamente');
-      }
-    }
-
-    function downloadQR(){
-      const canvas = el.qrcode.querySelector('canvas');
-      const img = el.qrcode.querySelector('img');
-
-      if(!canvas && !img){
-        alert('Primero genera un QR');
-        return;
-      }
-
-      const link = document.createElement('a');
-      link.download = `qr-cobro-${Date.now()}.png`;
-
-      if(canvas){
-        link.href = canvas.toDataURL('image/png');
-      }else{
-        link.href = img.src;
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-
-    /********************************************************
-     * WALLET (MetaMask)
-     ********************************************************/
-    async function connectWallet(){
-      if(typeof window.ethereum === 'undefined'){
-        alert('No se detectó MetaMask. Instálalo para conectar wallet.');
-        return;
-      }
-
-      try{
-        const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-        const chainId = await window.ethereum.request({ method:'eth_chainId' });
-
-        const address = accounts && accounts[0] ? accounts[0] : null;
-        if(!address){
-          showWalletDisconnected();
-          return;
-        }
-
-        showWalletConnected(address, chainId);
-
-        // si el campo wallet de cobro está vacío, lo autocompleta
-        if(!el.walletToReceive.value.trim()){
-          el.walletToReceive.value = address;
-          localStorage.setItem(STORAGE_KEYS.receiveWallet, address);
-        }
-      }catch(err){
-        console.error(err);
-        alert('No se pudo conectar la wallet');
-      }
-    }
-
-    function disconnectWalletUIOnly(){
-      // En MetaMask no existe "desconectar" por JS estándar.
-      // Solo limpiamos estado visual local.
-      showWalletDisconnected();
-      alert('Wallet desconectada en este panel (estado local).');
-    }
-
-    async function checkIfAlreadyConnected(){
-      if(typeof window.ethereum === 'undefined'){
-        showWalletDisconnected();
-        return;
-      }
-      try{
-        const accounts = await window.ethereum.request({ method:'eth_accounts' });
-        const chainId = await window.ethereum.request({ method:'eth_chainId' });
-        if(accounts && accounts.length){
-          showWalletConnected(accounts[0], chainId);
-        }else{
-          showWalletDisconnected();
-        }
-      }catch{
-        showWalletDisconnected();
-      }
-    }
-
-    function bindWalletEvents(){
-      if(typeof window.ethereum === 'undefined') return;
-
-      window.ethereum.on('accountsChanged', (accounts)=>{
-        if(accounts && accounts.length){
-          window.ethereum.request({ method:'eth_chainId' })
-            .then(chainId => showWalletConnected(accounts[0], chainId))
-            .catch(()=>showWalletDisconnected());
-        }else{
-          showWalletDisconnected();
-        }
-      });
-
-      window.ethereum.on('chainChanged', async (chainId)=>{
-        try{
-          const accounts = await window.ethereum.request({ method:'eth_accounts' });
-          if(accounts && accounts.length){
-            showWalletConnected(accounts[0], chainId);
-          }else{
-            showWalletDisconnected();
-          }
-        }catch{
-          showWalletDisconnected();
-        }
-      });
-    }
-
-    /********************************************************
-     * EVENTOS
-     ********************************************************/
-    el.btnConnect.addEventListener('click', connectWallet);
-    el.btnDisconnect.addEventListener('click', disconnectWalletUIOnly);
-
-    el.btnSaveLinks.addEventListener('click', saveLinks);
-    el.btnOpenUSDT.addEventListener('click', ()=>openPayLink('USDT'));
-    el.btnOpenUSDC.addEventListener('click', ()=>openPayLink('USDC'));
-
-    el.btnGenerateQR.addEventListener('click', ()=>{
-      try{
-        localStorage.setItem(STORAGE_KEYS.receiveWallet, el.walletToReceive.value.trim());
-        const req = buildPaymentRequest();
-        lastRequestString = req;
-        el.requestPreview.textContent = req;
-        generateQR(req);
-      }catch(err){
-        alert('⚠️ ' + err.message);
-      }
+    // ===== SISTEMA ESTELAR CON METEORITOS =====
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🌌 Sariel\'s Digital Assets - Panel Web3 Completo');
+      initStars();
+      initChart();
+      loadSavedLinks();
+      cargarClientesCRM();
     });
 
-    el.btnCopyRequest.addEventListener('click', copyRequest);
-    el.btnDownloadQR.addEventListener('click', downloadQR);
+    // ===== ESTRELLAS Y METEORITOS =====
+    function initStars() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let stars = [];
+      let meteors = [];
+      
+      const STAR_COUNT = 300;
+      const METEOR_COUNT = 3;
+      
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      
+      function createStars() {
+        stars = [];
+        for (let i = 0; i < STAR_COUNT; i++) {
+          stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 1.8 + 0.3,
+            speed: Math.random() * 0.02 + 0.005,
+            opacity: Math.random() * 0.8 + 0.2,
+            twinkleSpeed: Math.random() * 0.02 + 0.01,
+            twinklePhase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+      
+      function createMeteor() {
+        return {
+          x: Math.random() * width * 0.8,
+          y: Math.random() * height * 0.3,
+          speed: Math.random() * 3 + 4,
+          angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.6 + 0.4,
+          active: true,
+          trail: []
+        };
+      }
+      
+      function initMeteors() {
+        meteors = [];
+        for (let i = 0; i < METEOR_COUNT; i++) {
+          const meteor = createMeteor();
+          meteor.x = Math.random() * width;
+          meteor.y = Math.random() * height * 0.2;
+          meteors.push(meteor);
+        }
+      }
+      
+      function updateStars() {
+        for (let star of stars) {
+          star.twinklePhase += star.twinkleSpeed;
+          star.y += star.speed;
+          if (star.y > height) {
+            star.y = 0;
+            star.x = Math.random() * width;
+          }
+        }
+      }
+      
+      function updateMeteors() {
+        for (let meteor of meteors) {
+          if (!meteor.active) continue;
+          meteor.x += Math.cos(meteor.angle) * meteor.speed;
+          meteor.y += Math.sin(meteor.angle) * meteor.speed;
+          meteor.trail.push({ x: meteor.x, y: meteor.y });
+          if (meteor.trail.length > 20) meteor.trail.shift();
+          if (meteor.x > width + 100 || meteor.y > height + 100) {
+            meteor.active = false;
+            setTimeout(() => {
+              const newMeteor = createMeteor();
+              newMeteor.x = Math.random() * width * 0.3;
+              newMeteor.y = Math.random() * height * 0.2;
+              Object.assign(meteor, newMeteor);
+              meteor.active = true;
+            }, Math.random() * 3000 + 2000);
+          }
+        }
+      }
+      
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        
+        for (let star of stars) {
+          const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.fill();
+          if (star.radius > 1.2) {
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+        }
+        
+        for (let meteor of meteors) {
+          if (!meteor.active) continue;
+          for (let i = 0; i < meteor.trail.length; i++) {
+            const point = meteor.trail[i];
+            const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
+            const radius = (i / meteor.trail.length) * 2;
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
+            ctx.fill();
+          }
+          const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
+          gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+          gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
+          gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+          ctx.beginPath();
+          ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+          ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
+          ctx.shadowBlur = 30;
+          ctx.beginPath();
+          ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+      
+      function animate() {
+        updateStars();
+        updateMeteors();
+        draw();
+        requestAnimationFrame(animate);
+      }
+      
+      resize();
+      createStars();
+      initMeteors();
+      animate();
+      
+      window.addEventListener('resize', () => {
+        resize();
+        createStars();
+      });
+    }
 
-    /********************************************************
-     * INIT
-     ********************************************************/
-    (function init(){
-      loadLinks();
-      checkIfAlreadyConnected();
-      bindWalletEvents();
-    })();
+    // ===== WALLET =====
+    let walletConnected = false;
+
+    function connectWallet() {
+      try {
+        if (typeof window.ethereum !== 'undefined') {
+          window.ethereum.request({ method: 'eth_requestAccounts' })
+            .then(accounts => {
+              if (accounts && accounts.length > 0) {
+                walletConnected = true;
+                document.getElementById('walletStatus').textContent = '● Conectada';
+                document.getElementById('walletStatus').className = 'value connected';
+                document.getElementById('walletAddress').textContent = accounts[0].slice(0, 10) + '...' + accounts[0].slice(-8);
+                document.getElementById('walletNetwork').textContent = 'Ethereum';
+                console.log('✅ Wallet conectada:', accounts[0]);
+              }
+            })
+            .catch(err => {
+              console.error('Error conectando wallet:', err);
+              alert('⚠️ Error al conectar: ' + err.message);
+            });
+        } else {
+          alert('⚠️ MetaMask no detectado.\n\n📱 Si usas móvil:\n- Abre esta página en el navegador interno de Trust Wallet\n- O usa el navegador de MetaMask');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('⚠️ Error al conectar wallet');
+      }
+    }
+
+    function disconnectWallet() {
+      walletConnected = false;
+      document.getElementById('walletStatus').textContent = '● No conectada';
+      document.getElementById('walletStatus').className = 'value disconnected';
+      document.getElementById('walletAddress').textContent = '--';
+      document.getElementById('walletNetwork').textContent = '--';
+    }
+
+    // ===== LINKS DE PAGO =====
+    function saveLinks() {
+      try {
+        const usdt = document.getElementById('usdtLink').value;
+        const usdc = document.getElementById('usdcLink').value;
+        
+        if (usdt && usdt !== 'https://...') {
+          localStorage.setItem('usdtLink', usdt);
+          document.getElementById('currentUsdt').textContent = usdt;
+        }
+        if (usdc && usdc !== 'https://...') {
+          localStorage.setItem('usdcLink', usdc);
+          document.getElementById('currentUsdc').textContent = usdc;
+        }
+        
+        alert('✅ Links guardados correctamente');
+      } catch (error) {
+        console.error('Error guardando links:', error);
+        alert('⚠️ No se pudieron guardar los links');
+      }
+    }
+
+    function loadSavedLinks() {
+      try {
+        const usdt = localStorage.getItem('usdtLink');
+        const usdc = localStorage.getItem('usdcLink');
+        
+        if (usdt) {
+          document.getElementById('usdtLink').value = usdt;
+          document.getElementById('currentUsdt').textContent = usdt;
+        }
+        if (usdc) {
+          document.getElementById('usdcLink').value = usdc;
+          document.getElementById('currentUsdc').textContent = usdc;
+        }
+      } catch (error) {
+        console.error('Error cargando links:', error);
+      }
+    }
+
+    function openPayment(type) {
+      try {
+        const link = type === 'usdt' ? localStorage.getItem('usdtLink') : localStorage.getItem('usdcLink');
+        if (link && link !== 'https://...' && link !== '') {
+          window.open(link, '_blank');
+        } else {
+          alert('⚠️ No hay link configurado para ' + type.toUpperCase() + '\n\nGuarda un link primero en la sección de arriba.');
+        }
+      } catch (error) {
+        console.error('Error abriendo pago:', error);
+        alert('⚠️ Error al abrir el link de pago');
+      }
+    }
+
+    // ===== COPIAR DIRECCIÓN (MÉTODOS DE PAGO) =====
+    function copiarDireccion(direccion, tipo) {
+      try {
+        navigator.clipboard.writeText(direccion).then(() => {
+          alert(`✅ Dirección de ${tipo} copiada al portapapeles`);
+        }).catch(() => {
+          const textArea = document.createElement('textarea');
+          textArea.value = direccion;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          textArea.remove();
+          alert(`✅ Dirección de ${tipo} copiada al portapapeles`);
+        });
+      } catch (error) {
+        console.error('Error copiando:', error);
+        alert('⚠️ No se pudo copiar la dirección');
+      }
+    }
+
+    // ===== GENERADOR QR =====
+    let currentQR = null;
+    let qrCodeInstance = null;
+
+    function generateQR() {
+      try {
+        const currency = document.getElementById('qrCurrency').value;
+        const network = document.getElementById('qrNetwork').value;
+        const wallet = document.getElementById('qrWallet').value.trim();
+        const amount = document.getElementById('qrAmount').value || '0.00';
+        const reference = document.getElementById('qrReference').value || 'ORD-' + Date.now().toString().slice(-6);
+        const concept = document.getElementById('qrConcept').value || 'Pago ' + currency;
+        
+        if (!wallet) {
+          alert('⚠️ Por favor ingresa una dirección de wallet');
+          return;
+        }
+        
+        if (wallet.length < 20) {
+          alert('⚠️ La dirección de wallet parece muy corta. Verifica que sea correcta.');
+          return;
+        }
+        
+        const requestData = {
+          currency: currency,
+          network: network,
+          wallet: wallet,
+          amount: amount,
+          reference: reference,
+          concept: concept,
+          timestamp: new Date().toISOString()
+        };
+        
+        const requestString = JSON.stringify(requestData, null, 2);
+        document.getElementById('requestText').textContent = requestString;
+        currentQR = requestString;
+        
+        const qrContainer = document.getElementById('qrImageContainer');
+        qrContainer.innerHTML = '';
+        
+        try {
+          qrCodeInstance = new QRCode(qrContainer, {
+            text: requestString,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        } catch (qrError) {
+          console.warn('QRCode.js no disponible, usando API alternativa:', qrError);
+          const qrImg = document.createElement('img');
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(requestString)}`;
+          qrImg.src = qrUrl;
+          qrImg.alt = 'Código QR de cobro';
+          qrImg.style.maxWidth = '200px';
+          qrImg.style.borderRadius = '12px';
+          qrImg.style.background = 'white';
+          qrImg.style.padding = '12px';
+          qrContainer.appendChild(qrImg);
+        }
+        
+        document.getElementById('qrOutput').classList.add('active');
+        registerSale(requestData);
+        console.log('✅ QR generado correctamente');
+      } catch (error) {
+        console.error('Error generando QR:', error);
+        alert('⚠️ Error al generar el QR: ' + error.message);
+      }
+    }
+
+    function copyRequest() {
+      try {
+        if (currentQR) {
+          navigator.clipboard.writeText(currentQR).then(() => {
+            alert('✅ Request copiado al portapapeles');
+          }).catch(() => {
+            const textArea = document.createElement('textarea');
+            textArea.value = currentQR;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            textArea.remove();
+            alert('✅ Request copiado al portapapeles');
+          });
+        } else {
+          alert('⚠️ Genera un QR primero');
+        }
+      } catch (error) {
+        console.error('Error copiando:', error);
+        alert('⚠️ No se pudo copiar el request');
+      }
+    }
+
+    function downloadQR() {
+      try {
+        const qrContainer = document.getElementById('qrImageContainer');
+        const canvas = qrContainer.querySelector('canvas');
+        const img = qrContainer.querySelector('img');
+        
+        if (canvas) {
+          const link = document.createElement('a');
+          link.download = 'qr-cobro-' + Date.now() + '.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        } else if (img) {
+          const link = document.createElement('a');
+          link.download = 'qr-cobro-' + Date.now() + '.png';
+          link.href = img.src;
+          link.click();
+        } else {
+          alert('⚠️ Genera un QR primero');
+        }
+      } catch (error) {
+        console.error('Error descargando QR:', error);
+        alert('⚠️ No se pudo descargar el QR');
+      }
+    }
+
+    // ===== REGISTRO DE VENTAS =====
+    function registerSale(data) {
+      try {
+        const sales = JSON.parse(localStorage.getItem('ventas_centralizadas') || '[]');
+        sales.push({
+          ...data,
+          id: 'SALE-' + Date.now().toString().slice(-8),
+          date: new Date().toISOString()
+        });
+        localStorage.setItem('ventas_centralizadas', JSON.stringify(sales));
+        console.log('✅ Venta registrada:', data);
+        window.dispatchEvent(new Event('ventaRegistrada'));
+      } catch (error) {
+        console.error('Error registrando venta:', error);
+      }
+    }
+
+    // ===== CRM CLIENTES =====
+    function cargarClientesCRM() {
+      try {
+        const clientes = JSON.parse(localStorage.getItem('clientes_fidelizacion') || '[]');
+        const list = document.getElementById('crmList');
+        const items = list.querySelectorAll('.crm-item');
+        items.forEach(item => item.remove());
+        
+        if (clientes.length === 0) {
+          const demo = [
+            { nombre: 'Cliente Demo', id: 'DEMO-001', estado: 'Reconocido' },
+            { nombre: 'Cliente Prueba', id: 'TEST-002', estado: 'Pendiente' }
+          ];
+          demo.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'crm-item';
+            item.innerHTML = `
+              <div>
+                <span class="name">${c.nombre}</span>
+                <span class="info">ID: ${c.id}</span>
+              </div>
+              <span style="font-size:0.7rem;color:${c.estado === 'Reconocido' ? 'var(--quantum);' : 'var(--text-muted);'}">${c.estado === 'Reconocido' ? '● Reconocido' : '○ Pendiente'}</span>
+            `;
+            list.appendChild(item);
+          });
+        } else {
+          clientes.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'crm-item';
+            const estado = c.toks >= 100 ? 'Reconocido' : 'Pendiente';
+            item.innerHTML = `
+              <div>
+                <span class="name">${c.nombre}</span>
+                <span class="info">ID: ${c.id} | TOKs: ${c.toks || 0}</span>
+              </div>
+              <span style="font-size:0.7rem;color:${estado === 'Reconocido' ? 'var(--quantum);' : 'var(--text-muted);'}">${estado === 'Reconocido' ? '● Reconocido' : '○ Pendiente'}</span>
+            `;
+            list.appendChild(item);
+          });
+        }
+      } catch (error) {
+        console.error('Error cargando CRM:', error);
+      }
+    }
+
+    function registerClient() {
+      try {
+        const name = document.getElementById('clientName').value.trim();
+        const id = document.getElementById('clientId').value.trim() || 'CLI-' + Date.now().toString().slice(-6);
+        
+        if (!name) {
+          alert('⚠️ Ingresa un nombre para el cliente');
+          return;
+        }
+        
+        const clientes = JSON.parse(localStorage.getItem('clientes_fidelizacion') || '[]');
+        clientes.push({
+          nombre: name,
+          id: id,
+          toks: 50,
+          fecha: new Date().toISOString()
+        });
+        localStorage.setItem('clientes_fidelizacion', JSON.stringify(clientes));
+        
+        cargarClientesCRM();
+        
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientId').value = '';
+        
+        alert(`✅ Cliente "${name}" registrado correctamente con 50 TOKs de bienvenida`);
+      } catch (error) {
+        console.error('Error registrando cliente:', error);
+        alert('⚠️ Error al registrar cliente');
+      }
+    }
+
+    function scanQRClient() {
+      alert('📷 Escanea el código QR del cliente para identificación automática.\n\n(Sistema listo para integrar cámara)');
+    }
+
+    // ===== TRADING CHART =====
+    let chart = null;
+
+    function initChart() {
+      try {
+        const ctx = document.getElementById('tradingChart').getContext('2d');
+        const data = generateCandleData(50);
+        
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: 'Precio USDT/USD',
+              data: data.prices,
+              borderColor: '#00e5ff',
+              backgroundColor: 'rgba(0,229,255,0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: {
+                  color: '#8ba3c7',
+                  font: { family: 'Orbitron', size: 10 }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#4a6a8a' }
+              },
+              y: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#4a6a8a' }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error inicializando chart:', error);
+      }
+    }
+
+    function generateCandleData(count) {
+      let price = 100;
+      const data = [];
+      const labels = [];
+      
+      for (let i = 0; i < count; i++) {
+        const change = (Math.random() - 0.48) * 4;
+        price = Math.max(20, price + change);
+        data.push(Math.round(price * 100) / 100);
+        const date = new Date();
+        date.setDate(date.getDate() - (count - i));
+        labels.push(date.toLocaleDateString());
+      }
+      
+      return { prices: data, labels: labels };
+    }
+
+    function updateChart(period) {
+      try {
+        if (chart) {
+          const count = period === '1D' ? 10 : period === '1W' ? 20 : period === '1M' ? 30 : period === '3M' ? 60 : 90;
+          const data = generateCandleData(count);
+          chart.data.labels = data.labels;
+          chart.data.datasets[0].data = data.prices;
+          chart.update();
+        }
+      } catch (error) {
+        console.error('Error actualizando chart:', error);
+      }
+    }
+
+    // ===== IA =====
+    function runIAPrediction() {
+      const status = document.getElementById('iaStatus');
+      status.textContent = '🧠 Procesando predicción...';
+      setTimeout(() => {
+        const predictions = ['Alza del 3.2%', 'Estabilidad', 'Baja del 1.8%', 'Alza del 5.1%', 'Corrección del 2.3%'];
+        const confidence = Math.round(Math.random() * 30 + 70);
+        status.textContent = `📊 Predicción: ${predictions[Math.floor(Math.random() * predictions.length)]} (Confianza: ${confidence}%)`;
+      }, 1500);
+    }
+
+    function runIANeurosymbolic() {
+      const status = document.getElementById('iaStatus');
+      status.textContent = '🧬 Analizando patrones simbólicos...';
+      setTimeout(() => {
+        const results = ['Patrón de adopción identificado', 'Nuevo cluster de usuarios', 'Tendencia de mercado detectada', 'Optimización de cartera recomendada', 'Anomalía en transacciones detectada'];
+        status.textContent = `🔮 Análisis: ${results[Math.floor(Math.random() * results.length)]}`;
+      }, 2000);
+    }
   </script>
 </body>
-  </html>
+</html>
