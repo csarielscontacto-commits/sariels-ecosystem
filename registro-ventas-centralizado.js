@@ -49,7 +49,6 @@
   function actualizarEstadisticasVendedor() {
     if (!vendedorActual) return;
     
-    // Intentar obtener ventas desde la base centralizada
     let todas = [];
     let deHoy = [];
 
@@ -160,7 +159,6 @@
       fechaRegistro: new Date().toISOString()
     };
 
-    // Guardar usando el sistema centralizado
     if (typeof window.registrarVentaCentralizada === 'function') {
       window.registrarVentaCentralizada(venta);
     } else if (typeof window.bd?.registrarVenta === 'function') {
@@ -183,7 +181,6 @@
     actualizarEstadisticasVendedor();
     renderHistorial();
 
-    // Disparar evento para actualizar otros paneles
     window.dispatchEvent(new CustomEvent('ventaRegistrada'));
   }
 
@@ -264,7 +261,6 @@
     if (cantidadInput) cantidadInput.addEventListener('input', actualizarPrecioTotal);
     if (ventasForm) ventasForm.addEventListener('submit', manejarEnvio);
 
-    // Eventos globales para sincronización
     window.addEventListener('sincronizacionCompleta', () => {
       actualizarBadgeSync();
       actualizarEstadisticasVendedor();
@@ -282,7 +278,6 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', iniciar);
   } else {
-    // Si el DOM ya está listo, esperar un momento para que bd esté disponible
     setTimeout(iniciar, 100);
   }
 
