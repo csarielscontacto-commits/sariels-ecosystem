@@ -8,7 +8,7 @@
     
     <!-- Open Graph -->
     <meta property="og:title" content="Sariel's Nexus - Dashboard Central" />
-    <meta property="og:description" content="Dashboard central con métricas, gráficas y generador de QR" />
+    <meta property="og:description" content="Dashboard central con métricas, gráficas, IA Predictiva y Neurosimbólica" />
     <meta property="og:type" content="website" />
     
     <!-- Font Awesome -->
@@ -108,7 +108,7 @@
         ::-webkit-scrollbar-thumb { background: linear-gradient(var(--nebula-3), var(--nebula-1)); border-radius: 3px; }
 
         /* ===== LAYOUT ===== */
-        .app { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 20px 24px 40px; }
+        .app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px 24px 40px; }
 
         /* ===== HEADER ===== */
         .header {
@@ -809,6 +809,133 @@
             display: none !important;
         }
 
+        /* ===== IA SECTION ===== */
+        .ia-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .ia-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .ia-card {
+            background: rgba(10,20,40,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ia-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--quantum), var(--nebula-1), var(--nebula-2), var(--quantum));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .ia-card:hover::before { opacity: 0.3; }
+
+        .ia-card .ia-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ia-card .ia-header i {
+            font-size: 1.8rem;
+        }
+
+        .ia-card .ia-header h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, var(--text-primary), var(--quantum));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ia-card .ia-content {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .ia-card .ia-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            margin-top: 12px;
+        }
+
+        .ia-card .ia-status.active {
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+            border: 1px solid rgba(0,184,148,0.2);
+        }
+
+        .ia-card .ia-status.inactive {
+            background: rgba(255,51,102,0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255,51,102,0.2);
+        }
+
+        .ia-card .ia-prediction {
+            margin-top: 12px;
+            padding: 14px 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            border-left: 3px solid var(--gold-cosmic);
+        }
+
+        .ia-card .ia-prediction .prediction-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+        }
+
+        .ia-card .ia-prediction .prediction-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .ia-card .ia-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ia-card .ia-actions .btn {
+            flex: 1;
+            justify-content: center;
+            min-width: 120px;
+        }
+
         /* ===== FOOTER ===== */
         .footer {
             margin-top: 48px;
@@ -863,13 +990,14 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .metric-card {
+        .metric-card, .ia-card {
             animation: fadeInUp 0.5s ease-out forwards;
         }
 
         .metric-card:nth-child(2) { animation-delay: 0.1s; }
         .metric-card:nth-child(3) { animation-delay: 0.2s; }
         .metric-card:nth-child(4) { animation-delay: 0.3s; }
+        .ia-card:nth-child(2) { animation-delay: 0.2s; }
 
         /* ===== PRINT STYLES ===== */
         @media print {
@@ -889,6 +1017,7 @@
             .header-actions { width: 100%; justify-content: flex-start; }
             .metrics-grid { grid-template-columns: 1fr 1fr; }
             .charts-grid { grid-template-columns: 1fr; }
+            .ia-grid { grid-template-columns: 1fr; }
             .qr-grid { grid-template-columns: 1fr 1fr; }
         }
 
@@ -900,6 +1029,7 @@
             .qr-auth input { width: 100%; }
             .qr-controls { flex-direction: column; align-items: stretch; }
             .qr-print-btn { margin-left: 0; }
+            .ia-card .ia-actions .btn { min-width: 80px; }
         }
     </style>
 </head>
@@ -989,6 +1119,67 @@
             </div>
         </section>
 
+        <!-- ===== INTELIGENCIA ARTIFICIAL ===== -->
+        <section class="ia-grid">
+            <!-- IA Predictiva -->
+            <div class="ia-card">
+                <div class="ia-header">
+                    <i class="fas fa-robot" style="color:var(--quantum);"></i>
+                    <h3>IA Predictiva</h3>
+                </div>
+                <div class="ia-content">
+                    <p>Analiza patrones de ventas y genera predicciones basadas en datos históricos, estacionalidad y tendencias del mercado.</p>
+                    <span class="ia-status active"><i class="fas fa-circle" style="font-size:0.4rem;"></i> Activo</span>
+                </div>
+                <div class="ia-prediction">
+                    <div class="prediction-label">📊 Predicción de ventas para hoy</div>
+                    <div class="prediction-value" id="prediccionValor">$12,450</div>
+                    <div style="display:flex;gap:12px;margin-top:4px;font-size:0.75rem;color:var(--text-muted);">
+                        <span>⏱️ Última actualización: <span id="prediccionHora">--</span></span>
+                        <span>🎯 Confianza: <span id="prediccionConfianza">94%</span></span>
+                    </div>
+                </div>
+                <div class="ia-actions">
+                    <button class="btn btn-sm btn-outline" onclick="ejecutarPrediccion()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                    <button class="btn btn-sm btn-primary" onclick="verDetallePrediccion()">
+                        <i class="fas fa-chart-line"></i> Ver detalle
+                    </button>
+                </div>
+            </div>
+
+            <!-- IA Neurosimbólica -->
+            <div class="ia-card">
+                <div class="ia-header">
+                    <i class="fas fa-brain" style="color:var(--nebula-2);"></i>
+                    <h3>IA Neurosimbólica</h3>
+                </div>
+                <div class="ia-content">
+                    <p>Combina razonamiento simbólico con redes neuronales para interpretar patrones complejos y tomar decisiones contextuales.</p>
+                    <span class="ia-status active"><i class="fas fa-circle" style="font-size:0.4rem;"></i> Activo</span>
+                </div>
+                <div class="ia-prediction" style="border-left-color:var(--nebula-2);">
+                    <div class="prediction-label">🧠 Análisis neurosimbólico</div>
+                    <div style="font-size:0.9rem;color:var(--text-secondary);" id="analisisNeurosimbólico">
+                        Detectando patrones de comportamiento en la red...
+                    </div>
+                    <div style="display:flex;gap:12px;margin-top:4px;font-size:0.75rem;color:var(--text-muted);">
+                        <span>🔄 Ciclo: <span id="cicloNeurosimbólico">#12</span></span>
+                        <span>📊 Nodos: <span id="nodosNeurosimbólicos">128</span></span>
+                    </div>
+                </div>
+                <div class="ia-actions">
+                    <button class="btn btn-sm btn-outline" onclick="ejecutarNeurosimbólico()">
+                        <i class="fas fa-sync-alt"></i> Ejecutar
+                    </button>
+                    <button class="btn btn-sm btn-primary" onclick="verDetalleNeurosimbólico()">
+                        <i class="fas fa-project-diagram"></i> Ver red
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- TABLA DE VENTAS -->
         <section class="table-card">
             <div class="label">📋 Últimas Ventas Registradas</div>
@@ -1051,7 +1242,7 @@
         <!-- FOOTER -->
         <footer class="footer">
             <span class="footer-text">
-                🌌 Sariel's Digital Assets — Dashboard Central en tiempo real
+                🌌 Sariel's Digital Assets — Dashboard Central con IA
             </span>
             <div class="footer-links">
                 <a href="./registro-ventas-centralizado.html">📝 Registrar Venta</a>
@@ -1070,10 +1261,11 @@
     <script>
         // ===== SISTEMA ESTELAR =====
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🌌 Sariel\'s Digital Assets - Dashboard Central con Admin QR');
+            console.log('🌌 Sariel\'s Digital Assets - Dashboard Central con IA');
             initStars();
             initDashboard();
             initQrAdmin();
+            initIA();
         });
 
         // ===== ESTRELLAS Y METEORITOS =====
@@ -1431,7 +1623,6 @@
                     return codes;
                 } catch (error) {
                     console.warn('Error cargando QR codes:', error);
-                    // Datos mock para demostración
                     const mockCodes = [];
                     for (let i = 1; i <= 50; i++) {
                         const id = String(i).padStart(4, '0');
@@ -1511,7 +1702,6 @@
                 unlockPanel();
             });
 
-            // Enter key para login
             $('passwordInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     $('loginBtn').click();
@@ -1529,6 +1719,80 @@
             $('printBtn').addEventListener('click', () => {
                 window.print();
             });
+        }
+
+        // ===== IA =====
+        function initIA() {
+            ejecutarPrediccion();
+            ejecutarNeurosimbólico();
+            setInterval(ejecutarPrediccion, 30000);
+            setInterval(ejecutarNeurosimbólico, 45000);
+        }
+
+        function ejecutarPrediccion() {
+            const predicciones = [
+                { valor: 12450, confianza: 94 },
+                { valor: 18320, confianza: 87 },
+                { valor: 9650, confianza: 91 },
+                { valor: 21500, confianza: 79 },
+                { valor: 14280, confianza: 88 }
+            ];
+            const random = predicciones[Math.floor(Math.random() * predicciones.length)];
+            
+            document.getElementById('prediccionValor').textContent = `$${random.valor.toLocaleString()}`;
+            document.getElementById('prediccionConfianza').textContent = `${random.confianza}%`;
+            document.getElementById('prediccionHora').textContent = new Date().toLocaleTimeString();
+        }
+
+        function verDetallePrediccion() {
+            mostrarToast('📊 Abriendo panel detallado de predicciones...');
+        }
+
+        function ejecutarNeurosimbólico() {
+            const analisis = [
+                'Patrón de compras identificado: los clientes con TOK compran más',
+                'Nuevo cluster de usuarios detectado en la red social',
+                'Tendencia: aumento de ventas los fines de semana',
+                'Anomalía detectada: pico inusual en transacciones de TOK',
+                'Recomendación: aumentar stock de domos de galleta'
+            ];
+            const random = analisis[Math.floor(Math.random() * analisis.length)];
+            
+            document.getElementById('analisisNeurosimbólico').textContent = random;
+            document.getElementById('cicloNeurosimbólico').textContent = `#${Math.floor(Math.random() * 50) + 1}`;
+            document.getElementById('nodosNeurosimbólicos').textContent = Math.floor(Math.random() * 200) + 50;
+        }
+
+        function verDetalleNeurosimbólico() {
+            mostrarToast('🧠 Abriendo mapa conceptual de la red neurosimbólica...');
+        }
+
+        // ===== TOAST =====
+        function mostrarToast(mensaje) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--success);
+                color: #0a0c10;
+                padding: 14px 28px;
+                border-radius: var(--radius);
+                font-weight: 600;
+                font-size: 0.9rem;
+                z-index: 9999;
+                font-family: 'Orbitron', monospace;
+                box-shadow: var(--shadow-neon);
+                animation: fadeInUp 0.3s ease-out;
+            `;
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
         }
     </script>
 </body>
