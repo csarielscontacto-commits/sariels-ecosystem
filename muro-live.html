@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muro Live | Sariel's Ecosystem</title>
+    <meta name="theme-color" content="#05080f" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sariel's Ecosystem - Muro Live" />
+    <meta property="og:description" content="Publica fotos, videos y estados en tu muro descentralizado" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    
+    <style>
+        /* ===== VARIABLES CÓSMICAS ===== */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --space-light: #101f3a;
+            --nebula-1: #6c2bd9;
+            --nebula-2: #ff6b9d;
+            --nebula-3: #00d4ff;
+            --gold-cosmic: #f7d44a;
+            --gold-dim: rgba(247,212,74,0.15);
+            --plasma: #ff3366;
+            --quantum: #00e5ff;
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(0,212,255,0.08);
+            --border-glow: rgba(0,212,255,0.25);
+            --shadow-neon: 0 0 40px rgba(0,212,255,0.1);
+            --shadow-glow: 0 0 60px rgba(108,43,217,0.15);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --warning: #f7d44a;
+            --danger: #ff3366;
+        }
+
+        /* ===== RESET Y BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== FONDO ESTELAR CON CANVAS ===== */
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== NEBULOSAS ===== */
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+
+        .nebula-1 { width: 700px; height: 700px; background: var(--nebula-1); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--nebula-2); bottom: -15%; left: -15%; animation-delay: -8s; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.06; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--nebula-3), var(--nebula-1)); border-radius: 3px; }
+
+        /* ===== LAYOUT ===== */
+        .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px 24px 40px; }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--quantum), var(--nebula-2), var(--quantum), transparent);
+            opacity: 0.3;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2.4rem;
+            filter: drop-shadow(0 0 20px rgba(0,212,255,0.3));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(0,212,255,0.3)); }
+            50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--text-primary), var(--quantum), var(--nebula-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0,212,255,0.2);
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 0 30px rgba(108,43,217,0.3);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(108,43,217,0.3); }
+            50% { box-shadow: 0 0 60px rgba(255,107,157,0.4); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,212,255,0.06);
+            border: 1px solid rgba(0,212,255,0.15);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: var(--quantum);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+        .status-dot.offline { background: var(--text-muted); box-shadow: 0 0 20px rgba(74,106,138,0.3); }
+
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(0,212,255,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: scale(1.03); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--nebula-2), var(--nebula-1));
+            box-shadow: 0 0 40px rgba(108,43,217,0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #00897b, #00695c);
+            box-shadow: 0 0 40px rgba(0,184,148,0.3);
+        }
+
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(247,212,74,0.3); }
+
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(0,212,255,0.05);
+            border-color: var(--quantum);
+        }
+
+        .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
+        .btn-block { width: 100%; justify-content: center; }
+
+        /* ===== FORMULARIO DE PUBLICACIÓN ===== */
+        .publish-card {
+            background: rgba(10,20,40,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .publish-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--quantum), var(--nebula-1), var(--nebula-2), var(--quantum));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .publish-card:hover::before { opacity: 0.3; }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .publish-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .publish-card .card-header i {
+            font-size: 1.5rem;
+            color: var(--quantum);
+        }
+
+        .publish-card .card-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, var(--text-primary), var(--quantum));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .publish-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            resize: vertical;
+            min-height: 80px;
+            outline: none;
+        }
+
+        .publish-textarea:focus {
+            border-color: var(--quantum);
+            box-shadow: 0 0 20px rgba(0,212,255,0.1);
+        }
+
+        .publish-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .publish-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper .btn {
+            pointer-events: none;
+        }
+
+        .file-preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .file-preview-item {
+            position: relative;
+            display: inline-block;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .file-preview-item img,
+        .file-preview-item video {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .file-preview-item .remove-file {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .file-preview-item .remove-file:hover {
+            background: var(--danger);
+        }
+
+        /* ===== PUBLICACIONES ===== */
+        .post-card {
+            background: rgba(10,20,40,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--quantum), var(--nebula-1), var(--nebula-2), var(--quantum));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .post-card:hover::before { opacity: 0.3; }
+        .post-card:hover { transform: translateY(-2px); border-color: var(--border-glow); }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--nebula-1), var(--nebula-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .post-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .post-author {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .post-date {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .post-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            word-wrap: break-word;
+        }
+
+        .post-media {
+            margin-bottom: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .post-media img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        .post-media video {
+            width: 100%;
+            max-height: 400px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .post-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .post-actions button:hover {
+            color: var(--quantum);
+        }
+
+        .post-actions button.liked {
+            color: var(--danger);
+        }
+
+        .post-actions button .count {
+            font-size: 0.75rem;
+        }
+
+        /* ===== COMENTARIOS ===== */
+        .comments-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--nebula-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #0a0c10;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-body {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .comment-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .comment-date {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .comment-input-wrapper {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .comment-input-wrapper input {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .comment-input-wrapper input:focus {
+            border-color: var(--quantum);
+        }
+
+        .comment-input-wrapper button {
+            padding: 8px 16px;
+            background: var(--quantum);
+            border: none;
+            border-radius: 8px;
+            color: #0a0c10;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+        }
+
+        .comment-input-wrapper button:hover {
+            transform: scale(1.05);
+        }
+
+        /* ===== IMPORTAR CONTACTOS ===== */
+        .import-section {
+            background: rgba(10,20,40,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .import-section .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--success);
+            color: #0a0c10;
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            box-shadow: var(--shadow-neon);
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 48px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--quantum), transparent);
+            opacity: 0.2;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links a:hover { color: var(--quantum); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .app { padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .logo-text { font-size: 1.2rem; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .publish-actions { flex-direction: column; align-items: stretch; }
+            .file-upload-wrapper .btn { width: 100%; justify-content: center; }
+            .post-actions { flex-wrap: wrap; }
+            .import-section { flex-direction: column; align-items: stretch; }
+        }
+
+        @media (max-width: 480px) {
+            .btn { font-size: 0.6rem; padding: 8px 14px; }
+            .publish-card { padding: 16px; }
+            .post-card { padding: 16px; }
+            .file-preview-item img,
+            .file-preview-item video { max-width: 80px; max-height: 80px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <!-- ===== CONTENIDO ===== -->
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="./index.html" class="logo">
+                <span class="logo-icon">📱</span>
+                <span class="logo-text">Sariel's</span>
+                <span class="logo-badge">Muro Live</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>En vivo</span>
+                </div>
+                <a href="./mi-red.html" class="btn"><i class="fas fa-arrow-left"></i> Mi Red</a>
+                <a href="./panel-web3.html" class="btn"><i class="fas fa-wallet"></i> Web3</a>
+            </div>
+        </header>
+
+        <!-- ===== IMPORTAR CONTACTOS ===== -->
+        <div class="import-section">
+            <span class="label"><i class="fas fa-address-book"></i> Importar contactos</span>
+            <button class="btn btn-primary btn-sm" id="btnImportContacts">
+                <i class="fas fa-mobile-alt"></i> Desde móvil
+            </button>
+            <div class="file-upload-wrapper">
+                <button class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-upload"></i> Desde archivo
+                </button>
+                <input type="file" id="fileImport" accept=".vcf,.csv,.txt" />
+            </div>
+            <span style="font-size:0.7rem;color:var(--text-muted);">
+                <span id="contactCount">0</span> contactos en tu red
+            </span>
+        </div>
+
+        <!-- ===== PUBLICAR ===== -->
+        <div class="publish-card">
+            <div class="card-header">
+                <i class="fas fa-pen-fancy"></i>
+                <h2>Crear publicación</h2>
+            </div>
+
+            <textarea class="publish-textarea" id="postContent" placeholder="¿Qué está pasando? Comparte algo con tu red..."></textarea>
+
+            <div class="file-preview" id="filePreview"></div>
+
+            <div class="publish-actions">
+                <div class="file-upload-wrapper">
+                    <button class="btn btn-outline btn-sm">
+                        <i class="fas fa-image"></i> Foto
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*,video/*" multiple />
+                </div>
+                <button class="btn btn-success btn-sm" id="btnPublish">
+                    <i class="fas fa-rocket"></i> Publicar
+                </button>
+                <span style="font-size:0.7rem;color:var(--text-muted);margin-left:auto;">
+                    <span id="postCount">0</span> publicaciones
+                </span>
+            </div>
+        </div>
+
+        <!-- ===== MURO ===== -->
+        <div id="muroContainer">
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <h3>Sin publicaciones</h3>
+                <p>Sé el primero en compartir algo en tu muro.</p>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                📱 Sariel's Ecosystem — Muro Live Descentralizado
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./panel-web3.html">🔗 Web3</a>
+                <a href="./fidelizacion.html">🎫 Fidelización</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ================================================================
+        // SISTEMA ESTELAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📱 Sariel\'s Ecosystem - Muro Live');
+            initStars();
+            initMuro();
+        });
+
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            let meteors = [];
+
+            const STAR_COUNT = 300;
+            const METEOR_COUNT = 3;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.8 + 0.3,
+                        speed: Math.random() * 0.02 + 0.005,
+                        opacity: Math.random() * 0.8 + 0.2,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function createMeteor() {
+                return {
+                    x: Math.random() * width * 0.8,
+                    y: Math.random() * height * 0.3,
+                    speed: Math.random() * 3 + 4,
+                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+                    opacity: Math.random() * 0.6 + 0.4,
+                    active: true,
+                    trail: []
+                };
+            }
+
+            function initMeteors() {
+                meteors = [];
+                for (let i = 0; i < METEOR_COUNT; i++) {
+                    const meteor = createMeteor();
+                    meteor.x = Math.random() * width;
+                    meteor.y = Math.random() * height * 0.2;
+                    meteors.push(meteor);
+                }
+            }
+
+            function updateStars() {
+                for (let star of stars) {
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+            }
+
+            function updateMeteors() {
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    meteor.x += Math.cos(meteor.angle) * meteor.speed;
+                    meteor.y += Math.sin(meteor.angle) * meteor.speed;
+                    meteor.trail.push({ x: meteor.x, y: meteor.y });
+                    if (meteor.trail.length > 20) meteor.trail.shift();
+                    if (meteor.x > width + 100 || meteor.y > height + 100) {
+                        meteor.active = false;
+                        setTimeout(() => {
+                            const newMeteor = createMeteor();
+                            newMeteor.x = Math.random() * width * 0.3;
+                            newMeteor.y = Math.random() * height * 0.2;
+                            Object.assign(meteor, newMeteor);
+                            meteor.active = true;
+                        }, Math.random() * 3000 + 2000);
+                    }
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    if (star.radius > 1.2) {
+                        ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
+                        ctx.shadowBlur = 10;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    for (let i = 0; i < meteor.trail.length; i++) {
+                        const point = meteor.trail[i];
+                        const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
+                        const radius = (i / meteor.trail.length) * 2;
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
+                        ctx.fill();
+                    }
+                    const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                    gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
+                    gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
+                    ctx.shadowBlur = 30;
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            function animate() {
+                updateStars();
+                updateMeteors();
+                draw();
+                requestAnimationFrame(animate);
+            }
+
+            resize();
+            createStars();
+            initMeteors();
+            animate();
+
+            window.addEventListener('resize', () => {
+                resize();
+                createStars();
+            });
+        }
+
+        // ================================================================
+        // MURO LIVE - LÓGICA PRINCIPAL
+        // ================================================================
+        function initMuro() {
+            // Elementos
+            const postContent = document.getElementById('postContent');
+            const fileInput = document.getElementById('fileInput');
+            const filePreview = document.getElementById('filePreview');
+            const btnPublish = document.getElementById('btnPublish');
+            const muroContainer = document.getElementById('muroContainer');
+            const toast = document.getElementById('toast');
+
+            // Estado
+            let selectedFiles = [];
+            let posts = [];
+            let contactos = [];
+            let toastTimeout = null;
+
+            const STORAGE_KEY = 'muro_live_posts';
+            const CONTACTS_KEY = 'muro_live_contactos';
+            const USER_NAME = 'Tú';
+            const USER_AVATAR = 'T';
+
+            // ===== CARGAR DATOS =====
+            function loadPosts() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) {
+                        posts = JSON.parse(stored);
+                    } else {
+                        // Datos de ejemplo
+                        posts = [{
+                            id: Date.now() - 3600000,
+                            author: 'María García',
+                            avatar: 'M',
+                            content: '¡Hola a todos! Acabo de unirme a Sariel\'s Ecosystem. 🌟',
+                            media: [],
+                            likes: 3,
+                            liked: false,
+                            comments: [
+                                { author: 'Carlos Ruiz', avatar: 'C', text: '¡Bienvenida!', date: Date.now() - 3000000 }
+                            ],
+                            date: Date.now() - 3600000
+                        }];
+                        savePosts();
+                    }
+                    document.getElementById('postCount').textContent = posts.length;
+                    return posts;
+                } catch (e) {
+                    console.error('Error cargando posts:', e);
+                    return [];
+                }
+            }
+
+            function savePosts() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+                    document.getElementById('postCount').textContent = posts.length;
+                } catch (e) {
+                    console.error('Error guardando posts:', e);
+                }
+            }
+
+            function loadContactos() {
+                try {
+                    const stored = localStorage.getItem(CONTACTS_KEY);
+                    if (stored) {
+                        contactos = JSON.parse(stored);
+                    } else {
+                        // Contactos de ejemplo desde mi-red.html
+                        contactos = [
+                            { nombre: 'María García', telefono: '55 1234 5678', id: 'cli_001' },
+                            { nombre: 'Carlos Ruiz', telefono: '55 2345 6789', id: 'cli_002' },
+                            { nombre: 'Ana López', telefono: '55 3456 7890', id: 'cli_003' }
+                        ];
+                        saveContactos();
+                    }
+                    document.getElementById('contactCount').textContent = contactos.length;
+                    return contactos;
+                } catch (e) {
+                    console.error('Error cargando contactos:', e);
+                    return [];
+                }
+            }
+
+            function saveContactos() {
+                try {
+                    localStorage.setItem(CONTACTS_KEY, JSON.stringify(contactos));
+                    document.getElementById('contactCount').textContent = contactos.length;
+                } catch (e) {
+                    console.error('Error guardando contactos:', e);
+                }
+            }
+
+            // ===== RENDERIZAR MURO =====
+            function renderMuro() {
+                if (posts.length === 0) {
+                    muroContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Sin publicaciones</h3>
+                            <p>Sé el primero en compartir algo en tu muro.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                muroContainer.innerHTML = posts.map(post => `
+                    <div class="post-card" data-id="${post.id}">
+                        <div class="post-header">
+                            <div class="post-avatar">${post.avatar || post.author.charAt(0)}</div>
+                            <div>
+                                <div class="post-author">${escapeHtml(post.author)}</div>
+                                <div class="post-date">${formatDate(post.date)}</div>
+                            </div>
+                        </div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
+                        ${post.media && post.media.length > 0 ? `
+                            <div class="post-media">
+                                ${post.media.map(m => {
+                                    if (m.type.startsWith('image/')) {
+                                        return `<img src="${m.data}" alt="Imagen" />`;
+                                    } else if (m.type.startsWith('video/')) {
+                                        return `<video controls src="${m.data}"></video>`;
+                                    }
+                                    return '';
+                                }).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="post-actions">
+                            <button class="like-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                                <i class="fas fa-heart"></i> <span class="count">${post.likes || 0}</span>
+                            </button>
+                            <button onclick="toggleComments(${post.id})">
+                                <i class="fas fa-comment"></i> <span class="count">${(post.comments || []).length}</span>
+                            </button>
+                            <button onclick="deletePost(${post.id})" style="color:var(--danger);">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="comments-section" id="comments-${post.id}" style="display:none;">
+                            ${(post.comments || []).map(c => `
+                                <div class="comment-item">
+                                    <div class="comment-avatar">${c.avatar || c.author.charAt(0)}</div>
+                                    <div class="comment-body">
+                                        <div class="comment-author">${escapeHtml(c.author)}</div>
+                                        <div class="comment-text">${escapeHtml(c.text)}</div>
+                                        <div class="comment-date">${formatDate(c.date)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <div class="comment-input-wrapper">
+                                <input type="text" placeholder="Escribe un comentario..." id="commentInput-${post.id}" />
+                                <button onclick="addComment(${post.id})">Enviar</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Reasignar eventos de comentarios (Enter)
+                document.querySelectorAll('.comment-input-wrapper input').forEach(input => {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const postId = parseInt(input.id.split('-')[1]);
+                            addComment(postId);
+                        }
+                    });
+                });
+            }
+
+            // ===== FUNCIONES DE PUBLICACIÓN =====
+            function publishPost() {
+                const content = postContent.value.trim();
+                if (!content && selectedFiles.length === 0) {
+                    showToast('⚠️ Escribe algo o adjunta un archivo', 'error');
+                    return;
+                }
+
+                const mediaData = selectedFiles.map(file => ({
+                    name: file.name,
+                    type: file.type,
+                    data: file.data
+                }));
+
+                const newPost = {
+                    id: Date.now(),
+                    author: USER_NAME,
+                    avatar: USER_AVATAR,
+                    content: content || '📎 Publicación multimedia',
+                    media: mediaData,
+                    likes: 0,
+                    liked: false,
+                    comments: [],
+                    date: Date.now()
+                };
+
+                posts.unshift(newPost);
+                savePosts();
+                renderMuro();
+
+                // Limpiar formulario
+                postContent.value = '';
+                selectedFiles = [];
+                filePreview.innerHTML = '';
+                showToast('✅ Publicación creada con éxito');
+            }
+
+            // ===== MANEJO DE ARCHIVOS =====
+            function handleFiles(files) {
+                for (const file of files) {
+                    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+                        showToast('⚠️ Solo se permiten imágenes y videos', 'error');
+                        continue;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        selectedFiles.push({
+                            name: file.name,
+                            type: file.type,
+                            data: e.target.result
+                        });
+                        renderFilePreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function renderFilePreview() {
+                filePreview.innerHTML = selectedFiles.map((file, index) => `
+                    <div class="file-preview-item">
+                        ${file.type.startsWith('image/') 
+                            ? `<img src="${file.data}" alt="${file.name}" />`
+                            : `<video src="${file.data}"></video>`
+                        }
+                        <button class="remove-file" onclick="removeFile(${index})">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            function removeFile(index) {
+                selectedFiles.splice(index, 1);
+                renderFilePreview();
+            }
+
+            // ===== INTERACCIONES =====
+            window.toggleLike = function(postId) {
+                const post = posts.find(p => p.id === postId);
+                if (post) {
+                    post.liked = !post.liked;
+                    post.likes += post.liked ? 1 : -1;
+                    savePosts();
+                    renderMuro();
+                }
+            };
+
+            window.toggleComments = function(postId) {
+                const section = document.getElementById(`comments-${postId}`);
+                if (section) {
+                    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+                    if (section.style.display === 'block') {
+                        const input = document.getElementById(`commentInput-${postId}`);
+                        if (input) setTimeout(() => input.focus(), 100);
+                    }
+                }
+            };
+
+            window.addComment = function(postId) {
+                const input = document.getElementById(`commentInput-${postId}`);
+                if (!input) return;
+                const text = input.value.trim();
+                if (!text) {
+                    showToast('⚠️ Escribe un comentario', 'error');
+                    return;
+                }
+
+                const post = posts.find(p => p.id === postId);
+                if (post) {
+                    if (!post.comments) post.comments = [];
+                    post.comments.push({
+                        author: USER_NAME,
+                        avatar: USER_AVATAR,
+                        text: text,
+                        date: Date.now()
+                    });
+                    savePosts();
+                    renderMuro();
+                    // Abrir comentarios
+                    const section = document.getElementById(`comments-${postId}`);
+                    if (section) section.style.display = 'block';
+                    showToast('💬 Comentario agregado');
+                }
+            };
+
+            window.deletePost = function(postId) {
+                if (confirm('¿Seguro que quieres eliminar esta publicación?')) {
+                    posts = posts.filter(p => p.id !== postId);
+                    savePosts();
+                    renderMuro();
+                    showToast('🗑️ Publicación eliminada');
+                }
+            };
+
+            // ===== IMPORTAR CONTACTOS =====
+            function importContactsFromDevice() {
+                if (navigator.contacts && navigator.contacts.select) {
+                    navigator.contacts.select(['name', 'tel'], { multiple: true })
+                        .then(contacts => {
+                            let imported = 0;
+                            contacts.forEach(c => {
+                                const nombre = c.name && c.name.length > 0 ? c.name[0] : 'Contacto';
+                                const telefono = c.tel && c.tel.length > 0 ? c.tel[0] : '';
+                                if (nombre) {
+                                    const existe = contactos.some(ct => ct.nombre === nombre);
+                                    if (!existe) {
+                                        contactos.push({
+                                            id: 'cli_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                                            nombre: nombre,
+                                            telefono: telefono
+                                        });
+                                        imported++;
+                                    }
+                                }
+                            });
+                            saveContactos();
+                            showToast(`✅ ${imported} contactos importados desde el móvil`);
+                        })
+                        .catch(err => {
+                            console.error('Error importando contactos:', err);
+                            showToast('⚠️ No se pudo acceder a los contactos', 'error');
+                        });
+                } else {
+                    showToast('⚠️ Esta función solo está disponible en dispositivos móviles', 'error');
+                    // Fallback: abrir selector de archivos
+                    document.getElementById('fileImport').click();
+                }
+            }
+
+            function importContactsFromFile(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const lines = content.split('\n');
+                    let imported = 0;
+
+                    // Intentar parsear como CSV
+                    const isCSV = file.name.endsWith('.csv');
+                    if (isCSV) {
+                        const headers = lines[0].toLowerCase().split(',');
+                        const nameIdx = headers.findIndex(h => h.includes('nombre') || h.includes('name'));
+                        const telIdx = headers.findIndex(h => h.includes('tel') || h.includes('telefono') || h.includes('phone'));
+
+                        for (let i = 1; i < lines.length; i++) {
+                            const cols = lines[i].split(',');
+                            if (cols.length > Math.max(nameIdx, telIdx)) {
+                                const nombre = nameIdx >= 0 ? cols[nameIdx].trim() : '';
+                                const telefono = telIdx >= 0 ? cols[telIdx].trim() : '';
+                                if (nombre) {
+                                    const existe = contactos.some(ct => ct.nombre === nombre);
+                                    if (!existe) {
+                                        contactos.push({
+                                            id: 'cli_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                                            nombre: nombre,
+                                            telefono: telefono
+                                        });
+                                        imported++;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Intentar parsear como VCF
+                        const vcards = content.split('BEGIN:VCARD');
+                        for (const vcard of vcards) {
+                            if (!vcard.trim()) continue;
+                            const nameMatch = vcard.match(/FN[:;]([^\n]+)/);
+                            const telMatch = vcard.match(/TEL[:;]([^\n]+)/);
+                            if (nameMatch) {
+                                const nombre = nameMatch[1].trim();
+                                const telefono = telMatch ? telMatch[1].trim() : '';
+                                const existe = contactos.some(ct => ct.nombre === nombre);
+                                if (!existe) {
+                                    contactos.push({
+                                        id: 'cli_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                                        nombre: nombre,
+                                        telefono: telefono
+                                    });
+                                    imported++;
+                                }
+                            }
+                        }
+                    }
+
+                    saveContactos();
+                    showToast(`✅ ${imported} contactos importados desde archivo`);
+                };
+                reader.readAsText(file);
+            }
+
+            // ===== UTILIDADES =====
+            function formatDate(timestamp) {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diff = Math.floor((now - date) / 1000);
+
+                if (diff < 60) return 'Ahora mismo';
+                if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+                if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+                if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
+
+                return date.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function showToast(message, type = '') {
+                toast.textContent = message;
+                toast.className = `toast${type ? ' ' + type : ''}`;
+                toast.classList.add('active');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+            }
+
+            // ===== EVENTOS =====
+            // Publicar
+            btnPublish.addEventListener('click', publishPost);
+
+            // Cargar archivos
+            fileInput.addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    handleFiles(this.files);
+                    this.value = '';
+                }
+            });
+
+            // Importar contactos
+            document.getElementById('btnImportContacts').addEventListener('click', importContactsFromDevice);
+
+            document.getElementById('fileImport').addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    importContactsFromFile(this.files[0]);
+                    this.value = '';
+                }
+            });
+
+            // Enter para publicar (Ctrl+Enter)
+            postContent.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    publishPost();
+                }
+            });
+
+            // ===== INICIALIZAR =====
+            loadContactos();
+            loadPosts();
+            renderMuro();
+
+            // Exponer globalmente para los onclick
+            window.toggleLike = toggleLike;
+            window.toggleComments = toggleComments;
+            window.addComment = addComment;
+            window.deletePost = deletePost;
+            window.removeFile = removeFile;
+
+            console.log('📱 Muro Live inicializado con', posts.length, 'publicaciones y', contactos.length, 'contactos');
+        }
+    </script>
+</body>
+</html>
