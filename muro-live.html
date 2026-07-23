@@ -291,6 +291,46 @@
         .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
         .btn-block { width: 100%; justify-content: center; }
 
+        /* ===== FILTROS ===== */
+        .filters-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters-bar .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+            margin-right: 4px;
+        }
+
+        .filter-btn {
+            padding: 6px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--border-glow);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--quantum);
+            color: #0a0c10;
+            border-color: var(--quantum);
+        }
+
         /* ===== FORMULARIO DE PUBLICACIÓN ===== */
         .publish-card {
             background: rgba(10,20,40,0.6);
@@ -695,6 +735,33 @@
             letter-spacing: 0.5px;
         }
 
+        /* ===== REWARDS ===== */
+        .rewards-summary {
+            background: rgba(247,212,74,0.06);
+            border: 1px solid rgba(247,212,74,0.15);
+            border-radius: var(--radius);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rewards-summary .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .rewards-summary .value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+        }
+
         /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
@@ -799,6 +866,8 @@
             .file-upload-wrapper .btn { width: 100%; justify-content: center; }
             .post-actions { flex-wrap: wrap; }
             .import-section { flex-direction: column; align-items: stretch; }
+            .filters-bar { flex-wrap: wrap; }
+            .rewards-summary { flex-direction: column; align-items: flex-start; }
         }
 
         @media (max-width: 480px) {
@@ -853,6 +922,27 @@
             </span>
         </div>
 
+        <!-- ===== FILTROS ===== -->
+        <div class="filters-bar">
+            <span class="label">📊 Feed:</span>
+            <button class="filter-btn active" data-filter="trending" onclick="setFilter('trending')">
+                <i class="fas fa-fire"></i> Para Ti
+            </button>
+            <button class="filter-btn" data-filter="recent" onclick="setFilter('recent')">
+                <i class="fas fa-clock"></i> Recientes
+            </button>
+            <span style="margin-left:auto;font-size:0.6rem;color:var(--text-muted);">
+                <span id="postCount">0</span> publicaciones
+            </span>
+        </div>
+
+        <!-- ===== REWARDS SUMMARY ===== -->
+        <div class="rewards-summary">
+            <span class="label"><i class="fas fa-coins"></i> Recompensas S-TOK:</span>
+            <span class="value" id="rewardsTotal">0</span>
+            <span style="font-size:0.65rem;color:var(--text-muted);">Tokens acumulados por interacciones</span>
+        </div>
+
         <!-- ===== PUBLICAR ===== -->
         <div class="publish-card">
             <div class="card-header">
@@ -874,9 +964,6 @@
                 <button class="btn btn-success btn-sm" id="btnPublish">
                     <i class="fas fa-rocket"></i> Publicar
                 </button>
-                <span style="font-size:0.7rem;color:var(--text-muted);margin-left:auto;">
-                    <span id="postCount">0</span> publicaciones
-                </span>
             </div>
         </div>
 
@@ -1066,7 +1153,7 @@
         }
 
         // ================================================================
-        // MURO LIVE - LÓGICA PRINCIPAL
+        // MURO LIVE - LÓGICA PRINCIPAL CON ALGORITMO
         // ================================================================
         function initMuro() {
             // Elementos
@@ -1082,9 +1169,12 @@
             let posts = [];
             let contactos = [];
             let toastTimeout = null;
+            let currentFilter = 'trending'; // 'trending' o 'recent'
+            let rewardsTotal = 0;
 
             const STORAGE_KEY = 'muro_live_posts';
             const CONTACTS_KEY = 'muro_live_contactos';
+            const REWARDS_KEY = 'muro_live_rewards';
             const USER_NAME = 'Tú';
             const USER_AVATAR = 'T';
 
@@ -1107,11 +1197,14 @@
                             comments: [
                                 { author: 'Carlos Ruiz', avatar: 'C', text: '¡Bienvenida!', date: Date.now() - 3000000 }
                             ],
-                            date: Date.now() - 3600000
+                            date: Date.now() - 3600000,
+                            // Metadatos para algoritmo
+                            engagement: 3 + 1, // likes + comentarios
+                            interactionScore: 3 * 2 + 1 // likes*2 + comentarios
                         }];
                         savePosts();
                     }
-                    document.getElementById('postCount').textContent = posts.length;
+                    updatePostCount();
                     return posts;
                 } catch (e) {
                     console.error('Error cargando posts:', e);
@@ -1122,7 +1215,7 @@
             function savePosts() {
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-                    document.getElementById('postCount').textContent = posts.length;
+                    updatePostCount();
                 } catch (e) {
                     console.error('Error guardando posts:', e);
                 }
@@ -1134,7 +1227,6 @@
                     if (stored) {
                         contactos = JSON.parse(stored);
                     } else {
-                        // Contactos de ejemplo desde mi-red.html
                         contactos = [
                             { nombre: 'María García', telefono: '55 1234 5678', id: 'cli_001' },
                             { nombre: 'Carlos Ruiz', telefono: '55 2345 6789', id: 'cli_002' },
@@ -1159,9 +1251,70 @@
                 }
             }
 
+            function loadRewards() {
+                try {
+                    const stored = localStorage.getItem(REWARDS_KEY);
+                    if (stored) {
+                        rewardsTotal = JSON.parse(stored);
+                    } else {
+                        rewardsTotal = 0;
+                        saveRewards();
+                    }
+                    document.getElementById('rewardsTotal').textContent = rewardsTotal;
+                    return rewardsTotal;
+                } catch (e) {
+                    console.error('Error cargando recompensas:', e);
+                    return 0;
+                }
+            }
+
+            function saveRewards() {
+                try {
+                    localStorage.setItem(REWARDS_KEY, JSON.stringify(rewardsTotal));
+                    document.getElementById('rewardsTotal').textContent = rewardsTotal;
+                } catch (e) {
+                    console.error('Error guardando recompensas:', e);
+                }
+            }
+
+            function updatePostCount() {
+                document.getElementById('postCount').textContent = posts.length;
+            }
+
+            // ===== ALGORITMO DE FEED =====
+            function calculateEngagement(post) {
+                const likes = post.likes || 0;
+                const comments = (post.comments || []).length;
+                const age = Date.now() - post.date;
+                const hoursOld = age / (1000 * 60 * 60);
+                
+                // Score: likes*2 + comentarios*3 + bonus por reciente (decae con el tiempo)
+                const recencyBonus = Math.max(0, 10 - hoursOld) * 0.5;
+                const score = (likes * 2) + (comments * 3) + recencyBonus;
+                
+                post.engagement = likes + comments;
+                post.interactionScore = Math.round(score * 10) / 10;
+                return post;
+            }
+
+            function getFilteredPosts(filter) {
+                // Calcular engagement para todos los posts
+                const postsWithEngagement = posts.map(p => calculateEngagement(p));
+
+                if (filter === 'recent') {
+                    // Orden cronológico (más reciente primero)
+                    return [...postsWithEngagement].sort((a, b) => b.date - a.date);
+                } else {
+                    // Trending: mayor interacción primero
+                    return [...postsWithEngagement].sort((a, b) => b.interactionScore - a.interactionScore);
+                }
+            }
+
             // ===== RENDERIZAR MURO =====
             function renderMuro() {
-                if (posts.length === 0) {
+                const filteredPosts = getFilteredPosts(currentFilter);
+
+                if (filteredPosts.length === 0) {
                     muroContainer.innerHTML = `
                         <div class="empty-state">
                             <div class="icon">📭</div>
@@ -1172,8 +1325,8 @@
                     return;
                 }
 
-                muroContainer.innerHTML = posts.map(post => `
-                    <div class="post-card" data-id="${post.id}">
+                muroContainer.innerHTML = filteredPosts.map(post => `
+                    <div class="post-card" data-id="${post.id}" data-score="${post.interactionScore || 0}">
                         <div class="post-header">
                             <div class="post-avatar">${post.avatar || post.author.charAt(0)}</div>
                             <div>
@@ -1204,6 +1357,7 @@
                             <button onclick="deletePost(${post.id})" style="color:var(--danger);">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            ${currentFilter === 'trending' ? `<span style="font-size:0.6rem;color:var(--text-muted);margin-left:auto;">🔥 ${post.interactionScore || 0}</span>` : ''}
                         </div>
                         <div class="comments-section" id="comments-${post.id}" style="display:none;">
                             ${(post.comments || []).map(c => `
@@ -1258,7 +1412,9 @@
                     likes: 0,
                     liked: false,
                     comments: [],
-                    date: Date.now()
+                    date: Date.now(),
+                    engagement: 0,
+                    interactionScore: 0
                 };
 
                 posts.unshift(newPost);
@@ -1310,12 +1466,25 @@
                 renderFilePreview();
             }
 
-            // ===== INTERACCIONES =====
+            // ===== INTERACCIONES CON RECOMPENSAS =====
+            function updateRewards(amount) {
+                rewardsTotal += amount;
+                saveRewards();
+                showToast(`🪙 +${amount} S-TOK por interacción`);
+            }
+
             window.toggleLike = function(postId) {
                 const post = posts.find(p => p.id === postId);
                 if (post) {
+                    const wasLiked = post.liked;
                     post.liked = !post.liked;
                     post.likes += post.liked ? 1 : -1;
+                    
+                    // Recompensa por like
+                    if (post.liked && !wasLiked) {
+                        updateRewards(1);
+                    }
+                    
                     savePosts();
                     renderMuro();
                 }
@@ -1350,9 +1519,12 @@
                         text: text,
                         date: Date.now()
                     });
+                    
+                    // Recompensa por comentario
+                    updateRewards(2);
+                    
                     savePosts();
                     renderMuro();
-                    // Abrir comentarios
                     const section = document.getElementById(`comments-${postId}`);
                     if (section) section.style.display = 'block';
                     showToast('💬 Comentario agregado');
@@ -1366,6 +1538,16 @@
                     renderMuro();
                     showToast('🗑️ Publicación eliminada');
                 }
+            };
+
+            // ===== FILTROS =====
+            window.setFilter = function(filter) {
+                currentFilter = filter;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.filter === filter);
+                });
+                renderMuro();
+                showToast(`📊 Mostrando: ${filter === 'trending' ? 'Para Ti (tendencias)' : 'Recientes'}`);
             };
 
             // ===== IMPORTAR CONTACTOS =====
@@ -1398,7 +1580,6 @@
                         });
                 } else {
                     showToast('⚠️ Esta función solo está disponible en dispositivos móviles', 'error');
-                    // Fallback: abrir selector de archivos
                     document.getElementById('fileImport').click();
                 }
             }
@@ -1410,7 +1591,6 @@
                     const lines = content.split('\n');
                     let imported = 0;
 
-                    // Intentar parsear como CSV
                     const isCSV = file.name.endsWith('.csv');
                     if (isCSV) {
                         const headers = lines[0].toLowerCase().split(',');
@@ -1436,7 +1616,6 @@
                             }
                         }
                     } else {
-                        // Intentar parsear como VCF
                         const vcards = content.split('BEGIN:VCARD');
                         for (const vcard of vcards) {
                             if (!vcard.trim()) continue;
@@ -1499,10 +1678,8 @@
             }
 
             // ===== EVENTOS =====
-            // Publicar
             btnPublish.addEventListener('click', publishPost);
 
-            // Cargar archivos
             fileInput.addEventListener('change', function(e) {
                 if (this.files.length > 0) {
                     handleFiles(this.files);
@@ -1510,7 +1687,6 @@
                 }
             });
 
-            // Importar contactos
             document.getElementById('btnImportContacts').addEventListener('click', importContactsFromDevice);
 
             document.getElementById('fileImport').addEventListener('change', function(e) {
@@ -1520,7 +1696,6 @@
                 }
             });
 
-            // Enter para publicar (Ctrl+Enter)
             postContent.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                     e.preventDefault();
@@ -1531,16 +1706,20 @@
             // ===== INICIALIZAR =====
             loadContactos();
             loadPosts();
+            loadRewards();
             renderMuro();
 
-            // Exponer globalmente para los onclick
+            // Exponer globalmente
             window.toggleLike = toggleLike;
             window.toggleComments = toggleComments;
             window.addComment = addComment;
             window.deletePost = deletePost;
             window.removeFile = removeFile;
+            window.setFilter = setFilter;
 
             console.log('📱 Muro Live inicializado con', posts.length, 'publicaciones y', contactos.length, 'contactos');
+            console.log('🪙 Recompensas acumuladas:', rewardsTotal, 'S-TOK');
+            console.log('📊 Feed actual:', currentFilter);
         }
     </script>
 </body>
