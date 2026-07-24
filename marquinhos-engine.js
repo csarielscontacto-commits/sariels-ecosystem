@@ -6,7 +6,7 @@ export const Engine = {
         {
             id: 1,
             usuario: 'Marquinhos',
-            texto: 'Hola. Buscas los sevillanos de hoy?',
+            texto: 'Hola. ¿En qué puedo ayudarte hoy? 👋',
             leido: false
         }
     ],
