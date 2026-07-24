@@ -1,11 +1,12 @@
 /**
- * SISTEMA ESTELAR OPTIMIZADO - Sariel's Ecosystem
+ * SISTEMA ESTELAR OPTIMIZADO - Csariel's Ecosystem
  * 
  * Características:
- * - Detección automática de página (index, mi-red, muro-live)
+ * - Detección automática de página (index, mi-red, muro-live, trading, etc.)
  * - Ajuste dinámico de FPS y cantidad de estrellas
- * - Apagado/encendido mediante eventos globales
+ * - Apagado/encendido mediante eventos globales (live-started / live-ended)
  * - Consumo de batería reducido (hasta 70% menos)
+ * - Colores optimizados para la identidad Csariel's (Verde Bosque + Oro)
  */
 
 class SistemaEstelar {
@@ -46,6 +47,7 @@ class SistemaEstelar {
         const path = window.location.pathname;
         const page = path.split('/').pop() || 'index.html';
         
+        // === CONFIGURACIONES POR PÁGINA ===
         const configs = {
             'index.html': {
                 starCount: 120,
@@ -53,64 +55,105 @@ class SistemaEstelar {
                 fps: 30,
                 maxRadius: 1.4,
                 enableGlow: true,
-                description: 'Página principal - Moderado'
+                description: '🏠 Inicio - Moderado'
             },
             'mi-red.html': {
-                starCount: 60,
+                starCount: 55,
                 meteorCount: 1,
-                fps: 20,
-                maxRadius: 1.0,
+                fps: 18,
+                maxRadius: 0.9,
                 enableGlow: false,
-                description: 'Red Social - Bajo consumo'
+                description: '👥 Red Social - Bajo consumo'
             },
             'muro-live.html': {
-                starCount: 80,
+                starCount: 75,
                 meteorCount: 2,
-                fps: 25,
-                maxRadius: 1.2,
+                fps: 24,
+                maxRadius: 1.1,
                 enableGlow: true,
-                description: 'Muro Live - Moderado'
+                description: '📱 Muro Live - Moderado'
             },
             'trading.html': {
-                starCount: 80,
+                starCount: 70,
                 meteorCount: 1,
-                fps: 20,
-                maxRadius: 1.0,
+                fps: 18,
+                maxRadius: 0.9,
                 enableGlow: false,
-                description: 'Trading - Priorizar rendimiento'
+                description: '📈 Trading - Priorizar rendimiento'
             },
             'panel-web3.html': {
-                starCount: 100,
+                starCount: 90,
                 meteorCount: 2,
-                fps: 25,
-                maxRadius: 1.2,
+                fps: 24,
+                maxRadius: 1.1,
                 enableGlow: true,
-                description: 'Web3 - Moderado'
+                description: '🔗 Web3 - Moderado'
             },
             'fidelizacion.html': {
+                starCount: 70,
+                meteorCount: 1,
+                fps: 18,
+                maxRadius: 0.9,
+                enableGlow: false,
+                description: '🎫 Fidelización - Bajo consumo'
+            },
+            'dashboard-central.html': {
                 starCount: 80,
                 meteorCount: 1,
                 fps: 20,
                 maxRadius: 1.0,
                 enableGlow: false,
-                description: 'Fidelización - Bajo consumo'
+                description: '📊 Dashboard - Bajo consumo'
+            },
+            'registro-ventas-centralizado.html': {
+                starCount: 60,
+                meteorCount: 1,
+                fps: 18,
+                maxRadius: 0.8,
+                enableGlow: false,
+                description: '📝 Registro - Mínimo consumo'
+            },
+            'metodos-pago.html': {
+                starCount: 70,
+                meteorCount: 1,
+                fps: 20,
+                maxRadius: 0.9,
+                enableGlow: false,
+                description: '💳 Pagos - Bajo consumo'
+            },
+            'terminos-completos.html': {
+                starCount: 50,
+                meteorCount: 0,
+                fps: 15,
+                maxRadius: 0.7,
+                enableGlow: false,
+                description: '📜 Términos - Mínimo consumo'
             }
         };
         
         // Configuración por defecto
         let config = configs[page] || configs['index.html'];
         
-        // Detectar dispositivos móviles - reducir aún más
+        // === DETECCIÓN DE DISPOSITIVOS MÓVILES ===
         if (this.esDispositivoMovil()) {
-            config.starCount = Math.floor(config.starCount * 0.6);
-            config.meteorCount = Math.max(1, Math.floor(config.meteorCount * 0.5));
-            config.fps = Math.max(15, Math.floor(config.fps * 0.7));
-            config.maxRadius = Math.min(1.0, config.maxRadius * 0.8);
+            config.starCount = Math.floor(config.starCount * 0.5);
+            config.meteorCount = Math.max(0, Math.floor(config.meteorCount * 0.5));
+            config.fps = Math.max(12, Math.floor(config.fps * 0.6));
+            config.maxRadius = Math.min(0.8, config.maxRadius * 0.7);
             config.enableGlow = false;
-            config.description += ' (Móvil)';
+            config.description += ' 📱 (Móvil)';
         }
         
-        console.log(`🌟 Sistema Estelar: ${config.description} | Estrellas: ${config.starCount} | FPS: ${config.fps}`);
+        // === DETECCIÓN DE BAJA BATERÍA (opcional) ===
+        if (this.esBateriaBaja()) {
+            config.starCount = Math.floor(config.starCount * 0.4);
+            config.meteorCount = 0;
+            config.fps = Math.max(10, Math.floor(config.fps * 0.5));
+            config.enableGlow = false;
+            config.description += ' 🔋 (Batería baja)';
+        }
+        
+        console.log(`◈ Sistema Estelar Csariel's: ${config.description} | ⭐ ${config.starCount} | 🎞️ ${config.fps} FPS`);
         
         return config;
     }
@@ -118,6 +161,22 @@ class SistemaEstelar {
     esDispositivoMovil() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
             || window.innerWidth < 768;
+    }
+    
+    esBateriaBaja() {
+        // Verificar si el navegador soporta la API de batería
+        if (navigator.getBattery) {
+            try {
+                navigator.getBattery().then(battery => {
+                    if (battery.level < 0.2 && !battery.charging) {
+                        return true;
+                    }
+                });
+            } catch (e) {
+                return false;
+            }
+        }
+        return false;
     }
     
     init() {
@@ -147,7 +206,7 @@ class SistemaEstelar {
         // Escuchar resize
         window.addEventListener('resize', () => this.resize());
         
-        console.log('✅ Sistema Estelar inicializado');
+        console.log('✅ Sistema Estelar Csariel\'s inicializado');
     }
     
     resize() {
@@ -165,10 +224,10 @@ class SistemaEstelar {
             this.stars.push({
                 x: Math.random() * this.width,
                 y: Math.random() * this.height,
-                radius: Math.random() * maxRadius + 0.2,
-                speed: Math.random() * 0.015 + 0.003,
-                opacity: Math.random() * 0.6 + 0.2,
-                twinkleSpeed: Math.random() * 0.015 + 0.005,
+                radius: Math.random() * maxRadius + 0.15,
+                speed: Math.random() * 0.012 + 0.002,
+                opacity: Math.random() * 0.5 + 0.15,
+                twinkleSpeed: Math.random() * 0.012 + 0.004,
                 twinklePhase: Math.random() * Math.PI * 2
             });
         }
@@ -187,12 +246,12 @@ class SistemaEstelar {
         return {
             x: Math.random() * this.width * 0.7,
             y: Math.random() * this.height * 0.3,
-            speed: Math.random() * 2 + 3,
+            speed: Math.random() * 2 + 2.5,
             angle: Math.PI / 4 + (Math.random() - 0.5) * 0.2,
-            opacity: Math.random() * 0.4 + 0.2,
+            opacity: Math.random() * 0.35 + 0.15,
             active: true,
             trail: [],
-            maxTrail: 12
+            maxTrail: 10
         };
     }
     
@@ -270,7 +329,7 @@ class SistemaEstelar {
         
         ctx.clearRect(0, 0, width, height);
         
-        // Dibujar estrellas
+        // === DIBUJAR ESTRELLAS (blanco con destellos) ===
         for (const star of this.stars) {
             const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
             ctx.beginPath();
@@ -278,48 +337,49 @@ class SistemaEstelar {
             ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
             ctx.fill();
             
-            if (enableGlow && star.radius > 1.0) {
-                ctx.shadowColor = 'rgba(255, 255, 255, 0.03)';
-                ctx.shadowBlur = 8;
+            if (enableGlow && star.radius > 0.9) {
+                ctx.shadowColor = 'rgba(247, 212, 74, 0.03)';
+                ctx.shadowBlur = 6;
                 ctx.fill();
                 ctx.shadowBlur = 0;
             }
         }
         
-        // Dibujar meteoros
+        // === DIBUJAR METEOROS (con tono dorado para Csariel's) ===
         for (const meteor of this.meteors) {
             if (!meteor.active) continue;
             
-            // Estela
+            // Estela (dorado/ámbar)
             for (let i = 0; i < meteor.trail.length; i++) {
                 const point = meteor.trail[i];
-                const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
-                const radius = (i / meteor.trail.length) * 1.5;
+                const alpha = (i / meteor.trail.length) * meteor.opacity * 0.5;
+                const radius = (i / meteor.trail.length) * 1.3;
                 ctx.beginPath();
                 ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(150, 210, 255, ${alpha})`;
+                ctx.fillStyle = `rgba(247, 212, 74, ${alpha})`;
                 ctx.fill();
             }
             
-            // Cabeza del meteoro
+            // Cabeza del meteoro (destello dorado)
             const gradient = ctx.createRadialGradient(
                 meteor.x, meteor.y, 0,
-                meteor.x, meteor.y, 10
+                meteor.x, meteor.y, 12
             );
-            gradient.addColorStop(0, `rgba(255, 255, 255, ${meteor.opacity * 0.9})`);
-            gradient.addColorStop(0.3, `rgba(150, 210, 255, ${meteor.opacity * 0.5})`);
-            gradient.addColorStop(1, `rgba(150, 210, 255, 0)`);
+            gradient.addColorStop(0, `rgba(255, 255, 255, ${meteor.opacity * 0.95})`);
+            gradient.addColorStop(0.2, `rgba(247, 212, 74, ${meteor.opacity * 0.6})`);
+            gradient.addColorStop(0.6, `rgba(11, 61, 46, ${meteor.opacity * 0.3})`);
+            gradient.addColorStop(1, `rgba(11, 61, 46, 0)`);
             
             ctx.beginPath();
-            ctx.arc(meteor.x, meteor.y, 10, 0, Math.PI * 2);
+            ctx.arc(meteor.x, meteor.y, 12, 0, Math.PI * 2);
             ctx.fillStyle = gradient;
             ctx.fill();
             
-            ctx.shadowColor = 'rgba(150, 210, 255, 0.1)';
-            ctx.shadowBlur = 20;
+            ctx.shadowColor = 'rgba(247, 212, 74, 0.15)';
+            ctx.shadowBlur = 25;
             ctx.beginPath();
-            ctx.arc(meteor.x, meteor.y, 5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${meteor.opacity * 0.7})`;
+            ctx.arc(meteor.x, meteor.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${meteor.opacity * 0.8})`;
             ctx.fill();
             ctx.shadowBlur = 0;
         }
@@ -398,7 +458,7 @@ class SistemaEstelar {
         this.stars = [];
         this.meteors = [];
         
-        console.log('🗑️ Sistema Estelar destruido');
+        console.log('🗑️ Sistema Estelar Csariel\'s destruido');
     }
 }
 
@@ -414,6 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         sistemaEstelar = new SistemaEstelar();
         window.sistemaEstelar = sistemaEstelar; // Exponer globalmente
+        console.log('◈ Sistema Estelar Csariel\'s listo 🚀');
     }, 100);
 });
 
