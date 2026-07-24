@@ -697,6 +697,111 @@
         .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.75rem; transition: var(--transition); font-family: 'Orbitron', monospace; letter-spacing: 0.5px; }
         .footer-links a:hover { color: var(--quantum); }
 
+        /* ===== ESTILOS DE PAGO MEJORADOS ===== */
+        .payment-token-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .payment-token-selector button {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 70px;
+            text-align: center;
+        }
+        .payment-token-selector button:hover { border-color: var(--border-glow); }
+        .payment-token-selector button.active {
+            border-color: var(--gold-cosmic);
+            background: var(--gold-dim);
+            color: var(--gold-cosmic);
+        }
+        .payment-token-selector button .token-icon {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .payment-summary {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .payment-summary .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .payment-summary .summary-row.total {
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+        }
+        .payment-summary .summary-row .label { color: var(--text-muted); }
+        .payment-summary .summary-row .value { color: var(--text-primary); }
+
+        .payment-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .payment-status-bar .status-icon {
+            font-size: 1.2rem;
+            width: 30px;
+            text-align: center;
+        }
+        .payment-status-bar .status-text {
+            flex: 1;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .payment-status-bar .status-text strong { color: var(--text-primary); }
+        .payment-status-bar .status-dot-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: var(--transition);
+        }
+        .payment-status-bar .status-dot-indicator.pending { background: var(--warning); animation: pulse-dot 1s infinite; }
+        .payment-status-bar .status-dot-indicator.confirming { background: var(--quantum); animation: pulse-dot 0.5s infinite; }
+        .payment-status-bar .status-dot-indicator.completed { background: var(--success); }
+        .payment-status-bar .status-dot-indicator.error { background: var(--danger); }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        .payment-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .payment-actions .btn { flex: 1; justify-content: center; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .app { padding: 16px; }
@@ -710,12 +815,14 @@
             .filters-bar { flex-wrap: wrap; }
             .rewards-summary { flex-direction: column; align-items: flex-start; }
             .url-input-wrapper { flex-direction: column; }
+            .payment-token-selector button { flex: 1 1 calc(50% - 4px); }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.6rem; padding: 8px 14px; }
             .publish-card { padding: 16px; }
             .post-card, .ad-card { padding: 16px; }
             .file-preview-item img, .file-preview-item video { max-width: 80px; max-height: 80px; }
+            .payment-token-selector button { flex: 1 1 100%; }
         }
     </style>
 </head>
@@ -839,33 +946,93 @@
             </div>
         </div>
 
-        <!-- ===== PASARELA DE PAGOS (Modal) ===== -->
-        <div id="paymentModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);">
-            <div style="background:var(--space-mid);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:480px;width:100%;position:relative;box-shadow:var(--shadow-glow);">
-                <button onclick="closePaymentGateway()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
-                <h2 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:8px;">💳 Pasarela de Pagos</h2>
-                <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:20px;">Red: Polygon · Comisión: 1%</p>
+        <!-- ===== PASARELA DE PAGOS MEJORADA (Modal) ===== -->
+        <div id="paymentModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);">
+            <div style="background:var(--space-mid);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:520px;width:100%;position:relative;box-shadow:var(--shadow-glow);max-height:90vh;overflow-y:auto;">
+                <button onclick="closePaymentGateway()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;transition:var(--transition);">✕</button>
+                
+                <h2 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:4px;">💳 Pasarela de Pagos</h2>
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:20px;">Red: Polygon · Comisión: 1%</p>
+
+                <!-- ===== SELECTOR DE TOKEN ===== -->
                 <div style="margin-bottom:16px;">
-                    <label style="display:block;font-size:0.7rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Monto (USD)</label>
-                    <input type="number" id="paymentAmount" class="form-control" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:0.95rem;outline:none;" placeholder="0.00" />
+                    <label style="display:block;font-size:0.7rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:6px;">Selecciona el token</label>
+                    <div class="payment-token-selector" id="tokenSelector">
+                        <button class="active" data-token="USDC" onclick="selectToken('USDC')">
+                            <span class="token-icon">💙</span> USDC
+                        </button>
+                        <button data-token="USDT" onclick="selectToken('USDT')">
+                            <span class="token-icon">💚</span> USDT
+                        </button>
+                        <button data-token="MATIC" onclick="selectToken('MATIC')">
+                            <span class="token-icon">🔵</span> MATIC
+                        </button>
+                        <button data-token="TOK" onclick="selectToken('TOK')">
+                            <span class="token-icon">🌾</span> TOK
+                        </button>
+                    </div>
                 </div>
-                <div style="margin-bottom:20px;">
+
+                <!-- ===== MONTO ===== -->
+                <div style="margin-bottom:12px;">
+                    <label style="display:block;font-size:0.7rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Monto a enviar</label>
+                    <input type="number" id="paymentAmount" class="form-control" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:0.95rem;outline:none;" placeholder="0.00" oninput="updatePaymentSummary()" />
+                </div>
+
+                <!-- ===== WALLET DESTINO ===== -->
+                <div style="margin-bottom:16px;">
                     <label style="display:block;font-size:0.7rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Wallet Destino</label>
-                    <input type="text" id="paymentWallet" class="form-control" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:0.95rem;outline:none;" placeholder="0x..." />
+                    <input type="text" id="paymentWallet" class="form-control" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:0.95rem;outline:none;" placeholder="0x..." oninput="updatePaymentSummary()" />
                 </div>
-                <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-                    <button onclick="payWithMetaMask()" class="btn btn-primary" style="flex:1;justify-content:center;">
-                        <i class="fas fa-wallet"></i> MetaMask
+
+                <!-- ===== RESUMEN DE PAGO ===== -->
+                <div class="payment-summary" id="paymentSummary">
+                    <div class="summary-row">
+                        <span class="label">💰 Monto</span>
+                        <span class="value" id="summaryAmount">0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">📊 Comisión (1%)</span>
+                        <span class="value" id="summaryCommission">0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span class="label">💵 Total a pagar</span>
+                        <span class="value" id="summaryTotal">0.00</span>
+                    </div>
+                    <div class="summary-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px;font-size:0.7rem;">
+                        <span class="label">📤 Destino</span>
+                        <span class="value" id="summaryWallet" style="font-family:'Courier New',monospace;font-size:0.7rem;color:var(--text-muted);">0x0000...0000</span>
+                    </div>
+                    <div class="summary-row" style="font-size:0.7rem;">
+                        <span class="label">🪙 Token</span>
+                        <span class="value" id="summaryToken" style="color:var(--quantum);">USDC</span>
+                    </div>
+                </div>
+
+                <!-- ===== ESTADO DE LA OPERACIÓN ===== -->
+                <div class="payment-status-bar" id="paymentStatusBar">
+                    <span class="status-icon" id="statusIcon">⏳</span>
+                    <span class="status-text" id="statusText"><strong>Estado:</strong> Pendiente de conexión</span>
+                    <span class="status-dot-indicator pending" id="statusDot"></span>
+                </div>
+
+                <!-- ===== BOTONES DE ACCIÓN ===== -->
+                <div class="payment-actions">
+                    <button onclick="connectWallet()" class="btn btn-primary" id="btnConnectWallet">
+                        <i class="fas fa-plug"></i> Conectar Wallet
                     </button>
-                    <button onclick="payWithWalletConnect()" class="btn btn-outline" style="flex:1;justify-content:center;">
-                        <i class="fas fa-qrcode"></i> WalletConnect
+                    <button onclick="confirmPayment()" class="btn btn-success" id="btnConfirmPayment" disabled style="flex:1;">
+                        <i class="fas fa-check-circle"></i> Confirmar Pago
                     </button>
                 </div>
-                <div style="padding:12px;background:rgba(0,0,0,0.2);border-radius:8px;">
-                    <p style="font-size:0.7rem;color:var(--text-muted);font-family:'Orbitron',monospace;text-align:center;">
+
+                <!-- ===== METADATOS ===== -->
+                <div style="padding:12px;background:rgba(0,0,0,0.2);border-radius:8px;margin-top:12px;">
+                    <p style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;text-align:center;line-height:1.6;">
                         🔒 Transacción segura en Polygon · 1% comisión para Sariel's Ecosystem
                     </p>
                 </div>
+
                 <div id="paymentStatus" style="margin-top:12px;font-size:0.85rem;text-align:center;color:var(--text-secondary);"></div>
             </div>
         </div>
@@ -912,7 +1079,7 @@
         // SISTEMA ESTELAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('📱 Sariel\'s Ecosystem - Muro Live v3.0');
+            console.log('📱 Sariel\'s Ecosystem - Muro Live v4.0');
             initStars();
             initMuro();
             initPaymentGateway();
@@ -1680,84 +1847,219 @@
             window.addUrlToPost = addUrlToPost;
             window.removeUrlFromPost = removeUrlFromPost;
 
-            console.log('📱 Muro Live v3.0 inicializado con', posts.length, 'publicaciones');
+            console.log('📱 Muro Live v4.0 inicializado con', posts.length, 'publicaciones');
             console.log('🪙 Recompensas acumuladas:', rewardsTotal, 'S-TOK');
             console.log('📎 Soporte para: Fotos 📷, Videos 🎬, Enlaces 🔗');
         }
 
         // ================================================================
-        // PASARELA DE PAGOS WEB3
+        // PASARELA DE PAGOS WEB3 - MEJORADA
         // ================================================================
+        let selectedToken = 'USDC';
+        let walletConnected = false;
+        let walletAddress = null;
+        let paymentStatus = 'pending'; // pending | confirming | completed | error
+        let paymentInProgress = false;
+
         function initPaymentGateway() {
-            console.log('💳 Pasarela de Pagos Web3 inicializada - Comisión 1%');
+            console.log('💳 Pasarela de Pagos Web3 mejorada - Comisión 1%');
+            updatePaymentSummary();
         }
+
+        window.selectToken = function(token) {
+            selectedToken = token;
+            document.querySelectorAll('.payment-token-selector button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.token === token);
+            });
+            document.getElementById('summaryToken').textContent = token;
+            updatePaymentSummary();
+        };
+
+        window.updatePaymentSummary = function() {
+            const amount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+            const wallet = document.getElementById('paymentWallet').value.trim();
+            const commission = amount * 0.01;
+            const total = amount + commission;
+
+            document.getElementById('summaryAmount').textContent = amount.toFixed(2);
+            document.getElementById('summaryCommission').textContent = commission.toFixed(2);
+            document.getElementById('summaryTotal').textContent = total.toFixed(2);
+
+            const shortWallet = wallet.length > 10 ? wallet.slice(0, 8) + '...' + wallet.slice(-6) : wallet || '0x0000...0000';
+            document.getElementById('summaryWallet').textContent = shortWallet;
+
+            // Validar campos
+            const btnConfirm = document.getElementById('btnConfirmPayment');
+            const hasValidWallet = wallet.length >= 42 && wallet.startsWith('0x');
+            const hasValidAmount = amount > 0;
+            
+            if (walletConnected && hasValidWallet && hasValidAmount && !paymentInProgress) {
+                btnConfirm.disabled = false;
+            } else {
+                btnConfirm.disabled = true;
+            }
+        };
+
+        window.connectWallet = async function() {
+            const statusText = document.getElementById('statusText');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusDot = document.getElementById('statusDot');
+            const btnConnect = document.getElementById('btnConnectWallet');
+
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask no detectado. Instala MetaMask para continuar.');
+                }
+
+                statusText.innerHTML = '<strong>Estado:</strong> Conectando a MetaMask...';
+                statusIcon.textContent = '⏳';
+                statusDot.className = 'status-dot-indicator confirming';
+                btnConnect.disabled = true;
+
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                walletAddress = accounts[0];
+                walletConnected = true;
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+                const chainName = chainId === '0x13882' ? 'Polygon Amoy' : 
+                                 chainId === '0x89' ? 'Polygon Mainnet' : 
+                                 `Chain ${chainId}`;
+
+                statusText.innerHTML = `<strong>✅ Conectado:</strong> ${walletAddress.slice(0, 10)}...${walletAddress.slice(-6)} (${chainName})`;
+                statusIcon.textContent = '✅';
+                statusDot.className = 'status-dot-indicator completed';
+                btnConnect.textContent = '✅ Conectado';
+
+                document.getElementById('paymentWallet').value = walletAddress;
+                updatePaymentSummary();
+
+                showToast('✅ Wallet conectada exitosamente');
+
+            } catch (error) {
+                console.error('Error conectando wallet:', error);
+                statusText.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+                statusIcon.textContent = '❌';
+                statusDot.className = 'status-dot-indicator error';
+                btnConnect.disabled = false;
+                showToast(`❌ ${error.message}`, 'error');
+            }
+        };
+
+        window.confirmPayment = async function() {
+            if (paymentInProgress) return;
+            
+            const amount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+            const wallet = document.getElementById('paymentWallet').value.trim();
+            const commission = amount * 0.01;
+            const total = amount + commission;
+
+            if (!walletConnected || !wallet || !wallet.startsWith('0x')) {
+                showToast('⚠️ Conecta una wallet válida primero', 'error');
+                return;
+            }
+
+            if (amount <= 0) {
+                showToast('⚠️ Ingresa un monto válido', 'error');
+                return;
+            }
+
+            // Confirmar con el usuario
+            if (!confirm(`¿Confirmar el pago de ${total.toFixed(2)} ${selectedToken} (incluye comisión 1%) a ${wallet.slice(0, 10)}...${wallet.slice(-6)}?`)) {
+                return;
+            }
+
+            paymentInProgress = true;
+            const btnConfirm = document.getElementById('btnConfirmPayment');
+            const statusText = document.getElementById('statusText');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusDot = document.getElementById('statusDot');
+            const paymentStatusDiv = document.getElementById('paymentStatus');
+
+            btnConfirm.disabled = true;
+            btnConfirm.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+            try {
+                // ===== ESTADO: PENDIENTE → CONFIRMANDO =====
+                statusText.innerHTML = '<strong>Estado:</strong> Pendiente de confirmación en blockchain...';
+                statusIcon.textContent = '⏳';
+                statusDot.className = 'status-dot-indicator pending';
+                paymentStatusDiv.textContent = '⏳ Enviando transacción a la red...';
+                paymentStatusDiv.style.color = 'var(--text-secondary)';
+                paymentStatus = 'pending';
+
+                // Simular confirmación en blockchain (3-5 segundos)
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
+                // ===== ESTADO: CONFIRMANDO =====
+                statusText.innerHTML = '<strong>Estado:</strong> Confirmando transacción...';
+                statusIcon.textContent = '🔄';
+                statusDot.className = 'status-dot-indicator confirming';
+                paymentStatusDiv.textContent = '🔄 Validando en la red Polygon...';
+                paymentStatusDiv.style.color = 'var(--quantum)';
+                paymentStatus = 'confirming';
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // ===== ESTADO: COMPLETADO =====
+                statusText.innerHTML = `<strong>✅ Completado:</strong> ${total.toFixed(2)} ${selectedToken} enviados a ${wallet.slice(0, 10)}...${wallet.slice(-6)}`;
+                statusIcon.textContent = '✅';
+                statusDot.className = 'status-dot-indicator completed';
+                paymentStatusDiv.innerHTML = `✅ Pago completado exitosamente!<br>
+                    📤 Enviado: ${amount.toFixed(2)} ${selectedToken}<br>
+                    💰 Comisión 1%: ${commission.toFixed(2)} ${selectedToken}<br>
+                    🏦 Total: ${total.toFixed(2)} ${selectedToken}<br>
+                    📅 ${new Date().toLocaleString()}`;
+                paymentStatusDiv.style.color = 'var(--success)';
+                paymentStatus = 'completed';
+
+                // Registrar evento
+                addPaymentEvent(amount, wallet, commission, selectedToken);
+
+                showToast(`✅ Pago de ${total.toFixed(2)} ${selectedToken} completado!`);
+
+                btnConfirm.innerHTML = '<i class="fas fa-check-circle"></i> Completado';
+
+            } catch (error) {
+                console.error('Error en pago:', error);
+                statusText.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+                statusIcon.textContent = '❌';
+                statusDot.className = 'status-dot-indicator error';
+                paymentStatusDiv.textContent = `❌ ${error.message}`;
+                paymentStatusDiv.style.color = 'var(--danger)';
+                paymentStatus = 'error';
+                showToast(`❌ ${error.message}`, 'error');
+                btnConfirm.innerHTML = '<i class="fas fa-times"></i> Error';
+            } finally {
+                paymentInProgress = false;
+                btnConfirm.disabled = false;
+            }
+        };
 
         window.openPaymentGateway = function() {
             document.getElementById('paymentModal').style.display = 'flex';
+            document.getElementById('paymentStatus').textContent = '';
+            // Resetear estado visual
+            const statusText = document.getElementById('statusText');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusDot = document.getElementById('statusDot');
+            statusText.innerHTML = '<strong>Estado:</strong> Pendiente de conexión';
+            statusIcon.textContent = '⏳';
+            statusDot.className = 'status-dot-indicator pending';
+            document.getElementById('btnConnectWallet').textContent = '🔌 Conectar Wallet';
+            document.getElementById('btnConnectWallet').disabled = false;
+            document.getElementById('btnConfirmPayment').innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pago';
+            document.getElementById('btnConfirmPayment').disabled = true;
+            paymentInProgress = false;
+            walletConnected = false;
+            walletAddress = null;
+            updatePaymentSummary();
         };
 
         window.closePaymentGateway = function() {
             document.getElementById('paymentModal').style.display = 'none';
-            document.getElementById('paymentStatus').textContent = '';
         };
 
-        window.payWithMetaMask = async function() {
-            const status = document.getElementById('paymentStatus');
-            const amount = document.getElementById('paymentAmount').value;
-            const wallet = document.getElementById('paymentWallet').value;
-
-            if (!amount || amount <= 0) {
-                status.textContent = '⚠️ Ingresa un monto válido';
-                status.style.color = 'var(--danger)';
-                return;
-            }
-            if (!wallet || !wallet.startsWith('0x')) {
-                status.textContent = '⚠️ Ingresa una dirección wallet válida (0x...)';
-                status.style.color = 'var(--danger)';
-                return;
-            }
-
-            status.textContent = '⏳ Conectando a MetaMask...';
-            status.style.color = 'var(--text-secondary)';
-
-            try {
-                if (typeof window.ethereum === 'undefined') {
-                    throw new Error('MetaMask no detectado');
-                }
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-
-                status.textContent = `⏳ Procesando pago de $${amount} USD...`;
-                status.style.color = 'var(--text-secondary)';
-
-                setTimeout(() => {
-                    const commission = (amount * 0.01).toFixed(2);
-                    status.innerHTML = `✅ Pago procesado exitosamente!<br>
-                        📤 Enviado a: ${wallet.slice(0, 10)}...${wallet.slice(-6)}<br>
-                        💰 Comisión 1%: $${commission} (Sariel\'s Ecosystem)<br>
-                        🔗 Red: ${chainId === '0x13882' ? 'Polygon Amoy' : 'Ethereum'}`;
-                    status.style.color = 'var(--success)';
-                    addPaymentEvent(amount, wallet, commission);
-                }, 2000);
-
-            } catch (error) {
-                console.error('Error en pago:', error);
-                status.textContent = `❌ Error: ${error.message}`;
-                status.style.color = 'var(--danger)';
-            }
-        };
-
-        window.payWithWalletConnect = function() {
-            const status = document.getElementById('paymentStatus');
-            status.textContent = '📱 Escanea el código QR con WalletConnect...';
-            status.style.color = 'var(--text-secondary)';
-            setTimeout(() => {
-                status.innerHTML = '✅ WalletConnect iniciado!<br>Escanea el QR en tu wallet móvil.';
-                status.style.color = 'var(--success)';
-            }, 1000);
-        };
-
-        function addPaymentEvent(amount, wallet, commission) {
+        function addPaymentEvent(amount, wallet, commission, token) {
             try {
                 const events = JSON.parse(localStorage.getItem('payment_events') || '[]');
                 events.push({
@@ -1765,7 +2067,10 @@
                     amount: amount,
                     wallet: wallet,
                     commission: commission,
+                    token: token,
+                    total: amount + commission,
                     date: new Date().toISOString(),
+                    status: 'completed',
                     type: 'payment'
                 });
                 localStorage.setItem('payment_events', JSON.stringify(events));
