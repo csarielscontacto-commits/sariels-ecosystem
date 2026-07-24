@@ -46,7 +46,7 @@ export class MarquinhosUI {
         `;
         document.body.appendChild(container);
 
-        // ===== ESTILOS CON POSICIÓN CORREGIDA =====
+        // ===== ESTILOS =====
         const style = document.createElement('style');
         style.textContent = `
             #marquinhos-container {
@@ -329,11 +329,9 @@ export class MarquinhosUI {
         let newX = clientX - this.dragOffsetX;
         let newY = clientY - this.dragOffsetY;
 
-        // ===== TAMAÑO REAL DE LA BURBUJA (dinámico) =====
         const bubbleRect = bubble.getBoundingClientRect();
         const bubbleSize = bubbleRect.width;
 
-        // Limitar dentro del viewport
         const maxX = window.innerWidth - bubbleSize;
         const maxY = window.innerHeight - bubbleSize;
         newX = Math.max(0, Math.min(newX, maxX));
@@ -344,7 +342,6 @@ export class MarquinhosUI {
         container.style.right = 'auto';
         container.style.bottom = 'auto';
 
-        // Guardar posición en localStorage
         this.guardarPosicion(newX, newY);
     }
 
@@ -366,13 +363,12 @@ export class MarquinhosUI {
         } catch (e) { return null; }
     }
 
-    // ===== DETECTAR COLISIONES (CORREGIDO) =====
+    // ===== DETECTAR COLISIONES =====
     detectarColisiones(container) {
         const bubble = container.querySelector('.m-burbuja');
         setInterval(() => {
             if (!bubble) return;
             
-            // Obtener posición REAL actual de la burbuja
             const rectBurbuja = bubble.getBoundingClientRect();
             const criticos = document.querySelectorAll('.elemento-critico');
             let colision = false;
@@ -385,23 +381,17 @@ export class MarquinhosUI {
                 }
             });
 
-            // Ajustar posición si colisiona (mover hacia arriba)
             if (colision) {
-                // Obtener posición actual desde el DOM (NO desde container.style)
                 const currentLeft = rectBurbuja.left;
                 const currentTop = rectBurbuja.top;
-                
-                // Calcular nueva posición (subir 80px)
                 const newTop = Math.max(0, currentTop - 80);
                 const newLeft = Math.max(0, currentLeft);
                 
-                // Aplicar la nueva posición en px
                 container.style.left = newLeft + 'px';
                 container.style.top = newTop + 'px';
                 container.style.right = 'auto';
                 container.style.bottom = 'auto';
                 
-                // Guardar la nueva posición en localStorage
                 this.guardarPosicion(newLeft, newTop);
             }
         }, 300);
