@@ -8,7 +8,7 @@
     
     <!-- Open Graph -->
     <meta property="og:title" content="Sariel's Ecosystem - Muro Live" />
-    <meta property="og:description" content="Publica, conecta, comercio y publicidad en tu muro descentralizado" />
+    <meta property="og:description" content="Publica fotos, videos, enlaces y anuncios en tu muro descentralizado" />
     <meta property="og:type" content="website" />
     
     <!-- Font Awesome -->
@@ -46,6 +46,7 @@
             --warning: #f7d44a;
             --danger: #ff3366;
             --ad-bg: rgba(255,107,157,0.05);
+            --url-bg: rgba(0,212,255,0.05);
         }
 
         /* ===== RESET Y BASE ===== */
@@ -257,6 +258,7 @@
         .btn-outline:hover:not(:disabled) { background: rgba(0,212,255,0.05); border-color: var(--quantum); }
         .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
         .btn-block { width: 100%; justify-content: center; }
+        .btn-link { color: var(--quantum); text-decoration: none; }
 
         /* ===== FILTROS ===== */
         .filters-bar {
@@ -404,6 +406,59 @@
         }
         .file-preview-item .remove-file:hover { background: var(--danger); }
 
+        /* ===== URL PREVIEW ===== */
+        .url-input-wrapper {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .url-input-wrapper input {
+            flex: 1;
+            padding: 8px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            min-width: 150px;
+        }
+        .url-input-wrapper input:focus { border-color: var(--quantum); }
+        .url-input-wrapper .btn { flex-shrink: 0; }
+
+        .url-preview-card {
+            background: rgba(0,212,255,0.05);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-top: 8px;
+            display: none;
+        }
+        .url-preview-card .url-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .url-preview-card .url-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .url-preview-card .url-link {
+            font-size: 0.7rem;
+            color: var(--quantum);
+            word-break: break-all;
+        }
+        .url-preview-card .remove-url {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-top: 4px;
+        }
+
         /* ===== PUBLICACIONES Y ANUNCIOS ===== */
         .post-card, .ad-card {
             background: rgba(10,20,40,0.6);
@@ -468,6 +523,29 @@
         .post-media { margin-bottom: 12px; border-radius: 10px; overflow: hidden; }
         .post-media img { width: 100%; max-height: 400px; object-fit: cover; }
         .post-media video { width: 100%; max-height: 400px; }
+
+        .post-url {
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            background: var(--url-bg);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 10px;
+        }
+        .post-url .url-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        .post-url .url-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .post-url .url-link {
+            font-size: 0.7rem;
+            color: var(--quantum);
+            word-break: break-all;
+            text-decoration: underline;
+        }
 
         .post-actions {
             display: flex;
@@ -631,6 +709,7 @@
             .import-section { flex-direction: column; align-items: stretch; }
             .filters-bar { flex-wrap: wrap; }
             .rewards-summary { flex-direction: column; align-items: flex-start; }
+            .url-input-wrapper { flex-direction: column; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.6rem; padding: 8px 14px; }
@@ -720,6 +799,20 @@
             <textarea class="publish-textarea" id="postContent" placeholder="¿Qué está pasando? Comparte algo con tu red..."></textarea>
 
             <div class="file-preview" id="filePreview"></div>
+
+            <!-- ===== ENLACES URL ===== -->
+            <div class="url-input-wrapper">
+                <input type="url" id="urlInput" placeholder="https://ejemplo.com" />
+                <button class="btn btn-sm btn-outline" onclick="addUrlToPost()">
+                    <i class="fas fa-link"></i> Agregar enlace
+                </button>
+            </div>
+            <div class="url-preview-card" id="urlPreviewCard">
+                <div class="url-title" id="urlPreviewTitle">Título del enlace</div>
+                <div class="url-desc" id="urlPreviewDesc">Descripción del enlace</div>
+                <div class="url-link" id="urlPreviewLink">https://ejemplo.com</div>
+                <button class="remove-url" onclick="removeUrlFromPost()">✕ Eliminar enlace</button>
+            </div>
 
             <div class="publish-actions">
                 <div class="file-upload-wrapper">
@@ -819,7 +912,7 @@
         // SISTEMA ESTELAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('📱 Sariel\'s Ecosystem - Muro Live v2.0');
+            console.log('📱 Sariel\'s Ecosystem - Muro Live v3.0');
             initStars();
             initMuro();
             initPaymentGateway();
@@ -992,6 +1085,7 @@
             let toastTimeout = null;
             let currentFilter = 'trending';
             let rewardsTotal = 0;
+            let currentUrl = null;
 
             const STORAGE_KEY = 'muro_live_posts';
             const CONTACTS_KEY = 'muro_live_contactos';
@@ -1012,6 +1106,7 @@
                             avatar: 'M',
                             content: '¡Hola a todos! Acabo de unirme a Sariel\'s Ecosystem. 🌟',
                             media: [],
+                            url: null,
                             likes: 3,
                             liked: false,
                             comments: [{ author: 'Carlos Ruiz', avatar: 'C', text: '¡Bienvenida!', date: Date.now() - 3000000 }],
@@ -1099,10 +1194,36 @@
                 }
             }
 
+            // ===== URL FUNCTIONS =====
+            window.addUrlToPost = function() {
+                const url = document.getElementById('urlInput').value.trim();
+                if (!url) {
+                    showToast('⚠️ Ingresa un enlace URL válido', 'error');
+                    return;
+                }
+                try {
+                    new URL(url);
+                } catch (e) {
+                    showToast('⚠️ URL inválida. Asegúrate de incluir https://', 'error');
+                    return;
+                }
+
+                currentUrl = url;
+                document.getElementById('urlPreviewLink').textContent = url;
+                document.getElementById('urlPreviewCard').style.display = 'block';
+                document.getElementById('urlInput').value = '';
+                showToast('✅ Enlace agregado a la publicación');
+            };
+
+            window.removeUrlFromPost = function() {
+                currentUrl = null;
+                document.getElementById('urlPreviewCard').style.display = 'none';
+                showToast('🗑️ Enlace eliminado');
+            };
+
             // ===== RENDERIZAR MURO =====
             function renderMuro() {
                 const filteredPosts = getFilteredPosts(currentFilter);
-                // Insertar anuncios cada 3 publicaciones
                 const ads = getAds();
                 let finalContent = [];
 
@@ -1117,17 +1238,14 @@
                     return;
                 }
 
-                // Mezclar posts y anuncios
                 let adIndex = 0;
                 for (let i = 0; i < filteredPosts.length; i++) {
                     finalContent.push({ type: 'post', data: filteredPosts[i] });
-                    // Insertar anuncio cada 3 publicaciones
                     if ((i + 1) % 3 === 0 && adIndex < ads.length) {
                         finalContent.push({ type: 'ad', data: ads[adIndex] });
                         adIndex++;
                     }
                 }
-                // Si hay anuncios sobrantes, agregarlos al final
                 while (adIndex < ads.length) {
                     finalContent.push({ type: 'ad', data: ads[adIndex] });
                     adIndex++;
@@ -1147,6 +1265,12 @@
                                     </div>
                                 </div>
                                 <div class="post-content">${escapeHtml(ad.content)}</div>
+                                ${ad.url ? `
+                                    <div class="post-url">
+                                        <div class="url-title">${escapeHtml(ad.urlTitle || 'Enlace')}</div>
+                                        <a href="${escapeHtml(ad.url)}" target="_blank" class="url-link">${escapeHtml(ad.url)}</a>
+                                    </div>
+                                ` : ''}
                                 <div style="display:flex;gap:12px;padding-top:12px;border-top:1px solid var(--border);">
                                     <button onclick="showToast('📊 Anuncio visto!')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;">
                                         <i class="fas fa-eye"></i> Ver oferta
@@ -1179,6 +1303,12 @@
                                             }
                                             return '';
                                         }).join('')}
+                                    </div>
+                                ` : ''}
+                                ${post.url ? `
+                                    <div class="post-url">
+                                        <div class="url-title">${escapeHtml(post.urlTitle || 'Enlace')}</div>
+                                        <a href="${escapeHtml(post.url)}" target="_blank" class="url-link">${escapeHtml(post.url)}</a>
                                     </div>
                                 ` : ''}
                                 <div class="post-actions">
@@ -1214,7 +1344,6 @@
                     }
                 }).join('');
 
-                // Reasignar eventos de comentarios (Enter)
                 document.querySelectorAll('.comment-input-wrapper input').forEach(input => {
                     input.addEventListener('keypress', (e) => {
                         if (e.key === 'Enter') {
@@ -1228,8 +1357,8 @@
             // ===== FUNCIONES DE PUBLICACIÓN =====
             function publishPost() {
                 const content = postContent.value.trim();
-                if (!content && selectedFiles.length === 0) {
-                    showToast('⚠️ Escribe algo o adjunta un archivo', 'error');
+                if (!content && selectedFiles.length === 0 && !currentUrl) {
+                    showToast('⚠️ Escribe algo, adjunta un archivo o agrega un enlace', 'error');
                     return;
                 }
 
@@ -1245,6 +1374,8 @@
                     avatar: USER_AVATAR,
                     content: content || '📎 Publicación multimedia',
                     media: mediaData,
+                    url: currentUrl,
+                    urlTitle: currentUrl ? extraerTituloURL(currentUrl) : null,
                     likes: 0,
                     liked: false,
                     comments: [],
@@ -1260,7 +1391,20 @@
                 postContent.value = '';
                 selectedFiles = [];
                 filePreview.innerHTML = '';
+                currentUrl = null;
+                document.getElementById('urlPreviewCard').style.display = 'none';
+                document.getElementById('urlInput').value = '';
                 showToast('✅ Publicación creada con éxito');
+            }
+
+            function extraerTituloURL(url) {
+                try {
+                    const urlObj = new URL(url);
+                    const domain = urlObj.hostname.replace('www.', '');
+                    return domain.charAt(0).toUpperCase() + domain.slice(1);
+                } catch (e) {
+                    return 'Enlace';
+                }
             }
 
             // ===== MANEJO DE ARCHIVOS =====
@@ -1533,9 +1677,12 @@
             window.deletePost = deletePost;
             window.removeFile = removeFile;
             window.setFilter = setFilter;
+            window.addUrlToPost = addUrlToPost;
+            window.removeUrlFromPost = removeUrlFromPost;
 
-            console.log('📱 Muro Live inicializado con', posts.length, 'publicaciones y', contactos.length, 'contactos');
+            console.log('📱 Muro Live v3.0 inicializado con', posts.length, 'publicaciones');
             console.log('🪙 Recompensas acumuladas:', rewardsTotal, 'S-TOK');
+            console.log('📎 Soporte para: Fotos 📷, Videos 🎬, Enlaces 🔗');
         }
 
         // ================================================================
@@ -1580,11 +1727,9 @@
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const chainId = await window.ethereum.request({ method: 'eth_chainId' });
 
-                // Simular transacción
                 status.textContent = `⏳ Procesando pago de $${amount} USD...`;
                 status.style.color = 'var(--text-secondary)';
 
-                // Simular éxito
                 setTimeout(() => {
                     const commission = (amount * 0.01).toFixed(2);
                     status.innerHTML = `✅ Pago procesado exitosamente!<br>
@@ -1592,8 +1737,6 @@
                         💰 Comisión 1%: $${commission} (Sariel\'s Ecosystem)<br>
                         🔗 Red: ${chainId === '0x13882' ? 'Polygon Amoy' : 'Ethereum'}`;
                     status.style.color = 'var(--success)';
-                    
-                    // Registrar evento en el muro
                     addPaymentEvent(amount, wallet, commission);
                 }, 2000);
 
@@ -1634,7 +1777,6 @@
         // ================================================================
         function initAdEngine() {
             console.log('📢 Motor de Publicidad Nativa inicializado');
-            // Cargar anuncios guardados
             const ads = getAds();
             console.log(`📢 ${ads.length} anuncios activos`);
         }
@@ -1647,6 +1789,8 @@
                         id: 'ad_001',
                         title: '🌾 Oferta Especial Sariel\'s',
                         content: '¡10% de descuento en tu primera compra con TOK! Usa el código: SARIELS10',
+                        url: 'https://sariels.com/oferta',
+                        urlTitle: 'Sariel\'s Ofertas',
                         date: Date.now() - 1800000,
                         views: 0,
                         clicks: 0
@@ -1655,6 +1799,8 @@
                         id: 'ad_002',
                         title: '🚀 Lanza tu NFT con nosotros',
                         content: 'Comisión del 10% en reventa secundaria. ¡Crea tu colección hoy!',
+                        url: 'https://sariels.com/nft',
+                        urlTitle: 'NFT Sariel\'s',
                         date: Date.now() - 900000,
                         views: 0,
                         clicks: 0
@@ -1691,6 +1837,8 @@
                 id: 'ad_' + Date.now(),
                 title: title,
                 content: content,
+                url: null,
+                urlTitle: null,
                 date: Date.now(),
                 views: 0,
                 clicks: 0
@@ -1702,14 +1850,12 @@
             document.getElementById('adContent').value = '';
             closeAdCreator();
 
-            // Re-renderizar el muro para mostrar el anuncio
             const event = new Event('renderMuro');
             document.dispatchEvent(event);
 
             showToast('✅ Anuncio publicado correctamente');
         };
 
-        // Escuchar evento de renderizado
         document.addEventListener('renderMuro', () => {
             if (typeof renderMuro === 'function') {
                 renderMuro();
