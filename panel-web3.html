@@ -23,6 +23,9 @@
   
   <!-- QRCode.js para generar QR localmente -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- jsQR para escanear QR desde la cámara -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   
   <style>
     /* ===== VARIABLES CÓSMICAS ===== */
@@ -48,7 +51,6 @@
       --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* ===== RESET Y BASE ===== */
     * {
       margin: 0;
       padding: 0;
@@ -69,7 +71,6 @@
       position: relative;
     }
 
-    /* ===== FONDO ESTELAR CON CANVAS ===== */
     #stars-canvas {
       position: fixed;
       top: 0;
@@ -80,7 +81,6 @@
       pointer-events: none;
     }
 
-    /* ===== NEBULOSAS DE FONDO ===== */
     .nebula {
       position: fixed;
       border-radius: 50%;
@@ -124,7 +124,6 @@
       100% { transform: translate(40px, -30px) scale(1.15); }
     }
 
-    /* ===== SCROLLBAR ===== */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -132,11 +131,10 @@
       background: var(--space-deep);
     }
     ::-webkit-scrollbar-thumb {
-      background: linear-gradient(var(--nebula-3), var(--nebula-1));
+      background: linear-gradient(var(--quantum), var(--nebula-1));
       border-radius: 3px;
     }
 
-    /* ===== LAYOUT PRINCIPAL ===== */
     .app {
       position: relative;
       z-index: 1;
@@ -145,7 +143,6 @@
       padding: 20px 24px 40px;
     }
 
-    /* ===== HEADER ===== */
     .header {
       display: flex;
       justify-content: space-between;
@@ -255,7 +252,6 @@
       50% { opacity: 0.5; transform: scale(0.7); box-shadow: 0 0 40px rgba(0,229,255,0.8); }
     }
 
-    /* ===== HERO ===== */
     .hero {
       background: linear-gradient(145deg, rgba(0,212,255,0.04), rgba(108,43,217,0.04));
       border: 1px solid var(--border);
@@ -338,7 +334,6 @@
       transform: scale(1.03);
     }
 
-    /* ===== GRID PRINCIPAL ===== */
     .main-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -351,7 +346,6 @@
       }
     }
 
-    /* ===== TARJETAS ===== */
     .card {
       background: rgba(10,20,40,0.6);
       border: 1px solid var(--border);
@@ -417,7 +411,6 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* ===== FORMULARIOS ===== */
     .form-group {
       margin-bottom: 14px;
     }
@@ -474,7 +467,6 @@
       }
     }
 
-    /* ===== BOTONES ===== */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -549,7 +541,6 @@
       margin-top: 8px;
     }
 
-    /* ===== WALLET STATUS ===== */
     .wallet-status {
       display: flex;
       align-items: center;
@@ -588,7 +579,10 @@
       color: var(--text-muted);
     }
 
-    /* ===== QR SECTION ===== */
+    .wallet-status .status-item .value.wrong-network {
+      color: var(--plasma);
+    }
+
     .qr-output {
       margin-top: 16px;
       padding: 16px;
@@ -626,14 +620,12 @@
       margin-bottom: 12px;
     }
 
-    /* ===== MÓDULO TRADING ===== */
     .trading-chart {
       width: 100%;
       height: 300px;
       margin-top: 12px;
     }
 
-    /* ===== IA SECTION ===== */
     .ia-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -686,7 +678,6 @@
       border: 1px solid rgba(255,51,102,0.3);
     }
 
-    /* ===== CRM ===== */
     .crm-list {
       margin-top: 12px;
     }
@@ -711,7 +702,6 @@
       color: var(--text-muted);
     }
 
-    /* ===== MÉTODOS DE PAGO ===== */
     .payment-card {
       padding: 16px;
       border-radius: 12px;
@@ -779,7 +769,6 @@
       }
     }
 
-    /* ===== FOOTER ===== */
     .footer {
       margin-top: 48px;
       padding-top: 28px;
@@ -810,7 +799,6 @@
       font-family: 'Orbitron', monospace;
     }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .app {
         padding: 16px;
@@ -864,7 +852,6 @@
       }
     }
 
-    /* ===== ANIMACIONES ===== */
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -1153,21 +1140,27 @@
         </div>
       </div>
 
-      <!-- ===== 5) TRADING Y VELAS JAPONESAS ===== -->
+      <!-- ===== 5) VISTA PREVIA DE MERCADO (DEMO) ===== -->
       <div class="card card-full">
         <div class="card-header">
           <i class="fas fa-chart-line"></i>
-          <h2>Módulo de Trading - Velas Japonesas</h2>
+          <h2>Vista Previa de Mercado (Demo)</h2>
         </div>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;">
+          <i class="fas fa-info-circle"></i> Estos datos son <strong>simulados</strong>, solo para visualización de estilo. Para operar con datos reales, usa la plataforma de Trading TOK.
+        </p>
         <div class="trading-chart">
           <canvas id="tradingChart"></canvas>
         </div>
-        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;align-items:center;">
           <button class="btn btn-sm btn-outline" onclick="updateChart('1D')">1D</button>
           <button class="btn btn-sm btn-outline" onclick="updateChart('1W')">1W</button>
           <button class="btn btn-sm btn-outline" onclick="updateChart('1M')">1M</button>
           <button class="btn btn-sm btn-outline" onclick="updateChart('3M')">3M</button>
-          <button class="btn btn-sm btn-primary" onclick="updateChart('1Y')">1Y</button>
+          <button class="btn btn-sm btn-outline" onclick="updateChart('1Y')">1Y</button>
+          <a href="./trading.html" class="btn btn-sm btn-primary" style="margin-left:auto;">
+            <i class="fas fa-external-link-alt"></i> Abrir Trading Real
+          </a>
         </div>
       </div>
 
@@ -1234,22 +1227,7 @@
           </button>
         </div>
         
-        <div class="crm-list" id="crmList">
-          <div class="crm-item">
-            <div>
-              <span class="name">Cliente Demo</span>
-              <span class="info">ID: DEMO-001</span>
-            </div>
-            <span style="font-size:0.7rem;color:var(--quantum);">● Reconocido</span>
-          </div>
-          <div class="crm-item">
-            <div>
-              <span class="name">Cliente Prueba</span>
-              <span class="info">ID: TEST-002</span>
-            </div>
-            <span style="font-size:0.7rem;color:var(--text-muted);">○ Pendiente</span>
-          </div>
-        </div>
+        <div class="crm-list" id="crmList"></div>
       </div>
 
     </div>
@@ -1260,6 +1238,17 @@
         🌌 Sariel's Digital Assets v∞ — Web3 Cósmico | Todos los módulos activos
       </span>
     </footer>
+  </div>
+
+  <!-- ===== MODAL ESCÁNER QR ===== -->
+  <div id="scanModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);">
+    <div style="background:rgba(10,20,40,0.95);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:420px;width:100%;position:relative;">
+      <button onclick="cerrarScanner()" style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;">✕</button>
+      <h3 style="font-family:'Orbitron',monospace;color:var(--quantum);margin-bottom:10px;">📷 Escanear QR del cliente</h3>
+      <video id="scanVideo" style="width:100%;border-radius:12px;background:#000;" playsinline></video>
+      <canvas id="scanCanvas" style="display:none;"></canvas>
+      <p id="scanResultText" style="font-size:0.8rem;color:var(--text-secondary);margin-top:10px;">Apunta la cámara al código QR...</p>
+    </div>
   </div>
 
   <!-- ===== SCRIPTS ===== -->
@@ -1275,6 +1264,9 @@
       initStars();
       initChart();
       loadSavedLinks();
+      checkExistingWallet();
+      clientesCRM = cargarClientesCRM();
+      renderCRM();
     });
 
     // ===== ESTRELLAS Y METEORITOS =====
@@ -1427,42 +1419,110 @@
       });
     }
 
-    // ===== WALLET =====
+    // ================================================================
+    // WALLET (con detección real de red y clave compartida)
+    // ================================================================
     let walletConnected = false;
+
+    const WALLET_ADDRESS_KEY = 'sariels_wallet_address';
+    const WALLET_NETWORK_KEY = 'sariels_wallet_network';
+
+    const CHAIN_NAMES = {
+      '0x1': 'Ethereum',
+      '0x89': 'Polygon',
+      '0x13882': 'Polygon Amoy',
+      '0x38': 'BSC',
+      '0xaa36a7': 'Sepolia'
+    };
 
     function connectWallet() {
       try {
-        if (typeof window.ethereum !== 'undefined') {
-          window.ethereum.request({ method: 'eth_requestAccounts' })
-            .then(accounts => {
-              if (accounts && accounts.length > 0) {
-                walletConnected = true;
-                document.getElementById('walletStatus').textContent = '● Conectada';
-                document.getElementById('walletStatus').className = 'value connected';
-                document.getElementById('walletAddress').textContent = accounts[0].slice(0, 10) + '...' + accounts[0].slice(-8);
-                document.getElementById('walletNetwork').textContent = 'Ethereum';
-                console.log('✅ Wallet conectada:', accounts[0]);
-              }
-            })
-            .catch(err => {
-              console.error('Error conectando wallet:', err);
-              alert('⚠️ Error al conectar: ' + err.message);
-            });
-        } else {
+        if (typeof window.ethereum === 'undefined') {
           alert('⚠️ MetaMask no detectado.\n\n📱 Si usas móvil:\n- Abre esta página en el navegador interno de Trust Wallet\n- O usa el navegador de MetaMask\n- O instala MetaMask desde la Play Store/App Store');
+          return;
         }
+        window.ethereum.request({ method: 'eth_requestAccounts' })
+          .then(async accounts => {
+            if (accounts && accounts.length > 0) {
+              const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+              updateWalletUI(accounts[0], chainId);
+              localStorage.setItem(WALLET_ADDRESS_KEY, accounts[0]);
+              localStorage.setItem(WALLET_NETWORK_KEY, chainId);
+              console.log('✅ Wallet conectada:', accounts[0], 'en', chainId);
+            }
+          })
+          .catch(err => {
+            console.error('Error conectando wallet:', err);
+            alert('⚠️ Error al conectar: ' + err.message);
+          });
       } catch (error) {
         console.error('Error:', error);
         alert('⚠️ Error al conectar wallet');
       }
     }
 
+    async function checkExistingWallet() {
+      try {
+        if (typeof window.ethereum === 'undefined') return;
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts && accounts.length > 0) {
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          updateWalletUI(accounts[0], chainId);
+          localStorage.setItem(WALLET_ADDRESS_KEY, accounts[0]);
+          localStorage.setItem(WALLET_NETWORK_KEY, chainId);
+        }
+      } catch (e) {
+        console.warn('No se pudo verificar wallet existente:', e);
+      }
+    }
+
+    function updateWalletUI(address, chainId) {
+      walletConnected = true;
+      const chainName = CHAIN_NAMES[chainId] || `Red desconocida (${chainId})`;
+      const esPolygon = chainName.includes('Polygon');
+
+      document.getElementById('walletStatus').textContent = '● Conectada';
+      document.getElementById('walletStatus').className = 'value connected';
+      document.getElementById('walletAddress').textContent = address.slice(0, 10) + '...' + address.slice(-8);
+
+      const networkEl = document.getElementById('walletNetwork');
+      networkEl.textContent = esPolygon ? chainName : `⚠️ ${chainName}`;
+      networkEl.className = esPolygon ? 'value connected' : 'value wrong-network';
+    }
+
     function disconnectWallet() {
       walletConnected = false;
+      localStorage.removeItem(WALLET_ADDRESS_KEY);
+      localStorage.removeItem(WALLET_NETWORK_KEY);
       document.getElementById('walletStatus').textContent = '● No conectada';
       document.getElementById('walletStatus').className = 'value disconnected';
       document.getElementById('walletAddress').textContent = '--';
-      document.getElementById('walletNetwork').textContent = '--';
+      const networkEl = document.getElementById('walletNetwork');
+      networkEl.textContent = '--';
+      networkEl.className = 'value';
+    }
+
+    if (typeof window.ethereum !== 'undefined') {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts && accounts.length > 0) {
+          window.ethereum.request({ method: 'eth_chainId' }).then(chainId => {
+            updateWalletUI(accounts[0], chainId);
+            localStorage.setItem(WALLET_ADDRESS_KEY, accounts[0]);
+            localStorage.setItem(WALLET_NETWORK_KEY, chainId);
+          });
+        } else {
+          disconnectWallet();
+        }
+      });
+
+      window.ethereum.on('chainChanged', (chainId) => {
+        window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+          if (accounts && accounts.length > 0) {
+            updateWalletUI(accounts[0], chainId);
+            localStorage.setItem(WALLET_NETWORK_KEY, chainId);
+          }
+        });
+      });
     }
 
     // ===== LINKS DE PAGO =====
@@ -1620,7 +1680,6 @@
           red: network
         };
         
-        // Intentar guardar en el sistema centralizado
         if (typeof window.registrarVentaCentralizada === 'function') {
           window.registrarVentaCentralizada(venta);
           console.log('✅ Venta registrada en el sistema centralizado');
@@ -1628,14 +1687,12 @@
           window.bd.registrarVenta(venta);
           console.log('✅ Venta registrada en el sistema centralizado (bd)');
         } else {
-          // Fallback: localStorage
           const ventas = JSON.parse(localStorage.getItem('ventas') || '[]');
           ventas.push(venta);
           localStorage.setItem('ventas', JSON.stringify(ventas));
           console.log('✅ Venta guardada en localStorage (fallback)');
         }
         
-        // Disparar evento para actualizar otros paneles
         window.dispatchEvent(new CustomEvent('ventaRegistrada'));
         
         console.log('✅ QR generado correctamente');
@@ -1693,7 +1750,7 @@
       }
     }
 
-    // ===== TRADING CHART =====
+    // ===== TRADING CHART (DEMO) =====
     let chart = null;
 
     function initChart() {
@@ -1706,7 +1763,7 @@
           data: {
             labels: data.labels,
             datasets: [{
-              label: 'Precio USDT/USD',
+              label: 'Precio USDT/USD (Demo)',
               data: data.prices,
               borderColor: '#00e5ff',
               backgroundColor: 'rgba(0,229,255,0.1)',
@@ -1795,7 +1852,70 @@
       }, 2000);
     }
 
-    // ===== CRM =====
+    // ================================================================
+    // CRM (con persistencia real en localStorage)
+    // ================================================================
+    const CRM_STORAGE_KEY = 'sariels_crm_clientes';
+    let clientesCRM = [];
+
+    function cargarClientesCRM() {
+      try {
+        const guardado = localStorage.getItem(CRM_STORAGE_KEY);
+        if (guardado) return JSON.parse(guardado);
+        const inicial = [
+          { nombre: 'Cliente Demo', id: 'DEMO-001', estado: 'reconocido' },
+          { nombre: 'Cliente Prueba', id: 'TEST-002', estado: 'pendiente' }
+        ];
+        guardarClientesCRM(inicial);
+        return inicial;
+      } catch (e) {
+        console.warn('Error cargando clientes CRM:', e);
+        return [];
+      }
+    }
+
+    function guardarClientesCRM(clientes) {
+      try {
+        localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify(clientes));
+      } catch (e) {
+        console.warn('Error guardando clientes CRM:', e);
+      }
+    }
+
+    function escapeHtmlCRM(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function renderCRM() {
+      const list = document.getElementById('crmList');
+      if (clientesCRM.length === 0) {
+        list.innerHTML = '<p style="font-size:0.8rem;color:var(--text-muted);">Sin clientes registrados.</p>';
+        return;
+      }
+      list.innerHTML = clientesCRM.map(c => `
+        <div class="crm-item">
+          <div>
+            <span class="name">${escapeHtmlCRM(c.nombre)}</span>
+            <span class="info">ID: ${escapeHtmlCRM(c.id)}</span>
+          </div>
+          <span style="font-size:0.7rem;color:${c.estado === 'reconocido' ? 'var(--quantum)' : 'var(--text-muted)'};">
+            ${c.estado === 'reconocido' ? '● Reconocido' : '○ Pendiente'}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function registrarClienteDatos(nombre, id) {
+      const existe = clientesCRM.some(c => c.id === id);
+      if (!existe) {
+        clientesCRM.push({ nombre, id, estado: 'reconocido' });
+        guardarClientesCRM(clientesCRM);
+      }
+      renderCRM();
+    }
+
     function registerClient() {
       try {
         const name = document.getElementById('clientName').value.trim();
@@ -1806,17 +1926,7 @@
           return;
         }
         
-        const list = document.getElementById('crmList');
-        const item = document.createElement('div');
-        item.className = 'crm-item';
-        item.innerHTML = `
-          <div>
-            <span class="name">${name}</span>
-            <span class="info">ID: ${id}</span>
-          </div>
-          <span style="font-size:0.7rem;color:var(--quantum);">● Reconocido</span>
-        `;
-        list.appendChild(item);
+        registrarClienteDatos(name, id);
         
         document.getElementById('clientName').value = '';
         document.getElementById('clientId').value = '';
@@ -1828,8 +1938,91 @@
       }
     }
 
+    // ================================================================
+    // ESCÁNER QR REAL (cámara + jsQR)
+    // ================================================================
+    let scanStream = null;
+    let scanRAF = null;
+
     function scanQRClient() {
-      alert('📷 Escanea el código QR del cliente para identificación automática.\n\n(Sistema listo para integrar cámara)');
+      const modal = document.getElementById('scanModal');
+      const resultText = document.getElementById('scanResultText');
+      modal.style.display = 'flex';
+      resultText.textContent = 'Apunta la cámara al código QR...';
+
+      if (typeof jsQR === 'undefined') {
+        resultText.textContent = '⚠️ Librería de escaneo no disponible. Revisa tu conexión a internet.';
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        resultText.textContent = '⚠️ Este dispositivo/navegador no soporta acceso a cámara.';
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => {
+          scanStream = stream;
+          const video = document.getElementById('scanVideo');
+          video.srcObject = stream;
+          video.setAttribute('playsinline', true);
+          video.play();
+          scanRAF = requestAnimationFrame(tickScan);
+        })
+        .catch(err => {
+          console.error('Error accediendo a la cámara:', err);
+          resultText.textContent = '⚠️ No se pudo acceder a la cámara: ' + err.message;
+        });
+    }
+
+    function tickScan() {
+      const video = document.getElementById('scanVideo');
+      const canvas = document.getElementById('scanCanvas');
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        if (code) {
+          procesarQRDetectado(code.data);
+          return;
+        }
+      }
+      scanRAF = requestAnimationFrame(tickScan);
+    }
+
+    function procesarQRDetectado(texto) {
+      const resultText = document.getElementById('scanResultText');
+      resultText.textContent = '✅ QR detectado, procesando...';
+
+      let nombre = 'Cliente QR';
+      let id = 'QR-' + Date.now().toString().slice(-6);
+
+      try {
+        const datos = JSON.parse(texto);
+        if (datos.reference) id = datos.reference;
+        if (datos.concept) nombre = datos.concept;
+      } catch (e) {
+        id = texto.slice(0, 30);
+      }
+
+      registrarClienteDatos(nombre, id);
+      cerrarScanner();
+      alert(`✅ Cliente identificado: ${nombre} (${id})`);
+    }
+
+    function cerrarScanner() {
+      const modal = document.getElementById('scanModal');
+      modal.style.display = 'none';
+      if (scanRAF) cancelAnimationFrame(scanRAF);
+      if (scanStream) {
+        scanStream.getTracks().forEach(track => track.stop());
+        scanStream = null;
+      }
     }
   </script>
 </body>
