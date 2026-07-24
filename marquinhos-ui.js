@@ -14,7 +14,7 @@ export class MarquinhosUI {
     }
 
     init() {
-        // ===== CARGAR POSICIÓN UNA SOLA VEZ =====
+        // ===== CARGAR POSICIÓN GUARDADA =====
         const posGuardada = this.cargarPosicion();
 
         document.documentElement.style.setProperty('--m-primary', this.config.theme.primary);
@@ -23,25 +23,25 @@ export class MarquinhosUI {
         document.documentElement.style.setProperty('--m-height', this.config.ui.height);
         document.documentElement.style.setProperty('--m-glass', this.config.theme.glass);
 
-        // Crear contenedor
+        // ===== CREAR CONTENEDOR =====
         const container = document.createElement('div');
         container.id = 'marquinhos-container';
         container.innerHTML = `
-            <div class="m-burbuja">
+            <div class="m-burbuja" id="m-burbuja">
                 <span class="m-icono">🧠</span>
                 <span class="m-notificacion" style="display:none;">●</span>
             </div>
-            <div class="m-ventana">
+            <div class="m-ventana" id="m-ventana">
                 <div class="m-header">
                     <span class="m-titulo">🧠 Marquinhos</span>
-                    <button class="m-cerrar">✕</button>
+                    <button class="m-cerrar" id="m-cerrar">✕</button>
                 </div>
-                <div class="m-mensajes"></div>
+                <div class="m-mensajes" id="m-mensajes"></div>
                 <div class="m-input-area">
-                    <input type="text" class="m-input" placeholder="Escribe un mensaje...">
-                    <button class="m-btn-enviar">Enviar</button>
+                    <input type="text" class="m-input" id="m-input" placeholder="Escribe un mensaje...">
+                    <button class="m-btn-enviar" id="m-btn-enviar">Enviar</button>
                 </div>
-                <button class="m-btn-horario">Ver horario</button>
+                <button class="m-btn-horario" id="m-btn-horario">Ver horario</button>
             </div>
         `;
         document.body.appendChild(container);
@@ -231,14 +231,16 @@ export class MarquinhosUI {
         document.head.appendChild(style);
 
         // ===== REFERENCIAS =====
-        const bubble = container.querySelector('.m-burbuja');
-        const windowEl = container.querySelector('.m-ventana');
-        const closeBtn = container.querySelector('.m-cerrar');
-        const sendBtn = container.querySelector('.m-btn-enviar');
-        const input = container.querySelector('.m-input');
-        const messages = container.querySelector('.m-mensajes');
+        const bubble = document.getElementById('m-burbuja');
+        const windowEl = document.getElementById('m-ventana');
+        const closeBtn = document.getElementById('m-cerrar');
+        const sendBtn = document.getElementById('m-btn-enviar');
+        const input = document.getElementById('m-input');
+        const messages = document.getElementById('m-mensajes');
 
-        // ===== DRAG (Mouse) =====
+        // ================================================================
+        // ===== DRAG & DROP (Mouse) =====
+        // ================================================================
         bubble.addEventListener('mousedown', (e) => {
             this.iniciarArrastre(e.clientX, e.clientY, bubble);
             const onMove = (ev) => this.moverArrastre(ev.clientX, ev.clientY, bubble, container);
@@ -251,7 +253,9 @@ export class MarquinhosUI {
             document.addEventListener('mouseup', onUp);
         });
 
-        // ===== DRAG (Touch) =====
+        // ================================================================
+        // ===== DRAG & DROP (Touch - Móviles) =====
+        // ================================================================
         bubble.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             this.iniciarArrastre(touch.clientX, touch.clientY, bubble);
@@ -268,8 +272,11 @@ export class MarquinhosUI {
             document.addEventListener('touchend', onEnd);
         }, { passive: true });
 
-        // ===== Toggle ventana (solo si no hubo arrastre) =====
+        // ================================================================
+        // ===== ABRIR/CERRAR VENTANA =====
+        // ================================================================
         bubble.addEventListener('click', () => {
+            // Si hubo arrastre, no abrir la ventana
             if (this.hasMoved) {
                 this.hasMoved = false;
                 return;
@@ -279,7 +286,7 @@ export class MarquinhosUI {
             if (this.expandido) {
                 Engine.marcarComoLeido();
                 this.cargarMensajes();
-                container.querySelector('.m-notificacion').style.display = 'none';
+                document.querySelector('.m-notificacion').style.display = 'none';
             }
         });
 
@@ -289,14 +296,16 @@ export class MarquinhosUI {
             windowEl.classList.remove('abierta');
         });
 
-        // ===== Enviar mensaje =====
+        // ================================================================
+        // ===== ENVIAR MENSAJE =====
+        // ================================================================
         sendBtn.addEventListener('click', () => this.enviarMensaje(input, messages));
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.enviarMensaje(input, messages);
         });
 
-        // ===== Horario =====
-        container.querySelector('.m-btn-horario').addEventListener('click', () => {
+        // ===== Ver horario =====
+        document.getElementById('m-btn-horario').addEventListener('click', () => {
             alert(Engine.obtenerHorario());
         });
 
@@ -305,7 +314,9 @@ export class MarquinhosUI {
         this.detectarColisiones(container);
     }
 
+    // ================================================================
     // ===== MÉTODOS DE ARRASTRE =====
+    // ================================================================
     iniciarArrastre(clientX, clientY, bubble) {
         const rect = bubble.getBoundingClientRect();
         this.dragOffsetX = clientX - rect.left;
@@ -329,6 +340,7 @@ export class MarquinhosUI {
         let newX = clientX - this.dragOffsetX;
         let newY = clientY - this.dragOffsetY;
 
+        // ===== LIMITAR DENTRO DEL VIEWPORT =====
         const bubbleRect = bubble.getBoundingClientRect();
         const bubbleSize = bubbleRect.width;
 
@@ -337,11 +349,13 @@ export class MarquinhosUI {
         newX = Math.max(0, Math.min(newX, maxX));
         newY = Math.max(0, Math.min(newY, maxY));
 
+        // ===== APLICAR NUEVA POSICIÓN =====
         container.style.left = newX + 'px';
         container.style.top = newY + 'px';
         container.style.right = 'auto';
         container.style.bottom = 'auto';
 
+        // ===== GUARDAR POSICIÓN =====
         this.guardarPosicion(newX, newY);
     }
 
@@ -350,6 +364,9 @@ export class MarquinhosUI {
         bubble.classList.remove('dragging');
     }
 
+    // ================================================================
+    // ===== PERSISTENCIA DE POSICIÓN =====
+    // ================================================================
     guardarPosicion(x, y) {
         try {
             localStorage.setItem('marquinhos_posicion', JSON.stringify({ x, y }));
@@ -363,9 +380,11 @@ export class MarquinhosUI {
         } catch (e) { return null; }
     }
 
+    // ================================================================
     // ===== DETECTAR COLISIONES =====
+    // ================================================================
     detectarColisiones(container) {
-        const bubble = container.querySelector('.m-burbuja');
+        const bubble = document.getElementById('m-burbuja');
         setInterval(() => {
             if (!bubble) return;
             
@@ -397,9 +416,11 @@ export class MarquinhosUI {
         }, 300);
     }
 
+    // ================================================================
     // ===== MENSAJES =====
+    // ================================================================
     async cargarMensajes() {
-        const contenedor = document.querySelector('.m-mensajes');
+        const contenedor = document.getElementById('m-mensajes');
         if (!contenedor) return;
         await Engine.recibirMensajes((mensajes) => {
             contenedor.innerHTML = mensajes.map(m => `
