@@ -934,6 +934,7 @@
                 <a href="./fidelizacion.html">🎫 Fidelización</a>
                 <a href="./trading.html">📈 Trading</a>
                 <a href="./panel-web3.html">🔗 Web3</a>
+                <a href="./terminos/terminos-muro-live.html" style="color:var(--quantum);">📜 Términos</a>
             </div>
         </footer>
     </div>
@@ -1008,164 +1009,21 @@
     </script>
 
     <script>
-        // ===== SISTEMA ESTELAR =====
+        // ================================================================
+        // SISTEMA ESTELAR - AHORA CENTRALIZADO EN js/estrellas.js
+        // ================================================================
+        // La función initStars() ha sido eliminada para reducir consumo.
+        // El sistema se carga automáticamente desde el archivo externo.
+        // Configuración para mi-red.html: 60 estrellas a 20 FPS (bajo consumo)
+        // ================================================================
+
         document.addEventListener('DOMContentLoaded', () => {
             console.log('🌌 Sariel\'s Ecosystem - Mi Red Ultra');
-            initStars();
+            console.log('🌟 Sistema Estelar: Cargado desde js/estrellas.js');
             initApp();
             initWallet();
             initEditor();
         });
-
-        // ===== ESTRELLAS Y METEORITOS =====
-        function initStars() {
-            const canvas = document.getElementById('stars-canvas');
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            let stars = [];
-            let meteors = [];
-            
-            const STAR_COUNT = 300;
-            const METEOR_COUNT = 3;
-            
-            function resize() {
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width;
-                canvas.height = height;
-            }
-            
-            function createStars() {
-                stars = [];
-                for (let i = 0; i < STAR_COUNT; i++) {
-                    stars.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        radius: Math.random() * 1.8 + 0.3,
-                        speed: Math.random() * 0.02 + 0.005,
-                        opacity: Math.random() * 0.8 + 0.2,
-                        twinkleSpeed: Math.random() * 0.02 + 0.01,
-                        twinklePhase: Math.random() * Math.PI * 2
-                    });
-                }
-            }
-            
-            function createMeteor() {
-                return {
-                    x: Math.random() * width * 0.8,
-                    y: Math.random() * height * 0.3,
-                    speed: Math.random() * 3 + 4,
-                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
-                    opacity: Math.random() * 0.6 + 0.4,
-                    active: true,
-                    trail: []
-                };
-            }
-            
-            function initMeteors() {
-                meteors = [];
-                for (let i = 0; i < METEOR_COUNT; i++) {
-                    const meteor = createMeteor();
-                    meteor.x = Math.random() * width;
-                    meteor.y = Math.random() * height * 0.2;
-                    meteors.push(meteor);
-                }
-            }
-            
-            function updateStars() {
-                for (let star of stars) {
-                    star.twinklePhase += star.twinkleSpeed;
-                    star.y += star.speed;
-                    if (star.y > height) {
-                        star.y = 0;
-                        star.x = Math.random() * width;
-                    }
-                }
-            }
-            
-            function updateMeteors() {
-                for (let meteor of meteors) {
-                    if (!meteor.active) continue;
-                    meteor.x += Math.cos(meteor.angle) * meteor.speed;
-                    meteor.y += Math.sin(meteor.angle) * meteor.speed;
-                    meteor.trail.push({ x: meteor.x, y: meteor.y });
-                    if (meteor.trail.length > 20) meteor.trail.shift();
-                    if (meteor.x > width + 100 || meteor.y > height + 100) {
-                        meteor.active = false;
-                        setTimeout(() => {
-                            const newMeteor = createMeteor();
-                            newMeteor.x = Math.random() * width * 0.3;
-                            newMeteor.y = Math.random() * height * 0.2;
-                            Object.assign(meteor, newMeteor);
-                            meteor.active = true;
-                        }, Math.random() * 3000 + 2000);
-                    }
-                }
-            }
-            
-            function draw() {
-                ctx.clearRect(0, 0, width, height);
-                
-                for (let star of stars) {
-                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
-                    ctx.beginPath();
-                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-                    ctx.fill();
-                    if (star.radius > 1.2) {
-                        ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
-                        ctx.shadowBlur = 10;
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-                    }
-                }
-                
-                for (let meteor of meteors) {
-                    if (!meteor.active) continue;
-                    for (let i = 0; i < meteor.trail.length; i++) {
-                        const point = meteor.trail[i];
-                        const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
-                        const radius = (i / meteor.trail.length) * 2;
-                        ctx.beginPath();
-                        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
-                        ctx.fill();
-                    }
-                    const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
-                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-                    gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
-                    gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
-                    ctx.beginPath();
-                    ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
-                    ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
-                    ctx.shadowBlur = 30;
-                    ctx.beginPath();
-                    ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-            }
-            
-            function animate() {
-                updateStars();
-                updateMeteors();
-                draw();
-                requestAnimationFrame(animate);
-            }
-            
-            resize();
-            createStars();
-            initMeteors();
-            animate();
-            
-            window.addEventListener('resize', () => {
-                resize();
-                createStars();
-            });
-        }
 
         // ===== APP PRINCIPAL =====
         function initApp() {
@@ -1926,5 +1784,9 @@
             if (e.target === this) cerrarEditorFoto();
         });
     </script>
+
+    <!-- ===== SISTEMA ESTELAR CENTRALIZADO (CARGADO AL FINAL) ===== -->
+    <script src="./js/estrellas.js"></script>
+
 </body>
 </html>
