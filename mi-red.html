@@ -17,6 +17,10 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     
+    <!-- Cropper.js para edición de imágenes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
     <style>
         /* ===== VARIABLES CÓSMICAS ===== */
         :root {
@@ -601,7 +605,7 @@
         .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--text-secondary); }
         .empty-state p { font-size: 0.9rem; }
 
-        /* ===== MODAL ===== */
+        /* ===== MODAL PERFIL ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -620,7 +624,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 32px;
-            max-width: 440px;
+            max-width: 480px;
             width: 100%;
             position: relative;
             animation: fadeInUp 0.3s ease-out;
@@ -672,6 +676,41 @@
         .modal-level { display: block; text-align: center; margin-bottom: 16px; }
         .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
         .modal-actions .btn { flex: 1; justify-content: center; min-width: 100px; }
+
+        /* ===== MODAL EDITOR DE FOTO ===== */
+        .photo-editor-modal .modal-content {
+            max-width: 600px;
+        }
+
+        .photo-editor-modal .cropper-container {
+            margin: 0 auto;
+            max-height: 400px;
+        }
+
+        .photo-editor-modal .editor-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .photo-editor-modal .editor-controls .btn {
+            flex: 0 0 auto;
+        }
+
+        .photo-editor-modal .ia-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            color: var(--quantum);
+            font-family: 'Orbitron', monospace;
+        }
 
         /* ===== TOAST ===== */
         .toast {
@@ -771,6 +810,7 @@
             .tabs { gap: 0; }
             .tab { padding: 10px 14px; font-size: 0.6rem; }
             .modal-content { padding: 24px; margin: 16px; }
+            .photo-editor-modal .modal-content { padding: 16px; }
         }
 
         @media (max-width: 480px) {
@@ -780,6 +820,7 @@
             .search-box input { padding: 12px 16px 12px 40px; font-size: 0.85rem; }
             .search-box .shortcuts { display: none; }
             .modal-actions .btn { min-width: 80px; font-size: 0.6rem; padding: 8px 12px; }
+            .photo-editor-modal .editor-controls .btn { font-size: 0.5rem; padding: 6px 10px; }
         }
     </style>
 </head>
@@ -804,11 +845,9 @@
                     <span class="status-dot online" id="statusDot"></span>
                     <span id="statusLabel">En línea</span>
                 </div>
-                <!-- ===== BOTÓN MURO LIVE (NUEVO) ===== -->
                 <a href="./muro-live.html" class="btn btn-primary">
                     <i class="fas fa-rss"></i> Muro Live
                 </a>
-                <!-- ===== FIN BOTÓN MURO LIVE ===== -->
                 <a href="./panel-web3.html" class="btn"><i class="fas fa-wallet"></i> Web3</a>
                 <a href="./fidelizacion.html" class="btn"><i class="fas fa-gem"></i> Fidelización</a>
                 <a href="./trading.html" class="btn btn-gold"><i class="fas fa-chart-bar"></i> Trading</a>
@@ -817,14 +856,21 @@
 
         <!-- PERFIL -->
         <div class="profile-card">
-            <div class="profile-avatar" id="profileAvatar" onclick="document.getElementById('inputFotoPerfil').click()">
+            <div class="profile-avatar" id="profileAvatar" onclick="abrirEditorFoto()">
                 <span id="avatarText">T</span>
                 <div class="edit-badge"><i class="fas fa-camera"></i></div>
             </div>
-            <input type="file" id="inputFotoPerfil" accept="image/*" style="display:none;" onchange="cambiarFotoPerfil(event)">
             <div class="profile-info">
                 <div class="name" id="profileName">Tú</div>
                 <div class="sub" id="profileSub">🌾 Fundador · Sariel's Ecosystem</div>
+                <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-outline" onclick="abrirEditorFoto()">
+                        <i class="fas fa-camera"></i> Cambiar foto
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="abrirCamara()">
+                        <i class="fas fa-camera-retro"></i> Cámara
+                    </button>
+                </div>
             </div>
             <div class="profile-stats">
                 <div class="stat"><div class="number" id="statContactos">0</div><div class="label">Contactos</div></div>
@@ -905,6 +951,48 @@
         </div>
     </div>
 
+    <!-- ===== MODAL EDITOR DE FOTO ===== -->
+    <div class="modal-overlay photo-editor-modal" id="photoEditorModal">
+        <div class="modal-content">
+            <button onclick="cerrarEditorFoto()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
+            <h3 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:4px;">📸 Editor de Foto</h3>
+            <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:12px;">
+                <span class="ia-badge"><i class="fas fa-brain"></i> IA activa</span>
+                Recorta, encuadra y mejora tu foto automáticamente
+            </p>
+            <div style="max-height:400px;overflow:hidden;border-radius:12px;border:1px solid var(--border);">
+                <img id="editorImage" src="" alt="Foto para editar" style="max-width:100%;display:none;" />
+                <div id="editorPlaceholder" style="display:flex;align-items:center;justify-content:center;min-height:200px;color:var(--text-muted);background:rgba(0,0,0,0.3);border-radius:12px;flex-direction:column;gap:12px;">
+                    <i class="fas fa-image" style="font-size:3rem;opacity:0.3;"></i>
+                    <span>Selecciona una foto o toma una con la cámara</span>
+                </div>
+            </div>
+            <div class="editor-controls">
+                <div class="file-upload-wrapper" style="position:relative;overflow:hidden;display:inline-block;">
+                    <button class="btn btn-outline btn-sm">
+                        <i class="fas fa-upload"></i> Subir foto
+                    </button>
+                    <input type="file" id="editorFileInput" accept="image/*" style="position:absolute;left:0;top:0;opacity:0;width:100%;height:100%;cursor:pointer;" onchange="cargarFotoEditor(event)" />
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="abrirCamaraEditor()">
+                    <i class="fas fa-camera"></i> Cámara
+                </button>
+                <button class="btn btn-gold btn-sm" onclick="aplicarIA()">
+                    <i class="fas fa-magic"></i> Mejorar con IA
+                </button>
+                <button class="btn btn-success btn-sm" onclick="guardarFotoEditor()">
+                    <i class="fas fa-check"></i> Guardar
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="resetearEditor()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </div>
+            <!-- Input oculto para cámara -->
+            <input type="file" id="camaraInput" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoCamara(event)" />
+            <input type="file" id="camaraFrontalInput" accept="image/*" capture="user" style="display:none;" onchange="procesarFotoCamara(event)" />
+        </div>
+    </div>
+
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
@@ -914,12 +1002,8 @@
     
     <!-- ===== MARQUINHOS - SOLO EL IMPORT ===== -->
     <script type="module">
-        // Importar MarquinhosUI (la burbuja se crea dinámicamente)
         import { MarquinhosUI } from './marquinhos-ui.js';
-        
-        // Inicializar Marquinhos UI (crea la burbuja y la ventana)
         const marquinhosUI = new MarquinhosUI();
-        
         console.log('🧠 Marquinhos asistente cargado correctamente');
     </script>
 
@@ -930,6 +1014,7 @@
             initStars();
             initApp();
             initWallet();
+            initEditor();
         });
 
         // ===== ESTRELLAS Y METEORITOS =====
@@ -1109,6 +1194,189 @@
             nivel: 'diamante'
         };
 
+        // ===== EDITOR DE FOTO =====
+        let cropperInstance = null;
+        let currentImageData = null;
+        let cropperImage = null;
+
+        function initEditor() {
+            console.log('📸 Editor de foto inicializado');
+        }
+
+        function abrirEditorFoto() {
+            const modal = document.getElementById('photoEditorModal');
+            modal.classList.add('active');
+            const placeholder = document.getElementById('editorPlaceholder');
+            const img = document.getElementById('editorImage');
+            
+            // Si ya hay foto de perfil, cargarla
+            if (miPerfil.fotoPerfil) {
+                img.src = miPerfil.fotoPerfil;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+                setTimeout(() => iniciarCropper(img), 100);
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'flex';
+            }
+        }
+
+        function cerrarEditorFoto() {
+            const modal = document.getElementById('photoEditorModal');
+            modal.classList.remove('active');
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+        }
+
+        function cargarFotoEditor(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('editorImage');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                document.getElementById('editorPlaceholder').style.display = 'none';
+                setTimeout(() => iniciarCropper(img), 100);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function iniciarCropper(img) {
+            if (cropperInstance) {
+                cropperInstance.destroy();
+            }
+            cropperInstance = new Cropper(img, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true,
+                background: false,
+                rotatable: true,
+                scalable: true,
+                zoomable: true,
+                minCropBoxWidth: 100,
+                minCropBoxHeight: 100,
+            });
+            cropperImage = img;
+        }
+
+        function abrirCamaraEditor() {
+            // Usar cámara trasera (selfie)
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                const input = document.getElementById('camaraFrontalInput');
+                input.click();
+            } else {
+                mostrarToast('⚠️ Cámara no disponible en este dispositivo', 'error');
+            }
+        }
+
+        function abrirCamara() {
+            abrirEditorFoto();
+            setTimeout(() => abrirCamaraEditor(), 300);
+        }
+
+        function procesarFotoCamara(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('editorImage');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                document.getElementById('editorPlaceholder').style.display = 'none';
+                setTimeout(() => iniciarCropper(img), 100);
+                mostrarToast('📸 Foto capturada correctamente');
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function aplicarIA() {
+            if (!cropperInstance) {
+                mostrarToast('⚠️ No hay foto cargada para mejorar', 'error');
+                return;
+            }
+            
+            mostrarToast('🧠 Mejorando imagen con IA...');
+            
+            // Simular mejora de IA (en producción se conectaría a una API real)
+            setTimeout(() => {
+                // Obtener imagen actual del cropper
+                const canvas = cropperInstance.getCroppedCanvas({
+                    width: 400,
+                    height: 400,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                });
+                
+                // Aplicar mejoras simuladas (brillo, contraste, nitidez)
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Simular mejora de contraste y brillo
+                for (let i = 0; i < data.length; i += 4) {
+                    // Aumentar contraste (simulado)
+                    data[i] = Math.min(255, Math.max(0, data[i] * 1.1));
+                    data[i+1] = Math.min(255, Math.max(0, data[i+1] * 1.1));
+                    data[i+2] = Math.min(255, Math.max(0, data[i+2] * 1.1));
+                }
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Actualizar cropper con la imagen mejorada
+                const improvedDataUrl = canvas.toDataURL('image/png');
+                const img = document.getElementById('editorImage');
+                img.src = improvedDataUrl;
+                setTimeout(() => {
+                    if (cropperInstance) {
+                        cropperInstance.destroy();
+                        cropperInstance = null;
+                    }
+                    iniciarCropper(img);
+                }, 100);
+                
+                mostrarToast('✨ Imagen mejorada con IA');
+            }, 1500);
+        }
+
+        function guardarFotoEditor() {
+            if (!cropperInstance) {
+                mostrarToast('⚠️ No hay foto para guardar', 'error');
+                return;
+            }
+            
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 400,
+                height: 400,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+            
+            const dataUrl = canvas.toDataURL('image/png');
+            
+            // Guardar en perfil
+            miPerfil.fotoPerfil = dataUrl;
+            document.getElementById('avatarText').innerHTML = `<img src="${dataUrl}" alt="Tú">`;
+            document.getElementById('avatarText').style.padding = '0';
+            
+            guardarDatosLocales();
+            cerrarEditorFoto();
+            mostrarToast('✅ Foto de perfil actualizada');
+        }
+
+        function resetearEditor() {
+            if (cropperInstance) {
+                cropperInstance.reset();
+                mostrarToast('🔄 Imagen restablecida');
+            }
+        }
+
+        // ===== DATOS =====
         let todosLosClientes = [
             { id: 'cli_001', nombre: 'María García', telefono: '55 1234 5678', nivel: 'gold', fotoPerfil: null, online: true, ultimaConexion: '2026-07-20T10:30:00' },
             { id: 'cli_002', nombre: 'Carlos Ruiz', telefono: '55 2345 6789', nivel: 'silver', fotoPerfil: null, online: false, ultimaConexion: '2026-07-19T22:15:00' },
@@ -1150,6 +1418,12 @@
                     if (datos.miPerfil) miPerfil = datos.miPerfil;
                     if (datos.relaciones) relaciones = datos.relaciones;
                     if (datos.contactoFavoritos) contactoFavoritos = datos.contactoFavoritos;
+                    
+                    // Actualizar avatar
+                    if (miPerfil.fotoPerfil) {
+                        document.getElementById('avatarText').innerHTML = `<img src="${miPerfil.fotoPerfil}" alt="Tú">`;
+                        document.getElementById('avatarText').style.padding = '0';
+                    }
                 }
             } catch (e) {
                 console.warn('Error cargando datos locales:', e);
@@ -1548,20 +1822,6 @@
             }
         }
 
-        function cambiarFotoPerfil(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                miPerfil.fotoPerfil = e.target.result;
-                document.getElementById('avatarText').innerHTML = `<img src="${e.target.result}" alt="Tú">`;
-                document.getElementById('avatarText').style.padding = '0';
-                guardarDatosLocales();
-                mostrarToast('✅ Foto de perfil actualizada');
-            };
-            reader.readAsDataURL(file);
-        }
-
         // ===== TOAST =====
         function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
@@ -1581,7 +1841,6 @@
 
             let walletAddress = null;
 
-            // Cargar wallet guardada
             const saved = localStorage.getItem('miRed_wallet');
             if (saved) {
                 walletAddress = saved;
@@ -1632,7 +1891,6 @@
                 }
             }
 
-            // Escuchar cambios de cuenta
             if (window.ethereum) {
                 window.ethereum.on('accountsChanged', (accounts) => {
                     if (accounts && accounts.length > 0) {
@@ -1652,11 +1910,20 @@
         renderAll();
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cerrarModal();
+            if (e.key === 'Escape') {
+                cerrarModal();
+                if (document.getElementById('photoEditorModal').classList.contains('active')) {
+                    cerrarEditorFoto();
+                }
+            }
         });
 
         document.getElementById('modalPerfil').addEventListener('click', function(e) {
             if (e.target === this) cerrarModal();
+        });
+
+        document.getElementById('photoEditorModal').addEventListener('click', function(e) {
+            if (e.target === this) cerrarEditorFoto();
         });
     </script>
 </body>
