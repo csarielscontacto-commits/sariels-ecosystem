@@ -11,6 +11,10 @@
 // Requiere (opcional): config.js cargado antes, con
 // window.CONFIG.SUPABASE_URL y window.CONFIG.SUPABASE_ANON_KEY.
 // Si no existen, funciona 100% en modo local sin romperse.
+//
+// Columnas reales de la tabla 'ventas' en Supabase:
+//   vendedorNombra, cliente, cantidad, metodo, monto, id,
+//   fechaRegistro, vendedorId, sincronizado
 // ================================================================
 
 (function () {
@@ -62,8 +66,8 @@
 
       if (legacy.length > 0) {
         // Combinar sin duplicar (por fecha+monto+cliente como huella simple)
-        const huellas = new Set(actuales.map(v => `${v.fecha}_${v.monto}_${v.cliente}`));
-        const nuevas = legacy.filter(v => !huellas.has(`${v.fecha}_${v.monto}_${v.cliente}`));
+        const huellas = new Set(actuales.map(v => `${v.fechaRegistro || v.fecha}_${v.monto}_${v.cliente}`));
+        const nuevas = legacy.filter(v => !huellas.has(`${v.fechaRegistro || v.fecha}_${v.monto}_${v.cliente}`));
         const combinadas = actuales.concat(nuevas);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(combinadas));
         console.log(`✅ Migración: ${nuevas.length} ventas antiguas incorporadas desde la clave 'ventas'`);
@@ -82,7 +86,7 @@
   // deja con un shape consistente, sin perder los campos originales.
   function normalizarVenta(venta) {
     const ahora = new Date().toISOString();
-    const nombreVendedor = venta.vendedorNombre || venta.vendedor || 'Desconocido';
+    const nombreVendedor = venta.vendedorNombre || venta.vendedorNombra || venta.vendedor || 'Desconocido';
 
     return Object.assign({}, venta, {
       id: venta.id || ('venta_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6)),
@@ -93,8 +97,9 @@
       metodo: venta.metodo || venta.metodoPago || 'Efectivo',
       fecha: venta.fecha || venta.fechaRegistro || ahora,
       fechaRegistro: venta.fechaRegistro || venta.fecha || ahora,
-      // Ambos nombres disponibles, para que ningún módulo quede huérfano:
+      // Todos los nombres disponibles, para que ningún módulo quede huérfano:
       vendedorNombre: nombreVendedor,
+      vendedorNombra: nombreVendedor,
       vendedor: nombreVendedor
     });
   }
@@ -128,7 +133,7 @@
       const { data, error } = await supabaseClient
         .from(TABLA_VENTAS)
         .select('*')
-        .order('fecha', { ascending: true });
+        .order('fechaRegistro', { ascending: true });
 
       if (error) throw error;
 
@@ -157,20 +162,19 @@
     guardarCacheLocal();
 
     // Intentar guardar en Supabase (no bloqueante)
+    // Columnas reales de la tabla 'ventas': vendedorNombra, cliente,
+    // cantidad, metodo, monto, id, fechaRegistro, vendedorId, sincronizado
     if (supabaseClient) {
       supabaseClient.from(TABLA_VENTAS).insert({
         id: ventaNormalizada.id,
         cliente: ventaNormalizada.cliente,
         monto: ventaNormalizada.monto,
         cantidad: ventaNormalizada.cantidad,
-        metodo_pago: ventaNormalizada.metodoPago,
-        vendedor_id: ventaNormalizada.vendedorId || null,
-        vendedor_nombre: ventaNormalizada.vendedorNombre,
-        fecha: ventaNormalizada.fecha,
-        referencia: ventaNormalizada.referencia || null,
-        concepto: ventaNormalizada.concepto || null,
-        wallet_destino: ventaNormalizada.walletDestino || null,
-        red: ventaNormalizada.red || null
+        metodo: ventaNormalizada.metodoPago,
+        vendedorId: ventaNormalizada.vendedorId || null,
+        vendedorNombra: ventaNormalizada.vendedorNombre,
+        fechaRegistro: ventaNormalizada.fechaRegistro,
+        sincronizado: true
       }).then(({ error }) => {
         if (error) {
           console.error('❌ Error guardando venta en Supabase (queda en caché local):', error);
@@ -195,7 +199,7 @@
 
   function obtenerVentasDeHoy() {
     const hoy = new Date().toDateString();
-    return ventasCache.filter(v => new Date(v.fecha).toDateString() === hoy);
+    return ventasCache.filter(v => new Date(v.fechaRegistro || v.fecha).toDateString() === hoy);
   }
 
   function estaRemotoActivo() {
