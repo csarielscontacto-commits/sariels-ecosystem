@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Takedown | Csariel's</title>
+    <meta name="theme-color" content="#0B3D2E" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --verde-bosque: #0B3D2E;
+            --verde-bosque-light: #1a5a44;
+            --gold-cosmic: #f7d44a;
+            --gold-dim: rgba(247,212,74,0.15);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(247,212,74,0.08);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.8;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(11,61,46,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--gold-dim);
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid var(--gold-dim);
+            border-radius: 30px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', monospace;
+            transition: var(--transition);
+        }
+        .btn-back:hover {
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        h1 {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+        .subtitle strong { color: var(--gold-cosmic); }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 6px;
+        }
+        .form-group label .required {
+            color: var(--danger);
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--gold-cosmic);
+            box-shadow: 0 0 30px rgba(247,212,74,0.05);
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-group .help-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+            margin: 12px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .checkbox-group label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .checkbox-group label strong {
+            color: var(--text-primary);
+        }
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border: none;
+            border-radius: 30px;
+            color: #0a0c10;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            justify-content: center;
+        }
+        .btn-submit:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(247,212,74,0.3);
+        }
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .success-message {
+            display: none;
+            padding: 24px;
+            background: rgba(0,184,148,0.08);
+            border: 1px solid rgba(0,184,148,0.2);
+            border-radius: 12px;
+            color: var(--success);
+            text-align: center;
+            margin-top: 16px;
+        }
+        .success-message .icon { font-size: 3rem; margin-bottom: 8px; }
+        .success-message h3 {
+            font-family: 'Orbitron', monospace;
+            color: var(--success);
+        }
+        .success-message p { color: var(--text-secondary); }
+        .error-message {
+            display: none;
+            padding: 12px 16px;
+            background: rgba(255,51,102,0.08);
+            border: 1px solid rgba(255,51,102,0.2);
+            border-radius: 8px;
+            color: var(--danger);
+            margin-bottom: 12px;
+        }
+        .footer-legal {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .footer-legal a {
+            color: var(--gold-cosmic);
+            text-decoration: none;
+        }
+        .footer-legal a:hover { text-decoration: underline; }
+        .info-box {
+            background: rgba(247,212,74,0.05);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+        .info-box p { font-size: 0.85rem; color: var(--text-secondary); }
+        .info-box strong { color: var(--gold-cosmic); }
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.4rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .header { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 16px; }
+            h1 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <a href="./index.html" class="logo">
+            <span class="hex">◈</span>
+            <span class="logo-text">Csariel's</span>
+            <span class="badge">Takedown</span>
+        </a>
+        <a href="../index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </header>
+
+    <h1>📝 Formulario de Notificación</h1>
+    <div class="subtitle">
+        <strong>Ley Federal del Derecho de Autor (LFDA) - Arts. 148-150</strong><br>
+        Completa este formulario para notificar una infracción de derechos de autor en Csariel's.
+    </div>
+
+    <!-- ===== INFO ===== -->
+    <div class="info-box">
+        <p>
+            <strong>📧 Alternativa:</strong> También puedes enviar tu notificación por correo a 
+            <span style="color:var(--gold-cosmic);">csarielscontacto@gmail.com</span>
+        </p>
+    </div>
+
+    <!-- ===== ERROR ===== -->
+    <div id="errorMessage" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorText">Por favor, completa todos los campos obligatorios.</span>
+    </div>
+
+    <!-- ===== FORMULARIO ===== -->
+    <form id="takedownForm" onsubmit="return enviarNotificacion(event)">
+
+        <!-- ===== DATOS DEL DENUNCIANTE ===== -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nombre completo <span class="required">*</span></label>
+                <input type="text" id="nombre" required placeholder="Ej: Juan Pérez" />
+            </div>
+            <div class="form-group">
+                <label>Correo electrónico <span class="required">*</span></label>
+                <input type="email" id="email" required placeholder="juan@ejemplo.com" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Teléfono de contacto</label>
+            <input type="tel" id="telefono" placeholder="222 123 4567" />
+        </div>
+
+        <div class="form-group">
+            <label>Rol del denunciante <span class="required">*</span></label>
+            <select id="rol" required>
+                <option value="">Selecciona...</option>
+                <option value="titular">Titular de derechos de autor</option>
+                <option value="representante">Representante autorizado</option>
+                <option value="otro">Otro (especificar)</option>
+            </select>
+        </div>
+
+        <!-- ===== CONTENIDO INFRACTOR ===== -->
+        <div class="form-group">
+            <label>URL del contenido infractor <span class="required">*</span></label>
+            <input type="url" id="urlInfractor" required placeholder="https://csariels.com/stream/..." />
+            <div class="help-text">Ejemplo: https://csariels.com/stream/12345 o https://csariels.com/vod/67890</div>
+        </div>
+
+        <div class="form-group">
+            <label>Descripción del contenido infractor <span class="required">*</span></label>
+            <textarea id="descripcionInfractor" required placeholder="Describe qué contenido está infringiendo tus derechos..."></textarea>
+        </div>
+
+        <!-- ===== OBRA PROTEGIDA ===== -->
+        <div class="form-group">
+            <label>Título de la obra protegida <span class="required">*</span></label>
+            <input type="text" id="obraTitulo" required placeholder="Ej: Mi videojuego 'Aventura Épica'" />
+        </div>
+
+        <div class="form-group">
+            <label>Autor de la obra <span class="required">*</span></label>
+            <input type="text" id="obraAutor" required placeholder="Ej: Juan Pérez" />
+        </div>
+
+        <div class="form-group">
+            <label>Número de registro en INDAUTOR (si aplica)</label>
+            <input type="text" id="obraRegistro" placeholder="Ej: 03-2026-123456789" />
+            <div class="help-text">Si tu obra está registrada en el Instituto Nacional del Derecho de Autor.</div>
+        </div>
+
+        <!-- ===== DECLARACIONES ===== -->
+        <div class="checkbox-group">
+            <input type="checkbox" id="declaracion1" required />
+            <label for="declaracion1">
+                <strong>Declaro bajo pena de perjurio</strong> que la información proporcionada es <strong>veraz y completa</strong>.
+            </label>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="declaracion2" required />
+            <label for="declaracion2">
+                <strong>Declaro que soy el titular de los derechos</strong> o estoy autorizado para actuar en nombre del titular.
+            </label>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="declaracion3" required />
+            <label for="declaracion3">
+                <strong>Acepto que la información proporcionada</strong> será utilizada para el proceso de notificación y contranotificación.
+            </label>
+        </div>
+
+        <!-- ===== BOTÓN ===== -->
+        <button type="submit" class="btn-submit" id="btnSubmit">
+            <i class="fas fa-paper-plane"></i> Enviar Notificación
+        </button>
+
+        <!-- ===== MENSAJE DE ÉXITO ===== -->
+        <div id="successMessage" class="success-message">
+            <div class="icon">✅</div>
+            <h3>¡Notificación Enviada!</h3>
+            <p>Hemos recibido tu notificación de infracción. Un representante de nuestro equipo legal la revisará en un plazo de <strong>24 horas</strong>.</p>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">
+                Recibirás un correo de confirmación a la dirección proporcionada.
+            </p>
+            <button onclick="location.reload()" style="margin-top:12px;padding:8px 24px;background:var(--verde-bosque);border:1px solid var(--gold-cosmic);border-radius:8px;color:var(--gold-cosmic);cursor:pointer;font-family:'Orbitron',monospace;font-size:0.7rem;">
+                <i class="fas fa-redo"></i> Enviar otra notificación
+            </button>
+        </div>
+    </form>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer-legal">
+        <span>
+            <span class="hex" style="display:inline-block;background:var(--verde-bosque);color:var(--gold-cosmic);padding:2px 8px;border-radius:4px;font-size:0.6rem;font-weight:700;border:1px solid var(--gold-cosmic);font-family:'Orbitron',monospace;">◈</span>
+            Csariel's · Formulario Takedown
+        </span>
+        <div>
+            <a href="./derechos-autor.html">📜 Política de Derechos de Autor</a>
+            <a href="./faq-legal.html" style="margin-left:12px;">❓ FAQ Legal</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function enviarNotificacion(event) {
+        event.preventDefault();
+
+        // ===== OBTENER DATOS =====
+        const nombre = document.getElementById('nombre').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const rol = document.getElementById('rol').value;
+        const urlInfractor = document.getElementById('urlInfractor').value.trim();
+        const descripcionInfractor = document.getElementById('descripcionInfractor').value.trim();
+        const obraTitulo = document.getElementById('obraTitulo').value.trim();
+        const obraAutor = document.getElementById('obraAutor').value.trim();
+        const obraRegistro = document.getElementById('obraRegistro').value.trim();
+        const decl1 = document.getElementById('declaracion1').checked;
+        const decl2 = document.getElementById('declaracion2').checked;
+        const decl3 = document.getElementById('declaracion3').checked;
+
+        const errorDiv = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        // ===== VALIDAR =====
+        if (!nombre || !email || !rol || !urlInfractor || !descripcionInfractor || !obraTitulo || !obraAutor) {
+            errorText.textContent = 'Por favor, completa todos los campos obligatorios (*).';
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+
+        if (!decl1 || !decl2 || !decl3) {
+            errorText.textContent = 'Debes aceptar todas las declaraciones para enviar la notificación.';
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+
+        // ===== OCULTAR ERROR =====
+        errorDiv.style.display = 'none';
+
+        // ===== DESHABILITAR BOTÓN =====
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+        // ===== CONSTRUIR MENSAJE =====
+        const mensaje = `
+            --- NOTIFICACIÓN DE INFRACCIÓN (LFDA) ---
+
+            DATOS DEL DENUNCIANTE:
+            Nombre: ${nombre}
+            Email: ${email}
+            Teléfono: ${telefono || 'No proporcionado'}
+            Rol: ${rol}
+
+            CONTENIDO INFRACTOR:
+            URL: ${urlInfractor}
+            Descripción: ${descripcionInfractor}
+
+            OBRA PROTEGIDA:
+            Título: ${obraTitulo}
+            Autor: ${obraAutor}
+            Registro INDAUTOR: ${obraRegistro || 'No proporcionado'}
+
+            DECLARACIONES:
+            ✓ Información veraz y completa
+            ✓ Titular de derechos o representante autorizado
+            ✓ Acepto uso de la información
+
+            Fecha: ${new Date().toLocaleString('es-MX')}
+        `;
+
+        // ===== SIMULAR ENVÍO =====
+        console.log('📤 Notificación de infracción:', mensaje);
+
+        // ===== SIMULAR ESPERA =====
+        setTimeout(() => {
+            // ===== MOSTRAR ÉXITO =====
+            document.getElementById('takedownForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+
+            // ===== ENVIAR CORREO (SIMULADO) =====
+            console.log('📧 Correo enviado a: csarielscontacto@gmail.com');
+            console.log('📧 Copia a:', email);
+
+            // ===== RESTAURAR BOTÓN =====
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Notificación';
+
+            // ===== SCROLL AL ÉXITO =====
+            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        }, 2000);
+
+        return false;
+    }
+
+    // ===== VALIDACIÓN EN TIEMPO REAL =====
+    document.querySelectorAll('input[required], select[required], textarea[required]').forEach(el => {
+        el.addEventListener('blur', function() {
+            if (this.value.trim()) {
+                this.style.borderColor = 'var(--gold-cosmic)';
+            } else {
+                this.style.borderColor = 'var(--danger)';
+            }
+        });
+    });
+
+    document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(el => {
+        el.addEventListener('change', function() {
+            const group = this.closest('.checkbox-group');
+            if (this.checked) {
+                group.style.borderColor = 'var(--gold-cosmic)';
+            } else {
+                group.style.borderColor = 'var(--danger)';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
