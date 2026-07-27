@@ -6,400 +6,29 @@
     <title>Servicios Comunitarios | Csariel's</title>
     <meta name="theme-color" content="#0B3D2E" />
     
-    <!-- Open Graph -->
-    <meta property="og:title" content="Csariel's - Servicios Comunitarios" />
-    <meta property="og:description" content="Encuentra servicios cercanos: mecánicos, plomeros, electricistas y más" />
-    <meta property="og:type" content="website" />
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    
-    <!-- Leaflet CSS (Mapas) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
-        :root {
-            --space-deep: #05080f;
-            --space-mid: #0a1428;
-            --verde-bosque: #0B3D2E;
-            --verde-bosque-light: #1a5a44;
-            --gold-cosmic: #f7d44a;
-            --gold-dim: rgba(247,212,74,0.15);
-            --gold-glow: rgba(247,212,74,0.25);
-            --nebula-1: #6c2bd9;
-            --nebula-2: #ff6b9d;
-            --nebula-3: #00d4ff;
-            --text-primary: #e8f0f8;
-            --text-secondary: #8ba3c7;
-            --text-muted: #4a6a8a;
-            --border: rgba(247,212,74,0.08);
-            --border-glow: rgba(247,212,74,0.25);
-            --radius: 20px;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            --success: #00b894;
-            --danger: #ff3366;
-            --warning: #f7d44a;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-
-        body {
-            background: var(--space-deep);
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        #stars-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .nebula {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.10;
-            pointer-events: none;
-            z-index: 0;
-            animation: nebula-drift 25s ease-in-out infinite alternate;
-        }
-        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
-        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
-        .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
-
-        @keyframes nebula-drift {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(40px, -30px) scale(1.15); }
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--space-deep); }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
-
-        .app { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 20px 24px 40px; }
-
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0 20px;
-            border-bottom: 2px solid var(--gold-dim);
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 12px;
-            backdrop-filter: blur(10px);
-            position: relative;
-        }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
-            opacity: 0.4;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            text-decoration: none;
-        }
-        .logo-icon { font-size: 2.4rem; filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
-        .logo-icon .hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: 900;
-            border: 2px solid var(--gold-cosmic);
-            box-shadow: 0 0 30px rgba(247,212,74,0.1);
-            font-family: 'Orbitron', monospace;
-        }
-        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); } }
-
-        .logo-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.6rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .logo-badge {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.5rem;
-            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
-            color: white;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            -webkit-text-fill-color: white;
-            box-shadow: 0 0 30px rgba(11,61,46,0.3);
-            animation: badge-pulse 2s ease-in-out infinite;
-            border: 1px solid rgba(247,212,74,0.2);
-        }
-        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(11,61,46,0.3); } 50% { box-shadow: 0 0 60px rgba(247,212,74,0.2); } }
-
-        .header-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(247,212,74,0.06);
-            border: 1px solid rgba(247,212,74,0.15);
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 1px;
-            backdrop-filter: blur(10px);
-        }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: quantum-pulse 1.5s ease-in-out infinite; }
-        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
-        @keyframes quantum-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.7); } }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(247,212,74,0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover { transform: scale(1.03); border-color: var(--border-glow); }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
-            box-shadow: 0 0 40px rgba(11,61,46,0.5);
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-        }
-        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(247,212,74,0.3); }
-        .btn-outline { border-color: var(--border); background: transparent; }
-        .btn-outline:hover:not(:disabled) { background: rgba(247,212,74,0.05); border-color: var(--gold-cosmic); }
-        .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
-        .btn-success {
-            background: linear-gradient(135deg, #00b894, #00897b);
-            border-color: transparent;
-            color: white;
-            -webkit-text-fill-color: white;
-        }
-        .btn-danger {
-            background: rgba(255,51,102,0.15);
-            border-color: rgba(255,51,102,0.3);
-            color: var(--danger);
-        }
-
-        /* ===== HERO ===== */
-        .hero-servicios {
-            background: linear-gradient(145deg, rgba(11,61,46,0.3), rgba(247,212,74,0.05));
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 28px 32px;
-            margin-bottom: 24px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-servicios::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(247,212,74,0.04) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: hero-glow 8s ease-in-out infinite alternate;
-        }
-        @keyframes hero-glow {
-            0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-            100% { transform: translate(-50px, 30px) scale(1.5); opacity: 1; }
-        }
-        .hero-servicios .hero-content { position: relative; z-index: 1; }
-        .hero-servicios .hero-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 2rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            margin-bottom: 6px;
-            background: linear-gradient(135deg, var(--text-primary), var(--gold-cosmic), var(--verde-bosque-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero-servicios .hero-sub {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        /* ===== BÚSQUEDA ===== */
-        .search-bar {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-            align-items: center;
-        }
-        .search-bar .search-input-wrapper {
-            flex: 1;
-            min-width: 200px;
-            position: relative;
-        }
-        .search-bar .search-input-wrapper input {
-            width: 100%;
-            padding: 12px 16px 12px 44px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.95rem;
-            outline: none;
-            transition: var(--transition);
-        }
-        .search-bar .search-input-wrapper input:focus { border-color: var(--gold-cosmic); }
-        .search-bar .search-input-wrapper .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-        .search-bar .btn-geolocation {
-            background: rgba(0,212,255,0.1);
-            border: 1px solid rgba(0,212,255,0.15);
-            color: var(--quantum);
-            padding: 10px 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            white-space: nowrap;
-        }
-        .search-bar .btn-geolocation:hover {
-            background: rgba(0,212,255,0.2);
-            border-color: var(--quantum);
-        }
-
-        /* ===== CATEGORÍAS ===== */
-        .categories-scroll {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 4px 0 12px;
-            margin-bottom: 16px;
-            scrollbar-width: thin;
-            flex-wrap: nowrap;
-        }
-        .categories-scroll::-webkit-scrollbar { height: 3px; }
-        .categories-scroll::-webkit-scrollbar-thumb { background: var(--gold-cosmic); border-radius: 3px; }
-        .cat-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px 16px;
+        /* ===== TODOS LOS ESTILOS ANTERIORES ===== */
+        /* (mantén todos los estilos que ya tenías) */
+        
+        /* ===== NUEVOS ESTILOS PARA BUSCADOR INTELIGENTE ===== */
+        
+        .smart-search-container {
             background: rgba(11,61,46,0.2);
             border: 1px solid var(--gold-dim);
-            border-radius: 12px;
-            color: var(--text-secondary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.55rem;
-            cursor: pointer;
-            transition: var(--transition);
-            white-space: nowrap;
-            min-width: 70px;
-        }
-        .cat-btn:hover { border-color: var(--border-glow); color: var(--text-primary); }
-        .cat-btn.active { border-color: var(--gold-cosmic); background: var(--gold-dim); color: var(--gold-cosmic); }
-        .cat-btn .cat-icon { font-size: 1.4rem; }
-
-        /* ===== MAPA ===== */
-        #map-container {
-            width: 100%;
-            height: 380px;
             border-radius: var(--radius);
-            border: 1px solid var(--gold-dim);
-            overflow: hidden;
+            padding: 20px 24px;
             margin-bottom: 20px;
-            background: var(--space-deep);
-        }
-        #map-container .leaflet-control-zoom a {
-            background: rgba(11,61,46,0.8);
-            color: var(--text-primary);
-            border-color: var(--gold-dim);
-        }
-        #map-container .leaflet-control-zoom a:hover {
-            background: rgba(11,61,46,0.9);
-            color: var(--gold-cosmic);
-        }
-
-        /* ===== LISTA DE SERVICIOS ===== */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            margin-top: 8px;
-        }
-        .service-card {
-            background: rgba(11,61,46,0.25);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 18px 20px;
-            transition: var(--transition);
             backdrop-filter: blur(10px);
-            cursor: pointer;
             position: relative;
             overflow: hidden;
         }
-        .service-card::before {
+        
+        .smart-search-container::before {
             content: '';
             position: absolute;
             top: -2px;
@@ -413,260 +42,182 @@
             opacity: 0;
             animation: border-flow 4s ease-in-out infinite;
         }
-        @keyframes border-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .service-card:hover::before { opacity: 0.15; }
-        .service-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--border-glow);
-            box-shadow: var(--shadow-neon), var(--shadow-glow);
-        }
-
-        .service-card .service-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-        .service-card .service-name {
+        .smart-search-container:hover::before { opacity: 0.15; }
+        
+        .smart-search-container .title {
             font-family: 'Orbitron', monospace;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        .service-card .service-category {
-            font-size: 0.55rem;
-            background: rgba(247,212,74,0.1);
-            border: 1px solid rgba(247,212,74,0.15);
-            padding: 2px 10px;
-            border-radius: 20px;
+            font-size: 0.9rem;
             color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
+            margin-bottom: 4px;
         }
-        .service-card .service-rating {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin: 4px 0;
-        }
-        .service-card .service-rating .stars { color: var(--gold-cosmic); font-size: 0.85rem; }
-        .service-card .service-rating .score { font-size: 0.8rem; color: var(--text-secondary); }
-        .service-card .service-distance {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .service-card .service-distance i { color: var(--quantum); }
-        .service-card .service-contact {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid var(--gold-dim);
-            flex-wrap: wrap;
-        }
-        .service-card .service-contact .contact-item {
-            font-size: 0.7rem;
+        
+        .smart-search-container .subtitle {
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .service-card .service-contact .contact-item i { color: var(--gold-cosmic); }
-        .service-card .badge-verified {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: rgba(0,184,148,0.15);
-            color: var(--success);
-            border: 1px solid rgba(0,184,148,0.2);
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.5rem;
-            font-family: 'Orbitron', monospace;
-        }
-
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-content {
-            background: rgba(11,61,46,0.95);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 28px;
-            max-width: 520px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .modal-content .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 16px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .modal-content .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
-        .modal-content .modal-title {
-            font-family: 'Orbitron', monospace;
-            color: var(--gold-cosmic);
             margin-bottom: 12px;
-            font-size: 1.1rem;
         }
-        .modal-content .modal-body { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
-        .modal-content .modal-body .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--gold-dim);
-        }
-        .modal-content .modal-body .detail-row:last-child { border-bottom: none; }
-        .modal-content .modal-body .detail-row .label { color: var(--text-muted); }
-        .modal-content .modal-body .detail-row .value { color: var(--text-primary); font-weight: 500; }
-        .modal-content .modal-body .detail-row .value.gold { color: var(--gold-cosmic); }
-        .modal-content .modal-actions {
+        
+        .smart-search-container .search-input-wrapper {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 16px;
         }
-        .modal-content .modal-actions .btn { flex: 1; justify-content: center; }
-
-        /* ===== FORMULARIO ===== */
-        .modal-content .form-group { margin-bottom: 12px; }
-        .modal-content .form-group label {
-            display: block;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-            margin-bottom: 4px;
-        }
-        .modal-content .form-group input,
-        .modal-content .form-group textarea,
-        .modal-content .form-group select {
-            width: 100%;
-            padding: 10px 14px;
+        
+        .smart-search-container .search-input-wrapper input {
+            flex: 1;
+            padding: 14px 18px;
             background: rgba(0,0,0,0.3);
             border: 1px solid var(--gold-dim);
-            border-radius: 10px;
+            border-radius: 12px;
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
             outline: none;
             transition: var(--transition);
-            font-family: 'Space Grotesk', sans-serif;
+            min-width: 200px;
         }
-        .modal-content .form-group input:focus,
-        .modal-content .form-group textarea:focus,
-        .modal-content .form-group select:focus { border-color: var(--gold-cosmic); }
-        .modal-content .form-group textarea { resize: vertical; min-height: 70px; }
-        .modal-content .form-group select option { background: var(--space-deep); color: var(--text-primary); }
-
-        /* ===== TOAST ===== */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 14px 28px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 5000;
-            pointer-events: none;
+        
+        .smart-search-container .search-input-wrapper input:focus {
+            border-color: var(--gold-cosmic);
+            box-shadow: 0 0 30px rgba(247,212,74,0.1);
+        }
+        
+        .smart-search-container .search-input-wrapper .btn {
+            flex-shrink: 0;
+        }
+        
+        .smart-search-results {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            border: 1px solid var(--gold-dim);
+            display: none;
+        }
+        
+        .smart-search-results.visible {
+            display: block;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        .smart-search-results .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gold-dim);
+        }
+        
+        .smart-search-results .result-header .icono {
+            font-size: 2rem;
+        }
+        
+        .smart-search-results .result-header .info {
+            flex: 1;
+        }
+        
+        .smart-search-results .result-header .info .categoria {
             font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(247,212,74,0.15);
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
         }
-        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--danger); color: white; }
-        .toast.warning { background: #b8923a; color: var(--space-deep); }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            margin-top: 48px;
-            padding-top: 28px;
-            border-top: 1px solid var(--gold-dim);
+        
+        .smart-search-results .result-header .info .confianza {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .smart-search-results .result-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .smart-search-results .result-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
-            opacity: 0.2;
-        }
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.78rem;
-            letter-spacing: 0.5px;
-            font-family: 'Orbitron', monospace;
-        }
-        .footer-text .brand { color: var(--gold-cosmic); }
-        .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.75rem;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            cursor: pointer;
             transition: var(--transition);
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 0.5px;
         }
-        .footer-links a:hover { color: var(--gold-cosmic); }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-        .empty-state .icon { font-size: 3rem; opacity: 0.3; margin-bottom: 12px; }
-        .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--text-secondary); }
-
-        @media (max-width: 768px) {
-            .app { padding: 16px; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .logo-text { font-size: 1.2rem; }
-            .header-actions { width: 100%; justify-content: flex-start; }
-            .hero-servicios .hero-title { font-size: 1.5rem; }
-            .search-bar { flex-direction: column; }
-            .search-bar .search-input-wrapper { width: 100%; }
-            .services-grid { grid-template-columns: 1fr 1fr; }
-            #map-container { height: 280px; }
-            .cat-btn { min-width: 60px; padding: 6px 12px; font-size: 0.5rem; }
-            .cat-btn .cat-icon { font-size: 1.2rem; }
+        
+        .smart-search-results .result-item:hover {
+            border-color: var(--border-glow);
+            transform: translateX(4px);
         }
-        @media (max-width: 480px) {
-            .btn { font-size: 0.55rem; padding: 6px 12px; }
-            .hero-servicios .hero-title { font-size: 1.2rem; }
-            .services-grid { grid-template-columns: 1fr; }
-            #map-container { height: 220px; }
-            .modal-content { padding: 20px; }
-            .search-bar .btn-geolocation { font-size: 0.55rem; padding: 8px 12px; }
+        
+        .smart-search-results .result-item .nombre {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .smart-search-results .result-item .detalle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .smart-search-results .result-item .detalle .calificacion {
+            color: var(--gold-cosmic);
+        }
+        
+        .smart-search-results .result-item .detalle .distancia {
+            color: var(--quantum);
+        }
+        
+        .smart-search-results .result-item .detalle .urgente {
+            color: var(--danger);
+            font-weight: 700;
+            animation: pulse-warning 1s infinite;
+        }
+        
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .smart-search-results .no-resultados {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+        }
+        
+        .smart-search-results .no-resultados .icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+            margin-bottom: 8px;
+        }
+        
+        .smart-search-results .sugerencias {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        
+        .smart-search-results .sugerencias .sugerencia {
+            font-size: 0.65rem;
+            background: rgba(247,212,74,0.05);
+            border: 1px solid var(--gold-dim);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .smart-search-results .sugerencias .sugerencia:hover {
+            background: rgba(247,212,74,0.1);
+            color: var(--gold-cosmic);
         }
     </style>
 </head>
@@ -699,18 +250,36 @@
             </div>
         </header>
 
-        <!-- HERO -->
-        <section class="hero-servicios">
-            <div class="hero-content">
-                <h1 class="hero-title">🔧 Servicios Comunitarios</h1>
-                <p class="hero-sub">
-                    Encuentra <span style="color:var(--gold-cosmic);">mecánicos, plomeros, electricistas</span> y más cerca de ti.
-                    <span style="color:var(--gold-cosmic);">¡Ayuda y recibe ayuda!</span>
-                </p>
+        <!-- ===== BUSCADOR INTELIGENTE ===== -->
+        <div class="smart-search-container">
+            <div class="title">🔍 Buscador Inteligente</div>
+            <div class="subtitle">Describe tu necesidad y la IA encontrará el servicio perfecto para ti</div>
+            
+            <div class="search-input-wrapper">
+                <input type="text" id="smartSearchInput" placeholder="Ej: Se ponchó mi llanta en Puebla, necesito ayuda..." onkeypress="if(event.key==='Enter'){buscarInteligente()}">
+                <button class="btn btn-gold" onclick="buscarInteligente()">
+                    <i class="fas fa-magic"></i> Buscar
+                </button>
+                <button class="btn btn-outline" onclick="limpiarBusquedaInteligente()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-        </section>
+            
+            <!-- Resultados del buscador -->
+            <div class="smart-search-results" id="smartResults">
+                <div class="result-header">
+                    <span class="icono" id="resultIcono">🔧</span>
+                    <div class="info">
+                        <div class="categoria" id="resultCategoria">Mecánico</div>
+                        <div class="confianza" id="resultConfianza">Confianza: 85%</div>
+                    </div>
+                </div>
+                <div class="result-list" id="resultList"></div>
+                <div class="sugerencias" id="sugerenciasContainer"></div>
+            </div>
+        </div>
 
-        <!-- BÚSQUEDA -->
+        <!-- ===== BÚSQUEDA NORMAL ===== -->
         <div class="search-bar">
             <div class="search-input-wrapper">
                 <span class="search-icon"><i class="fas fa-search"></i></span>
@@ -732,35 +301,65 @@
             <button class="cat-btn" data-cat="mecanico" onclick="filtrarPorCategoria('mecanico')">
                 <span class="cat-icon">🔧</span>Mecánico
             </button>
-            <button class="cat-btn" data-cat="talachero" onclick="filtrarPorCategoria('talachero')">
-                <span class="cat-icon">🛞</span>Talachero
+            <button class="cat-btn" data-cat="llantera" onclick="filtrarPorCategoria('llantera')">
+                <span class="cat-icon">🛞</span>Llantera
+            </button>
+            <button class="cat-btn" data-cat="grua" onclick="filtrarPorCategoria('grua')">
+                <span class="cat-icon">🚗</span>Grúa
             </button>
             <button class="cat-btn" data-cat="gasolina" onclick="filtrarPorCategoria('gasolina')">
                 <span class="cat-icon">⛽</span>Gasolina
             </button>
-            <button class="cat-btn" data-cat="grua" onclick="filtrarPorCategoria('grua')">
-                <span class="cat-icon">🚛</span>Grúa
-            </button>
             <button class="cat-btn" data-cat="plomero" onclick="filtrarPorCategoria('plomero')">
-                <span class="cat-icon">🔧</span>Plomero
+                <span class="cat-icon">🚰</span>Plomero
             </button>
             <button class="cat-btn" data-cat="electricista" onclick="filtrarPorCategoria('electricista')">
                 <span class="cat-icon">⚡</span>Electricista
             </button>
-            <button class="cat-btn" data-cat="cafe" onclick="filtrarPorCategoria('cafe')">
-                <span class="cat-icon">☕</span>Café
+            <button class="cat-btn" data-cat="albañil" onclick="filtrarPorCategoria('albañil')">
+                <span class="cat-icon">🧱</span>Albañil
             </button>
-            <button class="cat-btn" data-cat="tienda" onclick="filtrarPorCategoria('tienda')">
-                <span class="cat-icon">🏪</span>Tienda
+            <button class="cat-btn" data-cat="tecnico" onclick="filtrarPorCategoria('tecnico')">
+                <span class="cat-icon">🖥️</span>Técnico
+            </button>
+            <button class="cat-btn" data-cat="celular" onclick="filtrarPorCategoria('celular')">
+                <span class="cat-icon">📱</span>Celulares
+            </button>
+            <button class="cat-btn" data-cat="limpieza" onclick="filtrarPorCategoria('limpieza')">
+                <span class="cat-icon">🧹</span>Limpieza
+            </button>
+            <button class="cat-btn" data-cat="mudanza" onclick="filtrarPorCategoria('mudanza')">
+                <span class="cat-icon">🚚</span>Mudanza
+            </button>
+            <button class="cat-btn" data-cat="transporte" onclick="filtrarPorCategoria('transporte')">
+                <span class="cat-icon">🚕</span>Transporte
+            </button>
+            <button class="cat-btn" data-cat="comida" onclick="filtrarPorCategoria('comida')">
+                <span class="cat-icon">🍽️</span>Comida
+            </button>
+            <button class="cat-btn" data-cat="medico" onclick="filtrarPorCategoria('medico')">
+                <span class="cat-icon">🩺</span>Médico
             </button>
             <button class="cat-btn" data-cat="farmacia" onclick="filtrarPorCategoria('farmacia')">
                 <span class="cat-icon">💊</span>Farmacia
             </button>
-            <button class="cat-btn" data-cat="bicicleta" onclick="filtrarPorCategoria('bicicleta')">
-                <span class="cat-icon">🚲</span>Bicicleta
-            </button>
             <button class="cat-btn" data-cat="profesor" onclick="filtrarPorCategoria('profesor')">
                 <span class="cat-icon">📚</span>Profesor
+            </button>
+            <button class="cat-btn" data-cat="veterinario" onclick="filtrarPorCategoria('veterinario')">
+                <span class="cat-icon">🐕</span>Veterinario
+            </button>
+            <button class="cat-btn" data-cat="cerrajero" onclick="filtrarPorCategoria('cerrajero')">
+                <span class="cat-icon">🏠</span>Cerrajero
+            </button>
+            <button class="cat-btn" data-cat="jardineria" onclick="filtrarPorCategoria('jardineria')">
+                <span class="cat-icon">🌳</span>Jardinería
+            </button>
+            <button class="cat-btn" data-cat="aire" onclick="filtrarPorCategoria('aire')">
+                <span class="cat-icon">❄️</span>Aire Acond.
+            </button>
+            <button class="cat-btn" data-cat="diseno" onclick="filtrarPorCategoria('diseno')">
+                <span class="cat-icon">🎨</span>Diseño
             </button>
         </div>
 
@@ -773,103 +372,34 @@
         <!-- FOOTER -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Servicios Comunitarios · Mapa en tiempo real
+                <span class="brand">◈ Csariel's</span> — Servicios Comunitarios · Buscador IA
             </span>
             <div class="footer-links">
                 <a href="./mi-red.html">👥 Mi Red</a>
                 <a href="./muro-live.html">📱 Muro Live</a>
-                <a href="./fidelizacion.html">🎫 Fidelización</a>
             </div>
         </footer>
     </div>
 
-    <!-- ===== MODAL DE SERVICIO ===== -->
-    <div class="modal-overlay" id="serviceModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="cerrarModalServicio()">✕</button>
-            <h3 class="modal-title" id="modalServiceTitle">Detalles del Servicio</h3>
-            <div class="modal-body" id="modalServiceBody"></div>
-            <div class="modal-actions">
-                <button class="btn btn-success" onclick="contactarServicio()">
-                    <i class="fas fa-phone"></i> Contactar
-                </button>
-                <button class="btn btn-gold" onclick="compartirServicio()">
-                    <i class="fas fa-share"></i> Compartir
-                </button>
-                <button class="btn btn-outline" onclick="cerrarModalServicio()">
-                    <i class="fas fa-times"></i> Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== MODAL OFRECER SERVICIO ===== -->
-    <div class="modal-overlay" id="offerServiceModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="cerrarFormularioServicio()">✕</button>
-            <h3 class="modal-title">🛠️ Ofrecer Servicio</h3>
-            <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">Comparte tu servicio con la comunidad</p>
-            
-            <div class="form-group">
-                <label>Nombre del servicio *</label>
-                <input type="text" id="offerName" placeholder="Ej: Taller Mecánico Elías">
-            </div>
-
-            <div class="form-group">
-                <label>Categoría *</label>
-                <select id="offerCategory">
-                    <option value="mecanico">🔧 Mecánico</option>
-                    <option value="talachero">🛞 Talachero</option>
-                    <option value="gasolina">⛽ Gasolina</option>
-                    <option value="grua">🚛 Grúa</option>
-                    <option value="plomero">🔧 Plomero</option>
-                    <option value="electricista">⚡ Electricista</option>
-                    <option value="cafe">☕ Café</option>
-                    <option value="tienda">🏪 Tienda</option>
-                    <option value="farmacia">💊 Farmacia</option>
-                    <option value="bicicleta">🚲 Bicicleta</option>
-                    <option value="profesor">📚 Profesor</option>
-                    <option value="otros">📌 Otros</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Descripción *</label>
-                <textarea id="offerDescription" placeholder="Describe tu servicio..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Teléfono de contacto *</label>
-                <input type="tel" id="offerPhone" placeholder="55 1234 5678">
-            </div>
-
-            <div class="form-group">
-                <label>Correo electrónico *</label>
-                <input type="email" id="offerEmail" placeholder="servicio@ejemplo.com">
-            </div>
-
-            <div class="modal-actions">
-                <button onclick="registrarServicio()" class="btn btn-gold" style="flex:1;justify-content:center;">
-                    <i class="fas fa-check"></i> Registrar
-                </button>
-                <button onclick="cerrarFormularioServicio()" class="btn btn-outline">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- ===== MODALES ===== -->
+    <!-- (mantén los mismos modales que ya tenías) -->
 
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
-    <script>
+    <script type="module">
         // ================================================================
-        // SISTEMA ESTELAR
+        // IMPORTAR MODERACIÓN IA
+        // ================================================================
+        import { moderador } from './moderacion-ia.js';
+
+        // ================================================================
+        // SISTEMA ESTELAR Y CONFIGURACIÓN
         // ================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Servicios Comunitarios');
-            console.log('📍 Mapa y geolocalización activos');
-            console.log('🔧 12 categorías de servicios');
+            console.log('◈ Csariel\'s - Servicios Comunitarios v2.0');
+            console.log('🔍 Buscador Inteligente activo');
+            console.log('📋 20+ categorías de servicios');
             initStars();
             initMap();
             cargarServicios();
@@ -880,7 +410,7 @@
         function initStars() {
             const canvas = document.getElementById('stars-canvas');
             const ctx = canvas.getContext('2d');
-            let width, height, stars = [], meteors = [];
+            let width, height, stars = [];
 
             function resize() {
                 width = window.innerWidth;
@@ -893,12 +423,13 @@
                 stars = [];
                 for (let i = 0; i < 300; i++) {
                     stars.push({
-                        x: Math.random() * width, y: Math.random() * height,
+                        x: Math.random() * width,
+                        y: Math.random() * height,
                         radius: Math.random() * 1.8 + 0.3,
                         speed: Math.random() * 0.02 + 0.005,
                         opacity: Math.random() * 0.8 + 0.2,
-                        twinkleSpeed: Math.random() * 0.02 + 0.01,
-                        twinklePhase: Math.random() * Math.PI * 2
+                        twinklePhase: Math.random() * Math.PI * 2,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01
                     });
                 }
             }
@@ -912,6 +443,11 @@
                     ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(255,255,255,${opacity})`;
                     ctx.fill();
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
                 }
                 requestAnimationFrame(draw);
             }
@@ -929,7 +465,7 @@
             try {
                 const guardado = localStorage.getItem('miPerfil_csariels');
                 if (guardado) miPerfil = JSON.parse(guardado);
-            } catch (e) { console.warn('Error cargando perfil:', e); }
+            } catch (e) {}
         }
 
         // ===== MAPA =====
@@ -973,29 +509,51 @@
         let servicios = [], categoriaActual = 'all', servicioSeleccionado = null;
 
         const CATEGORIAS = {
-            mecanico: 'Mecánico', talachero: 'Talachero', gasolina: 'Gasolina',
-            grua: 'Grúa', plomero: 'Plomero', electricista: 'Electricista',
-            cafe: 'Café', tienda: 'Tienda', farmacia: 'Farmacia',
-            bicicleta: 'Bicicleta', profesor: 'Profesor', otros: 'Otros'
+            mecanico: 'Mecánico', llantera: 'Llantera', grua: 'Grúa',
+            gasolina: 'Gasolina', plomero: 'Plomero', electricista: 'Electricista',
+            albañil: 'Albañil', tecnico: 'Técnico', celular: 'Celulares',
+            limpieza: 'Limpieza', mudanza: 'Mudanza', transporte: 'Transporte',
+            comida: 'Comida', medico: 'Médico', farmacia: 'Farmacia',
+            profesor: 'Profesor', veterinario: 'Veterinario', cerrajero: 'Cerrajero',
+            jardineria: 'Jardinería', aire: 'Aire Acondicionado', diseno: 'Diseño'
         };
 
         const ICONOS = {
-            mecanico: '🔧', talachero: '🛞', gasolina: '⛽', grua: '🚛',
-            plomero: '🔧', electricista: '⚡', cafe: '☕', tienda: '🏪',
-            farmacia: '💊', bicicleta: '🚲', profesor: '📚', otros: '📌'
+            mecanico: '🔧', llantera: '🛞', grua: '🚗', gasolina: '⛽',
+            plomero: '🚰', electricista: '⚡', albañil: '🧱', tecnico: '🖥️',
+            celular: '📱', limpieza: '🧹', mudanza: '🚚', transporte: '🚕',
+            comida: '🍽️', medico: '🩺', farmacia: '💊', profesor: '📚',
+            veterinario: '🐕', cerrajero: '🏠', jardineria: '🌳', aire: '❄️',
+            diseno: '🎨'
         };
 
         const SERVICIOS_DEMO = [
-            { id: 1, nombre: 'Taller Mecánico Elías', categoria: 'mecanico', descripcion: 'Mecánica general, frenos, suspensión y diagnóstico computarizado.', telefono: '222 123 4567', email: 'elias@taller.com', lat: 19.0450, lng: -98.2050, calificacion: 4.8, reseñas: 23, verificado: true, usuario: 'Elías Ramírez' },
-            { id: 2, nombre: 'Talachero Express', categoria: 'talachero', descripcion: 'Parches, cambio de llantas y balanceo. 24/7.', telefono: '222 234 5678', email: 'express@talachero.com', lat: 19.0380, lng: -98.2100, calificacion: 4.5, reseñas: 15, verificado: true, usuario: 'Carlos Méndez' },
-            { id: 3, nombre: 'Gasolinera La Estrella', categoria: 'gasolina', descripcion: 'Venta de gasolina Magna, Premium y Diésel.', telefono: '222 345 6789', email: 'estrella@gasolina.com', lat: 19.0500, lng: -98.2000, calificacion: 4.2, reseñas: 42, verificado: true, usuario: 'Gasolinera La Estrella' },
-            { id: 4, nombre: 'Grúas Puebla 24/7', categoria: 'grua', descripcion: 'Servicio de grúa para todo tipo de vehículos.', telefono: '222 456 7890', email: 'gruas@puebla.com', lat: 19.0420, lng: -98.2150, calificacion: 4.9, reseñas: 34, verificado: true, usuario: 'Grúas Puebla' },
-            { id: 5, nombre: 'Plomería Rápida', categoria: 'plomero', descripcion: 'Reparaciones de tuberías, fugas, baños y cisternas.', telefono: '222 567 8901', email: 'plomeria@rapida.com', lat: 19.0350, lng: -98.2080, calificacion: 4.7, reseñas: 28, verificado: false, usuario: 'Juan Pérez' },
-            { id: 6, nombre: 'Electricista Profesional', categoria: 'electricista', descripcion: 'Instalaciones eléctricas, cableado, tableros y mantenimiento.', telefono: '222 678 9012', email: 'electricista@pro.com', lat: 19.0480, lng: -98.2020, calificacion: 4.6, reseñas: 19, verificado: true, usuario: 'Luis Torres' },
-            { id: 7, nombre: 'Cafetería El Libro', categoria: 'cafe', descripcion: 'Café de especialidad, repostería y ambiente acogedor. WiFi.', telefono: '222 789 0123', email: 'libro@cafe.com', lat: 19.0330, lng: -98.2090, calificacion: 4.7, reseñas: 56, verificado: false, usuario: 'Cafetería El Libro' },
-            { id: 8, nombre: 'OXXO Cholula', categoria: 'tienda', descripcion: 'Tienda de conveniencia 24/7. Alimentos, bebidas y artículos básicos.', telefono: '222 890 1234', email: 'oxxo@cholula.com', lat: 19.0400, lng: -98.1980, calificacion: 4.0, reseñas: 89, verificado: false, usuario: 'OXXO Cholula' },
-            { id: 9, nombre: 'Bicicletería Rodada', categoria: 'bicicleta', descripcion: 'Reparación y mantenimiento de bicicletas. Venta de refacciones.', telefono: '222 901 2345', email: 'rodada@bici.com', lat: 19.0460, lng: -98.2040, calificacion: 4.6, reseñas: 18, verificado: true, usuario: 'Rodada Bici' },
-            { id: 10, nombre: 'Farmacia San Pedro', categoria: 'farmacia', descripcion: 'Medicamentos genéricos y de patente. Entrega a domicilio.', telefono: '222 012 3456', email: 'sanpedro@farmacia.com', lat: 19.0360, lng: -98.2120, calificacion: 4.3, reseñas: 27, verificado: false, usuario: 'Farmacia San Pedro' }
+            // Mecánicos
+            { id: 1, nombre: 'Taller Mecánico Elías', categoria: 'mecanico', descripcion: 'Mecánica general, frenos, suspensión y diagnóstico computarizado.', telefono: '222 123 4567', email: 'elias@taller.com', lat: 19.0450, lng: -98.2050, calificacion: 4.8, reseñas: 23, verificado: true, usuario: 'Elías Ramírez', urgencia: 'normal' },
+            { id: 2, nombre: 'AutoMecánica Express', categoria: 'mecanico', descripcion: 'Reparaciones rápidas y mantenimiento preventivo.', telefono: '222 234 5678', email: 'express@auto.com', lat: 19.0320, lng: -98.2100, calificacion: 4.5, reseñas: 15, verificado: true, usuario: 'Carlos Méndez', urgencia: 'normal' },
+            // Llanteras
+            { id: 3, nombre: 'Llantera Express 24h', categoria: 'llantera', descripcion: 'Parches, cambio de llantas y balanceo. Atención 24/7.', telefono: '222 345 6789', email: 'express@llantera.com', lat: 19.0380, lng: -98.2080, calificacion: 4.7, reseñas: 34, verificado: true, usuario: 'Llantera Express', urgencia: 'urgente' },
+            { id: 4, nombre: 'Llantera El Buen Precio', categoria: 'llantera', descripcion: 'Venta y reparación de llantas nuevas y usadas.', telefono: '222 456 7890', email: 'buenprecio@llantera.com', lat: 19.0500, lng: -98.2000, calificacion: 4.2, reseñas: 19, verificado: false, usuario: 'Juan López', urgencia: 'normal' },
+            // Grúas
+            { id: 5, nombre: 'Grúas Puebla 24/7', categoria: 'grua', descripcion: 'Servicio de grúa para todo tipo de vehículos. Atención inmediata.', telefono: '222 567 8901', email: 'gruas@puebla.com', lat: 19.0420, lng: -98.2150, calificacion: 4.9, reseñas: 42, verificado: true, usuario: 'Grúas Puebla', urgencia: 'urgente' },
+            // Gasolina
+            { id: 6, nombre: 'Gasolinera La Estrella', categoria: 'gasolina', descripcion: 'Venta de gasolina Magna, Premium y Diésel. Servicio 24h.', telefono: '222 678 9012', email: 'estrella@gasolina.com', lat: 19.0480, lng: -98.1980, calificacion: 4.3, reseñas: 56, verificado: true, usuario: 'Gasolinera La Estrella', urgencia: 'normal' },
+            // Plomeros
+            { id: 7, nombre: 'Plomería Rápida', categoria: 'plomero', descripcion: 'Reparaciones de tuberías, fugas, baños y cisternas.', telefono: '222 789 0123', email: 'plomeria@rapida.com', lat: 19.0350, lng: -98.2120, calificacion: 4.6, reseñas: 28, verificado: false, usuario: 'Juan Pérez', urgencia: 'urgente' },
+            // Electricistas
+            { id: 8, nombre: 'Electricista Profesional', categoria: 'electricista', descripcion: 'Instalaciones eléctricas, cableado, tableros y mantenimiento.', telefono: '222 890 1234', email: 'electricista@pro.com', lat: 19.0400, lng: -98.2050, calificacion: 4.7, reseñas: 19, verificado: true, usuario: 'Luis Torres', urgencia: 'normal' },
+            // Albañiles
+            { id: 9, nombre: 'Construcciones Hernández', categoria: 'albañil', descripcion: 'Remodelaciones, pintura, azulejos y trabajos de albañilería.', telefono: '222 901 2345', email: 'construccion@hernandez.com', lat: 19.0330, lng: -98.2090, calificacion: 4.4, reseñas: 31, verificado: false, usuario: 'Hernández Construcción', urgencia: 'normal' },
+            // Técnicos
+            { id: 10, nombre: 'TecnoReparaciones', categoria: 'tecnico', descripcion: 'Reparación de computadoras, laptops y servidores. Soporte técnico.', telefono: '222 012 3456', email: 'tecnico@reparaciones.com', lat: 19.0460, lng: -98.2030, calificacion: 4.8, reseñas: 27, verificado: true, usuario: 'TecnoReparaciones', urgencia: 'normal' },
+            // Celulares
+            { id: 11, nombre: 'CellFix Puebla', categoria: 'celular', descripcion: 'Reparación de celulares, cambio de pantalla, batería y más.', telefono: '222 123 4567', email: 'cellfix@puebla.com', lat: 19.0370, lng: -98.2110, calificacion: 4.5, reseñas: 38, verificado: true, usuario: 'CellFix', urgencia: 'normal' },
+            // Farmacia
+            { id: 12, nombre: 'Farmacia San Pedro', categoria: 'farmacia', descripcion: 'Medicamentos genéricos y de patente. Entrega a domicilio.', telefono: '222 234 5678', email: 'sanpedro@farmacia.com', lat: 19.0360, lng: -98.2140, calificacion: 4.3, reseñas: 27, verificado: false, usuario: 'Farmacia San Pedro', urgencia: 'normal' },
+            // Profesores
+            { id: 13, nombre: 'Tutorías Académicas', categoria: 'profesor', descripcion: 'Clases particulares de matemáticas, física, química e inglés.', telefono: '222 345 6789', email: 'tutorias@academicas.com', lat: 19.0440, lng: -98.2070, calificacion: 4.9, reseñas: 45, verificado: true, usuario: 'Prof. Martínez', urgencia: 'normal' },
+            // Veterinario
+            { id: 14, nombre: 'Veterinaria Los Amigos', categoria: 'veterinario', descripcion: 'Consultas, vacunas, desparasitación y emergencias.', telefono: '222 456 7890', email: 'veterinaria@amigos.com', lat: 19.0390, lng: -98.2060, calificacion: 4.6, reseñas: 33, verificado: true, usuario: 'Veterinaria Los Amigos', urgencia: 'urgente' }
         ];
 
         function cargarServicios() {
@@ -1013,6 +571,118 @@
             } catch (e) {}
         }
 
+        // ================================================================
+        // BUSCADOR INTELIGENTE CON IA
+        // ================================================================
+        
+        window.buscarInteligente = function() {
+            const input = document.getElementById('smartSearchInput');
+            const texto = input.value.trim();
+            
+            if (!texto) {
+                mostrarToast('⚠️ Escribe lo que necesitas', 'error');
+                return;
+            }
+
+            const resultados = moderador.buscarServicios(texto, servicios);
+            const container = document.getElementById('smartResults');
+            const listContainer = document.getElementById('resultList');
+            const icono = document.getElementById('resultIcono');
+            const categoria = document.getElementById('resultCategoria');
+            const confianza = document.getElementById('resultConfianza');
+            const sugerencias = document.getElementById('sugerenciasContainer');
+
+            container.classList.add('visible');
+
+            if (!resultados.encontrado) {
+                icono.textContent = '🔍';
+                categoria.textContent = 'No se encontraron servicios';
+                confianza.textContent = '';
+                listContainer.innerHTML = `
+                    <div class="no-resultados">
+                        <div class="icon">🔍</div>
+                        <p>${resultados.mensaje}</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);">Intenta con palabras clave como: "mecánico", "plomero", "electricista"...</p>
+                    </div>
+                `;
+                sugerencias.innerHTML = `
+                    <span style="font-size:0.7rem;color:var(--text-muted);">Sugerencias:</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('mecánico cerca')">🔧 Mecánico</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('plomero urgencia')">🚰 Plomero</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('electricista')">⚡ Electricista</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('gría ayuda')">🚗 Grúa</span>
+                `;
+                return;
+            }
+
+            icono.textContent = resultados.categoriaIcono || '📌';
+            categoria.textContent = `🔍 ${resultados.categoriaNombre}`;
+            confianza.textContent = `Confianza: ${resultados.confianza}% · ${resultados.servicios.length} servicios encontrados`;
+
+            if (resultados.servicios.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="no-resultados">
+                        <div class="icon">😅</div>
+                        <p>No hay ${resultados.categoriaNombre} registrados aún.</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);">¡Sé el primero en ofrecer este servicio!</p>
+                    </div>
+                `;
+            } else {
+                listContainer.innerHTML = resultados.servicios.map(s => {
+                    const dist = userLocation ? calcularDistancia(userLocation.lat, userLocation.lng, s.lat, s.lng) : null;
+                    const distText = dist !== null ? `${(dist * 1.6).toFixed(1)} km` : '📍';
+                    const emergencia = s.urgencia === 'urgente' ? '<span class="urgente">🚨 Urgente</span>' : '';
+                    
+                    return `
+                        <div class="result-item" onclick="abrirDetalleServicio(${s.id})">
+                            <div>
+                                <div class="nombre">${s.nombre}</div>
+                                <div style="font-size:0.7rem;color:var(--text-secondary);">${s.descripcion.substring(0, 60)}${s.descripcion.length > 60 ? '...' : ''}</div>
+                            </div>
+                            <div class="detalle">
+                                ${emergencia}
+                                <span class="calificacion">⭐ ${s.calificacion || 'N/A'}</span>
+                                <span class="distancia"><i class="fas fa-location-dot"></i> ${distText}</span>
+                                ${s.verificado ? '<span style="color:var(--success);">✅</span>' : ''}
+                                <span style="font-size:0.65rem;color:var(--text-muted);">${s.telefono}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Sugerencias de búsqueda relacionadas
+            const sugerenciasRelacionadas = [
+                `${resultados.categoriaNombre} económico`,
+                `${resultados.categoriaNombre} 24h`,
+                `${resultados.categoriaNombre} en Puebla`,
+                `${resultados.categoriaNombre} con reseñas`
+            ];
+
+            sugerencias.innerHTML = `
+                <span style="font-size:0.7rem;color:var(--text-muted);">Búsquedas relacionadas:</span>
+                ${sugerenciasRelacionadas.map(sug => `
+                    <span class="sugerencia" onclick="buscarSugerencia('${sug}')">🔍 ${sug}</span>
+                `).join('')}
+            `;
+
+            mostrarToast(`✅ ${resultados.servicios.length} ${resultados.categoriaNombre} encontrados`);
+        };
+
+        window.buscarSugerencia = function(texto) {
+            document.getElementById('smartSearchInput').value = texto;
+            buscarInteligente();
+        };
+
+        window.limpiarBusquedaInteligente = function() {
+            document.getElementById('smartSearchInput').value = '';
+            document.getElementById('smartResults').classList.remove('visible');
+        };
+
+        // ================================================================
+        // FUNCIONES DE RENDERIZADO Y FILTROS
+        // ================================================================
+        
         function renderizarServicios() {
             const grid = document.getElementById('servicesGrid');
             let filtrados = [...servicios];
@@ -1026,7 +696,7 @@
                 filtrados = filtrados.filter(s =>
                     s.nombre.toLowerCase().includes(searchTerm) ||
                     s.descripcion.toLowerCase().includes(searchTerm) ||
-                    CATEGORIAS[s.categoria]?.toLowerCase().includes(searchTerm) ||
+                    (CATEGORIAS[s.categoria] || '').toLowerCase().includes(searchTerm) ||
                     s.usuario.toLowerCase().includes(searchTerm)
                 );
             }
@@ -1058,6 +728,7 @@
                 const catName = CATEGORIAS[s.categoria] || s.categoria;
                 const dist = s.distancia !== undefined ? `${(s.distancia * 1.6).toFixed(1)} km` : '📍';
                 const estrellas = s.calificacion ? '★'.repeat(Math.round(s.calificacion / 2)) + '☆'.repeat(10 - Math.round(s.calificacion / 2)) : '☆☆☆☆☆☆☆☆☆☆';
+                const urgente = s.urgencia === 'urgente' ? '<span style="color:var(--danger);font-size:0.6rem;font-weight:700;">🚨 Urgente</span>' : '';
                 
                 return `
                     <div class="service-card" onclick="abrirDetalleServicio(${s.id})">
@@ -1065,6 +736,7 @@
                             <span class="service-name">${s.nombre}</span>
                             <span class="service-category">${icon} ${catName}</span>
                         </div>
+                        ${urgente}
                         <div class="service-rating">
                             <span class="stars">${estrellas}</span>
                             <span class="score">${s.calificacion ? s.calificacion.toFixed(1) : 'N/A'} (${s.reseñas || 0} reseñas)</span>
@@ -1087,19 +759,21 @@
             actualizarContador();
         }
 
+        // ===== (resto de funciones igual que antes) =====
         function actualizarMarcadores(serviciosFiltrados) {
             markers.forEach(m => map.removeLayer(m));
             markers = [];
             if (!serviciosFiltrados || serviciosFiltrados.length === 0) return;
 
             serviciosFiltrados.forEach(s => {
+                const color = s.verificado ? 'var(--gold-cosmic)' : (s.urgencia === 'urgente' ? 'var(--danger)' : 'var(--text-muted)');
                 const icon = L.divIcon({
-                    html: `<div style="background:${s.verificado ? 'var(--gold-cosmic)' : 'var(--text-muted)'};width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);"></div>`,
+                    html: `<div style="background:${color};width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);"></div>`,
                     className: '', iconSize: [12, 12]
                 });
                 const marker = L.marker([s.lat, s.lng], { icon })
                     .addTo(map)
-                    .bindPopup(`<strong>${s.nombre}</strong><br>${s.descripcion.substring(0, 60)}...<br><span style="color:var(--gold-cosmic);">⭐ ${s.calificacion || 0}</span><br><button onclick="abrirDetalleServicio(${s.id})" style="background:var(--gold-cosmic);color:#0a0c10;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;">Ver</button>`);
+                    .bindPopup(`<strong>${s.nombre}</strong><br>${s.descripcion.substring(0, 60)}...<br>⭐ ${s.calificacion || 0}<br><button onclick="abrirDetalleServicio(${s.id})" style="background:var(--gold-cosmic);color:#0a0c10;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;">Ver</button>`);
                 markers.push(marker);
             });
         }
@@ -1123,7 +797,6 @@
             document.getElementById('serviceCount').textContent = servicios.length;
         }
 
-        // ===== FILTROS =====
         function filtrarPorCategoria(categoria) {
             categoriaActual = categoria;
             document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -1136,7 +809,7 @@
             renderizarServicios();
         }
 
-        // ===== MODAL DETALLE =====
+        // ===== MODALES =====
         function abrirDetalleServicio(id) {
             const servicio = servicios.find(s => s.id === id);
             if (!servicio) return;
@@ -1147,6 +820,7 @@
             const icon = ICONOS[servicio.categoria] || '📌';
             const catName = CATEGORIAS[servicio.categoria] || servicio.categoria;
             const estrellas = servicio.calificacion ? '★'.repeat(Math.round(servicio.calificacion / 2)) + '☆'.repeat(10 - Math.round(servicio.calificacion / 2)) : '☆☆☆☆☆☆☆☆☆☆';
+            const urgente = servicio.urgencia === 'urgente' ? '<span style="color:var(--danger);font-weight:700;">🚨 URGENTE</span>' : '';
 
             body.innerHTML = `
                 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
@@ -1154,6 +828,7 @@
                         ${icon} ${catName}
                     </span>
                     ${servicio.verificado ? '<span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado</span>' : ''}
+                    ${urgente}
                 </div>
                 <p style="color:var(--text-secondary);margin-bottom:12px;">${servicio.descripcion}</p>
                 <div class="detail-row"><span class="label">⭐ Calificación</span><span class="value gold">${estrellas} ${servicio.calificacion ? servicio.calificacion.toFixed(1) : 'N/A'} (${servicio.reseñas || 0} reseñas)</span></div>
@@ -1223,6 +898,7 @@
             document.getElementById('offerDescription').value = '';
             document.getElementById('offerPhone').value = '';
             document.getElementById('offerEmail').value = '';
+            document.getElementById('offerUrgencia').value = 'normal';
         }
 
         function registrarServicio() {
@@ -1231,6 +907,7 @@
             const descripcion = document.getElementById('offerDescription').value.trim();
             const telefono = document.getElementById('offerPhone').value.trim();
             const email = document.getElementById('offerEmail').value.trim();
+            const urgencia = document.getElementById('offerUrgencia').value;
 
             if (!nombre || !descripcion || !telefono || !email) {
                 mostrarToast('⚠️ Completa todos los campos', 'error');
@@ -1247,14 +924,15 @@
                 lng: lng + (Math.random() - 0.5) * 0.02,
                 calificacion: 0, reseñas: 0,
                 verificado: miPerfil.verificado,
-                usuario: miPerfil.nombre || 'Usuario'
+                usuario: miPerfil.nombre || 'Usuario',
+                urgencia: urgencia
             });
 
             guardarServicios();
             renderizarServicios();
             cerrarFormularioServicio();
             mostrarToast('✅ ¡Servicio registrado con éxito!');
-            publicarEnMuro(`🛠️ ¡Nuevo servicio disponible! ${nombre} - ${CATEGORIAS[categoria] || categoria}. ¡Contáctame!`);
+            publicarEnMuro(`🛠️ ¡Nuevo servicio disponible! ${nombre} - ${CATEGORIAS[categoria] || categoria}. ${urgencia === 'urgente' ? '🚨 ATENCIÓN URGENTE' : ''}`);
         }
 
         // ===== TOAST =====
@@ -1274,6 +952,7 @@
             if (e.key === 'Escape') {
                 cerrarModalServicio();
                 cerrarFormularioServicio();
+                limpiarBusquedaInteligente();
             }
         });
 
@@ -1285,6 +964,22 @@
                 }
             });
         });
+
+        // Exponer funciones globalmente
+        window.buscarInteligente = buscarInteligente;
+        window.buscarSugerencia = buscarSugerencia;
+        window.limpiarBusquedaInteligente = limpiarBusquedaInteligente;
+        window.filtrarPorCategoria = filtrarPorCategoria;
+        window.filtrarServicios = filtrarServicios;
+        window.abrirDetalleServicio = abrirDetalleServicio;
+        window.cerrarModalServicio = cerrarModalServicio;
+        window.contactarServicio = contactarServicio;
+        window.compartirServicio = compartirServicio;
+        window.abrirFormularioServicio = abrirFormularioServicio;
+        window.cerrarFormularioServicio = cerrarFormularioServicio;
+        window.registrarServicio = registrarServicio;
+        window.obtenerUbicacion = obtenerUbicacion;
+        window.mostrarToast = mostrarToast;
     </script>
 </body>
 </html>
