@@ -3,6 +3,8 @@ import { M_CONFIG } from './marquinhos-config.js';
 import { supabase } from './utils/supabaseClient.js';
 import { chatPlugin } from './plugins/plugin-chat.js';
 import { livePlugin } from './plugins/plugin-live.js';
+import { moderacionAvanzada } from './plugins/plugin-moderacion-avanzada.js';
+import { configTransmision } from './plugins/plugin-configuracion-transmision.js';
 
 export const Engine = {
     // ================================================================
@@ -37,8 +39,41 @@ export const Engine = {
             console.log('📞 Evento de llamada:', event);
             this.notificarLlamada(event);
         });
+
+        // Escuchar eventos de moderación
+        document.addEventListener('moderacion:evento', (e) => {
+            console.log('🛡️ Evento de moderación:', e.detail);
+            this.notificarModeracion(e.detail);
+        });
+
+        // Escuchar eventos de configuración de transmisión
+        document.addEventListener('participante:agregado', (e) => {
+            console.log('👤 Participante agregado:', e.detail);
+            this.notificarParticipante(e.detail);
+        });
+
+        document.addEventListener('camara:toggle', (e) => {
+            console.log('📷 Cámara toggled:', e.detail);
+        });
+
+        document.addEventListener('juego:detectado', (e) => {
+            console.log('🎮 Juego detectado:', e.detail);
+        });
+
+        document.addEventListener('metricas:actualizadas', (e) => {
+            console.log('📊 Métricas actualizadas:', e.detail);
+        });
+
+        console.log('✅ Engine conectado con todas las funcionalidades');
+        console.log('📹 Transmisiones: Individual | Grupal | Juegos');
+        console.log('🛡️ Moderación avanzada activa');
+        console.log('🎮 Detección de juegos: Free Fire, COD, Roblox, etc.');
+        console.log('📊 Métricas en tiempo real');
     },
 
+    // ================================================================
+    // CHAT - Envío de mensajes
+    // ================================================================
     enviarMensaje(texto) {
         if (!texto || !texto.trim()) return;
         
@@ -91,7 +126,7 @@ export const Engine = {
     },
 
     // ================================================================
-    // LLAMADAS Y TRANSMISIONES
+    // LLAMADAS Y TRANSMISIONES (LivePlugin)
     // ================================================================
     iniciarLlamada(targetUserId, options = { video: false }) {
         const userId = this.obtenerUserId();
@@ -126,6 +161,125 @@ export const Engine = {
     },
 
     // ================================================================
+    // MODERACIÓN AVANZADA
+    // ================================================================
+    iniciarModeracion: (userId, roomName) => {
+        return moderacionAvanzada.iniciarModeracion(userId, roomName);
+    },
+    
+    detenerModeracion: () => {
+        moderacionAvanzada.detenerModeracion();
+    },
+    
+    getEstadoModeracion: () => {
+        return {
+            activa: moderacionAvanzada.transmisionActiva,
+            nivelAdvertencia: moderacionAvanzada.nivelAdvertencia,
+            detecciones: moderacionAvanzada.detecciones.length,
+            alertas: moderacionAvanzada.alertasEnviadas.length,
+            usuarioVerificado: moderacionAvanzada.usuarioVerificado,
+            monetizacionActiva: moderacionAvanzada.monetizacionActiva
+        };
+    },
+
+    verificarUsuario: (userId) => {
+        return moderacionAvanzada.verificarUsuario(userId);
+    },
+
+    // ================================================================
+    // CONFIGURACIÓN DE TRANSMISIÓN
+    // ================================================================
+    iniciarTransmisionConfigurada: (userId, roomName, config) => {
+        return configTransmision.inicializar(userId, roomName, config);
+    },
+    
+    setTipoTransmision: (tipo) => {
+        return configTransmision.setTipo(tipo);
+    },
+    
+    setCalidadVideo: (calidad) => {
+        return configTransmision.setCalidad(calidad);
+    },
+    
+    setFps: (fps) => {
+        return configTransmision.setFps(fps);
+    },
+    
+    setAudio: (activo) => {
+        return configTransmision.setAudio(activo);
+    },
+    
+    setCamara: (activo) => {
+        return configTransmision.setCamara(activo);
+    },
+    
+    setMic: (activo) => {
+        return configTransmision.setMic(activo);
+    },
+    
+    setCompartirPantalla: (activo) => {
+        return configTransmision.setCompartirPantalla(activo);
+    },
+    
+    toggleCamara: (userId, activo) => {
+        return configTransmision.toggleCamara(userId, activo);
+    },
+    
+    toggleMicrofono: (userId, activo) => {
+        return configTransmision.toggleMicrofono(userId, activo);
+    },
+    
+    agregarParticipante: (userId, nombre, config) => {
+        return configTransmision.agregarParticipante(userId, nombre, config);
+    },
+    
+    eliminarParticipante: (userId) => {
+        return configTransmision.eliminarParticipante(userId);
+    },
+    
+    toggleAllCamaras: (activo) => {
+        return configTransmision.toggleAllCamaras(activo);
+    },
+    
+    detectarJuego: () => {
+        return configTransmision.detectarJuegoEnEjecucion();
+    },
+    
+    getEstadoTransmision: () => {
+        return configTransmision.getEstadoCompleto();
+    },
+    
+    mostrarControlesTransmision: () => {
+        return configTransmision.mostrarControles();
+    },
+    
+    mostrarParticipantesUI: () => {
+        return configTransmision.mostrarParticipantesUI();
+    },
+    
+    detenerTransmision: () => {
+        configTransmision.detener();
+    },
+
+    // ================================================================
+    // MARKETING Y MÉTRICAS
+    // ================================================================
+    activarCampanaMarketing: (presupuesto, duracion) => {
+        const userId = Engine.obtenerUserId();
+        return moderacionAvanzada.activarCampanaMarketing(userId, presupuesto, duracion);
+    },
+
+    obtenerMetricas: () => {
+        const userId = Engine.obtenerUserId();
+        return moderacionAvanzada.obtenerMetricas(userId);
+    },
+
+    priorizarServicio: (servicioId, presupuesto) => {
+        const userId = Engine.obtenerUserId();
+        return moderacionAvanzada.priorizarServicio(userId, servicioId, presupuesto);
+    },
+
+    // ================================================================
     // UTILIDADES
     // ================================================================
     obtenerUserId() {
@@ -157,7 +311,6 @@ export const Engine = {
         if (this._callback) {
             this._callback(this.mensajes);
         }
-        // Emitir evento DOM
         document.dispatchEvent(new CustomEvent('marquinhos:mensajes', {
             detail: this.mensajes
         }));
@@ -167,8 +320,81 @@ export const Engine = {
         document.dispatchEvent(new CustomEvent('marquinhos:llamada', {
             detail: event
         }));
+    },
+
+    notificarModeracion(event) {
+        document.dispatchEvent(new CustomEvent('marquinhos:moderacion', {
+            detail: event
+        }));
+        
+        // Si es un cierre, mostrar notificación especial
+        if (event.tipo === 'cierre') {
+            console.log('🚫 TRANSMISIÓN CERRADA POR MODERACIÓN');
+            this.mostrarNotificacion('🚫 Transmisión cerrada por moderación', '#ff3366');
+        }
+    },
+
+    notificarParticipante(event) {
+        document.dispatchEvent(new CustomEvent('marquinhos:participante', {
+            detail: event
+        }));
+    },
+
+    // ================================================================
+    // NOTIFICACIÓN TOAST
+    // ================================================================
+    mostrarNotificacion(mensaje, color = '#f7d44a') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            background: rgba(0,0,0,0.95);
+            border-left: 4px solid ${color};
+            border-radius: 8px;
+            padding: 16px 24px;
+            max-width: 400px;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            animation: slideIn 0.5s ease-out;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        `;
+        toast.innerHTML = `
+            <style>
+                @keyframes slideIn {
+                    from { opacity: 0; transform: translateX(50px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+            </style>
+            <div style="font-size:0.9rem;font-weight:600;color:${color};">${mensaje}</div>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(50px)';
+            toast.style.transition = 'all 0.5s ease';
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
     }
 };
 
-// Inicializar al cargar
+// ================================================================
+// INICIALIZAR AL CARGAR
+// ================================================================
 Engine.conectar();
+
+console.log('🧠 Marquinhos Engine v2.0 - COMPLETO');
+console.log('✅ Chat en tiempo real');
+console.log('✅ Llamadas de voz y video');
+console.log('✅ Transmisiones en vivo');
+console.log('✅ Transmisiones grupales (hasta 10 participantes)');
+console.log('✅ Transmisión de juegos (Free Fire, COD, Roblox, etc.)');
+console.log('✅ Moderación avanzada con 3 advertencias');
+console.log('✅ Verificación de edad y documentos');
+console.log('✅ Marketing pagado (visibilidad tipo TikTok)');
+console.log('✅ Métricas en tiempo real');
+console.log('✅ Servicios priorizados (primera plana)');
+console.log('🎮 Detección de juegos popular');
+console.log('📷 Control de cámaras individual y grupal');
