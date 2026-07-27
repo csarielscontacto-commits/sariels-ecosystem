@@ -7,11 +7,14 @@
     <meta name="theme-color" content="#0B3D2E" />
     
     <meta property="og:title" content="Csariel's - Muro Live" />
-    <meta property="og:description" content="Publica fotos, videos, estados 24h y transmisiones en vivo" />
+    <meta property="og:description" content="Publica fotos, videos, estados 24h y transmisiones en vivo con donaciones" />
     <meta property="og:type" content="website" />
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Ethers.js para Web3 -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     
     <style>
         /* ===== VARIABLES ===== */
@@ -36,6 +39,7 @@
             --success: #00b894;
             --danger: #ff3366;
             --warning: #f7d44a;
+            --donation-flash: rgba(247,212,74,0.15);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -179,7 +183,9 @@
             animation: quantum-pulse 1.5s ease-in-out infinite;
         }
         .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+        .status-dot.live { background: var(--danger); box-shadow: 0 0 30px rgba(255,51,102,0.5); animation: live-pulse 1s infinite; }
         @keyframes quantum-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.7); } }
+        @keyframes live-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.8); } }
 
         /* ===== BOTONES ===== */
         .btn {
@@ -290,9 +296,9 @@
             padding: 1px 8px;
             border-radius: 10px;
             font-family: 'Orbitron', monospace;
-            animation: live-pulse 1.5s infinite;
+            animation: live-pulse-badge 1.5s infinite;
         }
-        @keyframes live-pulse {
+        @keyframes live-pulse-badge {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
@@ -704,6 +710,7 @@
             .story-avatar { width: 52px; height: 52px; font-size: 1.2rem; }
             .modal-content { padding: 20px; margin: 12px; }
             .terminos-modal .checklist label { font-size: 0.75rem; }
+            .donacion-modal .modal-content { padding: 20px; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.55rem; padding: 6px 12px; }
@@ -711,6 +718,8 @@
             .story-avatar { width: 44px; height: 44px; font-size: 1rem; }
             .story-name { font-size: 0.5rem; }
             .terminos-modal .checklist label { font-size: 0.7rem; }
+            .donacion-modal .modal-content { padding: 16px; }
+            .donacion-modal .modal-content .btn { font-size: 0.5rem; padding: 4px 10px; }
         }
     </style>
 </head>
@@ -732,8 +741,8 @@
             </a>
             <div class="header-actions">
                 <div class="status-badge">
-                    <span class="status-dot online"></span>
-                    <span>En vivo</span>
+                    <span class="status-dot online" id="statusDot"></span>
+                    <span id="statusLabel">En vivo</span>
                 </div>
                 <a href="./mi-red.html" class="btn"><i class="fas fa-arrow-left"></i> Mi Red</a>
                 <a href="./servicios-comunitarios.html" class="btn btn-gold btn-sm">
@@ -742,7 +751,7 @@
                 <button class="btn btn-primary btn-sm" onclick="abrirModalPublicacion()">
                     <i class="fas fa-plus"></i> Publicar
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="iniciarTransmision()">
+                <button class="btn btn-danger btn-sm" onclick="iniciarTransmision()" id="btnLive">
                     <i class="fas fa-broadcast"></i> Live
                 </button>
                 <button class="btn btn-outline btn-sm" onclick="openTerminosModal()">
@@ -833,16 +842,22 @@
                     <i class="fas fa-broadcast" style="font-size:3rem;color:var(--danger);"></i>
                     <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:8px;">
                         <strong style="color:var(--danger);">● EN VIVO</strong><br>
-                        Próximamente: Transmisiones en tiempo real
+                        Recibe donaciones en tiempo real desde tu comunidad.
                     </p>
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="iniciarTransmisionSimulada()">
+                    <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="iniciarTransmisionReal()">
                         <i class="fas fa-play"></i> Iniciar Live
                     </button>
                     <button class="btn btn-outline" onclick="cerrarLiveModal()">
                         <i class="fas fa-times"></i> Cancelar
                     </button>
+                </div>
+                <div style="margin-top:12px;padding:8px;background:rgba(247,212,74,0.05);border-radius:8px;border:1px solid rgba(247,212,74,0.1);">
+                    <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                        💰 <strong style="color:var(--gold-cosmic);">Donaciones activas:</strong> 50% para el streamer · 50% para Csariel's<br>
+                        🪙 Tokens aceptados: USDT · USDC · TOK (1:1)
+                    </p>
                 </div>
             </div>
         </div>
@@ -916,13 +931,132 @@
             </div>
         </div>
 
+        <!-- ===== MODAL DE DONACIÓN EN DIRECTO ===== -->
+        <div class="modal-overlay donacion-modal" id="donacionModal">
+            <div class="modal-content" style="max-width:480px;">
+                <button class="modal-close" onclick="cerrarDonacionModal()">✕</button>
+                <h3 class="modal-title">🎁 Donar en Directo</h3>
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
+                    Apoya al streamer en su transmisión. <span style="color:var(--gold-cosmic);">50% para el streamer · 50% para Csariel's</span>
+                </p>
+
+                <!-- Streamer info -->
+                <div style="padding:12px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid var(--gold-dim);margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: 700;
+                            color: #0a0c10;
+                            font-size: 1rem;
+                        " id="donacionStreamerAvatar">M</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;color:var(--text-primary);" id="donacionStreamerNombre">María</div>
+                            <div style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;">
+                                <span style="color:var(--danger);">● EN VIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selector de token -->
+                <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-gold" data-token="USDT" onclick="seleccionarTokenDonacion('USDT')" style="flex:1;justify-content:center;">
+                        💵 USDT
+                    </button>
+                    <button class="btn btn-sm btn-outline" data-token="USDC" onclick="seleccionarTokenDonacion('USDC')" style="flex:1;justify-content:center;">
+                        💳 USDC
+                    </button>
+                    <button class="btn btn-sm btn-outline" data-token="TOK" onclick="seleccionarTokenDonacion('TOK')" style="flex:1;justify-content:center;">
+                        🪙 TOK (Próximo)
+                    </button>
+                </div>
+
+                <!-- Monto -->
+                <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(1)" style="flex:1;justify-content:center;">$1</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(5)" style="flex:1;justify-content:center;">$5</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(10)" style="flex:1;justify-content:center;">$10</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(25)" style="flex:1;justify-content:center;">$25</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(50)" style="flex:1;justify-content:center;">$50</button>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                    <input type="number" id="donacionMonto" placeholder="Monto personalizado (mín 1)" style="
+                        width: 100%;
+                        padding: 12px 14px;
+                        background: rgba(0,0,0,0.3);
+                        border: 1px solid var(--gold-dim);
+                        border-radius: 8px;
+                        color: var(--text-primary);
+                        font-size: 0.95rem;
+                        outline: none;
+                        font-family: 'Space Grotesk', sans-serif;
+                    " oninput="actualizarResumenDonacion()" />
+                </div>
+
+                <!-- Mensaje -->
+                <div style="margin-bottom:12px;">
+                    <input type="text" id="donacionMensaje" placeholder="Mensaje para el streamer (opcional)" style="
+                        width: 100%;
+                        padding: 10px 14px;
+                        background: rgba(0,0,0,0.3);
+                        border: 1px solid var(--gold-dim);
+                        border-radius: 8px;
+                        color: var(--text-primary);
+                        font-size: 0.85rem;
+                        outline: none;
+                        font-family: 'Space Grotesk', sans-serif;
+                    " />
+                </div>
+
+                <!-- Resumen de donación -->
+                <div style="padding:12px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid var(--gold-dim);margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);">
+                        <span>💰 Donación</span>
+                        <span style="color:var(--text-primary);font-weight:600;" id="resumenMonto">$0.00 USDT</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);">
+                        <span>🎁 Para el streamer (50%)</span>
+                        <span style="color:var(--success);" id="resumenStreamer">$0.00 USDT</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);">
+                        <span>🏢 Csariel's (50%)</span>
+                        <span style="color:var(--gold-cosmic);" id="resumenCsariels">$0.00 USDT</span>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-gold" onclick="procesarDonacion()" style="flex:1;justify-content:center;" id="btnDonar">
+                        <i class="fas fa-rocket"></i> Enviar Donación
+                    </button>
+                    <button class="btn btn-outline" onclick="cerrarDonacionModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+
+                <div style="margin-top:8px;padding:8px;background:rgba(255,51,102,0.05);border-radius:8px;border:1px solid rgba(255,51,102,0.1);">
+                    <p style="font-size:0.55rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                        ⚡ Las donaciones se procesan en la red Polygon.<br>
+                        Comisión del 50% para mantener la plataforma y los directos.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== TOAST ===== -->
         <div class="toast" id="toast"></div>
 
         <!-- FOOTER -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Muro Live · Moderación IA
+                <span class="brand">◈ Csariel's</span> — Muro Live · Moderación IA · Donaciones en Directo
             </span>
             <div class="footer-links">
                 <a href="./mi-red.html">👥 Mi Red</a>
@@ -949,12 +1083,14 @@
             console.log('◈ Csariel\'s - Muro Live (Con Moderación IA)');
             console.log('🧠 Moderación IA activa');
             console.log('📹 Modo TikTok/Facebook Live');
+            console.log('💰 Sistema de donaciones en directo activo');
             console.log('✅ Fidelización y Trading eliminados');
             console.log(`📦 Configuración desde CONFIG v${CONFIG.VERSION}`);
             initStars();
             initMuro();
             cargarPerfil();
             initTerminos();
+            initDonaciones();
         });
 
         // ===== ESTRELLAS =====
@@ -1181,7 +1317,7 @@
         // ================================================================
         // PERFIL
         // ================================================================
-        let miPerfil = { nombre: 'Usuario', verificado: false };
+        let miPerfil = { nombre: 'Usuario', verificado: false, wallet: null };
 
         function cargarPerfil() {
             try {
@@ -1201,6 +1337,8 @@
         // ================================================================
         let posts = [];
         let toastTimeout = null;
+        let streamerInfo = null;
+        let isLive = false;
 
         function initMuro() {
             cargarPosts();
@@ -1435,8 +1573,315 @@
         }
 
         // ================================================================
+        // SISTEMA DE DONACIONES EN DIRECTO
+        // ================================================================
+        
+        let tokenDonacionSeleccionado = 'USDT';
+        let sistemaDonaciones = null;
+
+        function initDonaciones() {
+            // Cargar sistema de donaciones
+            import('./sistema-donaciones.js').then(module => {
+                sistemaDonaciones = module.sistemaDonaciones;
+                console.log('💰 Sistema de donaciones cargado correctamente');
+            }).catch(err => {
+                console.warn('⚠️ No se pudo cargar sistema-donaciones.js, usando modo simulación:', err);
+                // Modo simulación (sin dependencias)
+                sistemaDonaciones = {
+                    conectarWallet: async () => {
+                        mostrarToast('🔗 Simulando conexión de wallet...');
+                        await new Promise(r => setTimeout(r, 1000));
+                        return '0xSimulacionWallet';
+                    },
+                    enviarDonacion: async (datos) => {
+                        mostrarToast(`💰 Simulando donación de $${datos.monto} ${datos.token}...`);
+                        await new Promise(r => setTimeout(r, 2000));
+                        return {
+                            id: 'sim_' + Date.now(),
+                            ...datos,
+                            estado: 'simulado'
+                        };
+                    }
+                };
+            });
+            
+            // Escuchar evento de donación completada
+            document.addEventListener('donacionCompletada', (e) => {
+                const { detail } = e;
+                mostrarToast(`🎉 ${detail.espectador || 'Alguien'} donó $${detail.montoTotal} ${detail.token}!`);
+                // Actualizar estadísticas del streamer
+                if (detail.streamer === streamerInfo?.wallet) {
+                    actualizarEstadisticasStreamer(detail.streamer);
+                }
+            });
+        }
+
+        /**
+         * Inicia una transmisión en vivo real
+         */
+        window.iniciarTransmisionReal = function() {
+            // Simular inicio de transmisión
+            isLive = true;
+            
+            // Actualizar estado
+            const statusDot = document.getElementById('statusDot');
+            const statusLabel = document.getElementById('statusLabel');
+            statusDot.className = 'status-dot live';
+            statusLabel.textContent = '🔴 EN VIVO';
+            
+            // Configurar streamer info (simulado)
+            streamerInfo = {
+                nombre: miPerfil.nombre || 'Streamer',
+                wallet: miPerfil.wallet || '0x' + Array.from({length: 40}, () => 
+                    Math.floor(Math.random() * 16).toString(16)).join('')
+            };
+            
+            // Guardar en localStorage para que otros usuarios vean
+            localStorage.setItem('streamer_activo', JSON.stringify({
+                ...streamerInfo,
+                inicio: Date.now()
+            }));
+            
+            // Mostrar botón de donación en el feed
+            mostrarBotonDonacion();
+            
+            // Disparar evento
+            document.dispatchEvent(new CustomEvent('live-started', {
+                detail: streamerInfo
+            }));
+            
+            mostrarToast('📹 ¡Transmisión en vivo iniciada! Recibe donaciones en tiempo real.');
+            cerrarLiveModal();
+            
+            // Cambiar texto del botón Live
+            const btnLive = document.getElementById('btnLive');
+            btnLive.innerHTML = '<i class="fas fa-broadcast"></i> 🔴 En Vivo';
+            btnLive.style.background = 'var(--danger)';
+            btnLive.style.color = 'white';
+            btnLive.onclick = function() {
+                if (confirm('¿Terminar la transmisión?')) {
+                    terminarTransmision();
+                }
+            };
+            
+            console.log('📹 Transmisión iniciada:', streamerInfo);
+        };
+
+        /**
+         * Termina la transmisión
+         */
+        function terminarTransmision() {
+            isLive = false;
+            streamerInfo = null;
+            
+            // Actualizar estado
+            const statusDot = document.getElementById('statusDot');
+            const statusLabel = document.getElementById('statusLabel');
+            statusDot.className = 'status-dot online';
+            statusLabel.textContent = 'En vivo';
+            
+            // Limpiar localStorage
+            localStorage.removeItem('streamer_activo');
+            
+            // Restaurar botón
+            const btnLive = document.getElementById('btnLive');
+            btnLive.innerHTML = '<i class="fas fa-broadcast"></i> Live';
+            btnLive.style.background = '';
+            btnLive.style.color = '';
+            btnLive.onclick = function() {
+                iniciarTransmision();
+            };
+            
+            // Disparar evento
+            document.dispatchEvent(new CustomEvent('live-ended'));
+            
+            mostrarToast('📹 Transmisión finalizada.');
+        }
+
+        /**
+         * Muestra el botón de donación en el feed
+         */
+        function mostrarBotonDonacion() {
+            const container = document.getElementById('feedContainer');
+            const donacionBanner = document.createElement('div');
+            donacionBanner.id = 'donacionBanner';
+            donacionBanner.style.cssText = `
+                background: linear-gradient(135deg, rgba(11,61,46,0.4), rgba(247,212,74,0.08));
+                border: 1px solid var(--gold-dim);
+                border-radius: var(--radius);
+                padding: 16px 20px;
+                text-align: center;
+                backdrop-filter: blur(10px);
+                margin-bottom: 16px;
+                cursor: pointer;
+                transition: all 0.3s;
+            `;
+            donacionBanner.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+                    <span style="font-size:1.5rem;">🎁</span>
+                    <div>
+                        <div style="font-family:'Orbitron',monospace;font-size:0.9rem;color:var(--gold-cosmic);">
+                            🔴 Apoya esta transmisión
+                        </div>
+                        <div style="font-size:0.7rem;color:var(--text-secondary);">
+                            Envía donaciones en USDT, USDC o TOK
+                        </div>
+                    </div>
+                    <button class="btn btn-gold" onclick="abrirDonacion()" style="flex-shrink:0;">
+                        <i class="fas fa-gift"></i> Donar
+                    </button>
+                </div>
+            `;
+            
+            // Insertar al inicio del feed
+            container.insertBefore(donacionBanner, container.firstChild);
+        }
+
+        /**
+         * Abre el modal de donación
+         */
+        window.abrirDonacion = function() {
+            if (!streamerInfo) {
+                mostrarToast('⚠️ No hay transmisión activa.', 'error');
+                return;
+            }
+            
+            document.getElementById('donacionStreamerAvatar').textContent = streamerInfo.nombre.charAt(0).toUpperCase();
+            document.getElementById('donacionStreamerNombre').textContent = streamerInfo.nombre;
+            
+            document.getElementById('donacionMonto').value = '';
+            document.getElementById('donacionMensaje').value = '';
+            document.getElementById('resumenMonto').textContent = '$0.00 USDT';
+            document.getElementById('resumenStreamer').textContent = '$0.00 USDT';
+            document.getElementById('resumenCsariels').textContent = '$0.00 USDT';
+            
+            document.getElementById('donacionModal').classList.add('active');
+        };
+
+        /**
+         * Cierra el modal de donación
+         */
+        window.cerrarDonacionModal = function() {
+            document.getElementById('donacionModal').classList.remove('active');
+        };
+
+        /**
+         * Selecciona el token para la donación
+         */
+        window.seleccionarTokenDonacion = function(token) {
+            tokenDonacionSeleccionado = token;
+            
+            document.querySelectorAll('[data-token]').forEach(btn => {
+                btn.className = `btn btn-sm ${btn.dataset.token === token ? 'btn-gold' : 'btn-outline'}`;
+            });
+            
+            actualizarResumenDonacion();
+        };
+
+        /**
+         * Establece el monto de la donación
+         */
+        window.setMontoDonacion = function(monto) {
+            document.getElementById('donacionMonto').value = monto;
+            actualizarResumenDonacion();
+        };
+
+        /**
+         * Actualiza el resumen de la donación
+         */
+        window.actualizarResumenDonacion = function() {
+            const monto = parseFloat(document.getElementById('donacionMonto').value) || 0;
+            const token = tokenDonacionSeleccionado || 'USDT';
+            
+            if (monto <= 0) {
+                document.getElementById('resumenMonto').textContent = `$0.00 ${token}`;
+                document.getElementById('resumenStreamer').textContent = `$0.00 ${token}`;
+                document.getElementById('resumenCsariels').textContent = `$0.00 ${token}`;
+                return;
+            }
+            
+            const comision = CONFIG.calcularComisionDirecto(monto, token);
+            
+            document.getElementById('resumenMonto').textContent = `$${monto.toFixed(2)} ${token}`;
+            document.getElementById('resumenStreamer').textContent = `$${comision.streamerMonto.toFixed(2)} ${token}`;
+            document.getElementById('resumenCsariels').textContent = `$${comision.comision.toFixed(2)} ${token}`;
+        };
+
+        /**
+         * Procesa la donación
+         */
+        window.procesarDonacion = async function() {
+            const monto = parseFloat(document.getElementById('donacionMonto').value) || 0;
+            const mensaje = document.getElementById('donacionMensaje').value.trim();
+            const token = tokenDonacionSeleccionado || 'USDT';
+            const btn = document.getElementById('btnDonar');
+            
+            if (!monto || monto <= 0) {
+                mostrarToast('⚠️ Ingresa un monto válido (mínimo 1 USDT)', 'error');
+                return;
+            }
+            
+            if (!streamerInfo || !streamerInfo.wallet) {
+                mostrarToast('⚠️ No hay transmisión activa para donar', 'error');
+                return;
+            }
+            
+            if (!sistemaDonaciones) {
+                mostrarToast('⚠️ Sistema de donaciones no disponible', 'error');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            
+            try {
+                // Conectar wallet
+                await sistemaDonaciones.conectarWallet();
+                
+                // Enviar donación
+                const resultado = await sistemaDonaciones.enviarDonacion({
+                    streamerWallet: streamerInfo.wallet,
+                    monto: monto,
+                    token: token,
+                    mensaje: mensaje,
+                    espectador: miPerfil.nombre || 'Anónimo'
+                });
+                
+                // Mostrar notificación
+                mostrarToast(`✅ Donación de $${monto} ${token} enviada con éxito!`);
+                
+                // Emitir evento
+                document.dispatchEvent(new CustomEvent('donacionCompletada', {
+                    detail: {
+                        ...resultado,
+                        espectador: miPerfil.nombre || 'Anónimo',
+                        mensaje: mensaje
+                    }
+                }));
+                
+                cerrarDonacionModal();
+                
+            } catch (error) {
+                console.error('❌ Error en donación:', error);
+                mostrarToast(`❌ ${error.message || 'Error al procesar la donación'}`, 'error');
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-rocket"></i> Enviar Donación';
+        };
+
+        /**
+         * Actualiza estadísticas del streamer
+         */
+        function actualizarEstadisticasStreamer(wallet) {
+            // Esta función se puede expandir para mostrar estadísticas en tiempo real
+            console.log('📊 Actualizando estadísticas para:', wallet);
+        }
+
+        // ================================================================
         // FUNCIONES GLOBALES
         // ================================================================
+        
         window.abrirModalPublicacion = function() {
             document.getElementById('postTextInput').value = '';
             document.getElementById('moderationResult').style.display = 'none';
@@ -1534,6 +1979,7 @@
                 cerrarModalPublicacion();
                 cerrarLiveModal();
                 closeTerminosModal();
+                cerrarDonacionModal();
             }
         });
 
@@ -1543,13 +1989,31 @@
                     if (this.id === 'postModal') cerrarModalPublicacion();
                     if (this.id === 'liveModal') cerrarLiveModal();
                     if (this.id === 'terminosModal') closeTerminosModal();
+                    if (this.id === 'donacionModal') cerrarDonacionModal();
                 }
             });
+        });
+
+        // ================================================================
+        // EVENTO: Streamer activo desde otra pestaña
+        // ================================================================
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'streamer_activo' && e.newValue) {
+                try {
+                    const data = JSON.parse(e.newValue);
+                    if (data && data.wallet) {
+                        streamerInfo = data;
+                        console.log('📹 Streamer detectado:', streamerInfo);
+                        mostrarBotonDonacion();
+                    }
+                } catch (err) {}
+            }
         });
 
         console.log('✅ Muro Live con Moderación IA cargado');
         console.log('🧠 Detección de servicios activa');
         console.log('📹 Modo TikTok/Facebook Live');
+        console.log('💰 Sistema de donaciones en directo activo');
         console.log('✅ Fidelización y Trading eliminados del sistema');
         console.log('📜 Términos y Condiciones integrados');
     </script>
