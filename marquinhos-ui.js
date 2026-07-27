@@ -1,3 +1,4 @@
+// js/marquinhos-ui.js
 import { Engine } from './marquinhos-engine.js';
 
 export class MarquinhosUI {
@@ -10,6 +11,7 @@ export class MarquinhosUI {
         this.dragOffsetX = 0;
         this.dragOffsetY = 0;
         this.hasMoved = false;
+        this.mensajes = [];
         this.init();
     }
 
@@ -34,10 +36,16 @@ export class MarquinhosUI {
             <div class="m-ventana" id="m-ventana">
                 <div class="m-header">
                     <span class="m-titulo">🧠 Marquinhos</span>
-                    <button class="m-cerrar" id="m-cerrar">✕</button>
+                    <div class="m-header-actions">
+                        <button class="m-btn-llamada" id="m-btn-llamada" title="Llamada de voz">📞</button>
+                        <button class="m-btn-video" id="m-btn-video" title="Videollamada">📹</button>
+                        <button class="m-btn-adjuntar" id="m-btn-adjuntar" title="Adjuntar archivo">📎</button>
+                        <button class="m-cerrar" id="m-cerrar">✕</button>
+                    </div>
                 </div>
                 <div class="m-mensajes" id="m-mensajes"></div>
                 <div class="m-input-area">
+                    <button class="m-btn-emoji" id="m-btn-emoji">😊</button>
                     <input type="text" class="m-input" id="m-input" placeholder="Escribe un mensaje...">
                     <button class="m-btn-enviar" id="m-btn-enviar">Enviar</button>
                 </div>
@@ -136,6 +144,25 @@ export class MarquinhosUI {
                 border-bottom: 1px solid rgba(255,255,255,0.08);
                 margin-bottom: 12px;
             }
+            .m-header-actions {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+            .m-header-actions button {
+                background: none;
+                border: none;
+                color: #a99c8c;
+                cursor: pointer;
+                font-size: 1rem;
+                padding: 4px 8px;
+                border-radius: 6px;
+                transition: all 0.3s;
+            }
+            .m-header-actions button:hover {
+                background: rgba(255,255,255,0.05);
+                color: #e8e1d8;
+            }
             .m-titulo {
                 font-family: 'Orbitron', monospace;
                 font-size: 0.9rem;
@@ -165,6 +192,7 @@ export class MarquinhosUI {
                 max-width: 85%;
                 font-size: 0.85rem;
                 line-height: 1.4;
+                word-break: break-word;
             }
             .m-mensaje.usuario {
                 background: rgba(0,212,255,0.1);
@@ -184,11 +212,65 @@ export class MarquinhosUI {
                 color: #f7d44a;
                 margin-bottom: 2px;
             }
+            .m-mensaje .m-reacciones {
+                display: flex;
+                gap: 4px;
+                margin-top: 4px;
+                flex-wrap: wrap;
+            }
+            .m-mensaje .m-reaccion {
+                font-size: 0.8rem;
+                cursor: pointer;
+                padding: 0 4px;
+                border-radius: 4px;
+                transition: background 0.2s;
+            }
+            .m-mensaje .m-reaccion:hover {
+                background: rgba(255,255,255,0.1);
+            }
+            .m-mensaje .m-archivo {
+                margin-top: 4px;
+                padding: 6px 10px;
+                background: rgba(0,0,0,0.2);
+                border-radius: 6px;
+                font-size: 0.7rem;
+                color: #a99c8c;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .m-mensaje .m-archivo img {
+                max-width: 100%;
+                max-height: 200px;
+                border-radius: 8px;
+                margin-top: 4px;
+            }
+            .m-mensaje .m-archivo video {
+                max-width: 100%;
+                max-height: 200px;
+                border-radius: 8px;
+                margin-top: 4px;
+            }
             .m-input-area {
                 display: flex;
-                gap: 8px;
+                gap: 6px;
                 padding-top: 10px;
                 border-top: 1px solid rgba(255,255,255,0.08);
+                align-items: center;
+            }
+            .m-btn-emoji {
+                background: none;
+                border: none;
+                color: #a99c8c;
+                cursor: pointer;
+                font-size: 1.2rem;
+                padding: 4px 8px;
+                border-radius: 6px;
+                transition: all 0.3s;
+            }
+            .m-btn-emoji:hover {
+                background: rgba(255,255,255,0.05);
+                color: #e8e1d8;
             }
             .m-input {
                 flex: 1;
@@ -217,15 +299,48 @@ export class MarquinhosUI {
                 transition: transform 0.3s;
                 font-family: 'Orbitron', monospace;
                 font-size: 0.7rem;
+                white-space: nowrap;
             }
             .m-btn-enviar:hover, .m-btn-horario:hover { transform: scale(1.05); }
             .m-btn-horario {
                 margin-top: 8px;
                 width: 100%;
             }
+            .m-emojis-popup {
+                display: none;
+                position: absolute;
+                bottom: 70px;
+                left: 10px;
+                background: rgba(11,61,46,0.95);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 10px;
+                backdrop-filter: blur(10px);
+                max-width: 250px;
+                flex-wrap: wrap;
+                gap: 4px;
+                z-index: 100;
+            }
+            .m-emojis-popup.abierto {
+                display: flex;
+            }
+            .m-emojis-popup span {
+                font-size: 1.2rem;
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 4px;
+                transition: background 0.2s;
+            }
+            .m-emojis-popup span:hover {
+                background: rgba(255,255,255,0.1);
+            }
+            #m-file-input {
+                display: none;
+            }
             @media (max-width: 480px) {
                 .m-ventana { width: 290px; height: 420px; right: -5px; }
                 .m-burbuja { width: 54px; height: 54px; font-size: 1.4rem; }
+                .m-header-actions button { font-size: 0.8rem; padding: 2px 6px; }
             }
         `;
         document.head.appendChild(style);
@@ -237,6 +352,10 @@ export class MarquinhosUI {
         const sendBtn = document.getElementById('m-btn-enviar');
         const input = document.getElementById('m-input');
         const messages = document.getElementById('m-mensajes');
+        const emojiBtn = document.getElementById('m-btn-emoji');
+        const attachBtn = document.getElementById('m-btn-adjuntar');
+        const callBtn = document.getElementById('m-btn-llamada');
+        const videoBtn = document.getElementById('m-btn-video');
 
         // ================================================================
         // ===== DRAG & DROP (Mouse) =====
@@ -276,7 +395,6 @@ export class MarquinhosUI {
         // ===== ABRIR/CERRAR VENTANA =====
         // ================================================================
         bubble.addEventListener('click', () => {
-            // Si hubo arrastre, no abrir la ventana
             if (this.hasMoved) {
                 this.hasMoved = false;
                 return;
@@ -290,7 +408,6 @@ export class MarquinhosUI {
             }
         });
 
-        // ===== Cerrar ventana =====
         closeBtn.addEventListener('click', () => {
             this.expandido = false;
             windowEl.classList.remove('abierta');
@@ -299,19 +416,117 @@ export class MarquinhosUI {
         // ================================================================
         // ===== ENVIAR MENSAJE =====
         // ================================================================
-        sendBtn.addEventListener('click', () => this.enviarMensaje(input, messages));
+        sendBtn.addEventListener('click', () => this.enviarMensaje(input));
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.enviarMensaje(input, messages);
+            if (e.key === 'Enter') this.enviarMensaje(input);
         });
 
-        // ===== Ver horario =====
+        // ================================================================
+        // ===== EMOJIS =====
+        // ================================================================
+        const emojis = ['😊', '😂', '❤️', '🔥', '👍', '🎉', '✨', '🌟', '💪', '🤗', '😍', '🥳', '🤔', '👀', '💯'];
+        let emojiPopup = null;
+
+        emojiBtn.addEventListener('click', () => {
+            if (!emojiPopup) {
+                emojiPopup = document.createElement('div');
+                emojiPopup.className = 'm-emojis-popup';
+                emojis.forEach(e => {
+                    const span = document.createElement('span');
+                    span.textContent = e;
+                    span.addEventListener('click', () => {
+                        input.value += e;
+                        input.focus();
+                        emojiPopup.classList.remove('abierto');
+                    });
+                    emojiPopup.appendChild(span);
+                });
+                document.querySelector('.m-ventana').appendChild(emojiPopup);
+            }
+            emojiPopup.classList.toggle('abierto');
+        });
+
+        // ================================================================
+        // ===== ADJUNTAR ARCHIVO =====
+        // ================================================================
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'm-file-input';
+        fileInput.accept = 'image/*,video/*';
+        fileInput.multiple = false;
+        document.querySelector('.m-ventana').appendChild(fileInput);
+
+        attachBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const mensaje = await Engine.enviarArchivo(file);
+            if (mensaje) {
+                this.cargarMensajes();
+            }
+            fileInput.value = '';
+        });
+
+        // ================================================================
+        // ===== LLAMADAS =====
+        // ================================================================
+        callBtn.addEventListener('click', () => {
+            if (Engine.estaEnLlamada()) {
+                Engine.terminarLlamada();
+                callBtn.textContent = '📞';
+                callBtn.title = 'Llamada de voz';
+            } else {
+                // Buscar usuario objetivo (simulado)
+                const targetUser = prompt('ID del usuario para llamar:');
+                if (targetUser) {
+                    Engine.iniciarLlamada(targetUser, { video: false });
+                    callBtn.textContent = '🔴';
+                    callBtn.title = 'Terminar llamada';
+                }
+            }
+        });
+
+        videoBtn.addEventListener('click', () => {
+            if (Engine.estaEnLlamada()) {
+                Engine.terminarLlamada();
+                videoBtn.textContent = '📹';
+                videoBtn.title = 'Videollamada';
+            } else {
+                const targetUser = prompt('ID del usuario para videollamar:');
+                if (targetUser) {
+                    Engine.iniciarLlamada(targetUser, { video: true });
+                    videoBtn.textContent = '🔴';
+                    videoBtn.title = 'Terminar videollamada';
+                }
+            }
+        });
+
+        // ================================================================
+        // ===== HORARIO =====
+        // ================================================================
         document.getElementById('m-btn-horario').addEventListener('click', () => {
             alert(Engine.obtenerHorario());
         });
 
-        // ===== Cargar mensajes iniciales =====
+        // ================================================================
+        // ===== ESCUCHAR MENSAJES EN TIEMPO REAL =====
+        // ================================================================
+        Engine.recibirMensajes((mensajes) => {
+            this.mensajes = mensajes;
+            this.renderizarMensajes();
+        });
+
+        // ================================================================
+        // ===== INICIALIZAR =====
+        // ================================================================
         this.cargarMensajes();
         this.detectarColisiones(container);
+
+        console.log('🧠 Marquinhos UI inicializado con plugins completos');
     }
 
     // ================================================================
@@ -340,7 +555,6 @@ export class MarquinhosUI {
         let newX = clientX - this.dragOffsetX;
         let newY = clientY - this.dragOffsetY;
 
-        // ===== LIMITAR DENTRO DEL VIEWPORT =====
         const bubbleRect = bubble.getBoundingClientRect();
         const bubbleSize = bubbleRect.width;
 
@@ -349,13 +563,11 @@ export class MarquinhosUI {
         newX = Math.max(0, Math.min(newX, maxX));
         newY = Math.max(0, Math.min(newY, maxY));
 
-        // ===== APLICAR NUEVA POSICIÓN =====
         container.style.left = newX + 'px';
         container.style.top = newY + 'px';
         container.style.right = 'auto';
         container.style.bottom = 'auto';
 
-        // ===== GUARDAR POSICIÓN =====
         this.guardarPosicion(newX, newY);
     }
 
@@ -364,9 +576,6 @@ export class MarquinhosUI {
         bubble.classList.remove('dragging');
     }
 
-    // ================================================================
-    // ===== PERSISTENCIA DE POSICIÓN =====
-    // ================================================================
     guardarPosicion(x, y) {
         try {
             localStorage.setItem('marquinhos_posicion', JSON.stringify({ x, y }));
@@ -380,9 +589,6 @@ export class MarquinhosUI {
         } catch (e) { return null; }
     }
 
-    // ================================================================
-    // ===== DETECTAR COLISIONES =====
-    // ================================================================
     detectarColisiones(container) {
         const bubble = document.getElementById('m-burbuja');
         setInterval(() => {
@@ -422,21 +628,95 @@ export class MarquinhosUI {
     async cargarMensajes() {
         const contenedor = document.getElementById('m-mensajes');
         if (!contenedor) return;
-        await Engine.recibirMensajes((mensajes) => {
-            contenedor.innerHTML = mensajes.map(m => `
-                <div class="m-mensaje ${m.usuario === 'Marquinhos' ? 'bot' : 'usuario'}">
-                    <div class="m-usuario">${m.usuario}</div>
-                    ${m.texto}
-                </div>
-            `).join('');
-            contenedor.scrollTop = contenedor.scrollHeight;
+        
+        // Usar Engine.recibirMensajes que ya tiene el callback
+        Engine.recibirMensajes((mensajes) => {
+            this.mensajes = mensajes;
+            this.renderizarMensajes();
         });
     }
 
-    enviarMensaje(input, messages) {
+    renderizarMensajes() {
+        const contenedor = document.getElementById('m-mensajes');
+        if (!contenedor) return;
+
+        if (!this.mensajes || this.mensajes.length === 0) {
+            contenedor.innerHTML = `
+                <div style="text-align:center;color:var(--text-muted);padding:20px;font-size:0.8rem;">
+                    💬 No hay mensajes aún. ¡Envía uno!
+                </div>
+            `;
+            return;
+        }
+
+        contenedor.innerHTML = this.mensajes.map(m => {
+            const esBot = m.usuario === 'Marquinhos' || m.user_id === 'Marquinhos';
+            const nombre = m.usuario || m.user_id || 'Anónimo';
+            const contenido = m.content || m.texto || '';
+            const tipo = m.type || 'text';
+            const reacciones = m.reacciones || [];
+
+            let contenidoHTML = '';
+            
+            // Renderizar según tipo
+            if (tipo === 'image' || (contenido && (contenido.match(/\.(jpg|jpeg|png|gif|webp)/i)))) {
+                contenidoHTML = `
+                    <div class="m-archivo">
+                        <i class="fas fa-image"></i> Imagen
+                        <img src="${contenido}" alt="Imagen" loading="lazy" />
+                    </div>
+                `;
+            } else if (tipo === 'video' || (contenido && (contenido.match(/\.(mp4|webm|mov)/i)))) {
+                contenidoHTML = `
+                    <div class="m-archivo">
+                        <i class="fas fa-video"></i> Video
+                        <video controls src="${contenido}"></video>
+                    </div>
+                `;
+            } else if (tipo === 'sticker') {
+                contenidoHTML = `
+                    <div class="m-archivo" style="background:none;padding:0;">
+                        <img src="${contenido}" alt="Sticker" style="max-width:120px;max-height:120px;" />
+                    </div>
+                `;
+            } else if (tipo === 'emoji') {
+                contenidoHTML = `<span style="font-size:2rem;">${contenido}</span>`;
+            } else {
+                contenidoHTML = contenido;
+            }
+
+            // Reacciones
+            let reaccionesHTML = '';
+            if (reacciones && reacciones.length > 0) {
+                const agrupadas = {};
+                reacciones.forEach(r => {
+                    agrupadas[r.emoji] = (agrupadas[r.emoji] || 0) + 1;
+                });
+                reaccionesHTML = `
+                    <div class="m-reacciones">
+                        ${Object.entries(agrupadas).map(([emoji, count]) => `
+                            <span class="m-reaccion">${emoji} ${count > 1 ? count : ''}</span>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="m-mensaje ${esBot ? 'bot' : 'usuario'}" data-id="${m.id || m._id}">
+                    <div class="m-usuario">${esBot ? '🧠 Marquinhos' : nombre}</div>
+                    ${contenidoHTML}
+                    ${reaccionesHTML}
+                </div>
+            `;
+        }).join('');
+
+        contenedor.scrollTop = contenedor.scrollHeight;
+    }
+
+    enviarMensaje(input) {
         if (!input.value.trim()) return;
         Engine.enviarMensaje(input.value);
         input.value = '';
-        this.cargarMensajes();
+        // El mensaje se actualizará automáticamente via Realtime
     }
 }
