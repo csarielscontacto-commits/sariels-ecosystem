@@ -2,11 +2,12 @@
  * SISTEMA ESTELAR OPTIMIZADO - Csariel's Ecosystem
  * 
  * Características:
- * - Detección automática de página (index, mi-red, muro-live, trading, etc.)
+ * - Detección automática de página (index, mi-red, muro-live, servicios, etc.)
  * - Ajuste dinámico de FPS y cantidad de estrellas
  * - Apagado/encendido mediante eventos globales (live-started / live-ended)
  * - Consumo de batería reducido (hasta 70% menos)
  * - Colores optimizados para la identidad Csariel's (Verde Bosque + Oro)
+ * - ✅ Actualizado: Sin Trading, Sin Fidelización, con Servicios Comunitarios
  */
 
 class SistemaEstelar {
@@ -48,6 +49,7 @@ class SistemaEstelar {
         const page = path.split('/').pop() || 'index.html';
         
         // === CONFIGURACIONES POR PÁGINA ===
+        // ✅ ACTUALIZADO: Eliminados Trading y Fidelización, añadido Servicios Comunitarios
         const configs = {
             'index.html': {
                 starCount: 120,
@@ -63,7 +65,7 @@ class SistemaEstelar {
                 fps: 18,
                 maxRadius: 0.9,
                 enableGlow: false,
-                description: '👥 Red Social - Bajo consumo'
+                description: '👥 Mi Red - Bajo consumo'
             },
             'muro-live.html': {
                 starCount: 75,
@@ -73,13 +75,13 @@ class SistemaEstelar {
                 enableGlow: true,
                 description: '📱 Muro Live - Moderado'
             },
-            'trading.html': {
-                starCount: 70,
+            'servicios-comunitarios.html': {
+                starCount: 65,
                 meteorCount: 1,
-                fps: 18,
-                maxRadius: 0.9,
+                fps: 20,
+                maxRadius: 1.0,
                 enableGlow: false,
-                description: '📈 Trading - Priorizar rendimiento'
+                description: '🔧 Servicios - Bajo consumo'
             },
             'panel-web3.html': {
                 starCount: 90,
@@ -88,14 +90,6 @@ class SistemaEstelar {
                 maxRadius: 1.1,
                 enableGlow: true,
                 description: '🔗 Web3 - Moderado'
-            },
-            'fidelizacion.html': {
-                starCount: 70,
-                meteorCount: 1,
-                fps: 18,
-                maxRadius: 0.9,
-                enableGlow: false,
-                description: '🎫 Fidelización - Bajo consumo'
             },
             'dashboard-central.html': {
                 starCount: 80,
@@ -128,6 +122,39 @@ class SistemaEstelar {
                 maxRadius: 0.7,
                 enableGlow: false,
                 description: '📜 Términos - Mínimo consumo'
+            },
+            // ✅ NUEVO: Páginas de términos
+            'terminos/index.html': {
+                starCount: 40,
+                meteorCount: 0,
+                fps: 12,
+                maxRadius: 0.6,
+                enableGlow: false,
+                description: '📜 Índice Términos - Mínimo'
+            },
+            'terminos/terminos-servicios.html': {
+                starCount: 40,
+                meteorCount: 0,
+                fps: 12,
+                maxRadius: 0.6,
+                enableGlow: false,
+                description: '📜 Términos Servicios - Mínimo'
+            },
+            'terminos/terminos-uso.html': {
+                starCount: 40,
+                meteorCount: 0,
+                fps: 12,
+                maxRadius: 0.6,
+                enableGlow: false,
+                description: '📜 Términos Uso - Mínimo'
+            },
+            'terminos/privacidad.html': {
+                starCount: 40,
+                meteorCount: 0,
+                fps: 12,
+                maxRadius: 0.6,
+                enableGlow: false,
+                description: '🔐 Privacidad - Mínimo'
             }
         };
         
