@@ -1,1349 +1,274 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro Live | Csariel's</title>
-    <meta name="theme-color" content="#0B3D2E" />
-    
-    <meta property="og:title" content="Csariel's - Muro Live" />
-    <meta property="og:description" content="Publica fotos, videos, estados 24h y transmisiones en vivo" />
-    <meta property="og:type" content="website" />
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    
-    <!-- ===== TODOS LOS ESTILOS EXISTENTES ===== -->
-    <!-- (Mantengo todos tus estilos exactamente igual) -->
-    <style>
-        /* ===== TODOS TUS ESTILOS ===== */
-        /* (los mismos que ya tenías en tu archivo) */
-        :root {
-            --space-deep: #05080f;
-            --space-mid: #0a1428;
-            --verde-bosque: #0B3D2E;
-            --verde-bosque-light: #1a5a44;
-            --gold-cosmic: #f7d44a;
-            --gold-dim: rgba(247,212,74,0.15);
-            --gold-glow: rgba(247,212,74,0.25);
-            --nebula-1: #6c2bd9;
-            --nebula-2: #ff6b9d;
-            --nebula-3: #00d4ff;
-            --text-primary: #e8f0f8;
-            --text-secondary: #8ba3c7;
-            --text-muted: #4a6a8a;
-            --border: rgba(247,212,74,0.08);
-            --border-glow: rgba(247,212,74,0.25);
-            --radius: 20px;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            --success: #00b894;
-            --danger: #ff3366;
-            --warning: #f7d44a;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-
-        body {
-            background: var(--space-deep);
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        #stars-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .nebula {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.10;
-            pointer-events: none;
-            z-index: 0;
-            animation: nebula-drift 25s ease-in-out infinite alternate;
-        }
-        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
-        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
-        .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
-
-        @keyframes nebula-drift {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(40px, -30px) scale(1.15); }
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--space-deep); }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
-
-        .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px 24px 40px; }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0 20px;
-            border-bottom: 2px solid var(--gold-dim);
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 12px;
-            backdrop-filter: blur(10px);
-            position: relative;
-        }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
-            opacity: 0.4;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            text-decoration: none;
-        }
-        .logo-icon { font-size: 2.4rem; filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
-        .logo-icon .hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: 900;
-            border: 2px solid var(--gold-cosmic);
-            box-shadow: 0 0 30px rgba(247,212,74,0.1);
-            font-family: 'Orbitron', monospace;
-        }
-        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); } }
-
-        .logo-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.6rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(247,212,74,0.15);
-        }
-        .logo-badge {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.5rem;
-            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
-            color: white;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            -webkit-text-fill-color: white;
-            box-shadow: 0 0 30px rgba(11,61,46,0.3);
-            animation: badge-pulse 2s ease-in-out infinite;
-            border: 1px solid rgba(247,212,74,0.2);
-        }
-        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(11,61,46,0.3); } 50% { box-shadow: 0 0 60px rgba(247,212,74,0.2); } }
-
-        .header-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(247,212,74,0.06);
-            border: 1px solid rgba(247,212,74,0.15);
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 1px;
-            backdrop-filter: blur(10px);
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: quantum-pulse 1.5s ease-in-out infinite;
-        }
-        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
-        @keyframes quantum-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.7); } }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(247,212,74,0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover { transform: scale(1.03); border-color: var(--border-glow); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
-            box-shadow: 0 0 40px rgba(11,61,46,0.5);
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-        }
-        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(247,212,74,0.3); }
-
-        .btn-outline { border-color: var(--border); background: transparent; }
-        .btn-outline:hover:not(:disabled) { background: rgba(247,212,74,0.05); border-color: var(--gold-cosmic); }
-        .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
-        .btn-danger {
-            background: rgba(255,51,102,0.15);
-            border-color: rgba(255,51,102,0.3);
-            color: var(--danger);
-        }
-        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
-        .btn-success {
-            background: linear-gradient(135deg, #00b894, #00897b);
-            border-color: transparent;
-            color: white;
-            -webkit-text-fill-color: white;
-        }
-
-        .feed-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .stories-bar {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 12px 4px 16px;
-            margin-bottom: 8px;
-            scrollbar-width: none;
-        }
-        .stories-bar::-webkit-scrollbar { display: none; }
-
-        .story-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            min-width: 72px;
-            transition: var(--transition);
-        }
-        .story-item:hover { transform: scale(1.05); }
-
-        .story-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 3px solid var(--gold-cosmic);
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0a0c10;
-            overflow: hidden;
-            position: relative;
-        }
-        .story-avatar .live-badge {
-            position: absolute;
-            bottom: -4px;
-            background: var(--danger);
-            color: white;
-            font-size: 0.45rem;
-            padding: 1px 8px;
-            border-radius: 10px;
-            font-family: 'Orbitron', monospace;
-            animation: live-pulse 1.5s infinite;
-        }
-        @keyframes live-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .story-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .story-name {
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-            font-family: 'Orbitron', monospace;
-            text-align: center;
-            max-width: 70px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .story-name .time {
-            font-size: 0.5rem;
-            color: var(--text-muted);
-        }
-
-        .quick-post {
-            background: rgba(11,61,46,0.25);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 4px;
-        }
-        .quick-post:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-2px);
-        }
-        .quick-post .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #0a0c10;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-        .quick-post .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .quick-post .placeholder {
-            flex: 1;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .quick-post .actions {
-            display: flex;
-            gap: 8px;
-        }
-        .quick-post .actions button {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            padding: 4px 8px;
-            border-radius: 8px;
-        }
-        .quick-post .actions button:hover {
-            background: rgba(247,212,74,0.1);
-            color: var(--gold-cosmic);
-        }
-
-        .post-card {
-            background: rgba(11,61,46,0.2);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-        .post-card::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
-            background-size: 300% 300%;
-            border-radius: var(--radius);
-            z-index: -1;
-            opacity: 0;
-            animation: border-flow 4s ease-in-out infinite;
-        }
-        @keyframes border-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .post-card:hover::before { opacity: 0.15; }
-        .post-card:hover { transform: translateY(-2px); border-color: var(--border-glow); }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .post-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #0a0c10;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-        .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .post-author { font-weight: 600; color: var(--text-primary); }
-        .post-date {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-        }
-        .post-badge {
-            font-size: 0.5rem;
-            background: var(--gold-dim);
-            padding: 2px 10px;
-            border-radius: 20px;
-            color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-        .post-content {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            word-wrap: break-word;
-        }
-        .post-media {
-            margin-bottom: 12px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .post-media img { width: 100%; max-height: 400px; object-fit: cover; }
-        .post-media video { width: 100%; max-height: 400px; }
-
-        .post-actions {
-            display: flex;
-            gap: 20px;
-            padding-top: 12px;
-            border-top: 1px solid var(--gold-dim);
-        }
-        .post-actions button {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: var(--transition);
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .post-actions button:hover { color: var(--gold-cosmic); }
-        .post-actions button.liked { color: var(--danger); }
-
-        .moderation-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.55rem;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-family: 'Orbitron', monospace;
-            margin-top: 8px;
-        }
-        .moderation-badge.approved {
-            background: rgba(0,184,148,0.15);
-            color: var(--success);
-            border: 1px solid rgba(0,184,148,0.2);
-        }
-        .moderation-badge.pending {
-            background: rgba(247,212,74,0.15);
-            color: var(--warning);
-            border: 1px solid rgba(247,212,74,0.2);
-            animation: pulse-warning 1.5s infinite;
-        }
-        @keyframes pulse-warning {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .moderation-badge.rejected {
-            background: rgba(255,51,102,0.15);
-            color: var(--danger);
-            border: 1px solid rgba(255,51,102,0.2);
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-
-        .modal-content {
-            background: rgba(11,61,46,0.95);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 28px;
-            max-width: 520px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .modal-content .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 16px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .modal-content .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
-        .modal-content .modal-title {
-            font-family: 'Orbitron', monospace;
-            color: var(--gold-cosmic);
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-        }
-        .modal-content textarea {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.95rem;
-            resize: vertical;
-            min-height: 120px;
-            outline: none;
-            transition: var(--transition);
-        }
-        .modal-content textarea:focus { border-color: var(--gold-cosmic); }
-        .modal-content .modal-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 16px;
-        }
-        .modal-content .modal-actions .btn { flex: 1; justify-content: center; }
-
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 14px 28px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 5000;
-            pointer-events: none;
-            font-family: 'Orbitron', monospace;
-            box-shadow: var(--shadow-neon);
-            border: 1px solid rgba(247,212,74,0.15);
-        }
-        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--danger); color: white; }
-        .toast.warning { background: #b8923a; color: var(--space-deep); }
-
-        .footer {
-            margin-top: 48px;
-            padding-top: 28px;
-            border-top: 1px solid var(--gold-dim);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
-            opacity: 0.2;
-        }
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.78rem;
-            letter-spacing: 0.5px;
-            font-family: 'Orbitron', monospace;
-        }
-        .footer-text .brand { color: var(--gold-cosmic); }
-        .footer-links {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.75rem;
-            transition: var(--transition);
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 0.5px;
-        }
-        .footer-links a:hover { color: var(--gold-cosmic); }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-        .empty-state .icon { font-size: 3rem; opacity: 0.3; margin-bottom: 12px; }
-        .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--text-secondary); }
-
-        @media (max-width: 768px) {
-            .app { padding: 16px; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .logo-text { font-size: 1.2rem; }
-            .header-actions { width: 100%; justify-content: flex-start; }
-            .quick-post { flex-wrap: wrap; }
-            .quick-post .placeholder { width: 100%; order: 3; }
-            .stories-bar { gap: 8px; }
-            .story-avatar { width: 52px; height: 52px; font-size: 1.2rem; }
-        }
-        @media (max-width: 480px) {
-            .btn { font-size: 0.55rem; padding: 6px 12px; }
-            .post-card { padding: 14px; }
-            .story-avatar { width: 44px; height: 44px; font-size: 1rem; }
-            .story-name { font-size: 0.5rem; }
-        }
-    </style>
-</head>
-<body>
-    <!-- ===== FONDO ESTELAR ===== -->
-    <canvas id="stars-canvas"></canvas>
-    <div class="nebula nebula-1"></div>
-    <div class="nebula nebula-2"></div>
-    <div class="nebula nebula-3"></div>
-
-    <!-- ===== CONTENIDO ===== -->
-    <div class="app">
-        <!-- HEADER -->
-        <header class="header">
-            <a href="./index.html" class="logo">
-                <span class="logo-icon"><span class="hex">◈</span></span>
-                <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Muro Live</span>
-            </a>
-            <div class="header-actions">
-                <div class="status-badge">
-                    <span class="status-dot online"></span>
-                    <span>En vivo</span>
-                </div>
-                <a href="./mi-red.html" class="btn"><i class="fas fa-arrow-left"></i> Mi Red</a>
-                <a href="./servicios-comunitarios.html" class="btn btn-gold btn-sm">
-                    <i class="fas fa-tools"></i> Servicios
-                </a>
-                <button class="btn btn-primary btn-sm" onclick="abrirModalPublicacion()">
-                    <i class="fas fa-plus"></i> Publicar
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="iniciarTransmision()">
-                    <i class="fas fa-broadcast"></i> Live
-                </button>
-            </div>
-        </header>
-
-        <!-- ===== ESTADOS 24H ===== -->
-        <div class="stories-bar" id="storiesBar">
-            <div class="story-item" onclick="abrirModalPublicacion()">
-                <div class="story-avatar" style="border-color:var(--gold-cosmic);border-style:dashed;">
-                    <i class="fas fa-plus" style="font-size:1.2rem;color:var(--gold-cosmic);"></i>
-                </div>
-                <span class="story-name">Tu estado</span>
-            </div>
-            <div class="story-item">
-                <div class="story-avatar">
-                    <span>M</span>
-                    <span class="live-badge">● LIVE</span>
-                </div>
-                <span class="story-name">María <span class="time">· 2h</span></span>
-            </div>
-            <div class="story-item">
-                <div class="story-avatar">C</div>
-                <span class="story-name">Carlos <span class="time">· 4h</span></span>
-            </div>
-            <div class="story-item">
-                <div class="story-avatar">A</div>
-                <span class="story-name">Ana <span class="time">· 6h</span></span>
-            </div>
-            <div class="story-item">
-                <div class="story-avatar">L</div>
-                <span class="story-name">Luis <span class="time">· 12h</span></span>
-            </div>
-            <div class="story-item">
-                <div class="story-avatar">S</div>
-                <span class="story-name">Sofía <span class="time">· 1d</span></span>
-            </div>
-        </div>
-
-        <!-- ===== PUBLICACIÓN RÁPIDA ===== -->
-        <div class="quick-post" onclick="abrirModalPublicacion()">
-            <div class="avatar" id="quickAvatar">T</div>
-            <span class="placeholder">¿Qué está pasando? Comparte algo...</span>
-            <div class="actions">
-                <button onclick="event.stopPropagation();"><i class="fas fa-image"></i></button>
-                <button onclick="event.stopPropagation();"><i class="fas fa-video"></i></button>
-                <button onclick="event.stopPropagation();"><i class="fas fa-smile"></i></button>
-            </div>
-        </div>
-
-        <!-- ===== FEED ===== -->
-        <div class="feed-container" id="feedContainer">
-            <div class="empty-state">
-                <div class="icon">📭</div>
-                <h3>Sin publicaciones</h3>
-                <p>Sé el primero en compartir algo en tu muro.</p>
-            </div>
-        </div>
-
-        <!-- ===== MODAL DE PUBLICACIÓN ===== -->
-        <div class="modal-overlay" id="postModal">
-            <div class="modal-content">
-                <button class="modal-close" onclick="cerrarModalPublicacion()">✕</button>
-                <h3 class="modal-title">📝 Crear Publicación</h3>
-                <p style="color:var(--text-secondary);font-size:0.75rem;margin-bottom:12px;">Tu contenido será moderado por IA antes de publicarse</p>
-                <textarea id="postTextInput" placeholder="¿Qué quieres compartir?..."></textarea>
-                <div id="moderationResult" style="margin-top:10px;display:none;"></div>
-                <div class="modal-actions">
-                    <button class="btn btn-gold" onclick="publicarConModeracion()">
-                        <i class="fas fa-rocket"></i> Publicar
-                    </button>
-                    <button class="btn btn-outline" onclick="cerrarModalPublicacion()">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== MODAL DE TRANSMISIÓN ===== -->
-        <div class="modal-overlay" id="liveModal">
-            <div class="modal-content" style="max-width:400px;">
-                <button class="modal-close" onclick="cerrarLiveModal()">✕</button>
-                <h3 class="modal-title">📡 Iniciar Transmisión</h3>
-                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">Comparte en vivo con tu comunidad</p>
-                <div style="text-align:center;padding:20px;background:rgba(255,51,102,0.1);border-radius:12px;border:1px solid rgba(255,51,102,0.2);margin-bottom:12px;">
-                    <i class="fas fa-broadcast" style="font-size:3rem;color:var(--danger);"></i>
-                    <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:8px;">
-                        <strong style="color:var(--danger);">● EN VIVO</strong><br>
-                        Próximamente: Transmisiones en tiempo real
-                    </p>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="iniciarTransmisionSimulada()">
-                        <i class="fas fa-play"></i> Iniciar Live
-                    </button>
-                    <button class="btn btn-outline" onclick="cerrarLiveModal()">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== TOAST ===== -->
-        <div class="toast" id="toast"></div>
-
-        <!-- FOOTER -->
-        <footer class="footer">
-            <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Muro Live · Moderación IA
-            </span>
-            <div class="footer-links">
-                <a href="./mi-red.html">👥 Mi Red</a>
-                <a href="./servicios-comunitarios.html">🔧 Servicios</a>
-                <a href="./panel-web3.html">🔗 Web3</a>
-                <!-- ✅ ELIMINADO: Fidelización y Trading -->
-            </div>
-        </footer>
-    </div>
-
-    <!-- ===== SCRIPTS ===== -->
-    <script type="module">
-        // ================================================================
-        // IMPORTAR CONFIG Y MODERACIÓN IA
-        // ================================================================
-        import { CONFIG } from './config.js';
-        import { moderador } from './moderacion-ia.js';
-
-        // ================================================================
-        // SISTEMA ESTELAR
-        // ================================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Muro Live (Con Moderación IA)');
-            console.log('🧠 Moderación IA activa');
-            console.log('📹 Modo TikTok/Facebook Live');
-            console.log('✅ Fidelización y Trading eliminados');
-            console.log(`📦 Configuración desde CONFIG v${CONFIG.VERSION}`);
-            initStars();
-            initMuro();
-            cargarPerfil();
-        });
-
-        // ===== ESTRELLAS =====
-        function initStars() {
-            const canvas = document.getElementById('stars-canvas');
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            let stars = [];
-            let meteors = [];
-
-            const STAR_COUNT = 300;
-            const METEOR_COUNT = 3;
-
-            function resize() {
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width;
-                canvas.height = height;
-            }
-
-            function createStars() {
-                stars = [];
-                for (let i = 0; i < STAR_COUNT; i++) {
-                    stars.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        radius: Math.random() * 1.8 + 0.3,
-                        speed: Math.random() * 0.02 + 0.005,
-                        opacity: Math.random() * 0.8 + 0.2,
-                        twinkleSpeed: Math.random() * 0.02 + 0.01,
-                        twinklePhase: Math.random() * Math.PI * 2
-                    });
-                }
-            }
-
-            function createMeteor() {
-                return {
-                    x: Math.random() * width * 0.8,
-                    y: Math.random() * height * 0.3,
-                    speed: Math.random() * 3 + 4,
-                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
-                    opacity: Math.random() * 0.6 + 0.4,
-                    active: true,
-                    trail: []
-                };
-            }
-
-            function initMeteors() {
-                meteors = [];
-                for (let i = 0; i < METEOR_COUNT; i++) {
-                    const meteor = createMeteor();
-                    meteor.x = Math.random() * width;
-                    meteor.y = Math.random() * height * 0.2;
-                    meteors.push(meteor);
-                }
-            }
-
-            function updateStars() {
-                for (let star of stars) {
-                    star.twinklePhase += star.twinkleSpeed;
-                    star.y += star.speed;
-                    if (star.y > height) {
-                        star.y = 0;
-                        star.x = Math.random() * width;
-                    }
-                }
-            }
-
-            function updateMeteors() {
-                for (let meteor of meteors) {
-                    if (!meteor.active) continue;
-                    meteor.x += Math.cos(meteor.angle) * meteor.speed;
-                    meteor.y += Math.sin(meteor.angle) * meteor.speed;
-                    meteor.trail.push({ x: meteor.x, y: meteor.y });
-                    if (meteor.trail.length > 20) meteor.trail.shift();
-                    if (meteor.x > width + 100 || meteor.y > height + 100) {
-                        meteor.active = false;
-                        setTimeout(() => {
-                            const newMeteor = createMeteor();
-                            newMeteor.x = Math.random() * width * 0.3;
-                            newMeteor.y = Math.random() * height * 0.2;
-                            Object.assign(meteor, newMeteor);
-                            meteor.active = true;
-                        }, Math.random() * 3000 + 2000);
-                    }
-                }
-            }
-
-            function draw() {
-                ctx.clearRect(0, 0, width, height);
-
-                for (let star of stars) {
-                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
-                    ctx.beginPath();
-                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-                    ctx.fill();
-                    if (star.radius > 1.2) {
-                        ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
-                        ctx.shadowBlur = 10;
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-                    }
-                }
-
-                for (let meteor of meteors) {
-                    if (!meteor.active) continue;
-                    for (let i = 0; i < meteor.trail.length; i++) {
-                        const point = meteor.trail[i];
-                        const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
-                        const radius = (i / meteor.trail.length) * 2;
-                        ctx.beginPath();
-                        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
-                        ctx.fill();
-                    }
-                    const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
-                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-                    gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
-                    gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
-                    ctx.beginPath();
-                    ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
-                    ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
-                    ctx.shadowBlur = 30;
-                    ctx.beginPath();
-                    ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-            }
-
-            function animate() {
-                updateStars();
-                updateMeteors();
-                draw();
-                requestAnimationFrame(animate);
-            }
-
-            resize();
-            createStars();
-            initMeteors();
-            animate();
-
-            window.addEventListener('resize', () => {
-                resize();
-                createStars();
-            });
-        }
-
-        // ================================================================
-        // PERFIL
-        // ================================================================
-        let miPerfil = { nombre: 'Usuario', verificado: false };
-
-        function cargarPerfil() {
-            try {
-                const guardado = localStorage.getItem('miPerfil_csariels');
-                if (guardado) {
-                    miPerfil = JSON.parse(guardado);
-                    const avatar = document.getElementById('quickAvatar');
-                    avatar.textContent = miPerfil.nombre ? miPerfil.nombre.charAt(0) : 'T';
-                }
-            } catch (e) {
-                console.warn('Error cargando perfil:', e);
-            }
-        }
-
-        // ================================================================
-        // MURO LIVE
-        // ================================================================
-        let posts = [];
-        let toastTimeout = null;
-
-        function initMuro() {
-            cargarPosts();
-            renderizarFeed();
-        }
-
-        function cargarPosts() {
-            try {
-                const stored = localStorage.getItem('muro_live_posts');
-                if (stored) {
-                    posts = JSON.parse(stored);
-                } else {
-                    posts = [
-                        {
-                            id: Date.now() - 3600000,
-                            author: 'María García',
-                            avatar: 'M',
-                            content: '¡Hola a todos! Acabo de unirme a Csariel\'s. 🌟',
-                            media: [],
-                            likes: 3,
-                            liked: false,
-                            comments: [],
-                            date: Date.now() - 3600000,
-                            moderated: true,
-                            moderationStatus: 'approved',
-                            tipo: 'publicacion'
-                        }
-                    ];
-                    guardarPosts();
-                }
-            } catch (e) {
-                console.warn('Error cargando posts:', e);
-                posts = [];
-            }
-        }
-
-        function guardarPosts() {
-            try {
-                localStorage.setItem('muro_live_posts', JSON.stringify(posts));
-            } catch (e) {
-                console.warn('Error guardando posts:', e);
-            }
-        }
-
-        function renderizarFeed() {
-            const container = document.getElementById('feedContainer');
-            
-            if (posts.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">📭</div>
-                        <h3>Sin publicaciones</h3>
-                        <p>Sé el primero en compartir algo en tu muro.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const postsOrdenados = [...posts].sort((a, b) => b.date - a.date);
-
-            container.innerHTML = postsOrdenados.map(post => `
-                <div class="post-card" data-id="${post.id}">
-                    <div class="post-header">
-                        <div class="post-avatar">${post.avatar || post.author.charAt(0)}</div>
-                        <div>
-                            <div class="post-author">${escapeHtml(post.author)}</div>
-                            <div class="post-date">${formatDate(post.date)}</div>
-                        </div>
-                        ${post.moderationStatus === 'pending' ? '<span class="moderation-badge pending">⏳ Revisión</span>' : ''}
-                        ${post.moderationStatus === 'rejected' ? '<span class="moderation-badge rejected">⛔ Rechazado</span>' : ''}
-                    </div>
-                    
-                    <div class="post-content">${escapeHtml(post.content)}</div>
-                    
-                    ${post.media && post.media.length > 0 ? `
-                        <div class="post-media">
-                            ${post.media.map(m => {
-                                if (m.type && m.type.startsWith('image/')) {
-                                    return `<img src="${m.data}" alt="Imagen" />`;
-                                } else if (m.type && m.type.startsWith('video/')) {
-                                    return `<video controls src="${m.data}"></video>`;
-                                }
-                                return '';
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${post.moderationStatus === 'approved' ? `
-                        <div class="post-actions">
-                            <button class="like-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
-                                <i class="fas fa-heart"></i> <span class="count">${post.likes || 0}</span>
-                            </button>
-                            <button onclick="mostrarToast('💬 Comentarios pronto')">
-                                <i class="fas fa-comment"></i> <span class="count">${(post.comments || []).length}</span>
-                            </button>
-                            <button onclick="compartirPost(${post.id})">
-                                <i class="fas fa-share"></i>
-                            </button>
-                            ${post.author === miPerfil.nombre ? `
-                                <button onclick="eliminarPost(${post.id})" style="color:var(--danger);">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    ` : ''}
-                    
-                    ${post.moderationStatus === 'pending' ? `
-                        <div style="padding:10px;background:rgba(247,212,74,0.05);border-radius:8px;margin-top:8px;border:1px solid rgba(247,212,74,0.1);">
-                            <p style="font-size:0.75rem;color:var(--text-secondary);">
-                                <i class="fas fa-clock" style="color:var(--warning);"></i>
-                                Esta publicación está en revisión por moderación IA. Se publicará automáticamente si es aprobada.
-                            </p>
-                        </div>
-                    ` : ''}
-                    
-                    ${post.moderationStatus === 'rejected' ? `
-                        <div style="padding:10px;background:rgba(255,51,102,0.05);border-radius:8px;margin-top:8px;border:1px solid rgba(255,51,102,0.1);">
-                            <p style="font-size:0.75rem;color:var(--danger);">
-                                <i class="fas fa-exclamation-circle"></i>
-                                Esta publicación no pasó la moderación automática por contenido inapropiado.
-                            </p>
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('');
-        }
-
-        // ================================================================
-        // MODERACIÓN IA
-        // ================================================================
-        function publicarConModeracion() {
-            const textarea = document.getElementById('postTextInput');
-            const texto = textarea.value.trim();
-            
-            if (!texto) {
-                mostrarToast('⚠️ Escribe algo para publicar', 'error');
-                return;
-            }
-
-            const deteccionServicio = moderador.detectarServicio(texto);
-            if (deteccionServicio.esServicio) {
-                mostrarToast('🔧 Detectamos que buscas un servicio. Redirigiendo al módulo de servicios...', 'warning');
-                setTimeout(() => {
-                    window.location.href = './servicios-comunitarios.html';
-                }, 1500);
-                return;
-            }
-
-            const resultado = moderador.moderar(texto, miPerfil.nombre);
-
-            const resultDiv = document.getElementById('moderationResult');
-            resultDiv.style.display = 'block';
-            
-            if (resultado.esSpam) {
-                resultDiv.innerHTML = `
-                    <div style="padding:12px;background:rgba(255,51,102,0.1);border-radius:8px;border:1px solid rgba(255,51,102,0.2);">
-                        <p style="color:var(--danger);font-weight:600;margin-bottom:4px;">
-                            <i class="fas fa-exclamation-triangle"></i> ${resultado.mensaje}
-                        </p>
-                        <p style="font-size:0.7rem;color:var(--text-muted);">
-                            Razones: ${resultado.razones.join(', ')}
-                        </p>
-                        <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="forzarPublicacion()">
-                            <i class="fas fa-exclamation"></i> Publicar de todas formas
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            if (resultado.razones.length > 0) {
-                resultDiv.innerHTML = `
-                    <div style="padding:12px;background:rgba(247,212,74,0.1);border-radius:8px;border:1px solid rgba(247,212,74,0.2);">
-                        <p style="color:var(--warning);font-weight:600;margin-bottom:4px;">
-                            <i class="fas fa-info-circle"></i> ${resultado.mensaje}
-                        </p>
-                        <p style="font-size:0.7rem;color:var(--text-muted);">
-                            Observaciones: ${resultado.razones.join(', ')}
-                        </p>
-                    </div>
-                `;
-            }
-
-            const nuevaPublicacion = {
-                id: Date.now(),
-                author: miPerfil.nombre || 'Usuario',
-                avatar: (miPerfil.nombre || 'U').charAt(0),
-                content: texto,
-                media: [],
-                likes: 0,
-                liked: false,
-                comments: [],
-                date: Date.now(),
-                moderated: true,
-                moderationStatus: resultado.aprobado ? 'approved' : 'pending',
-                moderationRazones: resultado.razones,
-                tipo: 'publicacion'
-            };
-
-            posts.unshift(nuevaPublicacion);
-            guardarPosts();
-            renderizarFeed();
-            cerrarModalPublicacion();
-            mostrarToast('✅ Publicación enviada' + (resultado.aprobado ? '' : ' para revisión'));
-        }
-
-        function forzarPublicacion() {
-            const textarea = document.getElementById('postTextInput');
-            const texto = textarea.value.trim();
-            
-            const nuevaPublicacion = {
-                id: Date.now(),
-                author: miPerfil.nombre || 'Usuario',
-                avatar: (miPerfil.nombre || 'U').charAt(0),
-                content: texto,
-                media: [],
-                likes: 0,
-                liked: false,
-                comments: [],
-                date: Date.now(),
-                moderated: true,
-                moderationStatus: 'approved',
-                moderationRazones: ['Publicación forzada por usuario'],
-                tipo: 'publicacion'
-            };
-
-            posts.unshift(nuevaPublicacion);
-            guardarPosts();
-            renderizarFeed();
-            cerrarModalPublicacion();
-            mostrarToast('✅ Publicación forzada con éxito');
-        }
-
-        // ================================================================
-        // FUNCIONES GLOBALES
-        // ================================================================
-        window.abrirModalPublicacion = function() {
-            document.getElementById('postTextInput').value = '';
-            document.getElementById('moderationResult').style.display = 'none';
-            document.getElementById('postModal').classList.add('active');
-            setTimeout(() => document.getElementById('postTextInput').focus(), 200);
-        };
-
-        window.cerrarModalPublicacion = function() {
-            document.getElementById('postModal').classList.remove('active');
-        };
-
-        window.iniciarTransmision = function() {
-            document.getElementById('liveModal').classList.add('active');
-        };
-
-        window.cerrarLiveModal = function() {
-            document.getElementById('liveModal').classList.remove('active');
-        };
-
-        window.iniciarTransmisionSimulada = function() {
-            mostrarToast('📡 Transmisión iniciada (simulada)');
-            setTimeout(() => {
-                mostrarToast('✅ Transmisión finalizada');
-            }, 5000);
-            cerrarLiveModal();
-        };
-
-        window.toggleLike = function(id) {
-            const post = posts.find(p => p.id === id);
-            if (post && post.moderationStatus === 'approved') {
-                post.liked = !post.liked;
-                post.likes += post.liked ? 1 : -1;
-                guardarPosts();
-                renderizarFeed();
-            }
-        };
-
-        window.eliminarPost = function(id) {
-            if (confirm('¿Seguro que quieres eliminar esta publicación?')) {
-                posts = posts.filter(p => p.id !== id);
-                guardarPosts();
-                renderizarFeed();
-                mostrarToast('🗑️ Publicación eliminada');
-            }
-        };
-
-        window.compartirPost = function(id) {
-            const post = posts.find(p => p.id === id);
-            if (post) {
-                navigator.clipboard?.writeText(post.content).catch(() => {});
-                mostrarToast('📋 Enlace copiado al portapapeles');
-            }
-        };
-
-        // ================================================================
-        // UTILIDADES
-        // ================================================================
-        function formatDate(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diff = Math.floor((now - date) / 1000);
-            if (diff < 60) return 'Ahora mismo';
-            if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
-            if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
-            if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
-            return date.toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        window.mostrarToast = function(mensaje, tipo = '') {
-            const toast = document.getElementById('toast');
-            toast.textContent = mensaje;
-            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
-            toast.classList.add('active');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
-        };
-
-        // ================================================================
-        // CIERRE DE MODALES CON ESC
-        // ================================================================
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                cerrarModalPublicacion();
-                cerrarLiveModal();
-            }
-        });
-
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    if (this.id === 'postModal') cerrarModalPublicacion();
-                    if (this.id === 'liveModal') cerrarLiveModal();
-                }
-            });
-        });
-
-        console.log('✅ Muro Live con Moderación IA cargado');
-        console.log('🧠 Detección de servicios activa');
-        console.log('📹 Modo TikTok/Facebook Live');
-        console.log('✅ Fidelización y Trading eliminados del sistema');
-    </script>
-</body>
-</html>
+/**
+ * config.js
+ * Configuración central de Csariel's Ecosystem.
+ * Versión unificada para: Muro Live, Mi Red, Servicios Comunitarios y Donaciones en Directo.
+ * 
+ * ⚠️ IMPORTANTE: 
+ * - Mi Red y Muro Live NO usan Trading ni Fidelización
+ * - Servicios Comunitarios tiene su propio sistema de pagos
+ * - Donaciones en Directo: 50% Csariel's · 50% Streamer
+ * - Soporte para USDT, USDC y TOK (Utility Token 1:1 con USDT)
+ * 
+ * Debe cargarse ANTES que módulos que consumen CONFIG.
+ */
+(function () {
+  "use strict";
+
+  const CONFIG = {
+    // ================================================================
+    // VERSIÓN
+    // ================================================================
+    VERSION: '2.1.0',
+
+    // ================================================================
+    // SUPABASE (remoto)
+    // ================================================================
+    SUPABASE_URL: "https://nvyyxgkladjauolvpzfp.supabase.co",
+    SUPABASE_ANON_KEY: "sb_publishable_GWNmmwICFc2dkJx2BXdY8Q_-5qAC-Dg",
+    SUPABASE_KEY: "sb_publishable_GWNmmwICFc2dkJx2BXdY8Q_-5qAC-Dg",
+
+    // ================================================================
+    // WEB3 - CONFIGURACIÓN BÁSICA (solo para conectar wallets)
+    // ================================================================
+    WEB3: {
+      CHAIN: {
+        ID: 80002,
+        HEX_ID: "0x13882",
+        NAME: "Polygon Amoy",
+        RPC_URL: "https://rpc-amoy.polygon.technology",
+        EXPLORER: "https://amoy.polygonscan.com"
+      },
+      WALLETCONNECT_PROJECT_ID: "YOUR_WALLETCONNECT_PROJECT_ID"
+    },
+
+    // ================================================================
+    // WALLET DE PAGOS - Csariel's (Para comisiones de donaciones)
+    // ================================================================
+    WALLET_PAGOS: {
+      // Dirección de la wallet para recibir pagos (DE LAS CAPTURAS)
+      direccion: '0x45c6455aa01356609d96b659c6eb880b7e1d046d',
+      red: 'Polygon',
+      tokens: ['USDC', 'USDT', 'MATIC', 'TOK']
+    },
+
+    // ================================================================
+    // COMISIONES DE DIRECTOS
+    // ================================================================
+    COMISIONES: {
+      directo: 0.50,      // 50% para Csariel's
+      streamer: 0.50,     // 50% para el streamer
+      topeMinimo: 0.50    // Mínimo 0.50 USDT para donación
+    },
+
+    // ================================================================
+    // TOKEN UTILITY (Csariel's Token - 1:1 con USDT)
+    // ================================================================
+    TOKEN_UTILITY: {
+      simbolo: 'TOK',
+      nombre: 'Csariel\'s Token',
+      decimales: 18,
+      ratioUSDT: 1,       // 1 TOK = 1 USDT
+      contrato: '0x0000000000000000000000000000000000000000', // Reemplazar cuando se despliegue
+      activo: false       // Cambiar a true cuando el token esté desplegado
+    },
+
+    // ================================================================
+    // PRECIOS - SERVICIOS COMUNITARIOS
+    // ================================================================
+    PRECIOS_SERVICIOS: {
+      consulta: 5,                // $5 MXN por consulta
+      suscripcionSemestral: 150,  // $150 MXN cada 6 meses
+      suscripcionAnual: 250,      // $250 MXN al año
+      prestadorSemestral: 50,     // $50 MXN cada 6 meses para prestadores
+    },
+
+    // ================================================================
+    // DOMINIOS EDUCATIVOS (para verificación en Mi Red)
+    // ================================================================
+    DOMINIOS_EDU: [
+      '.edu', '.edu.mx', '.edu.co', '.edu.ar', '.edu.pe',
+      '.edu.ec', '.edu.gt', '.edu.ve', '.edu.bo', '.edu.py',
+      '.edu.uy', '.edu.cl', '.edu.pa', '.edu.cr', '.edu.do'
+    ],
+
+    // ================================================================
+    // UNIVERSIDADES RECONOCIDAS (para verificación en Mi Red)
+    // ================================================================
+    UNIVERSIDADES: {
+      'udlap.mx': 'UDLAP',
+      'buap.mx': 'BUAP',
+      'ibero.mx': 'Ibero Puebla',
+      'tec.mx': 'Tec de Monterrey',
+      'upaep.mx': 'UPAEP',
+      'uv.mx': 'UV',
+      'unam.mx': 'UNAM',
+      'ipn.mx': 'IPN',
+      'uanl.mx': 'UANL',
+      'ugto.mx': 'UGTO',
+      'umich.mx': 'UMSNH',
+      'uach.mx': 'UACH',
+      'uaslp.mx': 'UASLP',
+      'ujed.mx': 'UJED',
+      'uabc.mx': 'UABC',
+      'uadec.mx': 'UAdeC',
+      'uaq.mx': 'UAQ',
+      'uady.mx': 'UADY',
+      'ujat.mx': 'UJAT',
+      'uac.mx': 'UAC'
+    },
+
+    // ================================================================
+    // CONFIGURACIÓN DE SERVICIOS COMUNITARIOS
+    // ================================================================
+    SERVICIOS: {
+      categorias: [
+        'mecanico', 'llantera', 'grua', 'gasolina', 'plomero',
+        'electricista', 'albañil', 'tecnico', 'celular', 'limpieza',
+        'mudanza', 'transporte', 'comida', 'medico', 'farmacia',
+        'profesor', 'veterinario', 'cerrajero', 'jardineria', 'aire',
+        'diseno', 'otros'
+      ],
+      metodosPago: ['wallet', 'clabe', 'paypal', 'transferencia', 'efectivo'],
+      moderacion: {
+        umbralSpam: 3,
+        maxEmojisConsecutivos: 5,
+        maxMayusculasConsecutivas: 5,
+        maxPalabrasRepetidas: 3,
+        confianzaMinima: 60,
+        confianzaServicio: 50
+      }
+    }
+  };
+
+  // ================================================================
+  // EXPOSICIÓN GLOBAL
+  // ================================================================
+  window.CONFIG = CONFIG;
+
+  // ================================================================
+  // CLIENTE SUPABASE
+  // ================================================================
+  window.supabaseClient =
+    (typeof window.supabase !== "undefined" && window.supabase?.createClient)
+      ? window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY)
+      : null;
+
+  // ================================================================
+  // HELPERS GLOBALES
+  // ================================================================
+  window.log = (...args) => console.log(...args);
+  window.logError = (...args) => console.error(...args);
+
+  // ================================================================
+  // HELPERS PARA DONACIONES EN DIRECTO
+  // ================================================================
+
+  /**
+   * Calcula comisión para el directo
+   * @param {number} monto - Monto de la donación
+   * @param {string} token - Token utilizado (USDT, USDC, TOK)
+   * @returns {Object} Desglose de la donación
+   */
+  window.calcularComisionDirecto = function calcularComisionDirecto(monto, token = 'USDT') {
+    const comisionPorcentaje = CONFIG.COMISIONES.directo;
+    const streamerPorcentaje = CONFIG.COMISIONES.streamer;
+    const topeMinimo = CONFIG.COMISIONES.topeMinimo;
+
+    let comision = monto * comisionPorcentaje;
+    let streamerMonto = monto * streamerPorcentaje;
+
+    // Asegurar mínimo
+    if (comision < topeMinimo && monto > 0) {
+      comision = topeMinimo;
+      streamerMonto = monto - topeMinimo;
+    }
+
+    return {
+      montoTotal: parseFloat(monto.toFixed(2)),
+      comision: parseFloat(comision.toFixed(2)),
+      streamerMonto: parseFloat(streamerMonto.toFixed(2)),
+      porcentajeCsariels: comisionPorcentaje * 100,
+      porcentajeStreamer: streamerPorcentaje * 100,
+      token: token,
+      walletCsariels: CONFIG.WALLET_PAGOS.direccion,
+      red: CONFIG.WALLET_PAGOS.red
+    };
+  };
+
+  /**
+   * Genera un ID único para transacciones
+   */
+  window.generarId = function generarId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+  };
+
+  /**
+   * Formatea una dirección de wallet para mostrar
+   */
+  window.formatearWallet = function formatearWallet(direccion) {
+    if (!direccion) return '--';
+    return direccion.slice(0, 6) + '...' + direccion.slice(-4);
+  };
+
+  /**
+   * Verifica si una dirección es una wallet válida
+   */
+  window.esWalletValida = function esWalletValida(direccion) {
+    return /^0x[a-fA-F0-9]{40}$/.test(direccion);
+  };
+
+  /**
+   * Obtiene el símbolo del token por defecto
+   */
+  window.obtenerTokenPorDefecto = function obtenerTokenPorDefecto() {
+    return CONFIG.WALLET_PAGOS.tokens[0] || 'USDT';
+  };
+
+  /**
+   * Verifica si el token es soportado
+   */
+  window.tokenSoportado = function tokenSoportado(token) {
+    return CONFIG.WALLET_PAGOS.tokens.includes(token.toUpperCase());
+  };
+
+  // ================================================================
+  // HELPERS PARA VERIFICACIÓN EDU
+  // ================================================================
+
+  /**
+   * Validar email institucional
+   */
+  window.esEmailInstitucional = function esEmailInstitucional(email) {
+    if (!email) return false;
+    const emailLower = email.toLowerCase();
+    return CONFIG.DOMINIOS_EDU.some(dom => emailLower.endsWith(dom));
+  };
+
+  /**
+   * Obtener universidad desde email
+   */
+  window.obtenerUniversidad = function obtenerUniversidad(email) {
+    if (!email) return 'Universidad';
+    const domain = email.split('@')[1];
+    if (!domain) return 'Universidad';
+    for (const [key, value] of Object.entries(CONFIG.UNIVERSIDADES)) {
+      if (domain.includes(key)) {
+        return value;
+      }
+    }
+    return 'Universidad';
+  };
+
+  // ================================================================
+  // CONSOLA - INFORMACIÓN DE CARGA
+  // ================================================================
+  console.log('◈ Csariel\'s Ecosystem - Configuración cargada');
+  console.log(`📦 Versión: ${CONFIG.VERSION}`);
+  console.log(`🔗 Supabase: ${CONFIG.SUPABASE_URL}`);
+  console.log(`💰 Wallet Csariel's: ${CONFIG.WALLET_PAGOS.direccion.slice(0, 10)}...${CONFIG.WALLET_PAGOS.direccion.slice(-6)}`);
+  console.log(`📊 Comisión Directos: ${CONFIG.COMISIONES.directo * 100}% Csariel's · ${CONFIG.COMISIONES.streamer * 100}% Streamer`);
+  console.log(`🪙 Utility Token: ${CONFIG.TOKEN_UTILITY.simbolo} (${CONFIG.TOKEN_UTILITY.activo ? '✅ Activo' : '⏳ Próximamente'})`);
+  console.log(`📋 ${CONFIG.SERVICIOS.categorias.length} categorías de servicios`);
+  console.log(`✅ SIN Trading · SIN Fidelización · Solo Mi Red · Muro Live · Servicios · Donaciones`);
+
+})();
