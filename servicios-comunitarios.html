@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios Comunitarios | Csariel's</title>
+    <meta name="theme-color" content="#0B3D2E" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Csariel's - Servicios Comunitarios" />
+    <meta property="og:description" content="Encuentra servicios cercanos: mecánicos, gasolina, grúa, tiendas y más" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Leaflet CSS (Mapas gratuitos) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        /* ===== VARIABLES CSARIEL'S ===== */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --space-light: #101f3a;
+            --verde-bosque: #0B3D2E;
+            --verde-bosque-light: #1a5a44;
+            --verde-bosque-glass: rgba(11,61,46,0.85);
+            --gold-cosmic: #f7d44a;
+            --gold-dim: rgba(247,212,74,0.15);
+            --gold-glow: rgba(247,212,74,0.25);
+            --nebula-1: #6c2bd9;
+            --nebula-2: #ff6b9d;
+            --nebula-3: #00d4ff;
+            --plasma: #ff3366;
+            --quantum: #00e5ff;
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(247,212,74,0.08);
+            --border-glow: rgba(247,212,74,0.25);
+            --shadow-neon: 0 0 40px rgba(247,212,74,0.08);
+            --shadow-glow: 0 0 60px rgba(11,61,46,0.3);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --warning: #f7d44a;
+            --danger: #ff3366;
+            --service-categories: #1a5a44;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0 20px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2.4rem;
+            filter: drop-shadow(0 0 20px rgba(247,212,74,0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            box-shadow: 0 0 30px rgba(247,212,74,0.1);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); }
+            50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(247,212,74,0.15);
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 0 30px rgba(11,61,46,0.3);
+            animation: badge-pulse 2s ease-in-out infinite;
+            border: 1px solid rgba(247,212,74,0.2);
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(11,61,46,0.3); }
+            50% { box-shadow: 0 0 60px rgba(247,212,74,0.2); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(247,212,74,0.06);
+            border: 1px solid rgba(247,212,74,0.15);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+        .status-dot.offline { background: var(--text-muted); box-shadow: 0 0 20px rgba(74,106,138,0.3); }
+
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(247,212,74,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: scale(1.03); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(11,61,46,0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #00897b, #00695c);
+            box-shadow: 0 0 40px rgba(0,184,148,0.3);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-gold:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(247,212,74,0.3);
+        }
+
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(247,212,74,0.05);
+            border-color: var(--gold-cosmic);
+        }
+
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+
+        .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
+        .btn-block { width: 100%; justify-content: center; }
+
+        /* ===== HERO DE SERVICIOS ===== */
+        .hero-servicios {
+            background: linear-gradient(145deg, rgba(11,61,46,0.3), rgba(247,212,74,0.05));
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .hero-servicios::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(247,212,74,0.04) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: hero-glow 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes hero-glow {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+            100% { transform: translate(-50px, 30px) scale(1.5); opacity: 1; }
+        }
+
+        .hero-servicios .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-servicios .hero-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--text-primary), var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-servicios .hero-sub {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ===== BARRA DE BÚSQUEDA Y FILTROS ===== */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-bar .search-input-wrapper {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-bar .search-input-wrapper input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-bar .search-input-wrapper input:focus {
+            border-color: var(--gold-cosmic);
+            box-shadow: 0 0 30px rgba(247,212,74,0.05);
+        }
+
+        .search-bar .search-input-wrapper .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-bar .btn-geolocation {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.15);
+            color: var(--quantum);
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .search-bar .btn-geolocation:hover {
+            background: rgba(0,212,255,0.2);
+            border-color: var(--quantum);
+        }
+
+        .search-bar .btn-geolocation i {
+            margin-right: 6px;
+        }
+
+        /* ===== CATEGORÍAS ===== */
+        .categories-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 12px;
+            margin-bottom: 16px;
+            scrollbar-width: thin;
+            flex-wrap: nowrap;
+        }
+
+        .categories-scroll::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .categories-scroll::-webkit-scrollbar-thumb {
+            background: var(--gold-cosmic);
+            border-radius: 3px;
+        }
+
+        .cat-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            background: rgba(11,61,46,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            min-width: 70px;
+        }
+
+        .cat-btn:hover {
+            border-color: var(--border-glow);
+            color: var(--text-primary);
+        }
+
+        .cat-btn.active {
+            border-color: var(--gold-cosmic);
+            background: var(--gold-dim);
+            color: var(--gold-cosmic);
+        }
+
+        .cat-btn .cat-icon {
+            font-size: 1.4rem;
+        }
+
+        /* ===== MAPA ===== */
+        #map-container {
+            width: 100%;
+            height: 420px;
+            border-radius: var(--radius);
+            border: 1px solid var(--gold-dim);
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+            background: var(--space-deep);
+        }
+
+        #map-container .leaflet-control-zoom {
+            border-color: var(--gold-dim);
+        }
+
+        #map-container .leaflet-control-zoom a {
+            background: rgba(11,61,46,0.8);
+            color: var(--text-primary);
+            border-color: var(--gold-dim);
+        }
+
+        #map-container .leaflet-control-zoom a:hover {
+            background: rgba(11,61,46,0.9);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== LISTA DE SERVICIOS ===== */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .service-card {
+            background: rgba(11,61,46,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .service-card:hover::before {
+            opacity: 0.15;
+        }
+
+        .service-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-neon), var(--shadow-glow);
+        }
+
+        .service-card .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .service-card .service-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .service-card .service-category {
+            font-size: 0.55rem;
+            background: rgba(247,212,74,0.1);
+            border: 1px solid rgba(247,212,74,0.15);
+            padding: 2px 10px;
+            border-radius: 20px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .service-card .service-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 4px 0;
+        }
+
+        .service-card .service-rating .stars {
+            color: var(--gold-cosmic);
+            font-size: 0.85rem;
+        }
+
+        .service-card .service-rating .score {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .service-card .service-distance {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .service-card .service-distance i {
+            color: var(--quantum);
+        }
+
+        .service-card .service-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.55rem;
+            color: var(--success);
+            background: rgba(0,184,148,0.1);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,184,148,0.2);
+        }
+
+        .service-card .service-contact {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--gold-dim);
+            flex-wrap: wrap;
+        }
+
+        .service-card .service-contact .contact-item {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .service-card .service-contact .contact-item i {
+            color: var(--gold-cosmic);
+        }
+
+        .service-card .service-price {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-top: 6px;
+        }
+
+        .service-card .service-price span {
+            color: var(--gold-cosmic);
+            font-weight: 700;
+        }
+
+        .service-card .btn-sm {
+            margin-top: 8px;
+        }
+
+        .service-card .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+            border: 1px solid rgba(0,184,148,0.2);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            box-shadow: var(--shadow-neon);
+            border: 1px solid rgba(247,212,74,0.15);
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: rgba(11,61,46,0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.1;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .modal-content .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-content .modal-close:hover {
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+
+        .modal-content .modal-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .modal-content .modal-body {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .modal-content .modal-body .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gold-dim);
+        }
+
+        .modal-content .modal-body .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .modal-content .modal-body .detail-row .label {
+            color: var(--text-muted);
+        }
+
+        .modal-content .modal-body .detail-row .value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .modal-content .modal-body .detail-row .value.gold {
+            color: var(--gold-cosmic);
+        }
+
+        .modal-content .modal-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .modal-content .modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 48px;
+            padding-top: 28px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand {
+            color: var(--gold-cosmic);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links a:hover { color: var(--gold-cosmic); }
+
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ===== ANIMACIONES ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .service-card {
+            animation: fadeInUp 0.3s ease-out forwards;
+        }
+
+        .service-card:nth-child(2) { animation-delay: 0.05s; }
+        .service-card:nth-child(3) { animation-delay: 0.1s; }
+        .service-card:nth-child(4) { animation-delay: 0.15s; }
+        .service-card:nth-child(5) { animation-delay: 0.2s; }
+        .service-card:nth-child(6) { animation-delay: 0.25s; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .app { padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .logo-text { font-size: 1.2rem; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .hero-servicios .hero-title { font-size: 1.5rem; }
+            .search-bar { flex-direction: column; }
+            .search-bar .search-input-wrapper { width: 100%; }
+            .services-grid { grid-template-columns: 1fr 1fr; }
+            #map-container { height: 280px; }
+            .categories-scroll { flex-wrap: nowrap; overflow-x: auto; }
+            .cat-btn { min-width: 60px; padding: 6px 12px; font-size: 0.5rem; }
+            .cat-btn .cat-icon { font-size: 1.2rem; }
+        }
+
+        @media (max-width: 480px) {
+            .btn { font-size: 0.55rem; padding: 6px 12px; }
+            .hero-servicios .hero-title { font-size: 1.2rem; }
+            .services-grid { grid-template-columns: 1fr; }
+            #map-container { height: 220px; }
+            .service-card { padding: 14px 16px; }
+            .modal-content { padding: 20px; }
+            .search-bar .btn-geolocation { font-size: 0.55rem; padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <!-- ===== CONTENIDO ===== -->
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="./index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Servicios</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>Comunidad</span>
+                </div>
+                <a href="./mi-red.html" class="btn"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="./muro-live.html" class="btn"><i class="fas fa-rss"></i> Muro Live</a>
+                <a href="./panel-web3.html" class="btn"><i class="fas fa-wallet"></i> Web3</a>
+                <button class="btn btn-gold btn-sm" onclick="abrirFormularioServicio()">
+                    <i class="fas fa-plus-circle"></i> Ofrecer Servicio
+                </button>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero-servicios">
+            <div class="hero-content">
+                <h1 class="hero-title">🔧 Servicios Comunitarios</h1>
+                <p class="hero-sub">
+                    Encuentra mecánicos, gasolina, grúa, tiendas y más cerca de ti. 
+                    <span style="color:var(--gold-cosmic);">¡Ayuda y recibe ayuda!</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- BARRA DE BÚSQUEDA -->
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <span class="search-icon"><i class="fas fa-search"></i></span>
+                <input type="text" id="searchInput" placeholder="Buscar servicios, categorías o ubicación..." oninput="filtrarServicios()">
+            </div>
+            <button class="btn-geolocation" onclick="obtenerUbicacion()">
+                <i class="fas fa-location-dot"></i> Cerca de mí
+            </button>
+            <span style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;">
+                <span id="serviceCount">0</span> servicios disponibles
+            </span>
+        </div>
+
+        <!-- CATEGORÍAS -->
+        <div class="categories-scroll" id="categoriesContainer">
+            <button class="cat-btn active" data-cat="all" onclick="filtrarPorCategoria('all')">
+                <span class="cat-icon">📍</span>
+                Todos
+            </button>
+            <button class="cat-btn" data-cat="mecanico" onclick="filtrarPorCategoria('mecanico')">
+                <span class="cat-icon">🔧</span>
+                Mecánico
+            </button>
+            <button class="cat-btn" data-cat="talachero" onclick="filtrarPorCategoria('talachero')">
+                <span class="cat-icon">🛞</span>
+                Talachero
+            </button>
+            <button class="cat-btn" data-cat="gasolina" onclick="filtrarPorCategoria('gasolina')">
+                <span class="cat-icon">⛽</span>
+                Gasolina
+            </button>
+            <button class="cat-btn" data-cat="grua" onclick="filtrarPorCategoria('grua')">
+                <span class="cat-icon">🚛</span>
+                Grúa
+            </button>
+            <button class="cat-btn" data-cat="cafe" onclick="filtrarPorCategoria('cafe')">
+                <span class="cat-icon">☕</span>
+                Café
+            </button>
+            <button class="cat-btn" data-cat="tienda" onclick="filtrarPorCategoria('tienda')">
+                <span class="cat-icon">🏪</span>
+                Tienda/OXXO
+            </button>
+            <button class="cat-btn" data-cat="bicicleta" onclick="filtrarPorCategoria('bicicleta')">
+                <span class="cat-icon">🚲</span>
+                Bicicleta
+            </button>
+            <button class="cat-btn" data-cat="farmacia" onclick="filtrarPorCategoria('farmacia')">
+                <span class="cat-icon">💊</span>
+                Farmacia
+            </button>
+        </div>
+
+        <!-- MAPA -->
+        <div id="map-container"></div>
+
+        <!-- LISTA DE SERVICIOS -->
+        <div class="services-grid" id="servicesGrid">
+            <!-- Los servicios se renderizan desde JavaScript -->
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Servicios Comunitarios · Mapa en tiempo real
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./muro-live.html">📱 Muro Live</a>
+                <a href="./panel-web3.html">🔗 Web3</a>
+                <a href="./fidelizacion.html">🎫 Fidelización</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== MODAL DE SERVICIO ===== -->
+    <div class="modal-overlay" id="serviceModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModalServicio()">✕</button>
+            <h3 class="modal-title" id="modalServiceTitle">Detalles del Servicio</h3>
+            <div class="modal-body" id="modalServiceBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="contactarServicio()">
+                    <i class="fas fa-phone"></i> Contactar
+                </button>
+                <button class="btn btn-gold" onclick="compartirServicio()">
+                    <i class="fas fa-share"></i> Compartir en Muro
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModalServicio()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL FORMULARIO OFRECER SERVICIO ===== -->
+    <div class="modal-overlay" id="offerServiceModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarFormularioServicio()">✕</button>
+            <h3 class="modal-title">🛠️ Ofrecer Servicio</h3>
+            <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">Comparte tu servicio con la comunidad</p>
+            
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Nombre del servicio</label>
+                <input type="text" id="offerName" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;" placeholder="Ej: Taller Mecánico Elías">
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Categoría</label>
+                <select id="offerCategory" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;">
+                    <option value="mecanico">🔧 Mecánico</option>
+                    <option value="talachero">🛞 Talachero</option>
+                    <option value="gasolina">⛽ Gasolina</option>
+                    <option value="grua">🚛 Grúa</option>
+                    <option value="cafe">☕ Café</option>
+                    <option value="tienda">🏪 Tienda/OXXO</option>
+                    <option value="bicicleta">🚲 Bicicleta</option>
+                    <option value="farmacia">💊 Farmacia</option>
+                    <option value="otro">📌 Otro</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Descripción</label>
+                <textarea id="offerDescription" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;min-height:70px;resize:vertical;" placeholder="Describe tu servicio..."></textarea>
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Teléfono de contacto</label>
+                <input type="tel" id="offerPhone" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;" placeholder="55 1234 5678">
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Correo electrónico</label>
+                <input type="email" id="offerEmail" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;" placeholder="servicio@ejemplo.com">
+            </div>
+
+            <div style="margin-bottom:12px;padding:12px;background:rgba(247,212,74,0.05);border-radius:10px;border:1px solid var(--gold-dim);">
+                <p style="font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">
+                    <strong style="color:var(--gold-cosmic);">💰 Tarifas de Servicio:</strong><br>
+                    • <strong style="color:var(--text-primary);">Usuarios:</strong> $5 MXN por consulta<br>
+                    • <strong style="color:var(--text-primary);">Prestadores:</strong> $50 MXN cada 6 meses<br>
+                    • <strong style="color:var(--text-primary);">Suscripción:</strong> $150 MXN / 6 meses o $250 MXN / año
+                </p>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button onclick="registrarServicio()" class="btn btn-gold" style="flex:1;justify-content:center;">
+                    <i class="fas fa-check"></i> Registrar Servicio
+                </button>
+                <button onclick="cerrarFormularioServicio()" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ================================================================
+        // SISTEMA ESTELAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('◈ Csariel\'s - Servicios Comunitarios');
+            console.log('📍 Mapa y geolocalización activos');
+            console.log('🔧 Categorías: Mecánico, Talachero, Gasolina, Grúa, Café, Tienda, Bicicleta, Farmacia');
+            console.log('💰 Tarifas: $5 MXN/consulta, $50 MXN/6 meses prestadores');
+            initStars();
+            initMap();
+            cargarServicios();
+            cargarPerfilUsuario();
+        });
+
+        // ================================================================
+        // ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            let meteors = [];
+
+            const STAR_COUNT = 300;
+            const METEOR_COUNT = 3;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.8 + 0.3,
+                        speed: Math.random() * 0.02 + 0.005,
+                        opacity: Math.random() * 0.8 + 0.2,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function createMeteor() {
+                return {
+                    x: Math.random() * width * 0.8,
+                    y: Math.random() * height * 0.3,
+                    speed: Math.random() * 3 + 4,
+                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+                    opacity: Math.random() * 0.6 + 0.4,
+                    active: true,
+                    trail: []
+                };
+            }
+
+            function initMeteors() {
+                meteors = [];
+                for (let i = 0; i < METEOR_COUNT; i++) {
+                    const meteor = createMeteor();
+                    meteor.x = Math.random() * width;
+                    meteor.y = Math.random() * height * 0.2;
+                    meteors.push(meteor);
+                }
+            }
+
+            function updateStars() {
+                for (let star of stars) {
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+            }
+
+            function updateMeteors() {
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    meteor.x += Math.cos(meteor.angle) * meteor.speed;
+                    meteor.y += Math.sin(meteor.angle) * meteor.speed;
+                    meteor.trail.push({ x: meteor.x, y: meteor.y });
+                    if (meteor.trail.length > 20) meteor.trail.shift();
+                    if (meteor.x > width + 100 || meteor.y > height + 100) {
+                        meteor.active = false;
+                        setTimeout(() => {
+                            const newMeteor = createMeteor();
+                            newMeteor.x = Math.random() * width * 0.3;
+                            newMeteor.y = Math.random() * height * 0.2;
+                            Object.assign(meteor, newMeteor);
+                            meteor.active = true;
+                        }, Math.random() * 3000 + 2000);
+                    }
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    if (star.radius > 1.2) {
+                        ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
+                        ctx.shadowBlur = 10;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    for (let i = 0; i < meteor.trail.length; i++) {
+                        const point = meteor.trail[i];
+                        const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
+                        const radius = (i / meteor.trail.length) * 2;
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
+                        ctx.fill();
+                    }
+                    const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                    gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
+                    gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
+                    ctx.shadowBlur = 30;
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            function animate() {
+                updateStars();
+                updateMeteors();
+                draw();
+                requestAnimationFrame(animate);
+            }
+
+            resize();
+            createStars();
+            initMeteors();
+            animate();
+
+            window.addEventListener('resize', () => {
+                resize();
+                createStars();
+            });
+        }
+
+        // ================================================================
+        // PERFIL DE USUARIO (desde localStorage)
+        // ================================================================
+        let miPerfil = {
+            nombre: 'Usuario',
+            verificado: false,
+            universidad: '---',
+            telefono: '',
+            email: ''
+        };
+
+        function cargarPerfilUsuario() {
+            try {
+                const guardado = localStorage.getItem('miPerfil_csariels');
+                if (guardado) {
+                    const datos = JSON.parse(guardado);
+                    miPerfil = { ...miPerfil, ...datos };
+                }
+            } catch (e) {
+                console.warn('Error cargando perfil:', e);
+            }
+        }
+
+        // ================================================================
+        // MAPA - Leaflet con OpenStreetMap
+        // ================================================================
+        let map = null;
+        let markers = [];
+        let userMarker = null;
+        let userLocation = null;
+
+        function initMap() {
+            // Coordenadas por defecto (Puebla, México)
+            const defaultLat = 19.0413;
+            const defaultLng = -98.2062;
+
+            map = L.map('map-container').setView([defaultLat, defaultLng], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Intentar obtener ubicación del usuario
+            obtenerUbicacion();
+        }
+
+        function obtenerUbicacion() {
+            if (!navigator.geolocation) {
+                mostrarToast('⚠️ Tu navegador no soporta geolocalización', 'error');
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    userLocation = { lat, lng };
+                    
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                    }
+                    
+                    const icon = L.divIcon({
+                        html: '<div style="background:var(--gold-cosmic);width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 20px rgba(247,212,74,0.5);"></div>',
+                        className: '',
+                        iconSize: [16, 16]
+                    });
+                    
+                    userMarker = L.marker([lat, lng], { icon }).addTo(map);
+                    userMarker.bindPopup('📍 <strong>Tu ubicación</strong>');
+                    
+                    map.setView([lat, lng], 15);
+                    mostrarToast('📍 Ubicación obtenida correctamente');
+                    
+                    // Actualizar distancias y filtros
+                    actualizarDistancias(lat, lng);
+                },
+                function(err) {
+                    console.warn('Error obteniendo ubicación:', err);
+                    mostrarToast('⚠️ No se pudo obtener tu ubicación. Usando Puebla por defecto.', 'error');
+                    // Usar Puebla por defecto
+                    userLocation = { lat: 19.0413, lng: -98.2062 };
+                    actualizarDistancias(19.0413, -98.2062);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // ================================================================
+        // DATOS DE SERVICIOS
+        // ================================================================
+        let servicios = [];
+        let categoriaActual = 'all';
+        let servicioSeleccionado = null;
+
+        // Servicios de demostración con coordenadas (Puebla)
+        const SERVICIOS_DEMO = [
+            {
+                id: 1,
+                nombre: 'Taller Mecánico Elías',
+                categoria: 'mecanico',
+                descripcion: 'Servicio de mecánica general, frenos, suspensión y diagnóstico computarizado.',
+                telefono: '222 123 4567',
+                email: 'elias@taller.com',
+                lat: 19.0450,
+                lng: -98.2050,
+                calificacion: 4.8,
+                reseñas: 23,
+                verificado: true,
+                precio_consulta: 5,
+                usuario: 'Elías Ramírez'
+            },
+            {
+                id: 2,
+                nombre: 'Talachero Express',
+                categoria: 'talachero',
+                descripcion: 'Servicio de parches, cambio de llantas y balanceo. Atención rápida 24/7.',
+                telefono: '222 234 5678',
+                email: 'express@talachero.com',
+                lat: 19.0380,
+                lng: -98.2100,
+                calificacion: 4.5,
+                reseñas: 15,
+                verificado: true,
+                precio_consulta: 5,
+                usuario: 'Carlos Méndez'
+            },
+            {
+                id: 3,
+                nombre: 'Gasolinera La Estrella',
+                categoria: 'gasolina',
+                descripcion: 'Venta de gasolina Magna, Premium y Diésel. Servicio de lavado y tienda de conveniencia.',
+                telefono: '222 345 6789',
+                email: 'estrella@gasolina.com',
+                lat: 19.0500,
+                lng: -98.2000,
+                calificacion: 4.2,
+                reseñas: 42,
+                verificado: true,
+                precio_consulta: 0,
+                usuario: 'Gasolinera La Estrella'
+            },
+            {
+                id: 4,
+                nombre: 'Grúas Puebla 24/7',
+                categoria: 'grua',
+                descripcion: 'Servicio de grúa para todo tipo de vehículos. Atención inmediata en cualquier zona.',
+                telefono: '222 456 7890',
+                email: 'gruas@puebla.com',
+                lat: 19.0420,
+                lng: -98.2150,
+                calificacion: 4.9,
+                reseñas: 34,
+                verificado: true,
+                precio_consulta: 5,
+                usuario: 'Grúas Puebla'
+            },
+            {
+                id: 5,
+                nombre: 'Cafetería El Libro',
+                categoria: 'cafe',
+                descripcion: 'Café de especialidad, repostería y ambiente acogedor. WiFi gratis.',
+                telefono: '222 567 8901',
+                email: 'libro@cafe.com',
+                lat: 19.0350,
+                lng: -98.2080,
+                calificacion: 4.7,
+                reseñas: 56,
+                verificado: false,
+                precio_consulta: 0,
+                usuario: 'Cafetería El Libro'
+            },
+            {
+                id: 6,
+                nombre: 'OXXO Cholula',
+                categoria: 'tienda',
+                descripcion: 'Tienda de conveniencia abierta 24/7. Ventas de alimentos, bebidas y artículos básicos.',
+                telefono: '222 678 9012',
+                email: 'oxxo@cholula.com',
+                lat: 19.0400,
+                lng: -98.1980,
+                calificacion: 4.0,
+                reseñas: 89,
+                verificado: false,
+                precio_consulta: 0,
+                usuario: 'OXXO Cholula'
+            },
+            {
+                id: 7,
+                nombre: 'Bicicletería Rodada',
+                categoria: 'bicicleta',
+                descripcion: 'Reparación y mantenimiento de bicicletas. Venta de refacciones y accesorios.',
+                telefono: '222 789 0123',
+                email: 'rodada@bici.com',
+                lat: 19.0480,
+                lng: -98.2020,
+                calificacion: 4.6,
+                reseñas: 18,
+                verificado: true,
+                precio_consulta: 5,
+                usuario: 'Rodada Bici'
+            },
+            {
+                id: 8,
+                nombre: 'Farmacia San Pedro',
+                categoria: 'farmacia',
+                descripcion: 'Venta de medicamentos genéricos y de patente. Servicio de entrega a domicilio.',
+                telefono: '222 890 1234',
+                email: 'sanpedro@farmacia.com',
+                lat: 19.0360,
+                lng: -98.2120,
+                calificacion: 4.3,
+                reseñas: 27,
+                verificado: false,
+                precio_consulta: 0,
+                usuario: 'Farmacia San Pedro'
+            }
+        ];
+
+        function cargarServicios() {
+            try {
+                const guardados = localStorage.getItem('servicios_comunitarios');
+                if (guardados) {
+                    servicios = JSON.parse(guardados);
+                } else {
+                    servicios = SERVICIOS_DEMO;
+                    guardarServicios();
+                }
+            } catch (e) {
+                console.warn('Error cargando servicios, usando demo:', e);
+                servicios = SERVICIOS_DEMO;
+            }
+            renderizarServicios();
+            actualizarContador();
+        }
+
+        function guardarServicios() {
+            try {
+                localStorage.setItem('servicios_comunitarios', JSON.stringify(servicios));
+            } catch (e) {
+                console.warn('Error guardando servicios:', e);
+            }
+        }
+
+        // ================================================================
+        // RENDERIZADO DE SERVICIOS
+        // ================================================================
+        function renderizarServicios() {
+            const grid = document.getElementById('servicesGrid');
+            let filtrados = [...servicios];
+
+            // Filtrar por categoría
+            if (categoriaActual !== 'all') {
+                filtrados = filtrados.filter(s => s.categoria === categoriaActual);
+            }
+
+            // Filtrar por búsqueda
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (searchTerm) {
+                filtrados = filtrados.filter(s =>
+                    s.nombre.toLowerCase().includes(searchTerm) ||
+                    s.descripcion.toLowerCase().includes(searchTerm) ||
+                    s.categoria.includes(searchTerm) ||
+                    s.usuario.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Ordenar por distancia (si hay ubicación)
+            if (userLocation) {
+                filtrados = filtrados.map(s => {
+                    const dist = calcularDistancia(userLocation.lat, userLocation.lng, s.lat, s.lng);
+                    return { ...s, distancia: dist };
+                }).sort((a, b) => (a.distancia || 999) - (b.distancia || 999));
+            }
+
+            if (filtrados.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-muted);">
+                        <div style="font-size:3rem;opacity:0.3;margin-bottom:12px;">🔍</div>
+                        <h3 style="font-family:'Orbitron',monospace;color:var(--text-secondary);">No hay servicios disponibles</h3>
+                        <p style="font-size:0.9rem;">Sé el primero en ofrecer un servicio en tu zona.</p>
+                        <button class="btn btn-gold" style="margin-top:12px;" onclick="abrirFormularioServicio()">
+                            <i class="fas fa-plus-circle"></i> Ofrecer Servicio
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtrados.map(s => `
+                <div class="service-card" onclick="abrirDetalleServicio(${s.id})">
+                    <div class="service-header">
+                        <span class="service-name">${s.nombre}</span>
+                        <span class="service-category">${getCategoryIcon(s.categoria)} ${getCategoryName(s.categoria)}</span>
+                    </div>
+                    
+                    <div class="service-rating">
+                        <span class="stars">${generarEstrellas(s.calificacion)}</span>
+                        <span class="score">${s.calificacion.toFixed(1)} (${s.reseñas} reseñas)</span>
+                        ${s.verificado ? '<span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado</span>' : ''}
+                    </div>
+                    
+                    <p style="font-size:0.85rem;color:var(--text-secondary);margin:6px 0;">${s.descripcion}</p>
+                    
+                    <div class="service-distance">
+                        <i class="fas fa-location-dot"></i>
+                        ${s.distancia !== undefined ? `${(s.distancia * 1.6).toFixed(1)} km` : '📍 Ubicación disponible'}
+                    </div>
+                    
+                    <div class="service-price">
+                        💰 <span>${s.precio_consulta > 0 ? `$${s.precio_consulta} MXN/consulta` : 'Gratis'}</span>
+                        ${s.precio_consulta > 0 ? ' · ' + s.usuario : ''}
+                    </div>
+                    
+                    <div class="service-contact">
+                        <span class="contact-item"><i class="fas fa-phone"></i> ${s.telefono}</span>
+                        <span class="contact-item"><i class="fas fa-envelope"></i> ${s.email}</span>
+                    </div>
+                    
+                    <button class="btn btn-sm btn-gold" onclick="event.stopPropagation();abrirDetalleServicio(${s.id})">
+                        <i class="fas fa-info-circle"></i> Ver detalles
+                    </button>
+                </div>
+            `).join('');
+
+            // Actualizar marcadores en el mapa
+            actualizarMarcadores(filtrados);
+            actualizarContador();
+        }
+
+        function getCategoryIcon(cat) {
+            const icons = {
+                'mecanico': '🔧',
+                'talachero': '🛞',
+                'gasolina': '⛽',
+                'grua': '🚛',
+                'cafe': '☕',
+                'tienda': '🏪',
+                'bicicleta': '🚲',
+                'farmacia': '💊',
+                'otro': '📌'
+            };
+            return icons[cat] || '📍';
+        }
+
+        function getCategoryName(cat) {
+            const names = {
+                'mecanico': 'Mecánico',
+                'talachero': 'Talachero',
+                'gasolina': 'Gasolina',
+                'grua': 'Grúa',
+                'cafe': 'Café',
+                'tienda': 'Tienda',
+                'bicicleta': 'Bicicleta',
+                'farmacia': 'Farmacia',
+                'otro': 'Otro'
+            };
+            return names[cat] || cat;
+        }
+
+        function generarEstrellas(puntuacion) {
+            const total = 10;
+            const llenas = Math.round(puntuacion / 2);
+            let estrellas = '';
+            for (let i = 0; i < total; i++) {
+                estrellas += i < llenas ? '★' : '☆';
+                if (i === 4) estrellas += ' '; // Separador
+            }
+            return estrellas;
+        }
+
+        function actualizarContador() {
+            document.getElementById('serviceCount').textContent = servicios.length;
+        }
+
+        // ================================================================
+        // MARCADORES EN EL MAPA
+        // ================================================================
+        function actualizarMarcadores(serviciosFiltrados) {
+            // Limpiar marcadores existentes
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            if (!serviciosFiltrados || serviciosFiltrados.length === 0) return;
+
+            serviciosFiltrados.forEach(s => {
+                const icon = L.divIcon({
+                    html: `<div style="background:${s.categoria === 'mecanico' ? '#e74c3c' : 
+                                     s.categoria === 'talachero' ? '#f39c12' :
+                                     s.categoria === 'gasolina' ? '#2ecc71' :
+                                     s.categoria === 'grua' ? '#3498db' :
+                                     s.categoria === 'cafe' ? '#8e44ad' :
+                                     s.categoria === 'tienda' ? '#e67e22' :
+                                     s.categoria === 'bicicleta' ? '#1abc9c' :
+                                     s.categoria === 'farmacia' ? '#2ecc71' : '#95a5a6'};
+                                   width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);"></div>`,
+                    className: '',
+                    iconSize: [12, 12]
+                });
+
+                const marker = L.marker([s.lat, s.lng], { icon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <strong>${s.nombre}</strong><br>
+                        ${s.descripcion.substring(0, 60)}...<br>
+                        <span style="color:var(--gold-cosmic);">⭐ ${s.calificacion.toFixed(1)}</span>
+                        <br><br>
+                        <button onclick="abrirDetalleServicio(${s.id})" style="background:var(--gold-cosmic);color:#0a0c10;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-weight:600;">
+                            Ver detalles
+                        </button>
+                    `);
+
+                markers.push(marker);
+            });
+        }
+
+        // ================================================================
+        // FILTROS Y BÚSQUEDA
+        // ================================================================
+        function filtrarPorCategoria(categoria) {
+            categoriaActual = categoria;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cat === categoria);
+            });
+            renderizarServicios();
+        }
+
+        function filtrarServicios() {
+            renderizarServicios();
+        }
+
+        // ================================================================
+        // DISTANCIAS
+        // ================================================================
+        function calcularDistancia(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radio de la Tierra en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function actualizarDistancias(lat, lng) {
+            userLocation = { lat, lng };
+            renderizarServicios();
+        }
+
+        // ================================================================
+        // MODAL DE DETALLE
+        // ================================================================
+        function abrirDetalleServicio(id) {
+            const servicio = servicios.find(s => s.id === id);
+            if (!servicio) {
+                mostrarToast('⚠️ Servicio no encontrado', 'error');
+                return;
+            }
+
+            servicioSeleccionado = servicio;
+            document.getElementById('modalServiceTitle').textContent = servicio.nombre;
+
+            const body = document.getElementById('modalServiceBody');
+            body.innerHTML = `
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                        <span style="background:rgba(247,212,74,0.1);padding:2px 12px;border-radius:20px;font-size:0.7rem;color:var(--gold-cosmic);">
+                            ${getCategoryIcon(servicio.categoria)} ${getCategoryName(servicio.categoria)}
+                        </span>
+                        ${servicio.verificado ? '<span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado</span>' : ''}
+                    </div>
+                    
+                    <p style="color:var(--text-secondary);margin-bottom:12px;">${servicio.descripcion}</p>
+                    
+                    <div class="detail-row">
+                        <span class="label">⭐ Calificación</span>
+                        <span class="value gold">${servicio.calificacion.toFixed(1)} / 10 (${servicio.reseñas} reseñas)</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">📞 Teléfono</span>
+                        <span class="value"><a href="tel:${servicio.telefono}" style="color:var(--quantum);text-decoration:none;">${servicio.telefono}</a></span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">✉️ Correo</span>
+                        <span class="value"><a href="mailto:${servicio.email}" style="color:var(--quantum);text-decoration:none;">${servicio.email}</a></span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">💰 Consulta</span>
+                        <span class="value gold">${servicio.precio_consulta > 0 ? `$${servicio.precio_consulta} MXN` : 'Gratis'}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">📍 Ubicación</span>
+                        <span class="value">${servicio.lat.toFixed(4)}, ${servicio.lng.toFixed(4)}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">👤 Prestador</span>
+                        <span class="value">${servicio.usuario}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('serviceModal').classList.add('active');
+        }
+
+        function cerrarModalServicio() {
+            document.getElementById('serviceModal').classList.remove('active');
+            servicioSeleccionado = null;
+        }
+
+        function contactarServicio() {
+            if (!servicioSeleccionado) return;
+            mostrarToast(`📞 Contactando a ${servicioSeleccionado.usuario}...`);
+            // Simular contacto
+            setTimeout(() => {
+                mostrarToast(`✅ Contacto enviado a ${servicioSeleccionado.nombre}`);
+                // Publicar en Muro Live
+                publicarEnMuro(`📞 Contacté a ${servicioSeleccionado.nombre} para solicitar información sobre su servicio.`);
+            }, 1500);
+        }
+
+        function compartirServicio() {
+            if (!servicioSeleccionado) return;
+            const mensaje = `🔧 Servicio recomendado: ${servicioSeleccionado.nombre} (${getCategoryName(servicioSeleccionado.categoria)}) - ⭐ ${servicioSeleccionado.calificacion.toFixed(1)}/10. Más info en Csariel's Servicios Comunitarios.`;
+            publicarEnMuro(mensaje);
+            mostrarToast('✅ Compartido en el Muro Live');
+            cerrarModalServicio();
+        }
+
+        function publicarEnMuro(mensaje) {
+            try {
+                const posts = JSON.parse(localStorage.getItem('muro_live_posts') || '[]');
+                const nuevaPublicacion = {
+                    id: Date.now(),
+                    author: miPerfil.nombre || 'Usuario',
+                    avatar: (miPerfil.nombre || 'U').charAt(0),
+                    content: mensaje,
+                    media: [],
+                    url: null,
+                    likes: 0,
+                    liked: false,
+                    comments: [],
+                    date: Date.now(),
+                    engagement: 1,
+                    interactionScore: 5,
+                    tipo: 'servicio'
+                };
+                posts.unshift(nuevaPublicacion);
+                localStorage.setItem('muro_live_posts', JSON.stringify(posts));
+                console.log('📢 Publicación compartida en el Muro Live');
+            } catch (e) {
+                console.warn('Error publicando en Muro:', e);
+            }
+        }
+
+        // ================================================================
+        // FORMULARIO OFRECER SERVICIO
+        // ================================================================
+        function abrirFormularioServicio() {
+            if (!miPerfil.verificado) {
+                mostrarToast('⚠️ Debes estar verificado para ofrecer servicios', 'error');
+                // Redirigir a verificación en Mi Red
+                setTimeout(() => {
+                    if (confirm('¿Deseas verificar tu cuenta ahora?')) {
+                        window.location.href = './mi-red.html#verificar';
+                    }
+                }, 500);
+                return;
+            }
+            document.getElementById('offerServiceModal').classList.add('active');
+        }
+
+        function cerrarFormularioServicio() {
+            document.getElementById('offerServiceModal').classList.remove('active');
+            // Limpiar campos
+            document.getElementById('offerName').value = '';
+            document.getElementById('offerDescription').value = '';
+            document.getElementById('offerPhone').value = '';
+            document.getElementById('offerEmail').value = '';
+        }
+
+        function registrarServicio() {
+            const nombre = document.getElementById('offerName').value.trim();
+            const categoria = document.getElementById('offerCategory').value;
+            const descripcion = document.getElementById('offerDescription').value.trim();
+            const telefono = document.getElementById('offerPhone').value.trim();
+            const email = document.getElementById('offerEmail').value.trim();
+
+            if (!nombre || !descripcion || !telefono || !email) {
+                mostrarToast('⚠️ Completa todos los campos', 'error');
+                return;
+            }
+
+            // Validar email
+            if (!email.includes('@')) {
+                mostrarToast('⚠️ Correo electrónico inválido', 'error');
+                return;
+            }
+
+            // Usar ubicación del usuario o coordenadas por defecto
+            let lat = 19.0413;
+            let lng = -98.2062;
+            if (userLocation) {
+                lat = userLocation.lat;
+                lng = userLocation.lng;
+            }
+
+            const nuevoServicio = {
+                id: Date.now(),
+                nombre: nombre,
+                categoria: categoria,
+                descripcion: descripcion,
+                telefono: telefono,
+                email: email,
+                lat: lat + (Math.random() - 0.5) * 0.02,
+                lng: lng + (Math.random() - 0.5) * 0.02,
+                calificacion: 0,
+                reseñas: 0,
+                verificado: miPerfil.verificado,
+                precio_consulta: 5,
+                usuario: miPerfil.nombre || 'Usuario'
+            };
+
+            servicios.push(nuevoServicio);
+            guardarServicios();
+            renderizarServicios();
+            cerrarFormularioServicio();
+            mostrarToast('✅ ¡Servicio registrado con éxito!');
+
+            // Publicar en Muro Live
+            publicarEnMuro(`🛠️ ¡Nuevo servicio disponible! ${nuevoServicio.nombre} - ${getCategoryName(nuevoServicio.categoria)}. ¡Contáctame para más información!`);
+        }
+
+        // ================================================================
+        // TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // CIERRE DE MODALES CON ESC
+        // ================================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cerrarModalServicio();
+                cerrarFormularioServicio();
+            }
+        });
+
+        // Cerrar modales clicando fuera
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    if (this.id === 'serviceModal') cerrarModalServicio();
+                    if (this.id === 'offerServiceModal') cerrarFormularioServicio();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
