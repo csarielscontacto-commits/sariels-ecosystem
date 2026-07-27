@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Legal | Csariel's</title>
+    <meta name="theme-color" content="#0B3D2E" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --verde-bosque: #0B3D2E;
+            --verde-bosque-light: #1a5a44;
+            --gold-cosmic: #f7d44a;
+            --gold-dim: rgba(247,212,74,0.15);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(247,212,74,0.08);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.8;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(11,61,46,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--gold-dim);
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid var(--gold-dim);
+            border-radius: 30px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', monospace;
+            transition: var(--transition);
+        }
+        .btn-back:hover {
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        h1 {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+        .subtitle strong { color: var(--gold-cosmic); }
+        .faq-item {
+            border-bottom: 1px solid var(--gold-dim);
+            padding: 16px 0;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px 0;
+            transition: var(--transition);
+        }
+        .faq-question:hover {
+            color: var(--gold-cosmic);
+        }
+        .faq-question h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+        .faq-question .icon-faq {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+        .faq-question .icon-faq.open {
+            transform: rotate(180deg);
+            color: var(--gold-cosmic);
+        }
+        .faq-answer {
+            display: none;
+            padding-top: 12px;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+        .faq-answer.open {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .faq-answer strong {
+            color: var(--gold-cosmic);
+        }
+        .faq-answer ul, .faq-answer ol {
+            color: var(--text-secondary);
+            padding-left: 24px;
+            margin: 8px 0;
+        }
+        .faq-answer ul li, .faq-answer ol li {
+            margin-bottom: 4px;
+        }
+        .contacto-box {
+            background: rgba(247,212,74,0.05);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .contacto-box strong {
+            color: var(--gold-cosmic);
+            font-size: 1.1rem;
+        }
+        .contacto-box .correo {
+            color: var(--gold-cosmic);
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: block;
+            margin-top: 4px;
+        }
+        .contacto-box p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+        .footer-legal {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .footer-legal a {
+            color: var(--gold-cosmic);
+            text-decoration: none;
+        }
+        .footer-legal a:hover { text-decoration: underline; }
+        .last-updated {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-align: right;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .last-updated .version { color: var(--gold-cosmic); }
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.4rem; }
+            .header { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 16px; }
+            h1 { font-size: 1.1rem; }
+            .faq-question h2 { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <a href="./index.html" class="logo">
+            <span class="hex">◈</span>
+            <span class="logo-text">Csariel's</span>
+            <span class="badge">FAQ Legal</span>
+        </a>
+        <a href="../index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </header>
+
+    <h1>❓ Preguntas Frecuentes</h1>
+    <div class="subtitle">
+        <strong>Sección Legal</strong> · Csariel's · Jurisdicción: Puebla, México
+    </div>
+
+    <!-- ===== FAQ 1 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Puedo monetizar cualquier juego?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                <strong>Solo si la EULA del juego lo permite explícitamente o cuentas con autorización del titular.</strong> 
+                Algunos juegos prohíben la monetización de contenido generado a partir de ellos. 
+                Es tu responsabilidad revisar los términos de la licencia del juego antes de transmitir.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 2 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Qué pasa si recibo una notificación de infracción?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                El stream o VOD se retirará de inmediato mientras se investiga la reclamación. 
+                Tendrás <strong>10 días hábiles</strong> para presentar una contranotificación si consideras que el contenido no infringe derechos.
+            </p>
+            <p>
+                Consulta nuestra <a href="./derechos-autor.html" style="color:var(--gold-cosmic);">Política de Derechos de Autor</a> para más detalles.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 3 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Cómo evito bloqueos por música dentro del juego?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                <strong>Usa la opción de "silenciar audio"</strong> para pistas protegidas o transmite solo música libre de derechos. 
+                La música con derechos de autor (incluyendo la que viene en el juego) puede generar bloqueos automáticos 
+                por nuestro sistema de detección de contenido.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 4 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Puedo usar música de mi propia biblioteca durante el stream?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                <strong>Sí</strong>, siempre que cuentes con los derechos (licencias, regalías) de esa música. 
+                Debes poder demostrar que tienes autorización para usar esa música en transmisiones públicas. 
+                No nos hacemos responsables por el uso no autorizado de música con derechos de autor.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 5 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Qué son los derechos ARCO y cómo los ejerzo?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                <strong>ARCO</strong> son los derechos de <strong>Acceso, Rectificación, Cancelación y Oposición</strong> 
+                que tienes sobre tus datos personales conforme a la LFPDPPP.
+            </p>
+            <p>
+                Para ejercerlos, envía un correo a <strong style="color:var(--gold-cosmic);">csarielscontacto@gmail.com</strong> 
+                con tu solicitud y una identificación oficial. Responderemos en un plazo máximo de <strong>15 días hábiles</strong>.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 6 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿La plataforma es responsable si un usuario transmite contenido ilegal?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                No. Csariel's actúa como un <strong>intermediario</strong> y no es responsable por el contenido generado por los usuarios, 
+                siempre que actúe con <strong>"esfuerzos razonables"</strong> para prevenir y eliminar contenido ilegal 
+                (conforme a la LFDA, art. 153).
+            </p>
+            <p>
+                Contamos con sistemas automáticos de detección (moderación IA) y un equipo de moderadores humanos 
+                para atender reportes y notificaciones de infracción.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 7 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Qué información recopilan sobre mí?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                Recopilamos <strong>información de registro</strong> (nombre, email, edad), 
+                <strong>datos de sesión</strong> (IP, métricas de transmisión) y, 
+                si habilitas monetización, <strong>información de pagos</strong>.
+            </p>
+            <p>
+                Para más detalles, consulta nuestro <a href="./privacidad.html" style="color:var(--gold-cosmic);">Aviso de Privacidad</a>.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 8 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Puedo transmitir si soy menor de edad?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                <strong>No</strong>. Para usar la Plataforma debes ser <strong>mayor de 18 años</strong>. 
+                Si eres menor de edad, no podrás crear una cuenta ni transmitir.
+            </p>
+            <p>
+                Nuestro sistema de verificación de edad utiliza el documento de identidad proporcionado durante el registro.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 9 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Cómo reporto una transmisión inapropiada?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                Puedes reportar una transmisión inapropiada de dos formas:
+            </p>
+            <ul>
+                <li><strong>Botón "Reportar":</strong> Disponible en cada transmisión en vivo.</li>
+                <li><strong>Formulario:</strong> Utiliza el <a href="./formulario-takedown.html" style="color:var(--gold-cosmic);">Formulario de Notificación</a> para reportes de derechos de autor.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 10 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Dónde se resuelven las disputas legales?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                Cualquier controversia relacionada con el uso de la Plataforma se resolverá ante los 
+                <strong>tribunales competentes de la ciudad de Puebla, Estado de Puebla</strong>, 
+                conforme a la legislación mexicana.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 11 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Qué juegos puedo transmitir?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                Puedes transmitir cualquier juego que poseas legalmente, siempre que la EULA del juego lo permita. 
+                Algunos juegos populares permitidos incluyen:
+            </p>
+            <ul>
+                <li>Free Fire 🔥, Call of Duty ⚔️, Roblox 🧱</li>
+                <li>League of Legends ⚡, Valorant 🎯, Fortnite 🎮</li>
+                <li>Minecraft ⛏️, CS:GO 🔫, DOTA 2 🏆</li>
+                <li>Genshin Impact ✨, Among Us 👾, FIFA ⚽</li>
+                <li>Apex Legends 🦅, PUBG 🪂, Overwatch 🛡️</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ===== FAQ 12 ===== -->
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h2>¿Cómo contacto al equipo legal?</h2>
+            <span class="icon-faq">▼</span>
+        </div>
+        <div class="faq-answer">
+            <p>
+                Puedes contactar al equipo legal de Csariel's a través del correo:
+                <strong style="color:var(--gold-cosmic);">csarielscontacto@gmail.com</strong>
+            </p>
+            <p>
+                También puedes utilizar el 
+                <a href="./formulario-takedown.html" style="color:var(--gold-cosmic);">Formulario de Notificación</a> 
+                para infracciones de derechos de autor.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== CONTACTO LEGAL ===== -->
+    <div class="contacto-box">
+        <strong>📧 Contacto Legal</strong>
+        <span class="correo">csarielscontacto@gmail.com</span>
+        <p>
+            Para notificaciones de derechos de autor, derechos ARCO, 
+            consultas legales y apelaciones.
+        </p>
+    </div>
+
+    <!-- ===== VOLVER ===== -->
+    <a href="./index.html" class="btn-back" style="margin-top:16px;">
+        <i class="fas fa-arrow-left"></i> Volver al índice
+    </a>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer-legal">
+        <span>
+            <span class="hex" style="display:inline-block;background:var(--verde-bosque);color:var(--gold-cosmic);padding:2px 8px;border-radius:4px;font-size:0.6rem;font-weight:700;border:1px solid var(--gold-cosmic);font-family:'Orbitron',monospace;">◈</span>
+            Csariel's · FAQ Legal
+        </span>
+        <div>
+            <a href="./terminos-completos.html">📜 Términos Generales</a>
+            <a href="./privacidad.html" style="margin-left:12px;">🔐 Privacidad</a>
+            <a href="./derechos-autor.html" style="margin-left:12px;">📜 Derechos de Autor</a>
+        </div>
+    </div>
+
+    <div class="last-updated">
+        📅 Última actualización: <span class="version">27 de julio de 2026 · v1.0</span><br>
+        <span style="font-size:0.65rem;color:var(--text-muted);">
+            ⚖️ Jurisdicción: Puebla, Estado de Puebla, México
+        </span>
+    </div>
+</div>
+
+<script>
+    function toggleFAQ(element) {
+        const answer = element.nextElementSibling;
+        const icon = element.querySelector('.icon-faq');
+
+        // Cerrar otros FAQs
+        document.querySelectorAll('.faq-answer').forEach(el => {
+            if (el !== answer && el.classList.contains('open')) {
+                el.classList.remove('open');
+                el.previousElementSibling.querySelector('.icon-faq').classList.remove('open');
+            }
+        });
+
+        // Toggle el actual
+        answer.classList.toggle('open');
+        icon.classList.toggle('open');
+    }
+</script>
+
+</body>
+</html>
