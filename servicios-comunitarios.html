@@ -12,8 +12,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
-        /* ===== TODOS LOS ESTILOS EXISTENTES ===== */
-        /* (Mantengo todos tus estilos exactamente igual) */
+        /* ===== TODOS TUS ESTILOS EXISTENTES ===== */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -477,7 +476,7 @@
             border-color: var(--quantum);
         }
 
-        /* ===== CATEGORÍAS (DESDE CONFIG) ===== */
+        /* ===== CATEGORÍAS ===== */
         .categories-scroll {
             display: flex;
             gap: 8px;
@@ -722,6 +721,58 @@
         .modal-content .form-group textarea { resize: vertical; min-height: 70px; }
         .modal-content .form-group select option { background: var(--space-deep); color: var(--text-primary); }
 
+        /* ===== MODAL TÉRMINOS SERVICIOS ===== */
+        .terminos-servicios-modal .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .terminos-servicios-modal .checklist label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 0;
+            transition: var(--transition);
+        }
+        .terminos-servicios-modal .checklist label:hover { color: var(--text-primary); }
+        .terminos-servicios-modal .checklist input[type="checkbox"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .terminos-servicios-modal .checklist .highlight { color: var(--gold-cosmic); font-weight: 600; }
+        .terminos-servicios-modal .resumen {
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            border-left: 3px solid var(--gold-cosmic);
+            margin-bottom: 12px;
+        }
+        .terminos-servicios-modal .resumen ul {
+            padding-left: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .terminos-servicios-modal .resumen ul li { margin-bottom: 4px; }
+        .terminos-servicios-modal .resumen strong { color: var(--text-primary); }
+        .terminos-servicios-modal .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .terminos-servicios-modal .btn-row .btn { flex: 1; justify-content: center; }
+
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
@@ -801,6 +852,8 @@
             .cat-btn { min-width: 60px; padding: 6px 12px; font-size: 0.5rem; }
             .cat-btn .cat-icon { font-size: 1.2rem; }
             .smart-search-container .search-input-wrapper input { font-size: 0.9rem; }
+            .modal-content { padding: 20px; }
+            .terminos-servicios-modal .checklist label { font-size: 0.75rem; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.55rem; padding: 6px 12px; }
@@ -811,6 +864,7 @@
             .search-bar .btn-geolocation { font-size: 0.55rem; padding: 8px 12px; }
             .smart-search-container { padding: 14px 16px; }
             .smart-search-results .result-item { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .terminos-servicios-modal .checklist label { font-size: 0.7rem; }
         }
     </style>
 </head>
@@ -839,6 +893,9 @@
                 <a href="./muro-live.html" class="btn"><i class="fas fa-rss"></i> Muro Live</a>
                 <button class="btn btn-gold btn-sm" onclick="abrirFormularioServicio()">
                     <i class="fas fa-plus-circle"></i> Ofrecer Servicio
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="openTerminosServiciosModal()">
+                    <i class="fas fa-file-contract"></i> 📜 Términos
                 </button>
             </div>
         </header>
@@ -897,9 +954,74 @@
             </span>
         </div>
 
-        <!-- CATEGORÍAS (desde CONFIG) -->
+        <!-- CATEGORÍAS -->
         <div class="categories-scroll" id="categoriesContainer">
-            <!-- Generado por JavaScript desde CONFIG -->
+            <button class="cat-btn active" data-cat="all" onclick="filtrarPorCategoria('all')">
+                <span class="cat-icon">📍</span>Todos
+            </button>
+            <button class="cat-btn" data-cat="mecanico" onclick="filtrarPorCategoria('mecanico')">
+                <span class="cat-icon">🔧</span>Mecánico
+            </button>
+            <button class="cat-btn" data-cat="llantera" onclick="filtrarPorCategoria('llantera')">
+                <span class="cat-icon">🛞</span>Llantera
+            </button>
+            <button class="cat-btn" data-cat="grua" onclick="filtrarPorCategoria('grua')">
+                <span class="cat-icon">🚗</span>Grúa
+            </button>
+            <button class="cat-btn" data-cat="gasolina" onclick="filtrarPorCategoria('gasolina')">
+                <span class="cat-icon">⛽</span>Gasolina
+            </button>
+            <button class="cat-btn" data-cat="plomero" onclick="filtrarPorCategoria('plomero')">
+                <span class="cat-icon">🚰</span>Plomero
+            </button>
+            <button class="cat-btn" data-cat="electricista" onclick="filtrarPorCategoria('electricista')">
+                <span class="cat-icon">⚡</span>Electricista
+            </button>
+            <button class="cat-btn" data-cat="albañil" onclick="filtrarPorCategoria('albañil')">
+                <span class="cat-icon">🧱</span>Albañil
+            </button>
+            <button class="cat-btn" data-cat="tecnico" onclick="filtrarPorCategoria('tecnico')">
+                <span class="cat-icon">🖥️</span>Técnico
+            </button>
+            <button class="cat-btn" data-cat="celular" onclick="filtrarPorCategoria('celular')">
+                <span class="cat-icon">📱</span>Celulares
+            </button>
+            <button class="cat-btn" data-cat="limpieza" onclick="filtrarPorCategoria('limpieza')">
+                <span class="cat-icon">🧹</span>Limpieza
+            </button>
+            <button class="cat-btn" data-cat="mudanza" onclick="filtrarPorCategoria('mudanza')">
+                <span class="cat-icon">🚚</span>Mudanza
+            </button>
+            <button class="cat-btn" data-cat="transporte" onclick="filtrarPorCategoria('transporte')">
+                <span class="cat-icon">🚕</span>Transporte
+            </button>
+            <button class="cat-btn" data-cat="comida" onclick="filtrarPorCategoria('comida')">
+                <span class="cat-icon">🍽️</span>Comida
+            </button>
+            <button class="cat-btn" data-cat="medico" onclick="filtrarPorCategoria('medico')">
+                <span class="cat-icon">🩺</span>Médico
+            </button>
+            <button class="cat-btn" data-cat="farmacia" onclick="filtrarPorCategoria('farmacia')">
+                <span class="cat-icon">💊</span>Farmacia
+            </button>
+            <button class="cat-btn" data-cat="profesor" onclick="filtrarPorCategoria('profesor')">
+                <span class="cat-icon">📚</span>Profesor
+            </button>
+            <button class="cat-btn" data-cat="veterinario" onclick="filtrarPorCategoria('veterinario')">
+                <span class="cat-icon">🐕</span>Veterinario
+            </button>
+            <button class="cat-btn" data-cat="cerrajero" onclick="filtrarPorCategoria('cerrajero')">
+                <span class="cat-icon">🏠</span>Cerrajero
+            </button>
+            <button class="cat-btn" data-cat="jardineria" onclick="filtrarPorCategoria('jardineria')">
+                <span class="cat-icon">🌳</span>Jardinería
+            </button>
+            <button class="cat-btn" data-cat="aire" onclick="filtrarPorCategoria('aire')">
+                <span class="cat-icon">❄️</span>Aire Acond.
+            </button>
+            <button class="cat-btn" data-cat="diseno" onclick="filtrarPorCategoria('diseno')">
+                <span class="cat-icon">🎨</span>Diseño
+            </button>
         </div>
 
         <!-- MAPA -->
@@ -916,12 +1038,13 @@
             <div class="footer-links">
                 <a href="./mi-red.html">👥 Mi Red</a>
                 <a href="./muro-live.html">📱 Muro Live</a>
+                <a href="./terminos/terminos-servicios.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="./terminos/privacidad.html" style="color:var(--gold-cosmic);">🔐 Privacidad</a>
             </div>
         </footer>
     </div>
 
-    <!-- ===== MODALES ===== -->
-    <!-- MODAL DE SERVICIO -->
+    <!-- ===== MODAL DE SERVICIO ===== -->
     <div class="modal-overlay" id="serviceModal">
         <div class="modal-content">
             <button class="modal-close" onclick="cerrarModalServicio()">✕</button>
@@ -941,7 +1064,7 @@
         </div>
     </div>
 
-    <!-- MODAL OFRECER SERVICIO -->
+    <!-- ===== MODAL OFRECER SERVICIO ===== -->
     <div class="modal-overlay" id="offerServiceModal">
         <div class="modal-content">
             <button class="modal-close" onclick="cerrarFormularioServicio()">✕</button>
@@ -956,7 +1079,28 @@
             <div class="form-group">
                 <label>Categoría *</label>
                 <select id="offerCategory">
-                    <!-- Generado por JavaScript desde CONFIG -->
+                    <option value="mecanico">🔧 Mecánico</option>
+                    <option value="llantera">🛞 Llantera</option>
+                    <option value="grua">🚗 Grúa</option>
+                    <option value="gasolina">⛽ Gasolina</option>
+                    <option value="plomero">🚰 Plomero</option>
+                    <option value="electricista">⚡ Electricista</option>
+                    <option value="albañil">🧱 Albañil</option>
+                    <option value="tecnico">🖥️ Técnico</option>
+                    <option value="celular">📱 Celulares</option>
+                    <option value="limpieza">🧹 Limpieza</option>
+                    <option value="mudanza">🚚 Mudanza</option>
+                    <option value="transporte">🚕 Transporte</option>
+                    <option value="comida">🍽️ Comida</option>
+                    <option value="medico">🩺 Médico</option>
+                    <option value="farmacia">💊 Farmacia</option>
+                    <option value="profesor">📚 Profesor</option>
+                    <option value="veterinario">🐕 Veterinario</option>
+                    <option value="cerrajero">🏠 Cerrajero</option>
+                    <option value="jardineria">🌳 Jardinería</option>
+                    <option value="aire">❄️ Aire Acondicionado</option>
+                    <option value="diseno">🎨 Diseño</option>
+                    <option value="otros">📌 Otros</option>
                 </select>
             </div>
 
@@ -994,6 +1138,76 @@
         </div>
     </div>
 
+    <!-- ===== MODAL TÉRMINOS SERVICIOS ===== -->
+    <div class="modal-overlay terminos-servicios-modal" id="terminosServiciosModal">
+        <div class="modal-content" style="max-width:560px;">
+            <button class="modal-close" onclick="closeTerminosServiciosModal()">✕</button>
+            <h3 class="modal-title">📜 Términos de Servicios Comunitarios</h3>
+            <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
+                Csariel's — Servicios Comunitarios · Red de Ayuda Mutua
+            </p>
+
+            <div id="terminosServiciosResult" style="display:none;"></div>
+
+            <div class="resumen">
+                <p><strong>📋 Resumen del Servicio:</strong></p>
+                <ul>
+                    <li>• <span class="highlight">Intermediación:</span> Csariel's solo facilita la conexión entre usuarios.</li>
+                    <li>• <span class="highlight">Responsabilidad:</span> El prestador es responsable de la calidad del servicio.</li>
+                    <li>• <span class="highlight">Pagos:</span> $5 MXN por consulta · Comisión del 1%.</li>
+                    <li>• <span class="highlight">Verificación:</span> Los prestadores deben estar verificados.</li>
+                    <li>• <span class="highlight">Calificaciones:</span> Sistema de reseñas (1-10 estrellas).</li>
+                    <li>• <span class="highlight">Jurisdicción:</span> Puebla, México.</li>
+                    <li>• <span class="highlight">Privacidad:</span> Conforme a la LFPDPPP.</li>
+                </ul>
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                <a href="./terminos/terminos-servicios.html" target="_blank" class="btn btn-primary" style="flex:1;justify-content:center;">
+                    <i class="fas fa-file-pdf"></i> 📖 Leer Términos Completos
+                </a>
+                <a href="./terminos/privacidad.html" target="_blank" class="btn btn-outline" style="flex:1;justify-content:center;">
+                    <i class="fas fa-shield-alt"></i> 🔐 Aviso de Privacidad
+                </a>
+            </div>
+
+            <div class="checklist">
+                <label>
+                    <input type="checkbox" id="terminosServiciosCheck1" />
+                    <span>He leído y acepto los <span class="highlight">Términos de Servicios Comunitarios</span>.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="terminosServiciosCheck2" />
+                    <span>Comprendo que Csariel's <span class="highlight">no es responsable</span> de la calidad del servicio prestado.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="terminosServiciosCheck3" />
+                    <span>Acepto pagar <span class="highlight">$5 MXN por consulta</span> y la comisión del 1%.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="terminosServiciosCheck4" />
+                    <span>He leído y acepto el <span class="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="terminosServiciosCheck5" />
+                    <span>Acepto la <span class="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span>
+                </label>
+            </div>
+
+            <div class="btn-row">
+                <button onclick="aceptarTerminosServicios()" class="btn btn-success" id="btnAceptarTerminosServicios" disabled>
+                    <i class="fas fa-check"></i> Aceptar y Continuar
+                </button>
+                <button onclick="closeTerminosServiciosModal()" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Rechazar
+                </button>
+            </div>
+            <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;margin-top:10px;">
+                ⚠️ Debes aceptar <strong style="color:var(--danger);">TODOS</strong> los puntos para usar los servicios.
+            </p>
+        </div>
+    </div>
+
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
@@ -1010,7 +1224,6 @@
         const PRECIOS = CONFIG.PRECIOS_SERVICIOS;
         const WALLET_PAGOS = CONFIG.WALLET_PAGOS;
         const CATEGORIAS_CONFIG = CONFIG.SERVICIOS.categorias;
-        const METODOS_PAGO = CONFIG.SERVICIOS.metodosPago;
 
         // ================================================================
         // SISTEMA ESTELAR Y CONFIGURACIÓN
@@ -1029,9 +1242,83 @@
             cargarPerfil();
             generarCategoriasDesdeConfig();
             generarOpcionesCategorias();
+            initTerminosServicios();
         });
 
-        // ===== GENERAR CATEGORÍAS DESDE CONFIG =====
+        // ================================================================
+        // TÉRMINOS Y CONDICIONES - SERVICIOS
+        // ================================================================
+        let terminosServiciosAceptados = false;
+
+        function initTerminosServicios() {
+            try {
+                const aceptado = localStorage.getItem('terminos_servicios_aceptado');
+                if (aceptado === 'true') {
+                    terminosServiciosAceptados = true;
+                    console.log('✅ Términos de Servicios aceptados previamente');
+                }
+            } catch (e) {
+                console.warn('Error verificando términos de servicios:', e);
+            }
+
+            const checks = document.querySelectorAll('#terminosServiciosModal .checklist input[type="checkbox"]');
+            checks.forEach(check => {
+                check.addEventListener('change', verificarChecksServicios);
+            });
+
+            if (!terminosServiciosAceptados) {
+                setTimeout(() => {
+                    openTerminosServiciosModal();
+                }, 800);
+            }
+        }
+
+        function verificarChecksServicios() {
+            const checks = document.querySelectorAll('#terminosServiciosModal .checklist input[type="checkbox"]');
+            const todos = Array.from(checks).every(c => c.checked);
+            document.getElementById('btnAceptarTerminosServicios').disabled = !todos;
+        }
+
+        window.openTerminosServiciosModal = function() {
+            document.getElementById('terminosServiciosModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeTerminosServiciosModal = function() {
+            document.getElementById('terminosServiciosModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        };
+
+        window.aceptarTerminosServicios = function() {
+            try {
+                localStorage.setItem('terminos_servicios_aceptado', 'true');
+                terminosServiciosAceptados = true;
+            } catch (e) {
+                console.warn('Error guardando aceptación de servicios:', e);
+            }
+
+            const resultDiv = document.getElementById('terminosServiciosResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div style="padding:12px;background:rgba(0,184,148,0.1);border-radius:8px;border:1px solid rgba(0,184,148,0.2);margin-bottom:12px;">
+                    <p style="color:var(--success);font-weight:600;">
+                        <i class="fas fa-check-circle"></i> ¡Términos de Servicios aceptados!
+                    </p>
+                    <p style="font-size:0.75rem;color:var(--text-secondary);">
+                        Puedes consultar los términos completos en cualquier momento desde el botón "📜 Términos".
+                    </p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                closeTerminosServiciosModal();
+                mostrarToast('✅ Términos de Servicios aceptados');
+            }, 1500);
+        };
+
+        // ================================================================
+        // GENERAR CATEGORÍAS DESDE CONFIG
+        // ================================================================
         function generarCategoriasDesdeConfig() {
             const container = document.getElementById('categoriesContainer');
             const iconos = {
@@ -1627,6 +1914,7 @@
                 cerrarModalServicio();
                 cerrarFormularioServicio();
                 limpiarBusquedaInteligente();
+                closeTerminosServiciosModal();
             }
         });
 
@@ -1635,6 +1923,7 @@
                 if (e.target === this) {
                     if (this.id === 'serviceModal') cerrarModalServicio();
                     if (this.id === 'offerServiceModal') cerrarFormularioServicio();
+                    if (this.id === 'terminosServiciosModal') closeTerminosServiciosModal();
                 }
             });
         });
@@ -1654,11 +1943,15 @@
         window.registrarServicio = registrarServicio;
         window.obtenerUbicacion = obtenerUbicacion;
         window.mostrarToast = mostrarToast;
+        window.openTerminosServiciosModal = openTerminosServiciosModal;
+        window.closeTerminosServiciosModal = closeTerminosServiciosModal;
+        window.aceptarTerminosServicios = aceptarTerminosServicios;
 
         console.log('✅ Servicios Comunitarios v2.0 cargado correctamente');
         console.log(`📋 ${CATEGORIAS_CONFIG.length} categorías de servicios disponibles`);
         console.log('🔍 Buscador inteligente con IA activo');
         console.log(`💰 Precios desde CONFIG: Consulta $${PRECIOS.consulta} MXN`);
+        console.log('📜 Términos y Condiciones integrados');
     </script>
 </body>
 </html>
