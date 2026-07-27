@@ -6,21 +6,15 @@
     <title>Muro Live | Csariel's</title>
     <meta name="theme-color" content="#0B3D2E" />
     
-    <!-- Open Graph -->
     <meta property="og:title" content="Csariel's - Muro Live" />
     <meta property="og:description" content="Publica fotos, videos, estados 24h y transmisiones en vivo" />
     <meta property="og:type" content="website" />
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     
     <style>
-        /* ===== TODOS LOS ESTILOS ===== */
-        /* (Mantengo todos tus estilos exactamente igual) */
-        
+        /* ===== VARIABLES ===== */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -243,7 +237,7 @@
             -webkit-text-fill-color: white;
         }
 
-        /* ===== ESTILO TIKTOK/FACEBOOK LIVE ===== */
+        /* ===== FEED ===== */
         .feed-container {
             display: flex;
             flex-direction: column;
@@ -511,7 +505,7 @@
             border: 1px solid rgba(255,51,102,0.2);
         }
 
-        /* ===== MODAL DE PUBLICACIÓN ===== */
+        /* ===== MODAL ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -577,6 +571,58 @@
         }
         .modal-content .modal-actions .btn { flex: 1; justify-content: center; }
 
+        /* ===== MODAL TÉRMINOS ===== */
+        .terminos-modal .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .terminos-modal .checklist label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 0;
+            transition: var(--transition);
+        }
+        .terminos-modal .checklist label:hover { color: var(--text-primary); }
+        .terminos-modal .checklist input[type="checkbox"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .terminos-modal .checklist .highlight { color: var(--gold-cosmic); font-weight: 600; }
+        .terminos-modal .resumen {
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            border-left: 3px solid var(--gold-cosmic);
+            margin-bottom: 12px;
+        }
+        .terminos-modal .resumen ul {
+            padding-left: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .terminos-modal .resumen ul li { margin-bottom: 4px; }
+        .terminos-modal .resumen strong { color: var(--text-primary); }
+        .terminos-modal .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .terminos-modal .btn-row .btn { flex: 1; justify-content: center; }
+
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
@@ -594,7 +640,6 @@
             z-index: 5000;
             pointer-events: none;
             font-family: 'Orbitron', monospace;
-            box-shadow: var(--shadow-neon);
             border: 1px solid rgba(247,212,74,0.15);
         }
         .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -657,12 +702,15 @@
             .quick-post .placeholder { width: 100%; order: 3; }
             .stories-bar { gap: 8px; }
             .story-avatar { width: 52px; height: 52px; font-size: 1.2rem; }
+            .modal-content { padding: 20px; margin: 12px; }
+            .terminos-modal .checklist label { font-size: 0.75rem; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.55rem; padding: 6px 12px; }
             .post-card { padding: 14px; }
             .story-avatar { width: 44px; height: 44px; font-size: 1rem; }
             .story-name { font-size: 0.5rem; }
+            .terminos-modal .checklist label { font-size: 0.7rem; }
         }
     </style>
 </head>
@@ -696,6 +744,9 @@
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="iniciarTransmision()">
                     <i class="fas fa-broadcast"></i> Live
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="openTerminosModal()">
+                    <i class="fas fa-file-contract"></i> 📜 Términos
                 </button>
             </div>
         </header>
@@ -796,6 +847,75 @@
             </div>
         </div>
 
+        <!-- ===== MODAL DE TÉRMINOS ===== -->
+        <div class="modal-overlay terminos-modal" id="terminosModal">
+            <div class="modal-content" style="max-width:560px;">
+                <button class="modal-close" onclick="closeTerminosModal()">✕</button>
+                <h3 class="modal-title">📜 Términos y Condiciones</h3>
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
+                    Csariel's — Muro Live · Pasarela de Pagos
+                </p>
+
+                <div id="terminosResult" style="display:none;"></div>
+
+                <div class="resumen">
+                    <p><strong>📋 Resumen del Acuerdo:</strong></p>
+                    <ul>
+                        <li>🔒 <strong>Modelo No Custodial:</strong> Tú controlas tus activos.</li>
+                        <li>⚡ <strong>Irreversibilidad:</strong> Las transacciones en blockchain son finales.</li>
+                        <li>📊 <strong>Declaración Fiscal:</strong> Eres responsable ante el SAT.</li>
+                        <li>🛡️ <strong>Prevención de Lavado:</strong> Cumplimos con la LFPIORPI.</li>
+                        <li>📜 <strong>Jurisdicción:</strong> Puebla, México.</li>
+                        <li>🔐 <strong>Datos Personales:</strong> Conforme a la LFPDPPP.</li>
+                    </ul>
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                    <a href="./terminos/terminos-completos.html" target="_blank" class="btn btn-primary" style="flex:1;justify-content:center;">
+                        <i class="fas fa-file-pdf"></i> 📖 Leer Términos Completos (81 arts.)
+                    </a>
+                    <a href="./terminos/privacidad.html" target="_blank" class="btn btn-outline" style="flex:1;justify-content:center;">
+                        <i class="fas fa-shield-alt"></i> 🔐 Aviso de Privacidad
+                    </a>
+                </div>
+
+                <div class="checklist">
+                    <label>
+                        <input type="checkbox" id="terminosCheck1" />
+                        <span>He leído y acepto los <span class="highlight">Términos y Condiciones Generales</span> de Csariel's.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosCheck2" />
+                        <span>Comprendo que las transacciones son <span class="highlight">irreversibles</span> y operan bajo modelo <span class="highlight">no custodial</span>.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosCheck3" />
+                        <span>Declaro que cumplo con mis <span class="highlight">obligaciones fiscales</span> ante el SAT.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosCheck4" />
+                        <span>He leído y acepto el <span class="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosCheck5" />
+                        <span>Acepto la <span class="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span>
+                    </label>
+                </div>
+
+                <div class="btn-row">
+                    <button onclick="aceptarTerminos()" class="btn btn-success" id="btnAceptarTerminos" disabled>
+                        <i class="fas fa-check"></i> Aceptar y Continuar
+                    </button>
+                    <button onclick="closeTerminosModal()" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Rechazar
+                    </button>
+                </div>
+                <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;margin-top:10px;">
+                    ⚠️ Debes aceptar <strong style="color:var(--danger);">TODOS</strong> los puntos para continuar usando el Muro Live.
+                </p>
+            </div>
+        </div>
+
         <!-- ===== TOAST ===== -->
         <div class="toast" id="toast"></div>
 
@@ -808,8 +928,8 @@
                 <a href="./mi-red.html">👥 Mi Red</a>
                 <a href="./servicios-comunitarios.html">🔧 Servicios</a>
                 <a href="./panel-web3.html">🔗 Web3</a>
-                <!-- ✅ ELIMINADO: <a href="./fidelizacion.html">🎫 Fidelización</a> -->
-                <!-- ✅ ELIMINADO: Trending (no existía en el código) -->
+                <a href="./terminos/terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="./terminos/privacidad.html" style="color:var(--gold-cosmic);">🔐 Privacidad</a>
             </div>
         </footer>
     </div>
@@ -817,8 +937,9 @@
     <!-- ===== SCRIPTS ===== -->
     <script type="module">
         // ================================================================
-        // IMPORTAR MODERACIÓN IA
+        // IMPORTAR CONFIG Y MODERACIÓN IA
         // ================================================================
+        import { CONFIG } from './config.js';
         import { moderador } from './moderacion-ia.js';
 
         // ================================================================
@@ -828,10 +949,12 @@
             console.log('◈ Csariel\'s - Muro Live (Con Moderación IA)');
             console.log('🧠 Moderación IA activa');
             console.log('📹 Modo TikTok/Facebook Live');
-            console.log('✅ Fidelización y Trending eliminados');
+            console.log('✅ Fidelización y Trading eliminados');
+            console.log(`📦 Configuración desde CONFIG v${CONFIG.VERSION}`);
             initStars();
             initMuro();
             cargarPerfil();
+            initTerminos();
         });
 
         // ===== ESTRELLAS =====
@@ -983,6 +1106,77 @@
                 createStars();
             });
         }
+
+        // ================================================================
+        // TÉRMINOS Y CONDICIONES
+        // ================================================================
+        let terminosAceptados = false;
+
+        function initTerminos() {
+            try {
+                const aceptado = localStorage.getItem('terminos_muro_live_aceptado');
+                if (aceptado === 'true') {
+                    terminosAceptados = true;
+                    console.log('✅ Términos ya aceptados previamente');
+                }
+            } catch (e) {
+                console.warn('Error verificando términos:', e);
+            }
+
+            const checks = document.querySelectorAll('#terminosModal .checklist input[type="checkbox"]');
+            checks.forEach(check => {
+                check.addEventListener('change', verificarChecks);
+            });
+
+            if (!terminosAceptados) {
+                setTimeout(() => {
+                    openTerminosModal();
+                }, 800);
+            }
+        }
+
+        function verificarChecks() {
+            const checks = document.querySelectorAll('#terminosModal .checklist input[type="checkbox"]');
+            const todos = Array.from(checks).every(c => c.checked);
+            document.getElementById('btnAceptarTerminos').disabled = !todos;
+        }
+
+        window.openTerminosModal = function() {
+            document.getElementById('terminosModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeTerminosModal = function() {
+            document.getElementById('terminosModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        };
+
+        window.aceptarTerminos = function() {
+            try {
+                localStorage.setItem('terminos_muro_live_aceptado', 'true');
+                terminosAceptados = true;
+            } catch (e) {
+                console.warn('Error guardando aceptación:', e);
+            }
+
+            const resultDiv = document.getElementById('terminosResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div style="padding:12px;background:rgba(0,184,148,0.1);border-radius:8px;border:1px solid rgba(0,184,148,0.2);margin-bottom:12px;">
+                    <p style="color:var(--success);font-weight:600;">
+                        <i class="fas fa-check-circle"></i> ¡Términos aceptados correctamente!
+                    </p>
+                    <p style="font-size:0.75rem;color:var(--text-secondary);">
+                        Puedes consultar los términos completos en cualquier momento desde el botón "📜 Términos".
+                    </p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                closeTerminosModal();
+                mostrarToast('✅ Términos y Condiciones aceptados');
+            }, 1500);
+        };
 
         // ================================================================
         // PERFIL
@@ -1339,6 +1533,7 @@
             if (e.key === 'Escape') {
                 cerrarModalPublicacion();
                 cerrarLiveModal();
+                closeTerminosModal();
             }
         });
 
@@ -1347,6 +1542,7 @@
                 if (e.target === this) {
                     if (this.id === 'postModal') cerrarModalPublicacion();
                     if (this.id === 'liveModal') cerrarLiveModal();
+                    if (this.id === 'terminosModal') closeTerminosModal();
                 }
             });
         });
@@ -1354,7 +1550,8 @@
         console.log('✅ Muro Live con Moderación IA cargado');
         console.log('🧠 Detección de servicios activa');
         console.log('📹 Modo TikTok/Facebook Live');
-        console.log('✅ Fidelización y Trending eliminados del sistema');
+        console.log('✅ Fidelización y Trading eliminados del sistema');
+        console.log('📜 Términos y Condiciones integrados');
     </script>
 </body>
 </html>
