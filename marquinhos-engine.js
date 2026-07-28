@@ -69,21 +69,33 @@ export const Engine = {
         console.log('🛡️ Moderación avanzada activa');
         console.log('🎮 Detección de juegos: Free Fire, COD, Roblox, etc.');
         console.log('📊 Métricas en tiempo real');
+        console.log('📨 Chat avanzado: Estados de mensaje, editar, eliminar, responder');
     },
 
     // ================================================================
-    // CHAT - Envío de mensajes
+    // CHAT - Envío de mensajes (ACTUALIZADO)
     // ================================================================
+    
+    /**
+     * Envía un mensaje de texto
+     */
     enviarMensaje(texto) {
         if (!texto || !texto.trim()) return;
-        
         const userId = this.obtenerUserId();
         chatPlugin.sendText(userId, texto.trim());
     },
 
+    /**
+     * 🆕 Envía un mensaje respondiendo a otro
+     */
+    enviarMensajeConRespuesta(texto, messageId, textoRespondido) {
+        if (!texto || !texto.trim()) return;
+        const userId = this.obtenerUserId();
+        return chatPlugin.sendText(userId, texto.trim(), { id: messageId, texto: textoRespondido });
+    },
+
     enviarMensajeConTipo(texto, tipo = 'text') {
         if (!texto || !texto.trim()) return;
-        
         const userId = this.obtenerUserId();
         switch(tipo) {
             case 'emoji':
@@ -123,6 +135,88 @@ export const Engine = {
             m.leido = true;
         });
         console.log('📖 Mensajes marcados como leídos');
+    },
+
+    // ================================================================
+    // 🆕 CHAT AVANZADO - Nuevas funciones
+    // ================================================================
+
+    /**
+     * Edita un mensaje enviado
+     */
+    editarMensaje: async (messageId, nuevoTexto) => {
+        const userId = Engine.obtenerUserId();
+        return chatPlugin.editMessage(messageId, nuevoTexto);
+    },
+
+    /**
+     * Elimina un mensaje para todos
+     */
+    eliminarMensaje: async (messageId) => {
+        const userId = Engine.obtenerUserId();
+        return chatPlugin.deleteMessageForEveryone(messageId);
+    },
+
+    /**
+     * Marca un mensaje como leído
+     */
+    marcarMensajeLeido: async (messageId) => {
+        return chatPlugin.markAsRead(messageId);
+    },
+
+    /**
+     * Envía indicador "escribiendo..."
+     */
+    enviarTypingIndicator: async (targetUserId) => {
+        return chatPlugin.sendTypingIndicator(targetUserId);
+    },
+
+    /**
+     * Envía indicador "grabando audio..."
+     */
+    enviarRecordingIndicator: async (targetUserId) => {
+        return chatPlugin.sendRecordingIndicator(targetUserId);
+    },
+
+    /**
+     * Obtiene historial de mensajes con paginación
+     */
+    obtenerHistorial: async (limit = 50, offset = 0) => {
+        return chatPlugin.getHistory(limit, offset);
+    },
+
+    // ================================================================
+    // STICKERS CON COMMIT
+    // ================================================================
+
+    /**
+     * Envía un sticker con COMMIT (CMT)
+     */
+    enviarStickerCommit: async (receiverId, assetType, descripcion) => {
+        const userId = Engine.obtenerUserId();
+        return chatPlugin.sendStickerCommit(userId, receiverId, assetType, descripcion);
+    },
+
+    /**
+     * Envía un regalo P2P con COMMIT (CMT)
+     */
+    enviarGiftCommit: async (receiverId, monto, descripcion) => {
+        const userId = Engine.obtenerUserId();
+        return chatPlugin.sendGiftCommit(userId, receiverId, monto, descripcion);
+    },
+
+    /**
+     * Obtiene el saldo COMMIT de un usuario
+     */
+    obtenerSaldoCommit: async (userId) => {
+        return chatPlugin.getBalanceCommit(userId);
+    },
+
+    /**
+     * Lista stickers disponibles
+     */
+    listarStickersCommit: async () => {
+        return chatPlugin.listarStickersCommit();
     },
 
     // ================================================================
@@ -327,7 +421,6 @@ export const Engine = {
             detail: event
         }));
         
-        // Si es un cierre, mostrar notificación especial
         if (event.tipo === 'cierre') {
             console.log('🚫 TRANSMISIÓN CERRADA POR MODERACIÓN');
             this.mostrarNotificacion('🚫 Transmisión cerrada por moderación', '#ff3366');
@@ -385,8 +478,11 @@ export const Engine = {
 // ================================================================
 Engine.conectar();
 
-console.log('🧠 Marquinhos Engine v2.0 - COMPLETO');
-console.log('✅ Chat en tiempo real');
+console.log('🧠 Marquinhos Engine v3.0 - CHAT AVANZADO');
+console.log('✅ Chat en tiempo real con estados de mensaje');
+console.log('✏️ Editar y eliminar mensajes');
+console.log('💬 Responder mensajes específicos');
+console.log('🔄 Indicador "escribiendo..."');
 console.log('✅ Llamadas de voz y video');
 console.log('✅ Transmisiones en vivo');
 console.log('✅ Transmisiones grupales (hasta 10 participantes)');
@@ -398,3 +494,4 @@ console.log('✅ Métricas en tiempo real');
 console.log('✅ Servicios priorizados (primera plana)');
 console.log('🎮 Detección de juegos popular');
 console.log('📷 Control de cámaras individual y grupal');
+console.log('💰 Sistema COMMIT (CMT) integrado');
