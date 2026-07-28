@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Red | Csariel's</title>
+    <title>Mironova | Csariel's</title>
     <meta name="theme-color" content="#0B3D2E" />
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Csariel's - Mi Red" />
+    <meta property="og:title" content="Csariel's - Mironova" />
     <meta property="og:description" content="Conecta con estudiantes verificados, grupos y herramientas de estudio" />
     <meta property="og:type" content="website" />
     
@@ -23,234 +23,971 @@
     
     <style>
         /* ===== TODOS TUS ESTILOS EXISTENTES ===== */
-        /* ===== Se mantienen todos los estilos que ya tenías ===== */
-        
-        /* ===== NUEVOS ESTILOS PARA CHAT RÁPIDO Y CONTACTOS ===== */
-        .chat-preview {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            width: 320px;
-            max-height: 500px;
-            background: rgba(11,61,46,0.95);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius) var(--radius) 0 0;
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
-            overflow: hidden;
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --space-light: #101f3a;
+            --verde-bosque: #0B3D2E;
+            --verde-bosque-light: #1a5a44;
+            --verde-bosque-glass: rgba(11,61,46,0.85);
+            --gold-cosmic: #f7d44a;
+            --gold-dim: rgba(247,212,74,0.15);
+            --gold-glow: rgba(247,212,74,0.25);
+            --nebula-1: #6c2bd9;
+            --nebula-2: #ff6b9d;
+            --nebula-3: #00d4ff;
+            --plasma: #ff3366;
+            --quantum: #00e5ff;
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(247,212,74,0.08);
+            --border-glow: rgba(247,212,74,0.25);
+            --shadow-neon: 0 0 40px rgba(247,212,74,0.08);
+            --shadow-glow: 0 0 60px rgba(11,61,46,0.3);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --warning: #f7d44a;
+            --danger: #ff3366;
+            --university-bg: rgba(247,212,74,0.05);
         }
-        .chat-preview.active { display: flex; }
-        .chat-preview .chat-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--gold-dim);
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 20px 24px 40px; }
+
+        /* ===== HEADER ===== */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
+            padding: 16px 0 20px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            position: relative;
         }
-        .chat-preview .chat-header .info {
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
+            text-decoration: none;
         }
-        .chat-preview .chat-header .info .avatar {
-            width: 32px;
-            height: 32px;
+
+        .logo-icon {
+            font-size: 2.4rem;
+            filter: drop-shadow(0 0 20px rgba(247,212,74,0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            box-shadow: 0 0 30px rgba(247,212,74,0.1);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); }
+            50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(247,212,74,0.15);
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 0 30px rgba(11,61,46,0.3);
+            animation: badge-pulse 2s ease-in-out infinite;
+            border: 1px solid rgba(247,212,74,0.2);
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(11,61,46,0.3); }
+            50% { box-shadow: 0 0 60px rgba(247,212,74,0.2); }
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(247,212,74,0.06);
+            border: 1px solid rgba(247,212,74,0.15);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(247,212,74,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: scale(1.03); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(11,61,46,0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #00897b, #00695c);
+            box-shadow: 0 0 40px rgba(0,184,148,0.3);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(247,212,74,0.3); }
+
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(247,212,74,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+
+        .btn-verify {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            animation: pulse-glow-verify 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow-verify {
+            0%, 100% { box-shadow: 0 0 20px rgba(247,212,74,0.2); }
+            50% { box-shadow: 0 0 50px rgba(247,212,74,0.4); }
+        }
+
+        .btn-verify:hover:not(:disabled) { 
+            box-shadow: 0 0 60px rgba(247,212,74,0.5);
+            transform: scale(1.05);
+        }
+
+        .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+            border: 1px solid rgba(0,184,148,0.2);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-unverified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,51,102,0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255,51,102,0.15);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-card {
+            background: rgba(11,61,46,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            flex-wrap: wrap;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.15;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 2rem;
             font-weight: 700;
-            font-size: 0.8rem;
             color: #0a0c10;
-        }
-        .chat-preview .chat-header .info .name {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-primary);
-        }
-        .chat-preview .chat-messages {
-            flex: 1;
-            padding: 12px 16px;
-            overflow-y: auto;
-            min-height: 200px;
-            max-height: 300px;
-        }
-        .chat-preview .chat-messages .msg {
-            padding: 6px 12px;
-            margin-bottom: 4px;
-            border-radius: 12px;
-            max-width: 80%;
-            font-size: 0.8rem;
-        }
-        .chat-preview .chat-messages .msg.sent {
-            background: rgba(247,212,74,0.15);
-            margin-left: auto;
-            color: var(--text-primary);
-        }
-        .chat-preview .chat-messages .msg.received {
-            background: rgba(255,255,255,0.05);
-            margin-right: auto;
-            color: var(--text-secondary);
-        }
-        .chat-preview .chat-input-area {
-            padding: 8px 12px;
-            border-top: 1px solid var(--gold-dim);
-            display: flex;
-            gap: 8px;
-        }
-        .chat-preview .chat-input-area input {
-            flex: 1;
-            padding: 6px 12px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 20px;
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            outline: none;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .chat-preview .chat-input-area input:focus { border-color: var(--gold-cosmic); }
-        .chat-preview .chat-input-area button {
-            background: var(--gold-cosmic);
-            border: none;
-            border-radius: 20px;
-            padding: 4px 14px;
-            color: #0a0c10;
-            font-weight: 700;
+            flex-shrink: 0;
+            overflow: hidden;
             cursor: pointer;
-            font-size: 0.7rem;
-            font-family: 'Orbitron', monospace;
+            position: relative;
+            border: 2px solid var(--gold-cosmic);
         }
-        .chat-preview .chat-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-        .chat-preview .chat-close:hover { color: var(--text-primary); }
 
-        /* ===== NUEVOS ESTILOS PARA BLOQUEADOS Y SILENCIADOS ===== */
-        .contact-status {
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-avatar .edit-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: var(--gold-cosmic);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: #0a0c10;
+            border: 2px solid var(--space-deep);
+        }
+
+        .profile-info { flex: 1; min-width: 200px; }
+        .profile-info .name {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--text-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-info .sub {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .profile-info .university-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--university-bg);
+            border: 1px solid rgba(247,212,74,0.15);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            margin-top: 4px;
+        }
+
+        .profile-info .university-tag i { font-size: 0.6rem; }
+
+        .profile-verification {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .profile-details {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .profile-details .detail-item {
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 0.55rem;
-            font-family: 'Orbitron', monospace;
-        }
-        .contact-status.online { color: var(--success); }
-        .contact-status.offline { color: var(--text-muted); }
-        .contact-status.away { color: var(--warning); }
-        .contact-status.busy { color: var(--danger); }
-
-        .blocked-badge {
-            font-size: 0.5rem;
-            background: rgba(255,51,102,0.15);
-            color: var(--danger);
-            padding: 2px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,51,102,0.2);
-            font-family: 'Orbitron', monospace;
-        }
-        .muted-badge {
-            font-size: 0.5rem;
-            background: rgba(247,212,74,0.1);
+            font-size: 0.75rem;
             color: var(--text-muted);
-            padding: 2px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(247,212,74,0.1);
-            font-family: 'Orbitron', monospace;
         }
 
-        /* ===== NUEVOS ESTILOS PARA BÚSQUEDA Y FILTROS ===== */
-        .search-filter-bar {
+        .profile-details .detail-item i { color: var(--gold-cosmic); font-size: 0.65rem; }
+
+        .profile-stats {
             display: flex;
-            gap: 10px;
+            gap: 24px;
             flex-wrap: wrap;
-            margin-bottom: 16px;
-            align-items: center;
+            margin-left: auto;
         }
-        .search-filter-bar input {
-            flex: 1;
-            min-width: 150px;
-            padding: 8px 14px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 20px;
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            outline: none;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .search-filter-bar input:focus { border-color: var(--gold-cosmic); }
-        .search-filter-bar .filter-btn {
-            padding: 6px 14px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--gold-dim);
-            border-radius: 20px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.65rem;
+
+        .profile-stats .stat { text-align: center; }
+        .profile-stats .stat .number {
             font-family: 'Orbitron', monospace;
-            transition: var(--transition);
-        }
-        .search-filter-bar .filter-btn:hover { background: rgba(247,212,74,0.05); }
-        .search-filter-bar .filter-btn.active {
-            background: rgba(247,212,74,0.1);
-            border-color: var(--gold-cosmic);
+            font-size: 1.1rem;
+            font-weight: 700;
             color: var(--gold-cosmic);
         }
 
-        /* ===== NUEVOS ESTILOS PARA ÚLTIMA CONEXIÓN ===== */
-        .last-seen {
-            font-size: 0.55rem;
+        .profile-stats .stat .label {
+            font-size: 0.6rem;
             color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            border: 1px solid var(--gold-dim);
+            margin-top: 8px;
+        }
+
+        .wallet-section .wallet-address {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .wallet-section .wallet-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.6rem;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+        }
+
+        .wallet-badge.connected {
+            background: rgba(0,184,148,0.2);
+            color: var(--success);
+            border: 1px solid rgba(0,184,148,0.3);
+        }
+
+        .wallet-badge.disconnected {
+            background: rgba(255,51,102,0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255,51,102,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gold-dim);
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .tab:hover { color: var(--text-secondary); }
+        .tab.active { color: var(--gold-cosmic); border-bottom-color: var(--gold-cosmic); }
+        .tab .badge {
+            background: var(--danger);
+            color: white;
+            font-size: 0.5rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .tab .badge.hidden { display: none; }
+
+        .persona-card {
+            background: rgba(11,61,46,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 10px;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .persona-card:hover { transform: translateX(4px); border-color: var(--border-glow); }
+
+        .persona-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+            flex-shrink: 0;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .persona-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .persona-avatar.online { border: 2px solid var(--success); }
+        .persona-avatar.offline { border: 2px solid var(--text-muted); }
+
+        .persona-info { flex: 1; min-width: 0; cursor: pointer; }
+        .persona-info .name { font-weight: 600; font-size: 0.9rem; }
+        .persona-info .meta {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .persona-info .meta .status-text {
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .persona-info .meta .status-text.online { color: var(--success); }
+        .persona-info .meta .status-text.offline { color: var(--text-muted); }
+        .persona-info .meta .verified-badge {
+            font-size: 0.5rem;
+            color: var(--success);
             font-family: 'Orbitron', monospace;
         }
 
-        /* ===== NUEVOS ESTILOS PARA MENÚ DE CONTACTO ===== */
-        .contact-menu {
-            position: absolute;
-            right: 10px;
-            top: 100%;
+        .level-badge {
+            font-size: 0.55rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+        }
+
+        .level-badge.bronze { background: rgba(184,115,51,0.2); color: #d99b5f; border: 1px solid rgba(184,115,51,0.3); }
+        .level-badge.silver { background: rgba(192,194,200,0.15); color: #c0c2c8; border: 1px solid rgba(192,194,200,0.2); }
+        .level-badge.gold { background: rgba(247,212,74,0.15); color: var(--gold-cosmic); border: 1px solid rgba(247,212,74,0.2); }
+        .level-badge.diamond { background: rgba(0,212,255,0.15); color: var(--quantum); border: 1px solid rgba(0,212,255,0.2); }
+
+        .persona-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 3rem; opacity: 0.3; margin-bottom: 12px; }
+        .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--text-secondary); }
+        .empty-state p { font-size: 0.85rem; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
             background: rgba(11,61,46,0.95);
             border: 1px solid var(--gold-dim);
-            border-radius: 12px;
-            padding: 6px 0;
-            min-width: 160px;
-            backdrop-filter: blur(10px);
-            display: none;
-            z-index: 10;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
         }
-        .contact-menu.active { display: block; }
-        .contact-menu .menu-item {
-            padding: 8px 16px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.75rem;
+
+        .modal-content::-webkit-scrollbar { width: 4px; }
+        .modal-content::-webkit-scrollbar-thumb { background: var(--gold-cosmic); border-radius: 2px; }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.1;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .modal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0a0c10;
+            overflow: hidden;
         }
-        .contact-menu .menu-item:hover {
-            background: rgba(247,212,74,0.05);
-            color: var(--text-primary);
-        }
-        .contact-menu .menu-item.danger { color: var(--danger); }
-        .contact-menu .menu-item.danger:hover { background: rgba(255,51,102,0.1); }
 
-        .persona-card {
+        .modal-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 2px;
+        }
+
+        .modal-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .modal-university {
+            text-align: center;
+            color: var(--gold-cosmic);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .modal-details {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 8px 0 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .modal-details span { display: flex; align-items: center; gap: 4px; }
+        .modal-details i { color: var(--gold-cosmic); }
+
+        .modal-level { display: block; text-align: center; margin-bottom: 12px; }
+        .modal-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 6px 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-status .status-heart {
+            animation: heart-beat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heart-beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .modal-actions .btn { flex: 1; justify-content: center; min-width: 80px; }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .tool-card {
+            background: rgba(11,61,46,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
             position: relative;
         }
 
-        /* ===== TOAST MEJORADO ===== */
+        .tool-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-neon), var(--shadow-glow);
+        }
+
+        .tool-card .tool-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .tool-card h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 4px;
+        }
+
+        .tool-card .tool-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .tool-card .tool-cost {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 12px;
+        }
+
+        .tool-card .tool-cost span { color: var(--gold-cosmic); }
+
+        .tool-card .btn { width: 100%; justify-content: center; }
+
+        .tool-card .lock-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+            z-index: 2;
+        }
+
+        .tool-card .lock-overlay .lock-icon {
+            font-size: 2.5rem;
+            color: var(--gold-cosmic);
+        }
+
+        .tool-card .lock-overlay .lock-text {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .tool-card .lock-overlay .lock-text strong {
+            color: var(--gold-cosmic);
+        }
+
+        .ia-modal .modal-content {
+            max-width: 600px;
+        }
+
+        .ia-modal .modal-content .ia-response {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 3px solid var(--gold-cosmic);
+            min-height: 60px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .ia-modal .modal-content .ia-response .step {
+            margin: 4px 0;
+            padding-left: 16px;
+            border-left: 2px solid var(--gold-dim);
+        }
+
+        .ia-modal .modal-content .ia-response .step .num {
+            color: var(--gold-cosmic);
+            font-weight: 700;
+        }
+
+        .verify-modal .modal-content {
+            max-width: 480px;
+        }
+
+        .verify-modal .verify-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+            margin-bottom: 12px;
+        }
+
+        .verify-modal .verify-input:focus {
+            border-color: var(--gold-cosmic);
+            box-shadow: 0 0 30px rgba(247,212,74,0.05);
+        }
+
+        .verify-modal .verify-status {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .verify-modal .verify-status.success {
+            display: block;
+            background: rgba(0,184,148,0.1);
+            border: 1px solid rgba(0,184,148,0.2);
+            color: var(--success);
+        }
+
+        .verify-modal .verify-status.error {
+            display: block;
+            background: rgba(255,51,102,0.1);
+            border: 1px solid rgba(255,51,102,0.2);
+            color: var(--danger);
+        }
+
+        .verify-modal .verify-info {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .verify-modal .verify-info strong { color: var(--gold-cosmic); }
+
+        /* ===== MODAL TÉRMINOS MIRONOVA ===== */
+        .terminos-mironova-modal .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .terminos-mironova-modal .checklist label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 0;
+            transition: var(--transition);
+        }
+        .terminos-mironova-modal .checklist label:hover { color: var(--text-primary); }
+        .terminos-mironova-modal .checklist input[type="checkbox"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .terminos-mironova-modal .checklist .highlight { color: var(--gold-cosmic); font-weight: 600; }
+        .terminos-mironova-modal .resumen {
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            border-left: 3px solid var(--gold-cosmic);
+            margin-bottom: 12px;
+        }
+        .terminos-mironova-modal .resumen ul {
+            padding-left: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .terminos-mironova-modal .resumen ul li { margin-bottom: 4px; }
+        .terminos-mironova-modal .resumen strong { color: var(--text-primary); }
+        .terminos-mironova-modal .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .terminos-mironova-modal .btn-row .btn { flex: 1; justify-content: center; }
+
         .toast {
             position: fixed;
             bottom: 100px;
@@ -264,22 +1001,130 @@
             font-size: 0.9rem;
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 5000;
+            z-index: 2000;
             pointer-events: none;
             font-family: 'Orbitron', monospace;
+            box-shadow: var(--shadow-neon);
             border: 1px solid rgba(247,212,74,0.15);
         }
+
         .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--danger); color: white; }
-        .toast.warning { background: #b8923a; color: var(--space-deep); }
-        .toast.success { background: var(--success); color: #0a0c10; }
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .chat-preview { width: 100%; right: 0; }
-            .search-filter-bar { flex-direction: column; }
-            .search-filter-bar input { width: 100%; }
+        .footer {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: relative;
         }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand {
+            color: var(--gold-cosmic);
+        }
+
+        .footer-links { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links a:hover { color: var(--gold-cosmic); }
+
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .persona-card {
+            animation: fadeInUp 0.3s ease-out forwards;
+        }
+
+        .persona-card:nth-child(2) { animation-delay: 0.05s; }
+        .persona-card:nth-child(3) { animation-delay: 0.1s; }
+        .persona-card:nth-child(4) { animation-delay: 0.15s; }
+        .persona-card:nth-child(5) { animation-delay: 0.2s; }
+
+        @media (max-width: 768px) {
+            .app { padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .logo-text { font-size: 1.2rem; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .profile-card { flex-direction: column; align-items: center; text-align: center; }
+            .profile-stats { justify-content: center; margin-left: 0; }
+            .profile-details { justify-content: center; }
+            .persona-card { flex-wrap: wrap; }
+            .persona-actions { width: 100%; justify-content: flex-end; }
+            .tabs { gap: 0; }
+            .tab { padding: 8px 12px; font-size: 0.55rem; }
+            .modal-content { padding: 20px; margin: 12px; }
+            .tools-grid { grid-template-columns: 1fr; }
+            .terminos-mironova-modal .checklist label { font-size: 0.75rem; }
+        }
+
+        @media (max-width: 480px) {
+            .btn { font-size: 0.55rem; padding: 6px 12px; }
+            .profile-avatar { width: 56px; height: 56px; font-size: 1.5rem; }
+            .persona-avatar { width: 38px; height: 38px; font-size: 0.8rem; }
+            .modal-actions .btn { min-width: 60px; font-size: 0.55rem; padding: 6px 10px; }
+            .terminos-mironova-modal .checklist label { font-size: 0.7rem; }
+        }
+
+        .btn-edit-profile {
+            background: rgba(247,212,74,0.08);
+            border: 1px solid rgba(247,212,74,0.15);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-edit-profile:hover { background: rgba(247,212,74,0.15); }
     </style>
 </head>
 <body>
@@ -296,7 +1141,7 @@
             <a href="./index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Mi Red</span>
+                <span class="logo-badge">Mironova</span>
             </a>
             <div class="header-actions">
                 <div class="status-badge">
@@ -310,7 +1155,7 @@
                 <a href="./servicios-comunitarios.html" class="btn btn-gold btn-sm">
                     <i class="fas fa-tools"></i> Servicios
                 </a>
-                <button class="btn btn-outline btn-sm" onclick="openTerminosMiRedModal()">
+                <button class="btn btn-outline btn-sm" onclick="openTerminosMironovaModal()">
                     <i class="fas fa-file-contract"></i> 📜 Términos
                 </button>
             </div>
@@ -404,29 +1249,304 @@
         <div id="tab-bloqueados" style="display:none;"><div id="listaBloqueados"></div></div>
 
         <!-- ===== MODALES ===== -->
-        <!-- (Mantén todos tus modales existentes: Perfil, Editar Perfil, Verificación, Editor Foto, IA, Simulación, Términos) -->
-        <!-- ... (Los modales ya están en tu código original, solo se mantienen) ... -->
+        <!-- Modal Perfil -->
+        <div class="modal-overlay" id="modalPerfil">
+            <div class="modal-content">
+                <div class="modal-avatar" id="modalAvatar">👤</div>
+                <h3 class="modal-title" id="modalNombre">Nombre</h3>
+                <p class="modal-sub" id="modalSub">⚡ Estudiante Avanzado</p>
+                <p class="modal-university" id="modalUniversity">🏛️ Universidad</p>
+                <div class="modal-details">
+                    <span><i class="fas fa-calendar-alt"></i> <span id="modalSemester">---</span></span>
+                    <span><i class="fas fa-map-marker-alt"></i> <span id="modalOrigin">---</span></span>
+                    <span><i class="fas fa-music"></i> <span id="modalMusic">---</span></span>
+                </div>
+                <span class="level-badge" id="modalNivel">🌟 Nivel</span>
+                <div class="modal-status">
+                    <span class="status-heart">❤️</span>
+                    <span id="modalStatus">---</span>
+                </div>
+                <div class="modal-actions" id="modalAcciones">
+                    <button class="btn btn-primary" onclick="cerrarModal()">Cerrar</button>
+                </div>
+            </div>
+        </div>
 
-        <!-- ===== CHAT PREVIEW (NUEVO) ===== -->
-        <div class="chat-preview" id="chatPreview">
-            <div class="chat-header" id="chatHeader">
-                <div class="info">
-                    <div class="avatar" id="chatAvatar">U</div>
-                    <span class="name" id="chatName">Usuario</span>
+        <!-- Modal Editar Perfil -->
+        <div class="modal-overlay" id="modalEditarPerfil">
+            <div class="modal-content">
+                <button onclick="cerrarEditorPerfil()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
+                <h3 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:12px;">✏️ Editar Perfil</h3>
+                
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Nombre/Alias</label>
+                        <input type="text" id="editNombre" class="form-control" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;" />
+                    </div>
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Edad</label>
+                        <input type="number" id="editEdad" class="form-control" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;" placeholder="21" />
+                    </div>
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Ciudad de Origen</label>
+                        <input type="text" id="editOrigen" class="form-control" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;" placeholder="Puebla" />
+                    </div>
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Género Musical</label>
+                        <select id="editMusica" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;">
+                            <option value="🎸 Indie">🎸 Indie</option>
+                            <option value="🎵 Reggaetón">🎵 Reggaetón</option>
+                            <option value="🎧 Electrónica">🎧 Electrónica</option>
+                            <option value="🎶 Corridos Tumbados">🎶 Corridos Tumbados</option>
+                            <option value="🤘 Rock">🤘 Rock</option>
+                            <option value="🎹 Clásica">🎹 Clásica</option>
+                            <option value="🎤 Pop">🎤 Pop</option>
+                            <option value="🎵 Otro">🎵 Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Estado Sentimental</label>
+                        <select id="editStatus" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;">
+                            <option value="💔 Amante de última hora">💔 Amante de última hora</option>
+                            <option value="❤️ En una relación">❤️ En una relación</option>
+                            <option value="💀 Soltero buscando hackear la vida">💀 Soltero buscando hackear la vida</option>
+                            <option value="🤷 Complicado">🤷 Complicado</option>
+                            <option value="📚 Casado con los libros">📚 Casado con los libros</option>
+                            <option value="🎮 Gamer sin tiempo para amar">🎮 Gamer sin tiempo para amar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Semestre</label>
+                        <input type="text" id="editSemestre" class="form-control" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;" placeholder="5to Semestre" />
+                    </div>
                 </div>
-                <div>
-                    <span id="chatStatus" style="font-size:0.6rem;color:var(--text-muted);margin-right:8px;">🟢 En línea</span>
-                    <button class="chat-close" onclick="cerrarChat()">✕</button>
+
+                <div style="margin-top:12px;">
+                    <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Situación</label>
+                    <select id="editSituacion" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;">
+                        <option value="Solo estudio">📖 Solo estudio</option>
+                        <option value="Estudio y trabajo">💼 Estudio y trabajo</option>
+                        <option value="Buscando prácticas">🔍 Buscando prácticas</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions" style="margin-top:16px;">
+                    <button onclick="guardarPerfil()" class="btn btn-success" style="flex:1;">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button onclick="cerrarEditorPerfil()" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
                 </div>
             </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="msg received">¡Hola! ¿Cómo estás?</div>
-                <div class="msg sent">Bien, ¿y tú?</div>
-                <div class="msg received">Excelente, ¿vamos al proyecto final?</div>
+        </div>
+
+        <!-- Modal Verificación -->
+        <div class="modal-overlay verify-modal" id="verifyModal">
+            <div class="modal-content">
+                <button onclick="cerrarVerificacion()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
+                <h3 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:8px;">✅ Verificación Institucional</h3>
+                <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:12px;">Valida tu correo institucional para acceder a herramientas de simulación profesional</p>
+                
+                <div class="verify-info">
+                    <p>📌 Ingresa tu correo con dominio <strong>.edu</strong> o <strong>.edu.mx</strong></p>
+                    <p style="font-size:0.65rem;margin-top:4px;">Ej: nombre@udlap.mx, nombre@buap.mx, nombre@tec.mx</p>
+                </div>
+
+                <input type="email" id="verifyEmail" class="verify-input" placeholder="tu-correo@universidad.edu.mx" />
+                
+                <div class="verify-status" id="verifyStatus">
+                    <span id="verifyStatusText"></span>
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button onclick="enviarVerificacion()" class="btn btn-gold" style="flex:1;">
+                        <i class="fas fa-paper-plane"></i> Verificar correo
+                    </button>
+                    <button onclick="cerrarVerificacion()" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+                <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;margin-top:8px;">
+                    🔒 Recibirás un código de confirmación en tu correo institucional
+                </p>
             </div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')enviarMensajeChat()">
-                <button onclick="enviarMensajeChat()">Enviar</button>
+        </div>
+
+        <!-- Modal Editor de Foto -->
+        <div class="modal-overlay photo-editor-modal" id="photoEditorModal">
+            <div class="modal-content">
+                <button onclick="cerrarEditorFoto()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
+                <h3 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:4px;">📸 Editor de Foto</h3>
+                <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:12px;">
+                    <span class="ia-badge"><i class="fas fa-brain"></i> IA activa</span>
+                    Recorta, encuadra y mejora tu foto automáticamente
+                </p>
+                <div style="max-height:400px;overflow:hidden;border-radius:12px;border:1px solid var(--gold-dim);">
+                    <img id="editorImage" src="" alt="Foto para editar" style="max-width:100%;display:none;" />
+                    <div id="editorPlaceholder" style="display:flex;align-items:center;justify-content:center;min-height:200px;color:var(--text-muted);background:rgba(0,0,0,0.3);border-radius:12px;flex-direction:column;gap:12px;">
+                        <i class="fas fa-image" style="font-size:3rem;opacity:0.3;"></i>
+                        <span>Selecciona una foto o toma una con la cámara</span>
+                    </div>
+                </div>
+                <div class="editor-controls">
+                    <div class="file-upload-wrapper" style="position:relative;overflow:hidden;display:inline-block;">
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-upload"></i> Subir foto
+                        </button>
+                        <input type="file" id="editorFileInput" accept="image/*" style="position:absolute;left:0;top:0;opacity:0;width:100%;height:100%;cursor:pointer;" onchange="cargarFotoEditor(event)" />
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="abrirCamaraEditor()">
+                        <i class="fas fa-camera"></i> Cámara
+                    </button>
+                    <button class="btn btn-gold btn-sm" onclick="aplicarIA()">
+                        <i class="fas fa-magic"></i> Mejorar con IA
+                    </button>
+                    <button class="btn btn-success btn-sm" onclick="guardarFotoEditor()">
+                        <i class="fas fa-check"></i> Guardar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="resetearEditor()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+                <input type="file" id="camaraInput" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoCamara(event)" />
+                <input type="file" id="camaraFrontalInput" accept="image/*" capture="user" style="display:none;" onchange="procesarFotoCamara(event)" />
+            </div>
+        </div>
+
+        <!-- Modal IA -->
+        <div class="modal-overlay ia-modal" id="iaModal">
+            <div class="modal-content">
+                <button onclick="cerrarIAModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
+                <h3 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:4px;" id="iaModalTitle">🤖 Tutor Socrático</h3>
+                <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:12px;" id="iaModalSub">Pregunta tu duda y te guiaré paso a paso</p>
+                
+                <div class="ia-response" id="iaResponse">
+                    <span style="color:var(--text-muted);">Tu respuesta aparecerá aquí...</span>
+                </div>
+                
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <input type="text" id="iaInput" placeholder="Escribe tu pregunta..." style="flex:1;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-family:'Space Grotesk',sans-serif;font-size:0.85rem;outline:none;">
+                    <button onclick="enviarPreguntaIA()" class="btn btn-gold">
+                        <i class="fas fa-paper-plane"></i> Enviar
+                    </button>
+                </div>
+                
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-outline" onclick="iaPreguntaRapida('¿Cómo resuelvo una derivada por regla de la cadena?')">📐 Derivada</button>
+                    <button class="btn btn-sm btn-outline" onclick="iaPreguntaRapida('¿Qué es un circuito RC en serie?')">⚡ Circuitos</button>
+                    <button class="btn btn-sm btn-outline" onclick="iaPreguntaRapida('¿Cómo funciona un bucle for en C++?')">💻 Programación</button>
+                    <button class="btn btn-sm btn-outline" onclick="iaPreguntaRapida('Explica el teorema de Bayes')">📊 Estadística</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Simulación -->
+        <div class="modal-overlay" id="simulacionModal">
+            <div class="modal-content">
+                <button onclick="cerrarSimulacion()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
+                <h3 style="font-family:'Orbitron',monospace;color:var(--gold-cosmic);margin-bottom:8px;">📤 Subir Proyecto de Simulación</h3>
+                <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:12px;">Completa tu hito y compártelo con la comunidad</p>
+                
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Título del proyecto</label>
+                        <input type="text" id="simTitulo" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;" placeholder="Mi proyecto de..." />
+                    </div>
+                    <div>
+                        <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Disciplina</label>
+                        <select id="simDisciplina" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;">
+                            <option value="Ingeniería">🔧 Ingeniería</option>
+                            <option value="Arquitectura">🏛️ Arquitectura</option>
+                            <option value="Administración">📊 Administración</option>
+                            <option value="Derecho">⚖️ Derecho</option>
+                            <option value="Ciencias">🔬 Ciencias</option>
+                            <option value="Artes">🎨 Artes</option>
+                            <option value="Tecnología">💻 Tecnología</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top:8px;">
+                    <label style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;display:block;margin-bottom:2px;">Descripción del hito</label>
+                    <textarea id="simDescripcion" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;min-height:60px;resize:vertical;" placeholder="Describe tu proyecto..."></textarea>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+                    <button onclick="publicarSimulacion()" class="btn btn-gold" style="flex:1;">
+                        <i class="fas fa-rocket"></i> Publicar hito
+                    </button>
+                    <button onclick="cerrarSimulacion()" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODAL TÉRMINOS MIRONOVA ===== -->
+        <div class="modal-overlay terminos-mironova-modal" id="terminosMironovaModal">
+            <div class="modal-content" style="max-width:560px;">
+                <button class="modal-close" onclick="closeTerminosMironovaModal()">✕</button>
+                <h3 class="modal-title">📜 Términos y Condiciones</h3>
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
+                    Csariel's — Mironova · Plataforma de Estudio
+                </p>
+
+                <div id="terminosMironovaResult" style="display:none;"></div>
+
+                <div class="resumen">
+                    <p><strong>📋 Resumen del Acuerdo:</strong></p>
+                    <ul>
+                        <li>🔒 <strong>Modelo No Custodial:</strong> Tú controlas tus activos.</li>
+                        <li>⚡ <strong>Irreversibilidad:</strong> Las transacciones en blockchain son finales.</li>
+                        <li>📊 <strong>Declaración Fiscal:</strong> Eres responsable ante el SAT.</li>
+                        <li>📜 <strong>Jurisdicción:</strong> Puebla, México.</li>
+                        <li>🔐 <strong>Datos Personales:</strong> Conforme a la LFPDPPP.</li>
+                        <li>🎓 <strong>Verificación:</strong> Solo usuarios con correo .edu.</li>
+                    </ul>
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                    <a href="./terminos/terminos-completos.html" target="_blank" class="btn btn-primary" style="flex:1;justify-content:center;">
+                        <i class="fas fa-file-pdf"></i> 📖 Leer Términos Completos (81 arts.)
+                    </a>
+                    <a href="./terminos/privacidad.html" target="_blank" class="btn btn-outline" style="flex:1;justify-content:center;">
+                        <i class="fas fa-shield-alt"></i> 🔐 Aviso de Privacidad
+                    </a>
+                </div>
+
+                <div class="checklist">
+                    <label>
+                        <input type="checkbox" id="terminosMironovaCheck1" />
+                        <span>He leído y acepto los <span class="highlight">Términos y Condiciones Generales</span> de Csariel's.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosMironovaCheck2" />
+                        <span>Comprendo que las transacciones son <span class="highlight">irreversibles</span> y operan bajo modelo <span class="highlight">no custodial</span>.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosMironovaCheck3" />
+                        <span>Declaro que cumplo con mis <span class="highlight">obligaciones fiscales</span> ante el SAT.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosMironovaCheck4" />
+                        <span>He leído y acepto el <span class="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="terminosMironovaCheck5" />
+                        <span>Acepto la <span class="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span>
+                    </label>
+                </div>
+
+                <div class="btn-row">
+                    <button onclick="aceptarTerminosMironova()" class="btn btn-success" id="btnAceptarTerminosMironova" disabled>
+                        <i class="fas fa-check"></i> Aceptar y Continuar
+                    </button>
+                    <button onclick="closeTerminosMironovaModal()" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Rechazar
+                    </button>
+                </div>
+                <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;margin-top:10px;">
+                    ⚠️ Debes aceptar <strong style="color:var(--danger);">TODOS</strong> los puntos para continuar usando Mironova.
+                </p>
             </div>
         </div>
 
@@ -460,7 +1580,6 @@
         // ================================================================
         // ESTRELLAS
         // ================================================================
-        // (Mantén tu función initStars() completa)
         function initStars() {
             const canvas = document.getElementById('stars-canvas');
             const ctx = canvas.getContext('2d');
@@ -608,63 +1727,63 @@
         }
 
         // ================================================================
-        // TÉRMINOS Y CONDICIONES - MI RED
+        // TÉRMINOS Y CONDICIONES - MIRONOVA
         // ================================================================
-        let terminosMiRedAceptados = false;
+        let terminosMironovaAceptados = false;
 
-        function initTerminosMiRed() {
+        function initTerminosMironova() {
             try {
-                const aceptado = localStorage.getItem('terminos_mired_aceptado');
+                const aceptado = localStorage.getItem('terminos_mironova_aceptado');
                 if (aceptado === 'true') {
-                    terminosMiRedAceptados = true;
-                    console.log('✅ Términos de Mi Red aceptados previamente');
+                    terminosMironovaAceptados = true;
+                    console.log('✅ Términos de Mironova aceptados previamente');
                 }
             } catch (e) {
-                console.warn('Error verificando términos de Mi Red:', e);
+                console.warn('Error verificando términos de Mironova:', e);
             }
 
-            const checks = document.querySelectorAll('#terminosMiRedModal .checklist input[type="checkbox"]');
+            const checks = document.querySelectorAll('#terminosMironovaModal .checklist input[type="checkbox"]');
             checks.forEach(check => {
-                check.addEventListener('change', verificarChecksMiRed);
+                check.addEventListener('change', verificarChecksMironova);
             });
 
-            if (!terminosMiRedAceptados) {
+            if (!terminosMironovaAceptados) {
                 setTimeout(() => {
-                    openTerminosMiRedModal();
+                    openTerminosMironovaModal();
                 }, 800);
             }
         }
 
-        function verificarChecksMiRed() {
-            const checks = document.querySelectorAll('#terminosMiRedModal .checklist input[type="checkbox"]');
+        function verificarChecksMironova() {
+            const checks = document.querySelectorAll('#terminosMironovaModal .checklist input[type="checkbox"]');
             const todos = Array.from(checks).every(c => c.checked);
-            document.getElementById('btnAceptarTerminosMiRed').disabled = !todos;
+            document.getElementById('btnAceptarTerminosMironova').disabled = !todos;
         }
 
-        window.openTerminosMiRedModal = function() {
-            document.getElementById('terminosMiRedModal').classList.add('active');
+        window.openTerminosMironovaModal = function() {
+            document.getElementById('terminosMironovaModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         };
 
-        window.closeTerminosMiRedModal = function() {
-            document.getElementById('terminosMiRedModal').classList.remove('active');
+        window.closeTerminosMironovaModal = function() {
+            document.getElementById('terminosMironovaModal').classList.remove('active');
             document.body.style.overflow = 'auto';
         };
 
-        window.aceptarTerminosMiRed = function() {
+        window.aceptarTerminosMironova = function() {
             try {
-                localStorage.setItem('terminos_mired_aceptado', 'true');
-                terminosMiRedAceptados = true;
+                localStorage.setItem('terminos_mironova_aceptado', 'true');
+                terminosMironovaAceptados = true;
             } catch (e) {
-                console.warn('Error guardando aceptación de Mi Red:', e);
+                console.warn('Error guardando aceptación de Mironova:', e);
             }
 
-            const resultDiv = document.getElementById('terminosMiRedResult');
+            const resultDiv = document.getElementById('terminosMironovaResult');
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `
                 <div style="padding:12px;background:rgba(0,184,148,0.1);border-radius:8px;border:1px solid rgba(0,184,148,0.2);margin-bottom:12px;">
                     <p style="color:var(--success);font-weight:600;">
-                        <i class="fas fa-check-circle"></i> ¡Términos de Mi Red aceptados!
+                        <i class="fas fa-check-circle"></i> ¡Términos de Mironova aceptados!
                     </p>
                     <p style="font-size:0.75rem;color:var(--text-secondary);">
                         Puedes consultar los términos completos en cualquier momento desde el botón "📜 Términos".
@@ -673,8 +1792,8 @@
             `;
 
             setTimeout(() => {
-                closeTerminosMiRedModal();
-                mostrarToast('✅ Términos de Mi Red aceptados');
+                closeTerminosMironovaModal();
+                mostrarToast('✅ Términos de Mironova aceptados');
             }, 1500);
         };
 
@@ -883,7 +2002,7 @@
 
         function cargarDatosLocales() {
             try {
-                const guardado = localStorage.getItem('miRed_datos');
+                const guardado = localStorage.getItem('mironova_datos');
                 if (guardado) {
                     const datos = JSON.parse(guardado);
                     if (datos.relaciones) relaciones = datos.relaciones;
@@ -898,7 +2017,7 @@
 
         function guardarDatosLocales() {
             try {
-                localStorage.setItem('miRed_datos', JSON.stringify({
+                localStorage.setItem('mironova_datos', JSON.stringify({
                     relaciones: relaciones,
                     contactoFavoritos: contactoFavoritos,
                     bloqueados: contactosBloqueados,
@@ -910,7 +2029,7 @@
         }
 
         // ================================================================
-        // RENDERIZADO DE CONTACTOS (CON NUEVAS FUNCIONALIDADES)
+        // RENDERIZADO DE CONTACTOS
         // ================================================================
         let filtroActual = 'todos';
         let textoBusqueda = '';
@@ -957,10 +2076,8 @@
             const ids = Object.keys(relaciones).filter(id => relaciones[id] === 'contacto');
             const cont = document.getElementById('listaContactos');
 
-            // Filtrar y ordenar contactos
             let contactos = ids.map(id => todosLosClientes.find(c => c.id === id)).filter(Boolean);
 
-            // Aplicar búsqueda
             if (textoBusqueda) {
                 contactos = contactos.filter(c => 
                     c.nombre.toLowerCase().includes(textoBusqueda) ||
@@ -969,7 +2086,6 @@
                 );
             }
 
-            // Aplicar filtros
             if (filtroActual === 'online') {
                 contactos = contactos.filter(c => c.online);
             } else if (filtroActual === 'favoritos') {
@@ -1052,7 +2168,6 @@
             const menu = document.getElementById(`menu-${id}`);
             if (menu) {
                 menu.classList.toggle('active');
-                // Cerrar otros menús
                 document.querySelectorAll('.contact-menu.active').forEach(m => {
                     if (m.id !== `menu-${id}`) m.classList.remove('active');
                 });
@@ -1127,7 +2242,6 @@
             document.getElementById('chatPreview').classList.add('active');
             document.getElementById('chatInput').focus();
             
-            // Cerrar menús
             document.querySelectorAll('.contact-menu.active').forEach(m => m.classList.remove('active'));
         }
 
@@ -1149,7 +2263,6 @@
             container.scrollTop = container.scrollHeight;
             input.value = '';
 
-            // Simular respuesta automática
             setTimeout(() => {
                 const resp = document.createElement('div');
                 resp.className = 'msg received';
@@ -1576,7 +2689,7 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-                closeTerminosMiRedModal();
+                closeTerminosMironovaModal();
                 cerrarChat();
             }
             if (e.key === 'Enter' && document.getElementById('chatPreview').classList.contains('active')) {
@@ -1588,7 +2701,7 @@
         // INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Mi Red');
+            console.log('◈ Csariel\'s - Mironova');
             console.log('📦 Configuración desde CONFIG v' + CONFIG.VERSION);
             
             initStars();
@@ -1598,9 +2711,9 @@
             cargarDatosLocales();
             renderAll();
             actualizarContadores();
-            initTerminosMiRed();
+            initTerminosMironova();
             
-            console.log('✅ Mi Red cargada correctamente');
+            console.log('✅ Mironova cargada correctamente');
             console.log('🎓 Verificación con dominios desde CONFIG');
             console.log('🔇 Contactos bloqueados y silenciados disponibles');
             console.log('💬 Chat rápido con contactos');
@@ -1638,9 +2751,9 @@
         window.abrirEditorPerfil = abrirEditorPerfil;
         window.cerrarEditorPerfil = cerrarEditorPerfil;
         window.guardarPerfil = guardarPerfil;
-        window.openTerminosMiRedModal = openTerminosMiRedModal;
-        window.closeTerminosMiRedModal = closeTerminosMiRedModal;
-        window.aceptarTerminosMiRed = aceptarTerminosMiRed;
+        window.openTerminosMironovaModal = openTerminosMironovaModal;
+        window.closeTerminosMironovaModal = closeTerminosMironovaModal;
+        window.aceptarTerminosMironova = aceptarTerminosMironova;
     </script>
 </body>
 </html>
