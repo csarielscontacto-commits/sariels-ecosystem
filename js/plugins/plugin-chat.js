@@ -8,6 +8,19 @@ import { supabase, CHAT_CHANNEL, broadcastMensaje, obtenerUserId } from '../util
 const CACHE_KEY = 'marquinhos_mensajes';
 let channelInstance = null;
 
+// ================================================================
+// NUEVO: REFERENCIA AL SISTEMA COMMIT (CMT)
+// ================================================================
+
+// window.Commit debe estar cargado por commit-connector.js
+// Si no está, mostramos advertencia pero no bloqueamos el chat
+
+const Commit = typeof window !== 'undefined' && window.Commit ? window.Commit : null;
+
+if (!Commit) {
+    console.warn('⚠️ window.Commit no disponible. Los stickers y regalos CMT no funcionarán.');
+}
+
 export const chatPlugin = {
     /**
      * Envía un mensaje de texto
@@ -26,11 +39,126 @@ export const chatPlugin = {
     },
 
     /**
-     * Envía un sticker (URL desde Supabase Storage)
+     * Envía un sticker (URL desde Supabase Storage) — LEGADO
+     * Para compatibilidad con stickers viejos
      */
     sendSticker: async (stickerUrl) => {
         const userId = await obtenerUserId();
         return await enviarMensaje({ user_id: userId, content: stickerUrl, type: 'sticker' });
+    },
+
+    /**
+     * 🆕 Envía un sticker con COMMIT (CMT)
+     * Usa el sistema de tokens para comprar stickers
+     */
+    sendStickerCommit: async (receiverId, assetType, descripcion) => {
+        if (!Commit) {
+            throw new Error('⚠️ Sistema COMMIT no disponible');
+        }
+
+        const userId = await obtenerUserId();
+
+        // Validar que el usuario existe en el sistema
+        await Commit.crearUsuarioSiNoExiste(userId);
+        if (receiverId) {
+            await Commit.crearUsuarioSiNoExiste(receiverId);
+        }
+
+        // Comprar sticker (aplica regla 50/50 automáticamente)
+        const result = await Commit.comprarSticker(
+            userId,
+            receiverId || null,
+            assetType,
+            descripcion || 'Regalo en el chat 🎁'
+        );
+
+        // Emitir evento para mostrar en el chat
+        const mensaje = {
+            user_id: userId,
+            content: `🎁 ${result.asset_name} (${result.asset_code})`,
+            type: 'sticker_cmt',
+            extra: {
+                asset_type: result.asset_type || assetType,
+                asset_code: result.asset_code,
+                asset_name: result.asset_name,
+                emoji: result.emoji || '🎁',
+                color: result.color_hex || '#FFD700',
+                animation_type: result.animation_type || 'none',
+                amount: result.amount || 0,
+                commission: result.commission_amount || 0,
+                receiver_amount: result.receiver_amount || 0,
+                receiver_id: receiverId || null,
+                transaction_id: result.transaction_id
+            }
+        };
+
+        return await enviarMensaje(mensaje);
+    },
+
+    /**
+     * 🆕 Envía un regalo P2P con COMMIT (CMT)
+     * Solo transferencia de tokens, sin sticker asociado
+     */
+    sendGiftCommit: async (receiverId, monto, descripcion) => {
+        if (!Commit) {
+            throw new Error('⚠️ Sistema COMMIT no disponible');
+        }
+        if (!receiverId) {
+            throw new Error('receiverId es requerido para enviar un regalo');
+        }
+
+        const userId = await obtenerUserId();
+
+        // Validar que los usuarios existen
+        await Commit.crearUsuarioSiNoExiste(userId);
+        await Commit.crearUsuarioSiNoExiste(receiverId);
+
+        // Enviar regalo (aplica regla 50/50 automáticamente)
+        const result = await Commit.enviarRegalo(
+            userId,
+            receiverId,
+            monto,
+            descripcion || 'Regalo P2P 💰'
+        );
+
+        // Emitir evento para mostrar en el chat
+        const mensaje = {
+            user_id: userId,
+            content: `💰 ${monto} CMT enviados a ${receiverId}`,
+            type: 'gift_cmt',
+            extra: {
+                amount: monto,
+                commission: result.commission_amount || 0,
+                receiver_amount: result.receiver_amount || 0,
+                receiver_id: receiverId,
+                transaction_id: result.transaction_id
+            }
+        };
+
+        return await enviarMensaje(mensaje);
+    },
+
+    /**
+     * 🆕 Obtener saldo de COMMIT de un usuario
+     */
+    getBalanceCommit: async (userId) => {
+        if (!Commit) {
+            throw new Error('⚠️ Sistema COMMIT no disponible');
+        }
+
+        const targetId = userId || await obtenerUserId();
+        await Commit.crearUsuarioSiNoExiste(targetId);
+        return await Commit.consultarSaldo(targetId);
+    },
+
+    /**
+     * 🆕 Listar stickers disponibles para comprar
+     */
+    listarStickersCommit: async () => {
+        if (!Commit) {
+            throw new Error('⚠️ Sistema COMMIT no disponible');
+        }
+        return await Commit.listarStickers();
     },
 
     /**
@@ -47,7 +175,6 @@ export const chatPlugin = {
 
             if (error) throw error;
 
-            // Emitir en tiempo real
             await broadcastMensaje(channelInstance || supabase.channel(CHAT_CHANNEL), 'REACTION', {
                 message_id: messageId,
                 user_id: userId,
@@ -89,10 +216,8 @@ export const chatPlugin = {
         try {
             const userId = await obtenerUserId();
             
-            // 1. Compresión con worker
             const compressed = await comprimirArchivo(file);
 
-            // 2. Subir a Supabase Storage
             const filePath = `chat-archivos/${Date.now()}_${compressed.name}`;
             const { error: uploadErr } = await supabase.storage
                 .from('chat-archivos')
@@ -104,14 +229,12 @@ export const chatPlugin = {
 
             if (uploadErr) throw uploadErr;
 
-            // 3. Obtener URL pública
             const { data: urlData } = supabase.storage
                 .from('chat-archivos')
                 .getPublicUrl(filePath);
 
             const publicUrl = urlData.publicUrl;
 
-            // 4. Guardar referencia en mensajes
             const type = compressed.type.startsWith('image/') ? 'image' : 'video';
             return await enviarMensaje({
                 user_id: userId,
@@ -134,10 +257,8 @@ export const chatPlugin = {
      * Escucha mensajes en tiempo real
      */
     listenMessages: (callback) => {
-        // 1. Primero cargar historial
         cargarHistorial(callback);
 
-        // 2. Suscribirse a Realtime
         channelInstance = supabase.channel(CHAT_CHANNEL);
 
         channelInstance
@@ -174,10 +295,8 @@ async function enviarMensaje(payload) {
         leido: false
     };
 
-    // 1. Guardar en localStorage (UI optimista)
     guardarLocal(mensaje);
 
-    // 2. Guardar en Supabase
     try {
         const { data, error } = await supabase
             .from('mensajes')
@@ -186,7 +305,6 @@ async function enviarMensaje(payload) {
 
         if (error) throw error;
 
-        // 3. Emitir por Realtime
         if (channelInstance) {
             await broadcastMensaje(channelInstance, 'INSERT', mensaje);
         }
@@ -194,7 +312,6 @@ async function enviarMensaje(payload) {
         return data[0];
     } catch (error) {
         console.warn('⚠️ Falló envío a Supabase, reintentando...', error);
-        // Reintentar después de 5s
         setTimeout(() => {
             enviarMensaje(payload);
         }, 5000);
@@ -209,7 +326,6 @@ function guardarLocal(payload) {
     try {
         const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
         cache.push({ ...payload, local: true });
-        // Mantener solo últimos 500 mensajes
         if (cache.length > 500) cache.shift();
         localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
     } catch (e) {
@@ -230,13 +346,11 @@ async function cargarHistorial(callback) {
 
         if (error) throw error;
 
-        // También cargar reacciones
         const { data: reacciones, error: reaccErr } = await supabase
             .from('reacciones')
             .select('*');
 
         if (!reaccErr && reacciones) {
-            // Agrupar reacciones por mensaje
             const reaccionesMap = {};
             reacciones.forEach(r => {
                 if (!reaccionesMap[r.message_id]) reaccionesMap[r.message_id] = [];
