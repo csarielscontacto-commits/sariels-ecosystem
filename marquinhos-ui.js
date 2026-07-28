@@ -14,6 +14,8 @@ export class MarquinhosUI {
         this.mensajes = [];
         this.saldoCommit = 0;
         this.stickersDisponibles = [];
+        this.respondiendoA = null; // Para respuesta a mensajes
+        this.typingTimeout = null;
         this.init();
     }
 
@@ -44,14 +46,23 @@ export class MarquinhosUI {
                         <button class="m-btn-llamada" id="m-btn-llamada" title="Llamada de voz">📞</button>
                         <button class="m-btn-video" id="m-btn-video" title="Videollamada">📹</button>
                         <button class="m-btn-adjuntar" id="m-btn-adjuntar" title="Adjuntar archivo">📎</button>
+                        <button class="m-btn-buscar" id="m-btn-buscar" title="Buscar mensajes">🔍</button>
                         <button class="m-cerrar" id="m-cerrar">✕</button>
                     </div>
                 </div>
-                <div class="m-mensajes" id="m-mensajes"></div>
+                <div class="m-mensajes" id="m-mensajes">
+                    <div class="m-typing-indicator" id="m-typing-indicator" style="display:none;padding:4px 12px;color:var(--text-muted);font-size:0.7rem;font-style:italic;">
+                        <span id="m-typing-text">Alguien está escribiendo...</span>
+                    </div>
+                </div>
                 <div class="m-input-area">
                     <button class="m-btn-emoji" id="m-btn-emoji">😊</button>
                     <input type="text" class="m-input" id="m-input" placeholder="Escribe un mensaje...">
                     <button class="m-btn-enviar" id="m-btn-enviar">Enviar</button>
+                </div>
+                <div class="m-reply-bar" id="m-reply-bar" style="display:none;padding:4px 12px;border-top:1px solid var(--gold-dim);background:rgba(0,0,0,0.2);font-size:0.75rem;color:var(--text-secondary);">
+                    <span>↩️ Respondiendo a: <strong id="m-reply-text"></strong></span>
+                    <button onclick="cancelarRespuesta()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-left:auto;">✕</button>
                 </div>
                 <button class="m-btn-horario" id="m-btn-horario">Ver horario</button>
             </div>
@@ -198,19 +209,31 @@ export class MarquinhosUI {
                 overflow-y: auto;
                 margin-bottom: 12px;
                 padding-right: 4px;
-                min-height: 100px;
-                max-height: 300px;
+                min-height: 200px;
+                max-height: 350px;
+                display: flex;
+                flex-direction: column;
             }
             .m-mensajes::-webkit-scrollbar { width: 4px; }
             .m-mensajes::-webkit-scrollbar-thumb { background: #f7d44a; border-radius: 2px; }
+            .m-mensaje-wrapper {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 4px;
+            }
+            .m-mensaje-wrapper.respuesta {
+                border-left: 2px solid var(--gold-cosmic);
+                padding-left: 6px;
+                margin-top: 2px;
+            }
             .m-mensaje {
                 padding: 8px 14px;
-                margin-bottom: 6px;
                 border-radius: 12px;
                 max-width: 85%;
                 font-size: 0.85rem;
                 line-height: 1.4;
                 word-break: break-word;
+                position: relative;
             }
             .m-mensaje.usuario {
                 background: rgba(0,212,255,0.1);
@@ -230,6 +253,41 @@ export class MarquinhosUI {
                 color: #f7d44a;
                 margin-bottom: 2px;
             }
+            .m-mensaje .m-estado {
+                font-size: 0.5rem;
+                color: var(--text-muted);
+                text-align: right;
+                margin-top: 2px;
+                font-family: 'Orbitron', monospace;
+            }
+            .m-mensaje .m-estado.enviado { color: var(--text-muted); }
+            .m-mensaje .m-estado.recibido { color: var(--success); }
+            .m-mensaje .m-estado.leido { color: var(--success); }
+            .m-mensaje .m-estado.fallido { color: var(--danger); }
+            .m-mensaje .m-estado.enviando { color: var(--warning); animation: pulse 1s infinite; }
+            .m-mensaje .m-hora {
+                font-size: 0.5rem;
+                color: var(--text-muted);
+                text-align: right;
+                margin-top: 2px;
+            }
+            .m-mensaje .m-editado {
+                font-size: 0.45rem;
+                color: var(--text-muted);
+                font-style: italic;
+            }
+            .m-mensaje .m-responder-a {
+                font-size: 0.6rem;
+                color: var(--gold-cosmic);
+                background: rgba(247,212,74,0.05);
+                padding: 2px 8px;
+                border-radius: 4px;
+                margin-bottom: 4px;
+                cursor: pointer;
+            }
+            .m-mensaje .m-responder-a:hover {
+                background: rgba(247,212,74,0.1);
+            }
             .m-mensaje .m-reacciones {
                 display: flex;
                 gap: 4px;
@@ -245,6 +303,36 @@ export class MarquinhosUI {
             }
             .m-mensaje .m-reaccion:hover {
                 background: rgba(255,255,255,0.1);
+            }
+            .m-mensaje .m-acciones {
+                display: none;
+                position: absolute;
+                right: 8px;
+                top: 4px;
+                gap: 4px;
+                background: rgba(0,0,0,0.6);
+                border-radius: 6px;
+                padding: 2px;
+            }
+            .m-mensaje:hover .m-acciones {
+                display: flex;
+            }
+            .m-mensaje .m-acciones button {
+                background: none;
+                border: none;
+                color: var(--text-muted);
+                cursor: pointer;
+                font-size: 0.6rem;
+                padding: 2px 4px;
+                border-radius: 4px;
+                transition: all 0.3s;
+            }
+            .m-mensaje .m-acciones button:hover {
+                background: rgba(255,255,255,0.05);
+                color: var(--text-primary);
+            }
+            .m-mensaje .m-acciones button.danger:hover {
+                color: var(--danger);
             }
             .m-mensaje .m-archivo {
                 margin-top: 4px;
@@ -291,6 +379,17 @@ export class MarquinhosUI {
                 font-size: 0.6rem;
                 color: var(--gold-cosmic, #f7d44a);
                 font-family: 'Orbitron', monospace;
+            }
+            .m-typing-indicator {
+                padding: 4px 12px;
+                color: var(--text-muted);
+                font-size: 0.7rem;
+                font-style: italic;
+                animation: pulse 1s infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
             }
             .m-input-area {
                 display: flex;
@@ -435,6 +534,60 @@ export class MarquinhosUI {
                 color: #a99c8c;
                 font-family: 'Orbitron', monospace;
             }
+            .m-buscar-popup {
+                display: none;
+                position: absolute;
+                top: 50px;
+                right: 10px;
+                background: rgba(11,61,46,0.95);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 12px;
+                backdrop-filter: blur(10px);
+                min-width: 250px;
+                z-index: 100;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .m-buscar-popup.abierto {
+                display: flex;
+            }
+            .m-buscar-popup input {
+                padding: 8px 12px;
+                background: rgba(0,0,0,0.3);
+                border: 1px solid var(--gold-dim);
+                border-radius: 8px;
+                color: var(--text-primary);
+                font-size: 0.85rem;
+                outline: none;
+                font-family: 'Space Grotesk', sans-serif;
+            }
+            .m-buscar-popup input:focus {
+                border-color: var(--gold-cosmic);
+            }
+            .m-buscar-popup .m-resultado {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+                color: var(--text-secondary);
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background 0.2s;
+            }
+            .m-buscar-popup .m-resultado:hover {
+                background: rgba(255,255,255,0.05);
+            }
+            .m-reply-bar {
+                display: none;
+                padding: 4px 12px;
+                border-top: 1px solid rgba(255,255,255,0.08);
+                background: rgba(0,0,0,0.2);
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+                align-items: center;
+            }
+            .m-reply-bar.visible {
+                display: flex;
+            }
             #m-file-input {
                 display: none;
             }
@@ -444,6 +597,7 @@ export class MarquinhosUI {
                 .m-header-actions button { font-size: 0.8rem; padding: 2px 6px; }
                 .m-header-actions .m-saldo { font-size: 0.55rem; }
                 .m-stickers-popup { max-width: 240px; right: 0; }
+                .m-buscar-popup { min-width: 200px; right: 0; }
             }
         `;
         document.head.appendChild(style);
@@ -460,10 +614,15 @@ export class MarquinhosUI {
         const callBtn = document.getElementById('m-btn-llamada');
         const videoBtn = document.getElementById('m-btn-video');
         const stickerBtn = document.getElementById('m-btn-stickers');
+        const buscarBtn = document.getElementById('m-btn-buscar');
         const saldoEl = document.getElementById('m-saldo');
+        const typingIndicator = document.getElementById('m-typing-indicator');
+        const typingText = document.getElementById('m-typing-text');
+        const replyBar = document.getElementById('m-reply-bar');
+        const replyText = document.getElementById('m-reply-text');
 
         // ================================================================
-        // ===== DRAG & DROP (Mouse) =====
+        // ===== DRAG & DROP =====
         // ================================================================
         bubble.addEventListener('mousedown', (e) => {
             this.iniciarArrastre(e.clientX, e.clientY, bubble);
@@ -477,9 +636,6 @@ export class MarquinhosUI {
             document.addEventListener('mouseup', onUp);
         });
 
-        // ================================================================
-        // ===== DRAG & DROP (Touch - Móviles) =====
-        // ================================================================
         bubble.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             this.iniciarArrastre(touch.clientX, touch.clientY, bubble);
@@ -511,6 +667,7 @@ export class MarquinhosUI {
                 this.cargarMensajes();
                 this.cargarSaldo();
                 document.querySelector('.m-notificacion').style.display = 'none';
+                input.focus();
             }
         });
 
@@ -525,6 +682,11 @@ export class MarquinhosUI {
         sendBtn.addEventListener('click', () => this.enviarMensaje(input));
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.enviarMensaje(input);
+            
+            // Indicador "escribiendo..."
+            if (e.target.value.length > 0) {
+                this.enviarTypingIndicator();
+            }
         });
 
         // ================================================================
@@ -622,7 +784,6 @@ export class MarquinhosUI {
         // ================================================================
         let stickersPopup = null;
 
-        // Cargar stickers disponibles
         this.cargarStickers();
 
         stickerBtn.addEventListener('click', () => {
@@ -639,12 +800,45 @@ export class MarquinhosUI {
         });
 
         // ================================================================
+        // ===== 🆕 BUSCAR MENSAJES =====
+        // ================================================================
+        let buscarPopup = null;
+
+        buscarBtn.addEventListener('click', () => {
+            if (!buscarPopup) {
+                buscarPopup = document.createElement('div');
+                buscarPopup.className = 'm-buscar-popup';
+                buscarPopup.id = 'm-buscar-popup';
+                buscarPopup.innerHTML = `
+                    <input type="text" id="m-buscar-input" placeholder="🔍 Buscar mensajes..." />
+                    <div id="m-buscar-resultados"></div>
+                `;
+                document.querySelector('.m-ventana').appendChild(buscarPopup);
+                
+                const buscarInput = document.getElementById('m-buscar-input');
+                buscarInput.addEventListener('input', (e) => {
+                    this.buscarMensajes(e.target.value);
+                });
+                buscarInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.buscarMensajes(e.target.value);
+                    }
+                });
+            }
+            buscarPopup.classList.toggle('abierto');
+            if (buscarPopup.classList.contains('abierto')) {
+                document.getElementById('m-buscar-input').focus();
+            }
+        });
+
+        // ================================================================
         // ===== ESCUCHAR MENSAJES EN TIEMPO REAL =====
         // ================================================================
         Engine.recibirMensajes((mensajes) => {
             this.mensajes = mensajes;
             this.renderizarMensajes();
             this.actualizarSaldo();
+            this.actualizarNotificaciones();
         });
 
         // ================================================================
@@ -654,8 +848,12 @@ export class MarquinhosUI {
         this.detectarColisiones(container);
         this.cargarSaldo();
 
-        console.log('🧠 Marquinhos UI v2.0 — Con COMMIT (CMT) integrado');
-        console.log('💰 Botón de stickers disponible en el chat');
+        console.log('🧠 Marquinhos UI v3.0 — Chat Avanzado');
+        console.log('📨 Estados de mensaje: enviando → enviado → recibido → leído');
+        console.log('🔍 Búsqueda en tiempo real');
+        console.log('✏️ Editar y eliminar mensajes');
+        console.log('💬 Responder mensajes específicos');
+        console.log('🔄 Indicador "escribiendo..."');
     }
 
     // ================================================================
@@ -758,14 +956,10 @@ export class MarquinhosUI {
         try {
             const userId = Engine.obtenerUserId ? Engine.obtenerUserId() : 'usuario_default';
             
-            // Verificar que Commit existe
             if (typeof window.Commit !== 'undefined' && window.Commit) {
                 const saldo = await window.Commit.consultarSaldo(userId);
                 this.saldoCommit = saldo.balance || 0;
                 this.actualizarSaldo();
-                console.log(`💰 Saldo CMT actualizado: ${this.saldoCommit} CMT`);
-            } else {
-                console.warn('⚠️ window.Commit no disponible');
             }
         } catch (error) {
             console.warn('⚠️ No se pudo cargar el saldo CMT:', error);
@@ -786,7 +980,6 @@ export class MarquinhosUI {
         try {
             if (typeof window.Commit !== 'undefined' && window.Commit) {
                 this.stickersDisponibles = await window.Commit.listarStickers();
-                console.log(`🏷️ ${this.stickersDisponibles.length} stickers cargados`);
             }
         } catch (error) {
             console.warn('⚠️ No se pudieron cargar los stickers:', error);
@@ -827,7 +1020,6 @@ export class MarquinhosUI {
             </div>
         `;
 
-        // Eventos para cada sticker
         popup.querySelectorAll('.m-sticker-item').forEach(el => {
             el.addEventListener('click', async () => {
                 const assetType = el.dataset.asset;
@@ -838,7 +1030,6 @@ export class MarquinhosUI {
                     return;
                 }
 
-                // Buscar destinatario (si hay un usuario seleccionado)
                 const targetUser = prompt('ID del usuario para enviar este sticker:');
                 if (!targetUser) return;
 
@@ -854,6 +1045,153 @@ export class MarquinhosUI {
                 }
             });
         });
+    }
+
+    // ================================================================
+    // ===== 🆕 BUSCAR MENSAJES =====
+    // ================================================================
+    async buscarMensajes(query) {
+        const resultadosContainer = document.getElementById('m-buscar-resultados');
+        if (!resultadosContainer) return;
+
+        if (!query || query.length < 2) {
+            resultadosContainer.innerHTML = '';
+            return;
+        }
+
+        try {
+            const resultados = await Engine.buscarMensajes(query);
+            
+            if (!resultados || resultados.length === 0) {
+                resultadosContainer.innerHTML = `
+                    <div style="padding:8px;font-size:0.7rem;color:var(--text-muted);text-align:center;">
+                        No se encontraron mensajes
+                    </div>
+                `;
+                return;
+            }
+
+            resultadosContainer.innerHTML = resultados.slice(0, 10).map(m => `
+                <div class="m-resultado" onclick="window.marquinhosUI?.scrollToMensaje('${m.id}')">
+                    <div style="font-weight:600;font-size:0.65rem;color:var(--gold-cosmic);">
+                        ${m.user_id || 'Usuario'}
+                    </div>
+                    <div>${m.content}</div>
+                    <div style="font-size:0.5rem;color:var(--text-muted);">${new Date(m.created_at).toLocaleString()}</div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error buscando mensajes:', error);
+            resultadosContainer.innerHTML = `
+                <div style="padding:8px;font-size:0.7rem;color:var(--danger);text-align:center;">
+                    Error al buscar
+                </div>
+            `;
+        }
+    }
+
+    scrollToMensaje(messageId) {
+        // Cerrar popup de búsqueda
+        const popup = document.getElementById('m-buscar-popup');
+        if (popup) popup.classList.remove('abierto');
+        
+        // Buscar y scroll al mensaje
+        const elemento = document.querySelector(`.m-mensaje[data-id="${messageId}"]`);
+        if (elemento) {
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            elemento.style.border = '2px solid var(--gold-cosmic)';
+            setTimeout(() => {
+                elemento.style.border = 'none';
+            }, 2000);
+        }
+    }
+
+    // ================================================================
+    // ===== 🆕 INDICADOR "ESCRIBIENDO..." =====
+    // ================================================================
+    enviarTypingIndicator() {
+        const userId = Engine.obtenerUserId ? Engine.obtenerUserId() : 'usuario_default';
+        
+        // Mostrar localmente
+        const typingIndicator = document.getElementById('m-typing-indicator');
+        const typingText = document.getElementById('m-typing-text');
+        if (typingIndicator) {
+            typingIndicator.style.display = 'block';
+            typingText.textContent = 'Tú estás escribiendo...';
+            clearTimeout(this.typingTimeout);
+            this.typingTimeout = setTimeout(() => {
+                typingIndicator.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Enviar a otros usuarios
+        Engine.enviarTypingIndicator?.();
+    }
+
+    mostrarTypingIndicator(usuario) {
+        const typingIndicator = document.getElementById('m-typing-indicator');
+        const typingText = document.getElementById('m-typing-text');
+        if (typingIndicator) {
+            typingIndicator.style.display = 'block';
+            typingText.textContent = `${usuario} está escribiendo...`;
+            clearTimeout(this.typingTimeout);
+            this.typingTimeout = setTimeout(() => {
+                typingIndicator.style.display = 'none';
+            }, 3000);
+        }
+    }
+
+    // ================================================================
+    // ===== 🆕 RESPONDER MENSAJE =====
+    // ================================================================
+    iniciarRespuesta(messageId, texto) {
+        this.respondiendoA = { id: messageId, texto: texto };
+        const replyBar = document.getElementById('m-reply-bar');
+        const replyText = document.getElementById('m-reply-text');
+        if (replyBar && replyText) {
+            replyBar.classList.add('visible');
+            replyBar.style.display = 'flex';
+            replyText.textContent = texto || 'Mensaje';
+        }
+        document.getElementById('m-input').focus();
+    }
+
+    cancelarRespuesta() {
+        this.respondiendoA = null;
+        const replyBar = document.getElementById('m-reply-bar');
+        if (replyBar) {
+            replyBar.classList.remove('visible');
+            replyBar.style.display = 'none';
+        }
+    }
+
+    // ================================================================
+    // ===== 🆕 EDITAR MENSAJE =====
+    // ================================================================
+    async editarMensaje(messageId, textoActual) {
+        const nuevoTexto = prompt('Editar mensaje:', textoActual);
+        if (nuevoTexto && nuevoTexto.trim() && nuevoTexto !== textoActual) {
+            try {
+                await Engine.editarMensaje?.(messageId, nuevoTexto.trim());
+                this.cargarMensajes();
+            } catch (error) {
+                alert('Error al editar el mensaje');
+            }
+        }
+    }
+
+    // ================================================================
+    // ===== 🆕 ELIMINAR MENSAJE =====
+    // ================================================================
+    async eliminarMensaje(messageId) {
+        if (confirm('¿Eliminar este mensaje para todos?')) {
+            try {
+                await Engine.eliminarMensaje?.(messageId);
+                this.cargarMensajes();
+            } catch (error) {
+                alert('Error al eliminar el mensaje');
+            }
+        }
     }
 
     // ================================================================
@@ -882,12 +1220,32 @@ export class MarquinhosUI {
             return;
         }
 
+        // Mantener el indicador de typing
+        const typingIndicator = document.getElementById('m-typing-indicator');
+        const typingHTML = typingIndicator ? typingIndicator.outerHTML : '';
+
         contenedor.innerHTML = this.mensajes.map(m => {
             const esBot = m.usuario === 'Marquinhos' || m.user_id === 'Marquinhos';
             const nombre = m.usuario || m.user_id || 'Anónimo';
             const contenido = m.content || m.texto || '';
             const tipo = m.type || 'text';
             const reacciones = m.reacciones || [];
+            const estado = m.estado || 'enviado';
+            const esEditado = m.editado || false;
+            const estaEliminado = m.eliminado_para_todos || false;
+            const esRespuesta = m.responder_a || m.extra?.responder_a;
+            const hora = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+            // Si está eliminado
+            if (estaEliminado) {
+                return `
+                    <div class="m-mensaje-wrapper">
+                        <div class="m-mensaje bot" style="opacity:0.5;font-style:italic;">
+                            <span style="color:var(--text-muted);">🗑️ Mensaje eliminado</span>
+                        </div>
+                    </div>
+                `;
+            }
 
             let contenidoHTML = '';
             
@@ -932,6 +1290,27 @@ export class MarquinhosUI {
                 contenidoHTML = contenido;
             }
 
+            // Estado del mensaje
+            const estadoMap = {
+                'enviando': '<span class="m-estado enviando">⏳ Enviando...</span>',
+                'enviado': '<span class="m-estado enviado">✅ Enviado</span>',
+                'recibido': '<span class="m-estado recibido">📩 Recibido</span>',
+                'leido': '<span class="m-estado leido">👁️ Leído</span>',
+                'fallido': '<span class="m-estado fallido">❌ Fallido</span>'
+            };
+            const estadoHTML = estadoMap[estado] || '';
+
+            // Mensaje de respuesta
+            let respuestaHTML = '';
+            if (esRespuesta) {
+                const textoRespondido = typeof esRespuesta === 'string' ? esRespuesta : 'Mensaje';
+                respuestaHTML = `
+                    <div class="m-responder-a" onclick="window.marquinhosUI?.scrollToMensaje('${m.responder_a || m.extra?.responder_a}')">
+                        ↩️ ${textoRespondido}
+                    </div>
+                `;
+            }
+
             // Reacciones
             let reaccionesHTML = '';
             if (reacciones && reacciones.length > 0) {
@@ -948,21 +1327,88 @@ export class MarquinhosUI {
                 `;
             }
 
+            // Acciones (hover)
+            const accionesHTML = `
+                <div class="m-acciones">
+                    <button onclick="window.marquinhosUI?.iniciarRespuesta('${m.id}', '${escapeHtml(contenido.substring(0, 30))}')" title="Responder">↩️</button>
+                    <button onclick="window.marquinhosUI?.editarMensaje('${m.id}', '${escapeHtml(contenido)}')" title="Editar">✏️</button>
+                    <button class="danger" onclick="window.marquinhosUI?.eliminarMensaje('${m.id}')" title="Eliminar">🗑️</button>
+                </div>
+            `;
+
             return `
-                <div class="m-mensaje ${esBot ? 'bot' : 'usuario'}" data-id="${m.id || m._id}">
-                    <div class="m-usuario">${esBot ? '🧠 Marquinhos' : nombre}</div>
-                    ${contenidoHTML}
-                    ${reaccionesHTML}
+                <div class="m-mensaje-wrapper ${esRespuesta ? 'respuesta' : ''}">
+                    <div class="m-mensaje ${esBot ? 'bot' : 'usuario'}" data-id="${m.id || m._id}">
+                        ${respuestaHTML}
+                        <div class="m-usuario">${esBot ? '🧠 Marquinhos' : nombre}</div>
+                        ${contenidoHTML}
+                        ${reaccionesHTML}
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+                            <span class="m-hora">${hora}</span>
+                            ${estadoHTML}
+                        </div>
+                        ${esEditado ? '<span class="m-editado">✎ Editado</span>' : ''}
+                        ${accionesHTML}
+                    </div>
                 </div>
             `;
         }).join('');
 
+        // Restaurar el indicador de typing
+        if (typingIndicator) {
+            contenedor.appendChild(typingIndicator);
+        }
+
         contenedor.scrollTop = contenedor.scrollHeight;
+    }
+
+    actualizarNotificaciones() {
+        const noLeidos = this.mensajes.filter(m => !m.leido && m.user_id !== 'Marquinhos').length;
+        const notificacion = document.querySelector('.m-notificacion');
+        if (notificacion) {
+            if (noLeidos > 0) {
+                notificacion.style.display = 'flex';
+                notificacion.textContent = noLeidos > 9 ? '9+' : noLeidos;
+            } else {
+                notificacion.style.display = 'none';
+            }
+        }
     }
 
     enviarMensaje(input) {
         if (!input.value.trim()) return;
-        Engine.enviarMensaje(input.value);
+        
+        const texto = input.value;
+        const responderA = this.respondiendoA;
+        
+        if (responderA) {
+            Engine.enviarMensajeConRespuesta?.(texto, responderA.id, responderA.texto);
+            this.cancelarRespuesta();
+        } else {
+            Engine.enviarMensaje(texto);
+        }
+        
         input.value = '';
+        // Ocultar indicador de typing
+        const typingIndicator = document.getElementById('m-typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.style.display = 'none';
+        }
     }
 }
+
+// ================================================================
+// FUNCIONES GLOBALES PARA ACCIONES DE MENSAJE
+// ================================================================
+
+window.cancelarRespuesta = function() {
+    if (window.marquinhosUI) {
+        window.marquinhosUI.cancelarRespuesta();
+    }
+};
+
+window.escapeHtml = function(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+};
