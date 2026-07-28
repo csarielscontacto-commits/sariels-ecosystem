@@ -12,6 +12,8 @@ export class MarquinhosUI {
         this.dragOffsetY = 0;
         this.hasMoved = false;
         this.mensajes = [];
+        this.saldoCommit = 0;
+        this.stickersDisponibles = [];
         this.init();
     }
 
@@ -37,6 +39,8 @@ export class MarquinhosUI {
                 <div class="m-header">
                     <span class="m-titulo">🧠 Marquinhos</span>
                     <div class="m-header-actions">
+                        <span class="m-saldo" id="m-saldo" title="Saldo COMMIT">💰 0 CMT</span>
+                        <button class="m-btn-stickers" id="m-btn-stickers" title="Stickers">🎁</button>
                         <button class="m-btn-llamada" id="m-btn-llamada" title="Llamada de voz">📞</button>
                         <button class="m-btn-video" id="m-btn-video" title="Videollamada">📹</button>
                         <button class="m-btn-adjuntar" id="m-btn-adjuntar" title="Adjuntar archivo">📎</button>
@@ -143,25 +147,37 @@ export class MarquinhosUI {
                 padding-bottom: 12px;
                 border-bottom: 1px solid rgba(255,255,255,0.08);
                 margin-bottom: 12px;
+                flex-wrap: wrap;
+                gap: 4px;
             }
             .m-header-actions {
                 display: flex;
-                gap: 6px;
+                gap: 4px;
                 align-items: center;
+                flex-wrap: wrap;
             }
             .m-header-actions button {
                 background: none;
                 border: none;
                 color: #a99c8c;
                 cursor: pointer;
-                font-size: 1rem;
-                padding: 4px 8px;
+                font-size: 0.9rem;
+                padding: 4px 6px;
                 border-radius: 6px;
                 transition: all 0.3s;
             }
             .m-header-actions button:hover {
                 background: rgba(255,255,255,0.05);
                 color: #e8e1d8;
+            }
+            .m-header-actions .m-saldo {
+                font-size: 0.65rem;
+                color: var(--gold-cosmic, #f7d44a);
+                font-family: 'Orbitron', monospace;
+                padding: 2px 8px;
+                background: rgba(247,212,74,0.08);
+                border-radius: 12px;
+                border: 1px solid rgba(247,212,74,0.15);
             }
             .m-titulo {
                 font-family: 'Orbitron', monospace;
@@ -182,6 +198,8 @@ export class MarquinhosUI {
                 overflow-y: auto;
                 margin-bottom: 12px;
                 padding-right: 4px;
+                min-height: 100px;
+                max-height: 300px;
             }
             .m-mensajes::-webkit-scrollbar { width: 4px; }
             .m-mensajes::-webkit-scrollbar-thumb { background: #f7d44a; border-radius: 2px; }
@@ -238,6 +256,7 @@ export class MarquinhosUI {
                 display: flex;
                 align-items: center;
                 gap: 6px;
+                flex-wrap: wrap;
             }
             .m-mensaje .m-archivo img {
                 max-width: 100%;
@@ -250,6 +269,28 @@ export class MarquinhosUI {
                 max-height: 200px;
                 border-radius: 8px;
                 margin-top: 4px;
+            }
+            .m-mensaje .m-sticker-cmt {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 8px 12px;
+                background: rgba(0,0,0,0.2);
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+            .m-mensaje .m-sticker-cmt .m-sticker-emoji {
+                font-size: 2.5rem;
+            }
+            .m-mensaje .m-sticker-cmt .m-sticker-nombre {
+                font-size: 0.7rem;
+                color: #a99c8c;
+                margin-top: 2px;
+            }
+            .m-mensaje .m-sticker-cmt .m-sticker-valor {
+                font-size: 0.6rem;
+                color: var(--gold-cosmic, #f7d44a);
+                font-family: 'Orbitron', monospace;
             }
             .m-input-area {
                 display: flex;
@@ -334,6 +375,66 @@ export class MarquinhosUI {
             .m-emojis-popup span:hover {
                 background: rgba(255,255,255,0.1);
             }
+            /* ===== STICKERS POPUP ===== */
+            .m-stickers-popup {
+                display: none;
+                position: absolute;
+                bottom: 70px;
+                right: 10px;
+                background: rgba(11,61,46,0.95);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 12px;
+                backdrop-filter: blur(10px);
+                max-width: 280px;
+                z-index: 100;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .m-stickers-popup.abierto {
+                display: flex;
+            }
+            .m-stickers-popup .m-sticker-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 6px 10px;
+                background: rgba(255,255,255,0.03);
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                border: 1px solid transparent;
+            }
+            .m-stickers-popup .m-sticker-item:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.1);
+                transform: scale(1.02);
+            }
+            .m-stickers-popup .m-sticker-item .m-sticker-emoji {
+                font-size: 1.8rem;
+                width: 40px;
+                text-align: center;
+            }
+            .m-stickers-popup .m-sticker-item .m-sticker-info {
+                flex: 1;
+            }
+            .m-stickers-popup .m-sticker-item .m-sticker-info .m-sticker-name {
+                font-size: 0.75rem;
+                color: #e8f0f8;
+            }
+            .m-stickers-popup .m-sticker-item .m-sticker-info .m-sticker-price {
+                font-size: 0.6rem;
+                color: var(--gold-cosmic, #f7d44a);
+                font-family: 'Orbitron', monospace;
+            }
+            .m-stickers-popup .m-sticker-item .m-sticker-badge {
+                font-size: 0.5rem;
+                padding: 2px 8px;
+                border-radius: 10px;
+                background: rgba(247,212,74,0.1);
+                color: #a99c8c;
+                font-family: 'Orbitron', monospace;
+            }
             #m-file-input {
                 display: none;
             }
@@ -341,6 +442,8 @@ export class MarquinhosUI {
                 .m-ventana { width: 290px; height: 420px; right: -5px; }
                 .m-burbuja { width: 54px; height: 54px; font-size: 1.4rem; }
                 .m-header-actions button { font-size: 0.8rem; padding: 2px 6px; }
+                .m-header-actions .m-saldo { font-size: 0.55rem; }
+                .m-stickers-popup { max-width: 240px; right: 0; }
             }
         `;
         document.head.appendChild(style);
@@ -356,6 +459,8 @@ export class MarquinhosUI {
         const attachBtn = document.getElementById('m-btn-adjuntar');
         const callBtn = document.getElementById('m-btn-llamada');
         const videoBtn = document.getElementById('m-btn-video');
+        const stickerBtn = document.getElementById('m-btn-stickers');
+        const saldoEl = document.getElementById('m-saldo');
 
         // ================================================================
         // ===== DRAG & DROP (Mouse) =====
@@ -404,6 +509,7 @@ export class MarquinhosUI {
             if (this.expandido) {
                 Engine.marcarComoLeido();
                 this.cargarMensajes();
+                this.cargarSaldo();
                 document.querySelector('.m-notificacion').style.display = 'none';
             }
         });
@@ -480,7 +586,6 @@ export class MarquinhosUI {
                 callBtn.textContent = '📞';
                 callBtn.title = 'Llamada de voz';
             } else {
-                // Buscar usuario objetivo (simulado)
                 const targetUser = prompt('ID del usuario para llamar:');
                 if (targetUser) {
                     Engine.iniciarLlamada(targetUser, { video: false });
@@ -513,11 +618,33 @@ export class MarquinhosUI {
         });
 
         // ================================================================
+        // ===== 🆕 STICKERS CON COMMIT =====
+        // ================================================================
+        let stickersPopup = null;
+
+        // Cargar stickers disponibles
+        this.cargarStickers();
+
+        stickerBtn.addEventListener('click', () => {
+            if (!stickersPopup) {
+                stickersPopup = document.createElement('div');
+                stickersPopup.className = 'm-stickers-popup';
+                stickersPopup.id = 'm-stickers-popup';
+                document.querySelector('.m-ventana').appendChild(stickersPopup);
+            }
+            stickersPopup.classList.toggle('abierto');
+            if (stickersPopup.classList.contains('abierto')) {
+                this.renderizarStickersPopup(stickersPopup);
+            }
+        });
+
+        // ================================================================
         // ===== ESCUCHAR MENSAJES EN TIEMPO REAL =====
         // ================================================================
         Engine.recibirMensajes((mensajes) => {
             this.mensajes = mensajes;
             this.renderizarMensajes();
+            this.actualizarSaldo();
         });
 
         // ================================================================
@@ -525,8 +652,10 @@ export class MarquinhosUI {
         // ================================================================
         this.cargarMensajes();
         this.detectarColisiones(container);
+        this.cargarSaldo();
 
-        console.log('🧠 Marquinhos UI inicializado con plugins completos');
+        console.log('🧠 Marquinhos UI v2.0 — Con COMMIT (CMT) integrado');
+        console.log('💰 Botón de stickers disponible en el chat');
     }
 
     // ================================================================
@@ -623,13 +752,117 @@ export class MarquinhosUI {
     }
 
     // ================================================================
+    // ===== SALDO COMMIT =====
+    // ================================================================
+    async cargarSaldo() {
+        try {
+            const userId = Engine.obtenerUserId ? Engine.obtenerUserId() : 'usuario_default';
+            
+            // Verificar que Commit existe
+            if (typeof window.Commit !== 'undefined' && window.Commit) {
+                const saldo = await window.Commit.consultarSaldo(userId);
+                this.saldoCommit = saldo.balance || 0;
+                this.actualizarSaldo();
+                console.log(`💰 Saldo CMT actualizado: ${this.saldoCommit} CMT`);
+            } else {
+                console.warn('⚠️ window.Commit no disponible');
+            }
+        } catch (error) {
+            console.warn('⚠️ No se pudo cargar el saldo CMT:', error);
+        }
+    }
+
+    actualizarSaldo() {
+        const saldoEl = document.getElementById('m-saldo');
+        if (saldoEl) {
+            saldoEl.textContent = `💰 ${this.saldoCommit.toFixed(0)} CMT`;
+        }
+    }
+
+    // ================================================================
+    // ===== STICKERS =====
+    // ================================================================
+    async cargarStickers() {
+        try {
+            if (typeof window.Commit !== 'undefined' && window.Commit) {
+                this.stickersDisponibles = await window.Commit.listarStickers();
+                console.log(`🏷️ ${this.stickersDisponibles.length} stickers cargados`);
+            }
+        } catch (error) {
+            console.warn('⚠️ No se pudieron cargar los stickers:', error);
+        }
+    }
+
+    renderizarStickersPopup(popup) {
+        if (!this.stickersDisponibles || this.stickersDisponibles.length === 0) {
+            popup.innerHTML = `
+                <div style="text-align:center;color:#a99c8c;padding:12px;font-size:0.8rem;">
+                    ⏳ Cargando stickers...
+                </div>
+            `;
+            this.cargarStickers().then(() => {
+                this.renderizarStickersPopup(popup);
+            });
+            return;
+        }
+
+        const userId = Engine.obtenerUserId ? Engine.obtenerUserId() : 'usuario_default';
+
+        popup.innerHTML = `
+            <div style="font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--gold-cosmic);padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.05);">
+                🎁 Enviar Sticker
+            </div>
+            ${this.stickersDisponibles.map(s => `
+                <div class="m-sticker-item" data-asset="${s.asset_type}" data-price="${s.price_commit}">
+                    <span class="m-sticker-emoji">${s.emoji || '🎁'}</span>
+                    <div class="m-sticker-info">
+                        <div class="m-sticker-name">${s.asset_name}</div>
+                        <div class="m-sticker-price">${s.price_commit} CMT</div>
+                    </div>
+                    <span class="m-sticker-badge" style="color:${s.color_hex || '#a99c8c'};">${s.rarity || 'Común'}</span>
+                </div>
+            `).join('')}
+            <div style="font-size:0.55rem;color:#4a6a8a;text-align:center;padding-top:6px;border-top:1px solid rgba(255,255,255,0.05);">
+                💰 Comisión 50% para la plataforma
+            </div>
+        `;
+
+        // Eventos para cada sticker
+        popup.querySelectorAll('.m-sticker-item').forEach(el => {
+            el.addEventListener('click', async () => {
+                const assetType = el.dataset.asset;
+                const price = parseInt(el.dataset.price);
+                
+                if (this.saldoCommit < price) {
+                    alert(`❌ Saldo insuficiente. Tienes ${this.saldoCommit} CMT y necesitas ${price} CMT.`);
+                    return;
+                }
+
+                // Buscar destinatario (si hay un usuario seleccionado)
+                const targetUser = prompt('ID del usuario para enviar este sticker:');
+                if (!targetUser) return;
+
+                try {
+                    const result = await Engine.enviarStickerCommit?.(targetUser, assetType);
+                    if (result) {
+                        this.cargarSaldo();
+                        this.cargarMensajes();
+                        popup.classList.remove('abierto');
+                    }
+                } catch (error) {
+                    alert(`❌ Error: ${error.message}`);
+                }
+            });
+        });
+    }
+
+    // ================================================================
     // ===== MENSAJES =====
     // ================================================================
     async cargarMensajes() {
         const contenedor = document.getElementById('m-mensajes');
         if (!contenedor) return;
         
-        // Usar Engine.recibirMensajes que ya tiene el callback
         Engine.recibirMensajes((mensajes) => {
             this.mensajes = mensajes;
             this.renderizarMensajes();
@@ -679,6 +912,20 @@ export class MarquinhosUI {
                         <img src="${contenido}" alt="Sticker" style="max-width:120px;max-height:120px;" />
                     </div>
                 `;
+            } else if (tipo === 'sticker_cmt' || tipo === 'gift_cmt') {
+                const extra = m.extra || {};
+                const emoji = extra.emoji || '🎁';
+                const name = extra.asset_name || 'Sticker';
+                const price = extra.amount || 0;
+                const receiver = extra.receiver_id || 'alguien';
+                contenidoHTML = `
+                    <div class="m-sticker-cmt">
+                        <span class="m-sticker-emoji">${emoji}</span>
+                        <span class="m-sticker-nombre">${name} → ${receiver}</span>
+                        <span class="m-sticker-valor">💰 ${price} CMT</span>
+                        ${extra.commission ? `<span style="font-size:0.5rem;color:#4a6a8a;">Comisión 50%: ${extra.commission} CMT</span>` : ''}
+                    </div>
+                `;
             } else if (tipo === 'emoji') {
                 contenidoHTML = `<span style="font-size:2rem;">${contenido}</span>`;
             } else {
@@ -717,6 +964,5 @@ export class MarquinhosUI {
         if (!input.value.trim()) return;
         Engine.enviarMensaje(input.value);
         input.value = '';
-        // El mensaje se actualizará automáticamente via Realtime
     }
 }
