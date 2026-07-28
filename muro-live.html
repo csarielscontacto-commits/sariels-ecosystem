@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muro Live | Csariel's</title>
+    <meta name="theme-color" content="#0B3D2E" />
+    
+    <meta property="og:title" content="Csariel's - Muro Live" />
+    <meta property="og:description" content="Publica fotos, videos, estados 24h y transmisiones en vivo con donaciones" />
+    <meta property="og:type" content="website" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Ethers.js para Web3 -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <style>
+        /* ===== TODOS TUS ESTILOS EXISTENTES ===== */
+        /* (Mantén todos los estilos que ya tenías) */
+        
+        /* ===== NUEVOS ESTILOS PARA HISTORIAS 24H ===== */
+        .story-viewer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .story-viewer-overlay.active { display: flex; }
+        .story-viewer-content {
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            background: var(--space-deep);
+            border-radius: var(--radius);
+            border: 1px solid var(--gold-dim);
+            overflow: hidden;
+            position: relative;
+        }
+        .story-viewer-content .story-image {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: cover;
+        }
+        .story-viewer-content .story-user {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--gold-dim);
+        }
+        .story-viewer-content .story-user .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #0a0c10;
+        }
+        .story-viewer-content .story-user .name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .story-viewer-content .story-user .time {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        .story-viewer-content .story-close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 10;
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .story-progress-bar {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 5;
+        }
+        .story-progress-bar .segment {
+            flex: 1;
+            height: 3px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .story-progress-bar .segment .fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .story-progress-bar .segment.active .fill {
+            animation: story-progress 5s linear forwards;
+        }
+        @keyframes story-progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* ===== NUEVOS ESTILOS PARA ENCUESTAS ===== */
+        .poll-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 8px 0;
+        }
+        .poll-container .poll-question {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .poll-container .poll-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        .poll-container .poll-option:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--gold-dim);
+        }
+        .poll-container .poll-option .vote-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .poll-container .poll-option .vote-bar .fill {
+            height: 100%;
+            background: var(--gold-cosmic);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .poll-container .poll-option .vote-count {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            min-width: 30px;
+            text-align: right;
+        }
+        .poll-container .poll-total {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* ===== NUEVOS ESTILOS PARA PUBLICACIONES DESTACADAS ===== */
+        .post-card.featured {
+            border-color: var(--gold-cosmic);
+            border-width: 2px;
+        }
+        .post-card.featured::before {
+            opacity: 0.25 !important;
+        }
+        .featured-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.5rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            background: rgba(247,212,74,0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(247,212,74,0.2);
+        }
+
+        /* ===== NUEVOS ESTILOS PARA COMENTARIOS ===== */
+        .comments-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .comments-section .comment {
+            display: flex;
+            gap: 10px;
+            padding: 6px 0;
+            align-items: flex-start;
+        }
+        .comments-section .comment .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #0a0c10;
+            flex-shrink: 0;
+        }
+        .comments-section .comment .content {
+            flex: 1;
+        }
+        .comments-section .comment .content .name {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+        }
+        .comments-section .comment .content .text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .comments-section .comment .content .time {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+        }
+        .comments-section .comment-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .comments-section .comment-input input {
+            flex: 1;
+            padding: 6px 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .comments-section .comment-input input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .comments-section .comment-input button {
+            background: var(--gold-cosmic);
+            border: none;
+            border-radius: 20px;
+            padding: 6px 14px;
+            color: #0a0c10;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ===== NOTIFICACIONES EN VIVO ===== */
+        .live-notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            background: rgba(11,61,46,0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 12px 18px;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.5s ease-out;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            display: none;
+        }
+        .live-notification.active {
+            display: block;
+        }
+        .live-notification .notif-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .live-notification .notif-content .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #0a0c10;
+            flex-shrink: 0;
+        }
+        .live-notification .notif-content .text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .live-notification .notif-content .text strong {
+            color: var(--text-primary);
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <!-- ===== CONTENIDO ===== -->
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="./index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Muro Live</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online" id="statusDot"></span>
+                    <span id="statusLabel">En vivo</span>
+                </div>
+                <a href="./mi-red.html" class="btn"><i class="fas fa-arrow-left"></i> Mi Red</a>
+                <a href="./servicios-comunitarios.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> Servicios
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="abrirModalPublicacion()">
+                    <i class="fas fa-plus"></i> Publicar
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="iniciarTransmision()" id="btnLive">
+                    <i class="fas fa-broadcast"></i> Live
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="openTerminosModal()">
+                    <i class="fas fa-file-contract"></i> 📜 Términos
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== ESTADOS 24H ===== -->
+        <div class="stories-bar" id="storiesBar">
+            <div class="story-item" onclick="abrirModalPublicacion()">
+                <div class="story-avatar" style="border-color:var(--gold-cosmic);border-style:dashed;">
+                    <i class="fas fa-plus" style="font-size:1.2rem;color:var(--gold-cosmic);"></i>
+                </div>
+                <span class="story-name">Tu estado</span>
+            </div>
+            <!-- Las historias se renderizan dinámicamente -->
+            <div id="storiesContainer"></div>
+        </div>
+
+        <!-- ===== PUBLICACIÓN RÁPIDA ===== -->
+        <div class="quick-post" onclick="abrirModalPublicacion()">
+            <div class="avatar" id="quickAvatar">T</div>
+            <span class="placeholder">¿Qué está pasando? Comparte algo...</span>
+            <div class="actions">
+                <button onclick="event.stopPropagation();"><i class="fas fa-image"></i></button>
+                <button onclick="event.stopPropagation();"><i class="fas fa-video"></i></button>
+                <button onclick="event.stopPropagation();"><i class="fas fa-smile"></i></button>
+                <button onclick="event.stopPropagation();event.preventDefault();abrirModalEncuesta();"><i class="fas fa-poll"></i></button>
+            </div>
+        </div>
+
+        <!-- ===== FEED ===== -->
+        <div class="feed-container" id="feedContainer">
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <h3>Sin publicaciones</h3>
+                <p>Sé el primero en compartir algo en tu muro.</p>
+            </div>
+        </div>
+
+        <!-- ===== MODAL DE PUBLICACIÓN ===== -->
+        <div class="modal-overlay" id="postModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="cerrarModalPublicacion()">✕</button>
+                <h3 class="modal-title">📝 Crear Publicación</h3>
+                <p style="color:var(--text-secondary);font-size:0.75rem;margin-bottom:12px;">Tu contenido será moderado por IA antes de publicarse</p>
+                <textarea id="postTextInput" placeholder="¿Qué quieres compartir?..."></textarea>
+                <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-outline" onclick="togglePublicacionDestacada()" id="btnDestacar">
+                        <i class="fas fa-star"></i> Destacar publicación
+                    </button>
+                </div>
+                <div id="moderationResult" style="margin-top:10px;display:none;"></div>
+                <div class="modal-actions">
+                    <button class="btn btn-gold" onclick="publicarConModeracion()">
+                        <i class="fas fa-rocket"></i> Publicar
+                    </button>
+                    <button class="btn btn-outline" onclick="cerrarModalPublicacion()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODAL DE ENCUESTA ===== -->
+        <div class="modal-overlay" id="pollModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="cerrarModalEncuesta()">✕</button>
+                <h3 class="modal-title">📊 Crear Encuesta</h3>
+                <p style="color:var(--text-secondary);font-size:0.75rem;margin-bottom:12px;">Pregunta a tu comunidad y obtén resultados en tiempo real</p>
+                <input type="text" id="pollQuestion" placeholder="¿Qué quieres preguntar?" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;margin-bottom:8px;font-family:'Space Grotesk',sans-serif;">
+                <div id="pollOptionsContainer">
+                    <input type="text" class="poll-option-input" placeholder="Opción 1" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;margin-bottom:4px;font-family:'Space Grotesk',sans-serif;">
+                    <input type="text" class="poll-option-input" placeholder="Opción 2" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;margin-bottom:4px;font-family:'Space Grotesk',sans-serif;">
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="agregarOpcionEncuesta()" style="margin-bottom:8px;">
+                    <i class="fas fa-plus"></i> Agregar opción
+                </button>
+                <div class="modal-actions">
+                    <button class="btn btn-gold" onclick="publicarEncuesta()">
+                        <i class="fas fa-poll"></i> Publicar Encuesta
+                    </button>
+                    <button class="btn btn-outline" onclick="cerrarModalEncuesta()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODAL DE TRANSMISIÓN ===== -->
+        <div class="modal-overlay" id="liveModal">
+            <div class="modal-content" style="max-width:400px;">
+                <button class="modal-close" onclick="cerrarLiveModal()">✕</button>
+                <h3 class="modal-title">📡 Iniciar Transmisión</h3>
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">Comparte en vivo con tu comunidad</p>
+                <div style="text-align:center;padding:20px;background:rgba(255,51,102,0.1);border-radius:12px;border:1px solid rgba(255,51,102,0.2);margin-bottom:12px;">
+                    <i class="fas fa-broadcast" style="font-size:3rem;color:var(--danger);"></i>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:8px;">
+                        <strong style="color:var(--danger);">● EN VIVO</strong><br>
+                        Recibe donaciones en tiempo real desde tu comunidad.
+                    </p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="iniciarTransmisionReal()">
+                        <i class="fas fa-play"></i> Iniciar Live
+                    </button>
+                    <button class="btn btn-outline" onclick="cerrarLiveModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+                <div style="margin-top:12px;padding:8px;background:rgba(247,212,74,0.05);border-radius:8px;border:1px solid rgba(247,212,74,0.1);">
+                    <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                        💰 <strong style="color:var(--gold-cosmic);">Donaciones activas:</strong> 50% para el streamer · 50% para Csariel's<br>
+                        🪙 Tokens aceptados: USDT · USDC · TOK (1:1)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODAL DE TÉRMINOS ===== -->
+        <div class="modal-overlay terminos-modal" id="terminosModal">
+            <div class="modal-content" style="max-width:560px;">
+                <button class="modal-close" onclick="closeTerminosModal()">✕</button>
+                <h3 class="modal-title">📜 Términos y Condiciones</h3>
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
+                    Csariel's — Muro Live · Pasarela de Pagos
+                </p>
+                <div id="terminosResult" style="display:none;"></div>
+                <div class="resumen">
+                    <p><strong>📋 Resumen del Acuerdo:</strong></p>
+                    <ul>
+                        <li>🔒 <strong>Modelo No Custodial:</strong> Tú controlas tus activos.</li>
+                        <li>⚡ <strong>Irreversibilidad:</strong> Las transacciones en blockchain son finales.</li>
+                        <li>📊 <strong>Declaración Fiscal:</strong> Eres responsable ante el SAT.</li>
+                        <li>🛡️ <strong>Prevención de Lavado:</strong> Cumplimos con la LFPIORPI.</li>
+                        <li>📜 <strong>Jurisdicción:</strong> Puebla, México.</li>
+                        <li>🔐 <strong>Datos Personales:</strong> Conforme a la LFPDPPP.</li>
+                    </ul>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                    <a href="./terminos/terminos-completos.html" target="_blank" class="btn btn-primary" style="flex:1;justify-content:center;">
+                        <i class="fas fa-file-pdf"></i> 📖 Leer Términos Completos (81 arts.)
+                    </a>
+                    <a href="./terminos/privacidad.html" target="_blank" class="btn btn-outline" style="flex:1;justify-content:center;">
+                        <i class="fas fa-shield-alt"></i> 🔐 Aviso de Privacidad
+                    </a>
+                </div>
+                <div class="checklist">
+                    <label><input type="checkbox" id="terminosCheck1" /><span>He leído y acepto los <span class="highlight">Términos y Condiciones Generales</span> de Csariel's.</span></label>
+                    <label><input type="checkbox" id="terminosCheck2" /><span>Comprendo que las transacciones son <span class="highlight">irreversibles</span> y operan bajo modelo <span class="highlight">no custodial</span>.</span></label>
+                    <label><input type="checkbox" id="terminosCheck3" /><span>Declaro que cumplo con mis <span class="highlight">obligaciones fiscales</span> ante el SAT.</span></label>
+                    <label><input type="checkbox" id="terminosCheck4" /><span>He leído y acepto el <span class="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span></label>
+                    <label><input type="checkbox" id="terminosCheck5" /><span>Acepto la <span class="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span></label>
+                </div>
+                <div class="btn-row">
+                    <button onclick="aceptarTerminos()" class="btn btn-success" id="btnAceptarTerminos" disabled>
+                        <i class="fas fa-check"></i> Aceptar y Continuar
+                    </button>
+                    <button onclick="closeTerminosModal()" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Rechazar
+                    </button>
+                </div>
+                <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;margin-top:10px;">
+                    ⚠️ Debes aceptar <strong style="color:var(--danger);">TODOS</strong> los puntos para continuar usando el Muro Live.
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== MODAL DE DONACIÓN EN DIRECTO ===== -->
+        <div class="modal-overlay donacion-modal" id="donacionModal">
+            <div class="modal-content" style="max-width:480px;">
+                <button class="modal-close" onclick="cerrarDonacionModal()">✕</button>
+                <h3 class="modal-title">🎁 Donar en Directo</h3>
+                <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
+                    Apoya al streamer en su transmisión. <span style="color:var(--gold-cosmic);">50% para el streamer · 50% para Csariel's</span>
+                </p>
+                <div style="padding:12px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid var(--gold-dim);margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold-cosmic),var(--verde-bosque-light));display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0c10;font-size:1rem;" id="donacionStreamerAvatar">M</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;color:var(--text-primary);" id="donacionStreamerNombre">María</div>
+                            <div style="font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;">
+                                <span style="color:var(--danger);">● EN VIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-gold" data-token="USDT" onclick="seleccionarTokenDonacion('USDT')" style="flex:1;justify-content:center;">💵 USDT</button>
+                    <button class="btn btn-sm btn-outline" data-token="USDC" onclick="seleccionarTokenDonacion('USDC')" style="flex:1;justify-content:center;">💳 USDC</button>
+                    <button class="btn btn-sm btn-outline" data-token="TOK" onclick="seleccionarTokenDonacion('TOK')" style="flex:1;justify-content:center;">🪙 TOK (Próximo)</button>
+                </div>
+                <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(1)" style="flex:1;justify-content:center;">$1</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(5)" style="flex:1;justify-content:center;">$5</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(10)" style="flex:1;justify-content:center;">$10</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(25)" style="flex:1;justify-content:center;">$25</button>
+                    <button class="btn btn-sm btn-outline" onclick="setMontoDonacion(50)" style="flex:1;justify-content:center;">$50</button>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <input type="number" id="donacionMonto" placeholder="Monto personalizado (mín 1)" style="width:100%;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.95rem;outline:none;font-family:'Space Grotesk',sans-serif;" oninput="actualizarResumenDonacion()" />
+                </div>
+                <div style="margin-bottom:12px;">
+                    <input type="text" id="donacionMensaje" placeholder="Mensaje para el streamer (opcional)" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;font-family:'Space Grotesk',sans-serif;" />
+                </div>
+                <div style="padding:12px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid var(--gold-dim);margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);">
+                        <span>💰 Donación</span>
+                        <span style="color:var(--text-primary);font-weight:600;" id="resumenMonto">$0.00 USDT</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);">
+                        <span>🎁 Para el streamer (50%)</span>
+                        <span style="color:var(--success);" id="resumenStreamer">$0.00 USDT</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);">
+                        <span>🏢 Csariel's (50%)</span>
+                        <span style="color:var(--gold-cosmic);" id="resumenCsariels">$0.00 USDT</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-gold" onclick="procesarDonacion()" style="flex:1;justify-content:center;" id="btnDonar">
+                        <i class="fas fa-rocket"></i> Enviar Donación
+                    </button>
+                    <button class="btn btn-outline" onclick="cerrarDonacionModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+                <div style="margin-top:8px;padding:8px;background:rgba(255,51,102,0.05);border-radius:8px;border:1px solid rgba(255,51,102,0.1);">
+                    <p style="font-size:0.55rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                        ⚡ Las donaciones se procesan en la red Polygon.<br>
+                        Comisión del 50% para mantener la plataforma y los directos.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STORY VIEWER (Overlay para ver historias) ===== -->
+        <div class="story-viewer-overlay" id="storyViewer">
+            <button class="story-close" onclick="cerrarStoryViewer()">✕</button>
+            <div class="story-viewer-content">
+                <div class="story-progress-bar" id="storyProgressBar"></div>
+                <div class="story-user">
+                    <div class="avatar" id="storyViewerAvatar">U</div>
+                    <span class="name" id="storyViewerName">Usuario</span>
+                    <span class="time" id="storyViewerTime">hace 2h</span>
+                </div>
+                <img class="story-image" id="storyViewerImage" src="" alt="Historia" />
+            </div>
+        </div>
+
+        <!-- ===== TOAST ===== -->
+        <div class="toast" id="toast"></div>
+
+        <!-- ===== NOTIFICACIONES EN VIVO ===== -->
+        <div class="live-notification" id="liveNotification">
+            <div class="notif-content">
+                <div class="avatar" id="notifAvatar">U</div>
+                <div class="text" id="notifText"><strong>Usuario</strong> comentó tu publicación</div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Muro Live · Moderación IA · Donaciones en Directo
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./servicios-comunitarios.html">🔧 Servicios</a>
+                <a href="./panel-web3.html">🔗 Web3</a>
+                <a href="./terminos/terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="./terminos/privacidad.html" style="color:var(--gold-cosmic);">🔐 Privacidad</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script type="module">
+        // ================================================================
+        // IMPORTAR CONFIG, MODERACIÓN IA Y SUPABASE
+        // ================================================================
+        import { CONFIG } from './js/config.js';
+        import { moderador } from './js/moderacion-ia.js';
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        // ================================================================
+        // CONFIGURACIÓN SUPABASE
+        // ================================================================
+        const SUPABASE_URL = CONFIG.SUPABASE_URL || 'https://nvyyxgkladjauolvpzfp.supabase.co';
+        const SUPABASE_ANON_KEY = CONFIG.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2MTU2ODEsImV4cCI6MjA1NjE5MTY4MX0.c1Zk6QpI7m7tQnY4k8w9Tg5dDw2pXgFh1y3JkLmNpQo';
+        
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('🔗 Supabase conectado');
+
+        // ================================================================
+        // SISTEMA ESTELAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('◈ Csariel\'s - Muro Live (Con Moderación IA y Supabase)');
+            console.log(`📦 Configuración desde CONFIG v${CONFIG.VERSION}`);
+            initStars();
+            initMuro();
+            cargarPerfil();
+            initTerminos();
+            initDonaciones();
+            initStories();
+            initPollSystem();
+            initComments();
+            initLiveNotifications();
+        });
+
+        // ===== ESTRELLAS =====
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            let meteors = [];
+            const STAR_COUNT = 300;
+            const METEOR_COUNT = 3;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.8 + 0.3,
+                        speed: Math.random() * 0.02 + 0.005,
+                        opacity: Math.random() * 0.8 + 0.2,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function createMeteor() {
+                return {
+                    x: Math.random() * width * 0.8,
+                    y: Math.random() * height * 0.3,
+                    speed: Math.random() * 3 + 4,
+                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+                    opacity: Math.random() * 0.6 + 0.4,
+                    active: true,
+                    trail: []
+                };
+            }
+
+            function initMeteors() {
+                meteors = [];
+                for (let i = 0; i < METEOR_COUNT; i++) {
+                    const meteor = createMeteor();
+                    meteor.x = Math.random() * width;
+                    meteor.y = Math.random() * height * 0.2;
+                    meteors.push(meteor);
+                }
+            }
+
+            function updateStars() {
+                for (let star of stars) {
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+            }
+
+            function updateMeteors() {
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    meteor.x += Math.cos(meteor.angle) * meteor.speed;
+                    meteor.y += Math.sin(meteor.angle) * meteor.speed;
+                    meteor.trail.push({ x: meteor.x, y: meteor.y });
+                    if (meteor.trail.length > 20) meteor.trail.shift();
+                    if (meteor.x > width + 100 || meteor.y > height + 100) {
+                        meteor.active = false;
+                        setTimeout(() => {
+                            const newMeteor = createMeteor();
+                            newMeteor.x = Math.random() * width * 0.3;
+                            newMeteor.y = Math.random() * height * 0.2;
+                            Object.assign(meteor, newMeteor);
+                            meteor.active = true;
+                        }, Math.random() * 3000 + 2000);
+                    }
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    if (star.radius > 1.2) {
+                        ctx.shadowColor = 'rgba(255, 255, 255, 0.05)';
+                        ctx.shadowBlur = 10;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+                for (let meteor of meteors) {
+                    if (!meteor.active) continue;
+                    for (let i = 0; i < meteor.trail.length; i++) {
+                        const point = meteor.trail[i];
+                        const alpha = (i / meteor.trail.length) * meteor.opacity * 0.6;
+                        const radius = (i / meteor.trail.length) * 2;
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
+                        ctx.fill();
+                    }
+                    const gradient = ctx.createRadialGradient(meteor.x, meteor.y, 0, meteor.x, meteor.y, 15);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                    gradient.addColorStop(0.3, 'rgba(100, 200, 255, 0.6)');
+                    gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 15, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
+                    ctx.shadowBlur = 30;
+                    ctx.beginPath();
+                    ctx.arc(meteor.x, meteor.y, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            function animate() {
+                updateStars();
+                updateMeteors();
+                draw();
+                requestAnimationFrame(animate);
+            }
+
+            resize();
+            createStars();
+            initMeteors();
+            animate();
+            window.addEventListener('resize', () => {
+                resize();
+                createStars();
+            });
+        }
+
+        // ================================================================
+        // TÉRMINOS Y CONDICIONES
+        // ================================================================
+        let terminosAceptados = false;
+
+        function initTerminos() {
+            try {
+                const aceptado = localStorage.getItem('terminos_muro_live_aceptado');
+                if (aceptado === 'true') {
+                    terminosAceptados = true;
+                    console.log('✅ Términos ya aceptados previamente');
+                }
+            } catch (e) {
+                console.warn('Error verificando términos:', e);
+            }
+
+            const checks = document.querySelectorAll('#terminosModal .checklist input[type="checkbox"]');
+            checks.forEach(check => {
+                check.addEventListener('change', verificarChecks);
+            });
+
+            if (!terminosAceptados) {
+                setTimeout(() => {
+                    openTerminosModal();
+                }, 800);
+            }
+        }
+
+        function verificarChecks() {
+            const checks = document.querySelectorAll('#terminosModal .checklist input[type="checkbox"]');
+            const todos = Array.from(checks).every(c => c.checked);
+            document.getElementById('btnAceptarTerminos').disabled = !todos;
+        }
+
+        window.openTerminosModal = function() {
+            document.getElementById('terminosModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeTerminosModal = function() {
+            document.getElementById('terminosModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        };
+
+        window.aceptarTerminos = function() {
+            try {
+                localStorage.setItem('terminos_muro_live_aceptado', 'true');
+                terminosAceptados = true;
+            } catch (e) {
+                console.warn('Error guardando aceptación:', e);
+            }
+
+            const resultDiv = document.getElementById('terminosResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div style="padding:12px;background:rgba(0,184,148,0.1);border-radius:8px;border:1px solid rgba(0,184,148,0.2);margin-bottom:12px;">
+                    <p style="color:var(--success);font-weight:600;">
+                        <i class="fas fa-check-circle"></i> ¡Términos aceptados correctamente!
+                    </p>
+                    <p style="font-size:0.75rem;color:var(--text-secondary);">
+                        Puedes consultar los términos completos en cualquier momento desde el botón "📜 Términos".
+                    </p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                closeTerminosModal();
+                mostrarToast('✅ Términos y Condiciones aceptados');
+            }, 1500);
+        };
+
+        // ================================================================
+        // PERFIL
+        // ================================================================
+        let miPerfil = { nombre: 'Usuario', verificado: false, wallet: null };
+
+        function cargarPerfil() {
+            try {
+                const guardado = localStorage.getItem('miPerfil_csariels');
+                if (guardado) {
+                    miPerfil = JSON.parse(guardado);
+                    const avatar = document.getElementById('quickAvatar');
+                    avatar.textContent = miPerfil.nombre ? miPerfil.nombre.charAt(0) : 'T';
+                }
+            } catch (e) {
+                console.warn('Error cargando perfil:', e);
+            }
+        }
+
+        // ================================================================
+        // MURO LIVE
+        // ================================================================
+        let posts = [];
+        let toastTimeout = null;
+        let streamerInfo = null;
+        let isLive = false;
+        let destacarPublicacion = false;
+
+        function initMuro() {
+            cargarPosts();
+            renderizarFeed();
+        }
+
+        function cargarPosts() {
+            try {
+                const stored = localStorage.getItem('muro_live_posts');
+                if (stored) {
+                    posts = JSON.parse(stored);
+                } else {
+                    posts = [
+                        {
+                            id: Date.now() - 3600000,
+                            author: 'María García',
+                            avatar: 'M',
+                            content: '¡Hola a todos! Acabo de unirme a Csariel\'s. 🌟',
+                            media: [],
+                            likes: 3,
+                            liked: false,
+                            comments: [],
+                            date: Date.now() - 3600000,
+                            moderated: true,
+                            moderationStatus: 'approved',
+                            tipo: 'publicacion',
+                            featured: false,
+                            poll: null
+                        }
+                    ];
+                    guardarPosts();
+                }
+            } catch (e) {
+                console.warn('Error cargando posts:', e);
+                posts = [];
+            }
+        }
+
+        function guardarPosts() {
+            try {
+                localStorage.setItem('muro_live_posts', JSON.stringify(posts));
+            } catch (e) {
+                console.warn('Error guardando posts:', e);
+            }
+        }
+
+        // ===== NUEVA FUNCIÓN: Renderizar feed con comentarios y encuestas =====
+        function renderizarFeed() {
+            const container = document.getElementById('feedContainer');
+            
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin publicaciones</h3>
+                        <p>Sé el primero en compartir algo en tu muro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar: primero destacadas, luego por fecha
+            const postsOrdenados = [...posts].sort((a, b) => {
+                if (a.featured && !b.featured) return -1;
+                if (!a.featured && b.featured) return 1;
+                return b.date - a.date;
+            });
+
+            container.innerHTML = postsOrdenados.map(post => `
+                <div class="post-card ${post.featured ? 'featured' : ''}" data-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-avatar">${post.avatar || post.author.charAt(0)}</div>
+                        <div>
+                            <div class="post-author">${escapeHtml(post.author)}</div>
+                            <div class="post-date">${formatDate(post.date)}</div>
+                        </div>
+                        ${post.featured ? '<span class="featured-badge"><i class="fas fa-star"></i> Destacado</span>' : ''}
+                        ${post.moderationStatus === 'pending' ? '<span class="moderation-badge pending">⏳ Revisión</span>' : ''}
+                        ${post.moderationStatus === 'rejected' ? '<span class="moderation-badge rejected">⛔ Rechazado</span>' : ''}
+                    </div>
+                    
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    
+                    ${post.poll ? renderizarEncuesta(post.poll, post.id) : ''}
+                    
+                    ${post.media && post.media.length > 0 ? `
+                        <div class="post-media">
+                            ${post.media.map(m => {
+                                if (m.type && m.type.startsWith('image/')) {
+                                    return `<img src="${m.data}" alt="Imagen" />`;
+                                } else if (m.type && m.type.startsWith('video/')) {
+                                    return `<video controls src="${m.data}"></video>`;
+                                }
+                                return '';
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    ${post.moderationStatus === 'approved' ? `
+                        <div class="post-actions">
+                            <button class="like-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                                <i class="fas fa-heart"></i> <span class="count">${post.likes || 0}</span>
+                            </button>
+                            <button onclick="toggleComments(${post.id})">
+                                <i class="fas fa-comment"></i> <span class="count">${(post.comments || []).length}</span>
+                            </button>
+                            <button onclick="compartirPost(${post.id})">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            ${post.author === miPerfil.nombre ? `
+                                <button onclick="eliminarPost(${post.id})" style="color:var(--danger);">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button onclick="toggleFeatured(${post.id})" style="color:var(--gold-cosmic);">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- ===== COMENTARIOS ===== -->
+                        <div class="comments-section" id="comments-${post.id}" style="display:none;">
+                            ${(post.comments || []).map(c => `
+                                <div class="comment">
+                                    <div class="avatar">${c.avatar || c.author.charAt(0)}</div>
+                                    <div class="content">
+                                        <div class="name">${escapeHtml(c.author)}</div>
+                                        <div class="text">${escapeHtml(c.text)}</div>
+                                        <div class="time">${formatDate(c.date)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <div class="comment-input">
+                                <input type="text" id="comment-input-${post.id}" placeholder="Escribe un comentario..." />
+                                <button onclick="enviarComentario(${post.id})">Enviar</button>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${post.moderationStatus === 'pending' ? `
+                        <div style="padding:10px;background:rgba(247,212,74,0.05);border-radius:8px;margin-top:8px;border:1px solid rgba(247,212,74,0.1);">
+                            <p style="font-size:0.75rem;color:var(--text-secondary);">
+                                <i class="fas fa-clock" style="color:var(--warning);"></i>
+                                Esta publicación está en revisión por moderación IA. Se publicará automáticamente si es aprobada.
+                            </p>
+                        </div>
+                    ` : ''}
+                    
+                    ${post.moderationStatus === 'rejected' ? `
+                        <div style="padding:10px;background:rgba(255,51,102,0.05);border-radius:8px;margin-top:8px;border:1px solid rgba(255,51,102,0.1);">
+                            <p style="font-size:0.75rem;color:var(--danger);">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Esta publicación no pasó la moderación automática por contenido inapropiado.
+                            </p>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // ===== RENDERIZAR ENCUESTA =====
+        function renderizarEncuesta(poll, postId) {
+            const totalVotos = poll.options.reduce((acc, o) => acc + o.votes, 0);
+            
+            return `
+                <div class="poll-container">
+                    <div class="poll-question">${escapeHtml(poll.question)}</div>
+                    ${poll.options.map((opt, index) => {
+                        const porcentaje = totalVotos > 0 ? (opt.votes / totalVotos) * 100 : 0;
+                        return `
+                            <div class="poll-option" onclick="votarEncuesta(${postId}, ${index})">
+                                <span>${escapeHtml(opt.text)}</span>
+                                <div class="vote-bar">
+                                    <div class="fill" style="width:${porcentaje}%;"></div>
+                                </div>
+                                <span class="vote-count">${opt.votes}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                    <div class="poll-total">${totalVotos} votos totales</div>
+                </div>
+            `;
+        }
+
+        // ================================================================
+        // SISTEMA DE ENCUESTAS
+        // ================================================================
+        let pollOptions = [];
+
+        function initPollSystem() {
+            console.log('📊 Sistema de encuestas inicializado');
+        }
+
+        window.abrirModalEncuesta = function() {
+            document.getElementById('pollQuestion').value = '';
+            pollOptions = ['', ''];
+            document.getElementById('pollOptionsContainer').innerHTML = `
+                <input type="text" class="poll-option-input" placeholder="Opción 1" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;margin-bottom:4px;font-family:'Space Grotesk',sans-serif;">
+                <input type="text" class="poll-option-input" placeholder="Opción 2" style="width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;margin-bottom:4px;font-family:'Space Grotesk',sans-serif;">
+            `;
+            document.getElementById('pollModal').classList.add('active');
+        };
+
+        window.cerrarModalEncuesta = function() {
+            document.getElementById('pollModal').classList.remove('active');
+        };
+
+        window.agregarOpcionEncuesta = function() {
+            const container = document.getElementById('pollOptionsContainer');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'poll-option-input';
+            input.placeholder = `Opción ${container.children.length + 1}`;
+            input.style.cssText = 'width:100%;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-primary);font-size:0.85rem;outline:none;margin-bottom:4px;font-family:\'Space Grotesk\',sans-serif;';
+            container.appendChild(input);
+        };
+
+        window.publicarEncuesta = function() {
+            const question = document.getElementById('pollQuestion').value.trim();
+            const inputs = document.querySelectorAll('.poll-option-input');
+            const options = [];
+
+            inputs.forEach(input => {
+                const text = input.value.trim();
+                if (text) options.push({ text, votes: 0 });
+            });
+
+            if (!question) {
+                mostrarToast('⚠️ Escribe una pregunta para la encuesta', 'error');
+                return;
+            }
+
+            if (options.length < 2) {
+                mostrarToast('⚠️ Necesitas al menos 2 opciones', 'error');
+                return;
+            }
+
+            const nuevaPublicacion = {
+                id: Date.now(),
+                author: miPerfil.nombre || 'Usuario',
+                avatar: (miPerfil.nombre || 'U').charAt(0),
+                content: `📊 Encuesta: ${question}`,
+                media: [],
+                likes: 0,
+                liked: false,
+                comments: [],
+                date: Date.now(),
+                moderated: true,
+                moderationStatus: 'approved',
+                tipo: 'encuesta',
+                featured: false,
+                poll: {
+                    question: question,
+                    options: options,
+                    totalVotes: 0
+                }
+            };
+
+            posts.unshift(nuevaPublicacion);
+            guardarPosts();
+            renderizarFeed();
+            cerrarModalEncuesta();
+            mostrarToast('✅ Encuesta publicada correctamente');
+        };
+
+        window.votarEncuesta = function(postId, optionIndex) {
+            const post = posts.find(p => p.id === postId);
+            if (!post || !post.poll) return;
+
+            // Verificar si ya votó (simplificado)
+            if (post.poll.voted) {
+                mostrarToast('⚠️ Ya votaste en esta encuesta', 'warning');
+                return;
+            }
+
+            post.poll.options[optionIndex].votes++;
+            post.poll.totalVotes++;
+            post.poll.voted = true;
+            guardarPosts();
+            renderizarFeed();
+            
+            // Notificación en vivo
+            mostrarNotificacionVivo(`${miPerfil.nombre || 'Alguien'} votó en tu encuesta`, '📊');
+            mostrarToast('✅ Voto registrado');
+        };
+
+        // ================================================================
+        // SISTEMA DE COMENTARIOS
+        // ================================================================
+        function initComments() {
+            console.log('💬 Sistema de comentarios inicializado');
+        }
+
+        window.toggleComments = function(postId) {
+            const section = document.getElementById(`comments-${postId}`);
+            if (section) {
+                section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            }
+        };
+
+        window.enviarComentario = function(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            if (!post.comments) post.comments = [];
+
+            post.comments.push({
+                author: miPerfil.nombre || 'Anónimo',
+                avatar: (miPerfil.nombre || 'U').charAt(0),
+                text: text,
+                date: Date.now()
+            });
+
+            guardarPosts();
+            renderizarFeed();
+            
+            // Notificación en vivo al autor
+            if (post.author !== miPerfil.nombre) {
+                mostrarNotificacionVivo(`${miPerfil.nombre || 'Alguien'} comentó tu publicación`, '💬');
+            }
+            
+            mostrarToast('✅ Comentario enviado');
+        };
+
+        // ================================================================
+        // NOTIFICACIONES EN VIVO
+        // ================================================================
+        let notifTimeout = null;
+
+        function initLiveNotifications() {
+            console.log('🔔 Notificaciones en vivo activas');
+        }
+
+        function mostrarNotificacionVivo(mensaje, emoji = '🔔') {
+            const notif = document.getElementById('liveNotification');
+            const text = document.getElementById('notifText');
+            const avatar = document.getElementById('notifAvatar');
+            
+            avatar.textContent = emoji;
+            text.innerHTML = mensaje;
+            notif.classList.add('active');
+            
+            clearTimeout(notifTimeout);
+            notifTimeout = setTimeout(() => {
+                notif.classList.remove('active');
+            }, 4000);
+        }
+
+        // ================================================================
+        // MODERACIÓN IA
+        // ================================================================
+        function publicarConModeracion() {
+            const textarea = document.getElementById('postTextInput');
+            const texto = textarea.value.trim();
+            
+            if (!texto) {
+                mostrarToast('⚠️ Escribe algo para publicar', 'error');
+                return;
+            }
+
+            const deteccionServicio = moderador.detectarServicio(texto);
+            if (deteccionServicio.esServicio) {
+                mostrarToast('🔧 Detectamos que buscas un servicio. Redirigiendo al módulo de servicios...', 'warning');
+                setTimeout(() => {
+                    window.location.href = './servicios-comunitarios.html';
+                }, 1500);
+                return;
+            }
+
+            const resultado = moderador.moderar(texto, miPerfil.nombre);
+
+            const resultDiv = document.getElementById('moderationResult');
+            resultDiv.style.display = 'block';
+            
+            if (resultado.esSpam) {
+                resultDiv.innerHTML = `
+                    <div style="padding:12px;background:rgba(255,51,102,0.1);border-radius:8px;border:1px solid rgba(255,51,102,0.2);">
+                        <p style="color:var(--danger);font-weight:600;margin-bottom:4px;">
+                            <i class="fas fa-exclamation-triangle"></i> ${resultado.mensaje}
+                        </p>
+                        <p style="font-size:0.7rem;color:var(--text-muted);">
+                            Razones: ${resultado.razones.join(', ')}
+                        </p>
+                        <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="forzarPublicacion()">
+                            <i class="fas fa-exclamation"></i> Publicar de todas formas
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            if (resultado.razones.length > 0) {
+                resultDiv.innerHTML = `
+                    <div style="padding:12px;background:rgba(247,212,74,0.1);border-radius:8px;border:1px solid rgba(247,212,74,0.2);">
+                        <p style="color:var(--warning);font-weight:600;margin-bottom:4px;">
+                            <i class="fas fa-info-circle"></i> ${resultado.mensaje}
+                        </p>
+                        <p style="font-size:0.7rem;color:var(--text-muted);">
+                            Observaciones: ${resultado.razones.join(', ')}
+                        </p>
+                    </div>
+                `;
+            }
+
+            const nuevaPublicacion = {
+                id: Date.now(),
+                author: miPerfil.nombre || 'Usuario',
+                avatar: (miPerfil.nombre || 'U').charAt(0),
+                content: texto,
+                media: [],
+                likes: 0,
+                liked: false,
+                comments: [],
+                date: Date.now(),
+                moderated: true,
+                moderationStatus: resultado.aprobado ? 'approved' : 'pending',
+                moderationRazones: resultado.razones,
+                tipo: 'publicacion',
+                featured: destacarPublicacion,
+                poll: null
+            };
+
+            posts.unshift(nuevaPublicacion);
+            guardarPosts();
+            renderizarFeed();
+            cerrarModalPublicacion();
+            mostrarToast('✅ Publicación enviada' + (resultado.aprobado ? '' : ' para revisión'));
+            
+            // Resetear destacar
+            destacarPublicacion = false;
+            document.getElementById('btnDestacar').style.color = 'var(--text-muted)';
+        }
+
+        window.togglePublicacionDestacada = function() {
+            destacarPublicacion = !destacarPublicacion;
+            const btn = document.getElementById('btnDestacar');
+            if (destacarPublicacion) {
+                btn.style.color = 'var(--gold-cosmic)';
+                mostrarToast('⭐ Publicación será destacada');
+            } else {
+                btn.style.color = 'var(--text-muted)';
+                mostrarToast('⭐ Publicación no será destacada');
+            }
+        };
+
+        window.toggleFeatured = function(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.featured = !post.featured;
+                guardarPosts();
+                renderizarFeed();
+                mostrarToast(post.featured ? '⭐ Publicación destacada' : '⭐ Publicación no destacada');
+            }
+        };
+
+        function forzarPublicacion() {
+            const textarea = document.getElementById('postTextInput');
+            const texto = textarea.value.trim();
+            
+            const nuevaPublicacion = {
+                id: Date.now(),
+                author: miPerfil.nombre || 'Usuario',
+                avatar: (miPerfil.nombre || 'U').charAt(0),
+                content: texto,
+                media: [],
+                likes: 0,
+                liked: false,
+                comments: [],
+                date: Date.now(),
+                moderated: true,
+                moderationStatus: 'approved',
+                moderationRazones: ['Publicación forzada por usuario'],
+                tipo: 'publicacion',
+                featured: destacarPublicacion,
+                poll: null
+            };
+
+            posts.unshift(nuevaPublicacion);
+            guardarPosts();
+            renderizarFeed();
+            cerrarModalPublicacion();
+            mostrarToast('✅ Publicación forzada con éxito');
+            
+            destacarPublicacion = false;
+            document.getElementById('btnDestacar').style.color = 'var(--text-muted)';
+        }
+
+        // ================================================================
+        // SISTEMA DE DONACIONES EN DIRECTO CON SUPABASE
+        // ================================================================
+        
+        let tokenDonacionSeleccionado = 'USDT';
+        let sistemaDonaciones = null;
+
+        function initDonaciones() {
+            import('./js/sistema-donaciones.js').then(module => {
+                sistemaDonaciones = module.sistemaDonaciones;
+                console.log('💰 Sistema de donaciones cargado correctamente');
+            }).catch(err => {
+                console.warn('⚠️ No se pudo cargar sistema-donaciones.js, usando modo simulación:', err);
+                sistemaDonaciones = {
+                    conectarWallet: async () => {
+                        mostrarToast('🔗 Simulando conexión de wallet...');
+                        await new Promise(r => setTimeout(r, 1000));
+                        return '0xSimulacionWallet';
+                    },
+                    enviarDonacion: async (datos) => {
+                        mostrarToast(`💰 Simulando donación de $${datos.monto} ${datos.token}...`);
+                        await new Promise(r => setTimeout(r, 2000));
+                        return {
+                            id: 'sim_' + Date.now(),
+                            ...datos,
+                            estado: 'simulado'
+                        };
+                    }
+                };
+            });
+            
+            document.addEventListener('donacionCompletada', (e) => {
+                const { detail } = e;
+                mostrarToast(`🎉 ${detail.espectador || 'Alguien'} donó $${detail.montoTotal} ${detail.token}!`);
+                mostrarNotificacionVivo(`🎉 ${detail.espectador || 'Alguien'} donó $${detail.montoTotal} ${detail.token}!`, '💰');
+                if (detail.streamer === streamerInfo?.wallet) {
+                    actualizarEstadisticasStreamer(detail.streamer);
+                }
+            });
+        }
+
+        async function guardarDonacionSupabase(datos) {
+            try {
+                const { data, error } = await supabase
+                    .from('donaciones')
+                    .insert([{
+                        streamer_wallet: datos.streamerWallet,
+                        espectador: datos.espectador || 'Anónimo',
+                        monto: datos.monto,
+                        comision: datos.monto * 0.50,
+                        streamer_monto: datos.monto * 0.50,
+                        metodo_pago: datos.token,
+                        estado: 'completado',
+                        fecha_creacion: new Date().toISOString()
+                    }])
+                    .select();
+
+                if (error) {
+                    console.error('❌ Error al guardar donación en Supabase:', error);
+                    throw new Error('Error al guardar en base de datos');
+                }
+
+                console.log('✅ Donación guardada en Supabase:', data);
+                return data[0];
+            } catch (error) {
+                console.error('❌ Error en guardarDonacionSupabase:', error);
+                throw error;
+            }
+        }
+
+        window.iniciarTransmisionReal = function() {
+            isLive = true;
+            
+            const statusDot = document.getElementById('statusDot');
+            const statusLabel = document.getElementById('statusLabel');
+            statusDot.className = 'status-dot live';
+            statusLabel.textContent = '🔴 EN VIVO';
+            
+            streamerInfo = {
+                nombre: miPerfil.nombre || 'Streamer',
+                wallet: miPerfil.wallet || '0x' + Array.from({length: 40}, () => 
+                    Math.floor(Math.random() * 16).toString(16)).join('')
+            };
+            
+            localStorage.setItem('streamer_activo', JSON.stringify({
+                ...streamerInfo,
+                inicio: Date.now()
+            }));
+            
+            mostrarBotonDonacion();
+            
+            document.dispatchEvent(new CustomEvent('live-started', {
+                detail: streamerInfo
+            }));
+            
+            mostrarToast('📹 ¡Transmisión en vivo iniciada! Recibe donaciones en tiempo real.');
+            cerrarLiveModal();
+            
+            const btnLive = document.getElementById('btnLive');
+            btnLive.innerHTML = '<i class="fas fa-broadcast"></i> 🔴 En Vivo';
+            btnLive.style.background = 'var(--danger)';
+            btnLive.style.color = 'white';
+            btnLive.onclick = function() {
+                if (confirm('¿Terminar la transmisión?')) {
+                    terminarTransmision();
+                }
+            };
+            
+            // Mostrar notificación en vivo
+            mostrarNotificacionVivo(`🔴 ${miPerfil.nombre || 'Streamer'} está en vivo!`, '📹');
+            
+            console.log('📹 Transmisión iniciada:', streamerInfo);
+        };
+
+        function terminarTransmision() {
+            isLive = false;
+            streamerInfo = null;
+            
+            const statusDot = document.getElementById('statusDot');
+            const statusLabel = document.getElementById('statusLabel');
+            statusDot.className = 'status-dot online';
+            statusLabel.textContent = 'En vivo';
+            
+            localStorage.removeItem('streamer_activo');
+            
+            const btnLive = document.getElementById('btnLive');
+            btnLive.innerHTML = '<i class="fas fa-broadcast"></i> Live';
+            btnLive.style.background = '';
+            btnLive.style.color = '';
+            btnLive.onclick = function() {
+                iniciarTransmision();
+            };
+            
+            document.dispatchEvent(new CustomEvent('live-ended'));
+            
+            mostrarToast('📹 Transmisión finalizada.');
+        }
+
+        function mostrarBotonDonacion() {
+            const container = document.getElementById('feedContainer');
+            const existing = document.getElementById('donacionBanner');
+            if (existing) existing.remove();
+            
+            const donacionBanner = document.createElement('div');
+            donacionBanner.id = 'donacionBanner';
+            donacionBanner.style.cssText = `
+                background: linear-gradient(135deg, rgba(11,61,46,0.4), rgba(247,212,74,0.08));
+                border: 1px solid var(--gold-dim);
+                border-radius: var(--radius);
+                padding: 16px 20px;
+                text-align: center;
+                backdrop-filter: blur(10px);
+                margin-bottom: 16px;
+                cursor: pointer;
+                transition: all 0.3s;
+            `;
+            donacionBanner.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+                    <span style="font-size:1.5rem;">🎁</span>
+                    <div>
+                        <div style="font-family:'Orbitron',monospace;font-size:0.9rem;color:var(--gold-cosmic);">
+                            🔴 Apoya esta transmisión
+                        </div>
+                        <div style="font-size:0.7rem;color:var(--text-secondary);">
+                            Envía donaciones en USDT, USDC o TOK
+                        </div>
+                    </div>
+                    <button class="btn btn-gold" onclick="abrirDonacion()" style="flex-shrink:0;">
+                        <i class="fas fa-gift"></i> Donar
+                    </button>
+                </div>
+            `;
+            
+            container.insertBefore(donacionBanner, container.firstChild);
+        }
+
+        window.abrirDonacion = function() {
+            if (!streamerInfo) {
+                mostrarToast('⚠️ No hay transmisión activa.', 'error');
+                return;
+            }
+            
+            document.getElementById('donacionStreamerAvatar').textContent = streamerInfo.nombre.charAt(0).toUpperCase();
+            document.getElementById('donacionStreamerNombre').textContent = streamerInfo.nombre;
+            
+            document.getElementById('donacionMonto').value = '';
+            document.getElementById('donacionMensaje').value = '';
+            document.getElementById('resumenMonto').textContent = '$0.00 USDT';
+            document.getElementById('resumenStreamer').textContent = '$0.00 USDT';
+            document.getElementById('resumenCsariels').textContent = '$0.00 USDT';
+            
+            document.getElementById('donacionModal').classList.add('active');
+        };
+
+        window.cerrarDonacionModal = function() {
+            document.getElementById('donacionModal').classList.remove('active');
+        };
+
+        window.seleccionarTokenDonacion = function(token) {
+            tokenDonacionSeleccionado = token;
+            
+            document.querySelectorAll('[data-token]').forEach(btn => {
+                btn.className = `btn btn-sm ${btn.dataset.token === token ? 'btn-gold' : 'btn-outline'}`;
+            });
+            
+            actualizarResumenDonacion();
+        };
+
+        window.setMontoDonacion = function(monto) {
+            document.getElementById('donacionMonto').value = monto;
+            actualizarResumenDonacion();
+        };
+
+        window.actualizarResumenDonacion = function() {
+            const monto = parseFloat(document.getElementById('donacionMonto').value) || 0;
+            const token = tokenDonacionSeleccionado || 'USDT';
+            
+            if (monto <= 0) {
+                document.getElementById('resumenMonto').textContent = `$0.00 ${token}`;
+                document.getElementById('resumenStreamer').textContent = `$0.00 ${token}`;
+                document.getElementById('resumenCsariels').textContent = `$0.00 ${token}`;
+                return;
+            }
+            
+            const comision = CONFIG.calcularComisionDirecto(monto, token);
+            
+            document.getElementById('resumenMonto').textContent = `$${monto.toFixed(2)} ${token}`;
+            document.getElementById('resumenStreamer').textContent = `$${comision.streamerMonto.toFixed(2)} ${token}`;
+            document.getElementById('resumenCsariels').textContent = `$${comision.comision.toFixed(2)} ${token}`;
+        };
+
+        window.procesarDonacion = async function() {
+            const monto = parseFloat(document.getElementById('donacionMonto').value) || 0;
+            const mensaje = document.getElementById('donacionMensaje').value.trim();
+            const token = tokenDonacionSeleccionado || 'USDT';
+            const btn = document.getElementById('btnDonar');
+            
+            if (!monto || monto <= 0) {
+                mostrarToast('⚠️ Ingresa un monto válido (mínimo 1 USDT)', 'error');
+                return;
+            }
+            
+            if (!streamerInfo || !streamerInfo.wallet) {
+                mostrarToast('⚠️ No hay transmisión activa para donar', 'error');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            
+            try {
+                if (sistemaDonaciones) {
+                    try {
+                        await sistemaDonaciones.conectarWallet();
+                    } catch (e) {
+                        console.warn('⚠️ Error conectando wallet, continuando de todas formas:', e);
+                    }
+                }
+                
+                let resultado = null;
+                if (sistemaDonaciones && sistemaDonaciones.enviarDonacion) {
+                    try {
+                        resultado = await sistemaDonaciones.enviarDonacion({
+                            streamerWallet: streamerInfo.wallet,
+                            monto: monto,
+                            token: token,
+                            mensaje: mensaje,
+                            espectador: miPerfil.nombre || 'Anónimo'
+                        });
+                    } catch (e) {
+                        console.warn('⚠️ Error en envío de donación, continuando con guardado:', e);
+                    }
+                }
+                
+                const donacionData = {
+                    streamerWallet: streamerInfo.wallet,
+                    espectador: miPerfil.nombre || 'Anónimo',
+                    monto: monto,
+                    token: token,
+                    mensaje: mensaje
+                };
+                
+                const donacionGuardada = await guardarDonacionSupabase(donacionData);
+                
+                try {
+                    const donacionesLocal = JSON.parse(localStorage.getItem('donaciones') || '[]');
+                    donacionesLocal.push({
+                        id: donacionGuardada.id || 'local_' + Date.now(),
+                        streamer_wallet: streamerInfo.wallet,
+                        espectador: miPerfil.nombre || 'Anónimo',
+                        monto: monto,
+                        comision: monto * 0.50,
+                        streamer_monto: monto * 0.50,
+                        metodo_pago: token,
+                        estado: 'completado',
+                        fecha_creacion: new Date().toISOString()
+                    });
+                    localStorage.setItem('donaciones', JSON.stringify(donacionesLocal));
+                } catch (e) {
+                    console.warn('⚠️ Error guardando en localStorage:', e);
+                }
+                
+                mostrarToast(`✅ Donación de $${monto} ${token} guardada en Supabase!`);
+                mostrarNotificacionVivo(`🎉 ${miPerfil.nombre || 'Alguien'} donó $${monto} ${token}!`, '💰');
+                
+                document.dispatchEvent(new CustomEvent('donacionCompletada', {
+                    detail: {
+                        ...donacionData,
+                        id: donacionGuardada.id,
+                        montoTotal: monto,
+                        comision: monto * 0.50,
+                        streamerMonto: monto * 0.50
+                    }
+                }));
+                
+                cerrarDonacionModal();
+                
+            } catch (error) {
+                console.error('❌ Error en donación:', error);
+                mostrarToast(`❌ ${error.message || 'Error al procesar la donación'}`, 'error');
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-rocket"></i> Enviar Donación';
+        };
+
+        function actualizarEstadisticasStreamer(wallet) {
+            console.log('📊 Actualizando estadísticas para:', wallet);
+        }
+
+        // ================================================================
+        // SISTEMA DE HISTORIAS 24H
+        // ================================================================
+        let stories = [];
+        let currentStoryIndex = 0;
+        let storyInterval = null;
+
+        function initStories() {
+            cargarStories();
+            renderizarStories();
+            
+            // Escuchar nuevas historias
+            document.addEventListener('story:agregada', () => {
+                cargarStories();
+                renderizarStories();
+            });
+        }
+
+        function cargarStories() {
+            try {
+                const stored = localStorage.getItem('muro_live_stories');
+                if (stored) {
+                    stories = JSON.parse(stored);
+                    // Filtrar historias viejas (más de 24 horas)
+                    const now = Date.now();
+                    stories = stories.filter(s => (now - s.date) < 86400000);
+                    guardarStories();
+                } else {
+                    stories = [];
+                }
+            } catch (e) {
+                stories = [];
+            }
+        }
+
+        function guardarStories() {
+            try {
+                localStorage.setItem('muro_live_stories', JSON.stringify(stories));
+            } catch (e) {
+                console.warn('Error guardando stories:', e);
+            }
+        }
+
+        function renderizarStories() {
+            const container = document.getElementById('storiesContainer');
+            if (!container) return;
+            
+            if (stories.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = stories.map((story, index) => `
+                <div class="story-item" onclick="verHistoria(${index})">
+                    <div class="story-avatar" style="border-color:${story.color || 'var(--gold-cosmic)'};">
+                        <span>${story.avatar || story.author.charAt(0)}</span>
+                    </div>
+                    <span class="story-name">${escapeHtml(story.author)} <span class="time">· ${formatDate(story.date)}</span></span>
+                </div>
+            `).join('');
+        }
+
+        window.verHistoria = function(index) {
+            const story = stories[index];
+            if (!story) return;
+            
+            currentStoryIndex = index;
+            const viewer = document.getElementById('storyViewer');
+            document.getElementById('storyViewerAvatar').textContent = story.avatar || story.author.charAt(0);
+            document.getElementById('storyViewerName').textContent = story.author;
+            document.getElementById('storyViewerTime').textContent = formatDate(story.date);
+            document.getElementById('storyViewerImage').src = story.image || '';
+            
+            // Progress bar
+            const progressBar = document.getElementById('storyProgressBar');
+            progressBar.innerHTML = `
+                <div class="segment active">
+                    <div class="fill"></div>
+                </div>
+            `;
+            
+            viewer.classList.add('active');
+            
+            // Auto avanzar después de 5 segundos
+            clearInterval(storyInterval);
+            storyInterval = setTimeout(() => {
+                avanzarHistoria();
+            }, 5000);
+        };
+
+        function avanzarHistoria() {
+            if (currentStoryIndex < stories.length - 1) {
+                verHistoria(currentStoryIndex + 1);
+            } else {
+                cerrarStoryViewer();
+            }
+        }
+
+        window.cerrarStoryViewer = function() {
+            document.getElementById('storyViewer').classList.remove('active');
+            clearInterval(storyInterval);
+        };
+
+        // ================================================================
+        // FUNCIONES GLOBALES
+        // ================================================================
+        
+        window.abrirModalPublicacion = function() {
+            document.getElementById('postTextInput').value = '';
+            document.getElementById('moderationResult').style.display = 'none';
+            document.getElementById('postModal').classList.add('active');
+            setTimeout(() => document.getElementById('postTextInput').focus(), 200);
+        };
+
+        window.cerrarModalPublicacion = function() {
+            document.getElementById('postModal').classList.remove('active');
+        };
+
+        window.iniciarTransmision = function() {
+            document.getElementById('liveModal').classList.add('active');
+        };
+
+        window.cerrarLiveModal = function() {
+            document.getElementById('liveModal').classList.remove('active');
+        };
+
+        window.toggleLike = function(id) {
+            const post = posts.find(p => p.id === id);
+            if (post && post.moderationStatus === 'approved') {
+                post.liked = !post.liked;
+                post.likes += post.liked ? 1 : -1;
+                guardarPosts();
+                renderizarFeed();
+                
+                if (post.liked) {
+                    mostrarNotificacionVivo(`${miPerfil.nombre || 'Alguien'} le gustó tu publicación`, '❤️');
+                }
+            }
+        };
+
+        window.eliminarPost = function(id) {
+            if (confirm('¿Seguro que quieres eliminar esta publicación?')) {
+                posts = posts.filter(p => p.id !== id);
+                guardarPosts();
+                renderizarFeed();
+                mostrarToast('🗑️ Publicación eliminada');
+            }
+        };
+
+        window.compartirPost = function(id) {
+            const post = posts.find(p => p.id === id);
+            if (post) {
+                navigator.clipboard?.writeText(post.content).catch(() => {});
+                mostrarToast('📋 Enlace copiado al portapapeles');
+                mostrarNotificacionVivo(`📋 ${miPerfil.nombre || 'Alguien'} compartió tu publicación`, '📤');
+            }
+        };
+
+        // ================================================================
+        // UTILIDADES
+        // ================================================================
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'Ahora mismo';
+            if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+            if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+            if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
+            return date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.mostrarToast = function(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        };
+
+        // ================================================================
+        // CIERRE DE MODALES CON ESC
+        // ================================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cerrarModalPublicacion();
+                cerrarLiveModal();
+                closeTerminosModal();
+                cerrarDonacionModal();
+                cerrarModalEncuesta();
+                cerrarStoryViewer();
+            }
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    if (this.id === 'postModal') cerrarModalPublicacion();
+                    if (this.id === 'liveModal') cerrarLiveModal();
+                    if (this.id === 'terminosModal') closeTerminosModal();
+                    if (this.id === 'donacionModal') cerrarDonacionModal();
+                    if (this.id === 'pollModal') cerrarModalEncuesta();
+                }
+            });
+        });
+
+        // ================================================================
+        // EVENTO: Streamer activo desde otra pestaña
+        // ================================================================
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'streamer_activo' && e.newValue) {
+                try {
+                    const data = JSON.parse(e.newValue);
+                    if (data && data.wallet) {
+                        streamerInfo = data;
+                        console.log('📹 Streamer detectado:', streamerInfo);
+                        mostrarBotonDonacion();
+                        mostrarNotificacionVivo(`🔴 ${data.nombre || 'Streamer'} está en vivo!`, '📹');
+                    }
+                } catch (err) {}
+            }
+        });
+
+        console.log('✅ Muro Live con todas las funcionalidades cargado');
+        console.log('📊 Encuestas activas');
+        console.log('📖 Historias 24h activas');
+        console.log('💬 Comentarios en tiempo real');
+        console.log('🔔 Notificaciones en vivo');
+        console.log('⭐ Publicaciones destacadas');
+        console.log('📹 Modo TikTok/Facebook Live');
+        console.log('💰 Sistema de donaciones en directo activo con Supabase');
+    </script>
+</body>
+</html>
