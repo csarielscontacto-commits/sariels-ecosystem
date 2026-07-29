@@ -524,9 +524,9 @@
         }
 
         .wallet-badge.disconnected {
-            background: rgba(255,51,102,0.15);
-            color: var(--danger);
-            border: 1px solid rgba(255,51,102,0.3);
+            background: rgba(247,212,74,0.15);  /* Cambiado de rojo a dorado */
+            color: var(--gold-cosmic);          /* Texto dorado */
+            border: 1px solid rgba(247,212,74,0.3);
         }
 
         .tabs {
@@ -1204,7 +1204,7 @@
             <button class="btn btn-sm btn-primary" id="btnConnectWallet">
                 <i class="fas fa-plug"></i> Conectar Wallet
             </button>
-            <button class="btn btn-sm btn-danger" id="btnDisconnectWallet" style="display:none;">
+            <button class="btn btn-sm btn-gold" id="btnDisconnectWallet" style="display:none;">  <!-- Cambiado a btn-gold -->
                 <i class="fas fa-power-off"></i> Desconectar
             </button>
             <span class="wallet-address" id="walletAddressDisplay">--</span>
@@ -1570,351 +1570,12 @@
         </footer>
     </div>
 
-    <!-- ===== CONFIGURACIÓN DE SUPABASE ===== -->
-    <script>
-        // ================================================================
-        // CONFIGURACIÓN DE SUPABASE - LLaves integradas
-        // ================================================================
-        const SUPABASE_URL = "https://nvyyxgkladjauolvpzfp.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_GWNmmwICFc2dkJx2BXdY8Q_-5qAC-Dg";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0";
-
-        // Cliente de Supabase (se inicializa después de cargar la librería)
-        let supabaseClient = null;
-
-        // ================================================================
-        // FUNCIONES DE SUPABASE
-        // ================================================================
-        async function initSupabase() {
-            try {
-                // Cargar la librería de Supabase dinámicamente
-                if (typeof supabase === 'undefined') {
-                    await loadSupabaseLibrary();
-                }
-                
-                const { createClient } = supabase;
-                supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase inicializado correctamente');
-                
-                // Verificar conexión
-                await testSupabaseConnection();
-                return supabaseClient;
-            } catch (error) {
-                console.error('❌ Error al inicializar Supabase:', error);
-                mostrarToast('⚠️ Error al conectar con Supabase', 'error');
-                return null;
-            }
-        }
-
-        function loadSupabaseLibrary() {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.0/dist/umd/supabase.min.js';
-                script.onload = () => {
-                    console.log('📦 Librería Supabase cargada');
-                    resolve();
-                };
-                script.onerror = () => {
-                    reject(new Error('No se pudo cargar la librería Supabase'));
-                };
-                document.head.appendChild(script);
-            });
-        }
-
-        async function testSupabaseConnection() {
-            try {
-                if (!supabaseClient) return;
-                // Prueba simple: intentar obtener la versión o hacer una consulta ligera
-                const { data, error } = await supabaseClient
-                    .from('perfiles')
-                    .select('id')
-                    .limit(1)
-                    .maybeSingle();
-                
-                if (error && error.code !== 'PGRST116') {
-                    console.warn('⚠️ Error en prueba de conexión:', error.message);
-                } else {
-                    console.log('✅ Conexión con Supabase verificada');
-                }
-            } catch (error) {
-                console.warn('⚠️ Prueba de conexión fallida:', error.message);
-            }
-        }
-
-        // ================================================================
-        // FUNCIONES DE AUTENTICACIÓN
-        // ================================================================
-        async function signUpWithEmail(email, password, userData = {}) {
-            if (!supabaseClient) {
-                mostrarToast('⚠️ Supabase no inicializado', 'error');
-                return null;
-            }
-            try {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            nombre: userData.nombre || 'Usuario',
-                            ...userData
-                        }
-                    }
-                });
-                if (error) throw error;
-                console.log('✅ Usuario registrado:', data.user);
-                mostrarToast('✅ Registro exitoso! Verifica tu correo');
-                return data;
-            } catch (error) {
-                console.error('❌ Error en registro:', error);
-                mostrarToast('❌ Error en registro: ' + error.message, 'error');
-                return null;
-            }
-        }
-
-        async function signInWithEmail(email, password) {
-            if (!supabaseClient) {
-                mostrarToast('⚠️ Supabase no inicializado', 'error');
-                return null;
-            }
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-                if (error) throw error;
-                console.log('✅ Sesión iniciada:', data.user);
-                mostrarToast('✅ Bienvenido ' + (data.user.user_metadata?.nombre || 'Usuario'));
-                return data;
-            } catch (error) {
-                console.error('❌ Error en login:', error);
-                mostrarToast('❌ Error en login: ' + error.message, 'error');
-                return null;
-            }
-        }
-
-        async function signOut() {
-            if (!supabaseClient) return;
-            try {
-                const { error } = await supabaseClient.auth.signOut();
-                if (error) throw error;
-                console.log('✅ Sesión cerrada');
-                mostrarToast('🔒 Sesión cerrada');
-            } catch (error) {
-                console.error('❌ Error al cerrar sesión:', error);
-                mostrarToast('❌ Error al cerrar sesión', 'error');
-            }
-        }
-
-        async function getCurrentUser() {
-            if (!supabaseClient) return null;
-            try {
-                const { data: { user }, error } = await supabaseClient.auth.getUser();
-                if (error) throw error;
-                return user;
-            } catch (error) {
-                console.warn('⚠️ No hay usuario logueado:', error.message);
-                return null;
-            }
-        }
-
-        // ================================================================
-        // FUNCIONES DE BASE DE DATOS
-        // ================================================================
-        async function guardarPerfilEnSupabase(perfil) {
-            if (!supabaseClient) {
-                mostrarToast('⚠️ Supabase no inicializado', 'error');
-                return false;
-            }
-            
-            try {
-                const user = await getCurrentUser();
-                if (!user) {
-                    mostrarToast('⚠️ Debes iniciar sesión primero', 'error');
-                    return false;
-                }
-
-                const { data, error } = await supabaseClient
-                    .from('perfiles')
-                    .upsert({
-                        id: user.id,
-                        nombre: perfil.nombre,
-                        edad: perfil.edad,
-                        universidad: perfil.universidad,
-                        carrera: perfil.carrera,
-                        semestre: perfil.semestre,
-                        origen: perfil.origen,
-                        musica: perfil.musica,
-                        status: perfil.status,
-                        situacion: perfil.situacion,
-                        verificado: perfil.verificado,
-                        email_institucional: perfil.emailInstitucional,
-                        universidad_validada: perfil.universidadValidada,
-                        foto_perfil: perfil.fotoPerfil,
-                        nivel: perfil.nivel,
-                        updated_at: new Date().toISOString()
-                    }, {
-                        onConflict: 'id'
-                    });
-
-                if (error) throw error;
-                console.log('✅ Perfil guardado en Supabase');
-                mostrarToast('✅ Perfil sincronizado con la nube');
-                return true;
-            } catch (error) {
-                console.error('❌ Error guardando perfil:', error);
-                mostrarToast('❌ Error al guardar perfil: ' + error.message, 'error');
-                return false;
-            }
-        }
-
-        async function cargarPerfilDesdeSupabase() {
-            if (!supabaseClient) {
-                mostrarToast('⚠️ Supabase no inicializado', 'error');
-                return null;
-            }
-            
-            try {
-                const user = await getCurrentUser();
-                if (!user) {
-                    console.log('ℹ️ No hay usuario logueado');
-                    return null;
-                }
-
-                const { data, error } = await supabaseClient
-                    .from('perfiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .maybeSingle();
-
-                if (error) throw error;
-                
-                if (data) {
-                    console.log('✅ Perfil cargado desde Supabase');
-                    return data;
-                } else {
-                    console.log('ℹ️ No se encontró perfil en Supabase');
-                    return null;
-                }
-            } catch (error) {
-                console.error('❌ Error cargando perfil:', error);
-                mostrarToast('❌ Error al cargar perfil: ' + error.message, 'error');
-                return null;
-            }
-        }
-
-        // ================================================================
-        // FUNCIONES PARA MURO LIVE
-        // ================================================================
-        async function guardarPublicacionEnSupabase(publicacion) {
-            if (!supabaseClient) return false;
-            
-            try {
-                const user = await getCurrentUser();
-                const { data, error } = await supabaseClient
-                    .from('publicaciones')
-                    .insert({
-                        id: publicacion.id || Date.now(),
-                        user_id: user?.id || 'anonimo',
-                        author: publicacion.author || 'Usuario',
-                        avatar: publicacion.avatar || '👤',
-                        content: publicacion.content || '',
-                        media: publicacion.media || [],
-                        url: publicacion.url || null,
-                        likes: publicacion.likes || 0,
-                        comments: publicacion.comments || [],
-                        fecha: new Date().toISOString(),
-                        tipo: publicacion.tipo || 'publicacion'
-                    });
-
-                if (error) throw error;
-                console.log('✅ Publicación guardada en Supabase');
-                return true;
-            } catch (error) {
-                console.error('❌ Error guardando publicación:', error);
-                return false;
-            }
-        }
-
-        async function cargarPublicacionesDesdeSupabase(limit = 50) {
-            if (!supabaseClient) return [];
-            
-            try {
-                const { data, error } = await supabaseClient
-                    .from('publicaciones')
-                    .select('*')
-                    .order('fecha', { ascending: false })
-                    .limit(limit);
-
-                if (error) throw error;
-                return data || [];
-            } catch (error) {
-                console.error('❌ Error cargando publicaciones:', error);
-                return [];
-            }
-        }
-
-        // ================================================================
-        // FUNCIONES DE REGISTRO DE USUARIO CON VERIFICACIÓN
-        // ================================================================
-        async function registrarUsuarioConVerificacion(email, password, nombre, universidad) {
-            const result = await signUpWithEmail(email, password, {
-                nombre: nombre,
-                universidad: universidad,
-                verificado: false
-            });
-            
-            if (result) {
-                // Guardar perfil inicial
-                await guardarPerfilEnSupabase({
-                    nombre: nombre,
-                    universidad: universidad,
-                    verificado: false,
-                    emailInstitucional: email
-                });
-            }
-            return result;
-        }
-
-        // ================================================================
-        // EXPOSICIÓN DE FUNCIONES GLOBALES
-        // ================================================================
-        window.initSupabase = initSupabase;
-        window.supabaseClient = () => supabaseClient;
-        window.signUpWithEmail = signUpWithEmail;
-        window.signInWithEmail = signInWithEmail;
-        window.signOut = signOut;
-        window.getCurrentUser = getCurrentUser;
-        window.guardarPerfilEnSupabase = guardarPerfilEnSupabase;
-        window.cargarPerfilDesdeSupabase = cargarPerfilDesdeSupabase;
-        window.guardarPublicacionEnSupabase = guardarPublicacionEnSupabase;
-        window.cargarPublicacionesDesdeSupabase = cargarPublicacionesDesdeSupabase;
-        window.registrarUsuarioConVerificacion = registrarUsuarioConVerificacion;
-
-        console.log('🔑 SUPABASE_URL:', SUPABASE_URL);
-        console.log('🔑 SUPABASE_KEY (publishable):', SUPABASE_KEY);
-        console.log('🔑 SUPABASE_ANON_KEY configurada');
-    </script>
-
-    <!-- ================================================================ -->
-    <!-- SCRIPTS PRINCIPALES -->
-    <!-- ================================================================ -->
+    <!-- ===== SCRIPTS ===== -->
     <script type="module">
         // ================================================================
         // IMPORTAR CONFIG
         // ================================================================
-        // (Nota: config.js debe existir en tu proyecto)
-        // En este ejemplo usamos config local
-        const CONFIG = {
-            VERSION: '1.0.0',
-            DOMINIOS_EDU: ['.edu', '.edu.mx', '.edu.ar', '.edu.pe', '.edu.co'],
-            UNIVERSIDADES: {
-                'udlap': 'UDLAP',
-                'buap': 'BUAP',
-                'tec': 'TEC',
-                'ibero': 'IBERO',
-                'upaep': 'UPAEP'
-            }
-        };
+        import { CONFIG } from './js/config.js';
 
         // ================================================================
         // ESTRELLAS
@@ -2165,24 +1826,11 @@
                 }
             } catch (e) { console.warn('Error cargando perfil:', e); }
             actualizarUI();
-            // Cargar desde Supabase si está disponible
-            if (typeof cargarPerfilDesdeSupabase === 'function') {
-                cargarPerfilDesdeSupabase().then(datos => {
-                    if (datos) {
-                        miPerfil = { ...miPerfil, ...datos };
-                        actualizarUI();
-                    }
-                }).catch(e => console.warn('Error cargando perfil desde Supabase:', e));
-            }
         }
 
         function guardarPerfilLocal() {
             try {
                 localStorage.setItem('miPerfil_csariels', JSON.stringify(miPerfil));
-                // Guardar en Supabase si está disponible
-                if (typeof guardarPerfilEnSupabase === 'function') {
-                    guardarPerfilEnSupabase(miPerfil);
-                }
             } catch (e) { console.warn('Error guardando perfil:', e); }
         }
 
@@ -2344,6 +1992,12 @@
             { id: 'grp_001', nombre: '📚 Estudio UDLAP', miembros: 15, ultimoMensaje: 'Hoy a las 10:30 AM' },
             { id: 'grp_002', nombre: '🎯 Proyecto Final', miembros: 5, ultimoMensaje: 'Ayer a las 6:00 PM' },
             { id: 'grp_003', nombre: '🎮 Gamers Puebla', miembros: 23, ultimoMensaje: 'Hace 2 horas' }
+        ];
+
+        let mensajes = [
+            { id: 'msg_001', de: 'María García', mensaje: '¿Listo para el proyecto final?', hora: '10:30 AM', leido: false },
+            { id: 'msg_002', de: 'Ana López', mensaje: '¡Excelente presentación!', hora: '9:15 AM', leido: false },
+            { id: 'msg_003', de: 'Pedro Sánchez', mensaje: '¿Vamos a la feria del taco?', hora: '8:45 AM', leido: false }
         ];
 
         function cargarDatosLocales() {
@@ -2566,6 +2220,7 @@
         // CHAT RÁPIDO
         // ================================================================
         let chatContactoActual = null;
+        let chatMessages = [];
 
         function abrirChat(id) {
             const p = todosLosClientes.find(c => c.id === id);
@@ -3057,22 +2712,6 @@
             renderAll();
             actualizarContadores();
             initTerminosMironova();
-
-            // Inicializar Supabase
-            if (typeof initSupabase === 'function') {
-                initSupabase().then(() => {
-                    console.log('✅ Supabase listo');
-                    // Cargar perfil desde Supabase después de iniciar
-                    if (typeof cargarPerfilDesdeSupabase === 'function') {
-                        cargarPerfilDesdeSupabase().then(datos => {
-                            if (datos) {
-                                miPerfil = { ...miPerfil, ...datos };
-                                actualizarUI();
-                            }
-                        });
-                    }
-                });
-            }
             
             console.log('✅ Mironova cargada correctamente');
             console.log('🎓 Verificación con dominios desde CONFIG');
