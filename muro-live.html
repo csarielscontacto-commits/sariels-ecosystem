@@ -1023,6 +1023,61 @@
             animation: live-pulse 1s infinite;
         }
 
+        /* ===== VOLUMEN SLIDER ===== */
+        .floating-live-player .volume-container {
+            position: absolute;
+            right: 32px;
+            bottom: 4px;
+            height: 80px;
+            width: 24px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 8px 4px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .floating-live-player .volume-container.show {
+            display: flex;
+        }
+
+        .floating-live-player .volume-container input[type="range"] {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            appearance: slider-vertical;
+            width: 80px;
+            height: 6px;
+            background: var(--gold-dim);
+            border-radius: 3px;
+            outline: none;
+            transform: rotate(-90deg);
+            cursor: pointer;
+        }
+
+        .floating-live-player .volume-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gold-cosmic);
+            cursor: pointer;
+        }
+
+        .floating-live-player .volume-container input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gold-cosmic);
+            cursor: pointer;
+            border: none;
+        }
+
         /* ===== MINI AUDIO PLAYER ===== */
         .mini-audio-player {
             position: fixed;
@@ -1554,6 +1609,11 @@
             .mini-audio-player .audio-controls .progress { width: 60px; }
             .cabina-card .cover { font-size: 2rem; }
             .cabina-card .title { font-size: 0.75rem; }
+            .floating-live-player .volume-container {
+                height: 60px;
+                width: 20px;
+                right: 28px;
+            }
         }
     </style>
 </head>
@@ -1572,8 +1632,12 @@
         <video id="floatingVideo" autoplay muted loop playsInline></video>
         <div class="floating-label">🔴 LIVE</div>
         <div class="floating-controls">
-            <button onclick="toggleFloatingMute()" id="floatingMuteBtn"><i class="fas fa-volume-up"></i></button>
+            <button onclick="toggleVolumeSlider()" id="floatingMuteBtn"><i class="fas fa-volume-up"></i></button>
             <button onclick="expandFloating()"><i class="fas fa-expand"></i></button>
+        </div>
+        <!-- VOLUMEN SLIDER -->
+        <div class="volume-container" id="volumeContainer">
+            <input type="range" min="0" max="100" value="100" id="volumeSlider" orient="vertical" oninput="updateVolume(this.value)" />
         </div>
     </div>
 
@@ -2091,7 +2155,7 @@
         // ===== FLOATING PLAYER STATE =====
         let floatingVideoSrc = null;
         let floatingPostId = null;
-        let isFloatingMuted = true;
+        let isFloatingMuted = false;
         let isDragging = false;
         let dragStartX = 0;
         let dragStartY = 0;
@@ -2100,6 +2164,33 @@
         let hasMoved = false;
         let playerX = 0;
         let playerY = 0;
+        let currentVolume = 100;
+        let isVolumeSliderOpen = false;
+
+        // ================================================================
+        // CONFLICTO DE AUDIO - Solo un player suena a la vez
+        // ================================================================
+        function pausarOtrosPlayers(tipo) {
+            // tipo: 'video' o 'audio'
+            if (tipo === 'audio' && floatingPostId !== null) {
+                // Pausar video flotante
+                const video = document.getElementById('floatingVideo');
+                if (video && !video.paused) {
+                    video.pause();
+                    mostrarToast('🔇 Audio pausado por reproducción de podcast');
+                }
+            }
+
+            if (tipo === 'video' && isAudioPlaying) {
+                // Pausar audio
+                if (audioElement) {
+                    audioElement.pause();
+                    isAudioPlaying = false;
+                    updateAudioUI();
+                    mostrarToast('🔇 Podcast pausado por reproducción de video');
+                }
+            }
+        }
 
         // ================================================================
         // FLOATING PLAYER - DRAGGABLE
@@ -2108,7 +2199,6 @@
             const player = document.getElementById('floatingPlayer');
             if (!player) return;
 
-            // Cargar posición guardada
             try {
                 const saved = localStorage.getItem('csariels_float_pos');
                 if (saved) {
@@ -2124,12 +2214,20 @@
                 }
             } catch (e) {}
 
-            // Mouse events
+            // Cargar volumen guardado
+            try {
+                const vol = localStorage.getItem('csariels_volume');
+                if (vol !== null) {
+                    currentVolume = parseInt(vol);
+                    document.getElementById('volumeSlider').value = currentVolume;
+                    updateVolumeUI(currentVolume);
+                }
+            } catch (e) {}
+
             player.addEventListener('mousedown', onDragStart);
             document.addEventListener('mousemove', onDragMove);
             document.addEventListener('mouseup', onDragEnd);
 
-            // Touch events
             player.addEventListener('touchstart', onTouchStart, { passive: false });
             document.addEventListener('touchmove', onTouchMove, { passive: false });
             document.addEventListener('touchend', onTouchEnd, { passive: false });
@@ -2148,9 +2246,13 @@
         }
 
         function onDragStart(e) {
-            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls')) return;
+            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls') || e.target.closest(
+                    '.volume-container')) return;
             const player = document.getElementById('floatingPlayer');
             if (!player.classList.contains('show')) return;
+
+            // Cerrar volumen slider
+            closeVolumeSlider();
 
             isDragging = true;
             hasMoved = false;
@@ -2193,17 +2295,14 @@
             isDragging = false;
             player.classList.remove('dragging');
 
-            // Si no hubo movimiento significativo, abrir fullscreen
             if (!hasMoved && floatingPostId !== null) {
                 abrirFullscreenVideo(floatingPostId);
                 return;
             }
 
-            // Snap a la esquina más cercana
             snapToCorner();
             player.classList.add('snap');
 
-            // Guardar posición
             try {
                 const rect = player.getBoundingClientRect();
                 localStorage.setItem('csariels_float_pos', JSON.stringify({
@@ -2212,7 +2311,6 @@
                 }));
             } catch (e) {}
 
-            // Vibrar
             if (navigator.vibrate) navigator.vibrate(10);
         }
 
@@ -2228,10 +2326,10 @@
             const centerY = rect.top + height / 2;
 
             const corners = [
-                { x: margin, y: margin, label: 'top-left' },
-                { x: window.innerWidth - width - margin, y: margin, label: 'top-right' },
-                { x: margin, y: window.innerHeight - height - bottomMargin, label: 'bottom-left' },
-                { x: window.innerWidth - width - margin, y: window.innerHeight - height - bottomMargin, label: 'bottom-right' }
+                { x: margin, y: margin },
+                { x: window.innerWidth - width - margin, y: margin },
+                { x: margin, y: window.innerHeight - height - bottomMargin },
+                { x: window.innerWidth - width - margin, y: window.innerHeight - height - bottomMargin }
             ];
 
             let closest = corners[0];
@@ -2239,8 +2337,8 @@
 
             corners.forEach(corner => {
                 const dist = Math.sqrt(
-                    Math.pow(corner.x + width/2 - centerX, 2) +
-                    Math.pow(corner.y + height/2 - centerY, 2)
+                    Math.pow(corner.x + width / 2 - centerX, 2) +
+                    Math.pow(corner.y + height / 2 - centerY, 2)
                 );
                 if (dist < minDist) {
                     minDist = dist;
@@ -2254,9 +2352,9 @@
             player.style.bottom = 'auto';
         }
 
-        // Touch events
         function onTouchStart(e) {
-            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls')) return;
+            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls') || e.target.closest(
+                    '.volume-container')) return;
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent('mousedown', {
                 clientX: touch.clientX,
@@ -2280,6 +2378,70 @@
             if (!isDragging) return;
             const mouseEvent = new MouseEvent('mouseup', {});
             onDragEnd(mouseEvent);
+        }
+
+        // ================================================================
+        // VOLUMEN CONTROL
+        // ================================================================
+        function toggleVolumeSlider() {
+            const container = document.getElementById('volumeContainer');
+            isVolumeSliderOpen = !isVolumeSliderOpen;
+            container.classList.toggle('show', isVolumeSliderOpen);
+        }
+
+        function closeVolumeSlider() {
+            document.getElementById('volumeContainer').classList.remove('show');
+            isVolumeSliderOpen = false;
+        }
+
+        function updateVolume(value) {
+            currentVolume = parseInt(value);
+            const video = document.getElementById('floatingVideo');
+            if (video) {
+                video.volume = currentVolume / 100;
+                // Si el volumen es 0, muteamos; si es > 0, unmuteamos
+                if (currentVolume === 0) {
+                    video.muted = true;
+                    isFloatingMuted = true;
+                } else {
+                    video.muted = false;
+                    isFloatingMuted = false;
+                }
+            }
+            updateVolumeUI(currentVolume);
+            localStorage.setItem('csariels_volume', String(currentVolume));
+        }
+
+        function updateVolumeUI(volume) {
+            const btn = document.getElementById('floatingMuteBtn');
+            if (volume === 0) {
+                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            } else if (volume < 50) {
+                btn.innerHTML = '<i class="fas fa-volume-down"></i>';
+            } else {
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            }
+            document.getElementById('volumeSlider').value = volume;
+        }
+
+        function toggleFloatingMute() {
+            const video = document.getElementById('floatingVideo');
+            if (currentVolume === 0) {
+                // Si está muteado, restaurar volumen al 50%
+                currentVolume = 50;
+                video.volume = 0.5;
+                video.muted = false;
+                isFloatingMuted = false;
+            } else {
+                // Mute
+                currentVolume = 0;
+                video.volume = 0;
+                video.muted = true;
+                isFloatingMuted = true;
+            }
+            updateVolumeUI(currentVolume);
+            localStorage.setItem('csariels_volume', String(currentVolume));
+            document.getElementById('volumeSlider').value = currentVolume;
         }
 
         // ================================================================
@@ -2499,6 +2661,9 @@
             const audio = audios.find(a => a.id === id);
             if (!audio) return;
 
+            // Pausar video flotante si está reproduciéndose
+            pausarOtrosPlayers('audio');
+
             if (currentAudio && currentAudio.id === id && audioElement && isAudioPlaying) {
                 audioElement.pause();
                 isAudioPlaying = false;
@@ -2549,6 +2714,8 @@
                 audioElement.pause();
                 isAudioPlaying = false;
             } else {
+                // Pausar video flotante si está reproduciéndose
+                pausarOtrosPlayers('audio');
                 audioElement.play().catch(() => {});
                 isAudioPlaying = true;
             }
@@ -2597,17 +2764,23 @@
             const post = posts.find(p => p.id === postId);
             if (!post || !post.media || post.media.type !== 'video') return;
 
+            // Pausar audio si está reproduciéndose
+            pausarOtrosPlayers('video');
+
             const player = document.getElementById('floatingPlayer');
             const video = document.getElementById('floatingVideo');
 
             floatingVideoSrc = post.media.url;
             floatingPostId = postId;
 
+            // Restaurar volumen guardado
+            video.volume = currentVolume / 100;
+            video.muted = currentVolume === 0;
+
             video.src = floatingVideoSrc;
             video.load();
             video.play().catch(() => {});
 
-            // Actualizar header
             document.getElementById('floatingTitle').textContent = post.author;
             document.getElementById('floatingViewers').textContent = post.viewers || 12;
 
@@ -2630,15 +2803,7 @@
             }
             floatingPostId = null;
             floatingVideoSrc = null;
-        }
-
-        function toggleFloatingMute() {
-            const video = document.getElementById('floatingVideo');
-            isFloatingMuted = !isFloatingMuted;
-            video.muted = isFloatingMuted;
-            document.getElementById('floatingMuteBtn').innerHTML = isFloatingMuted ?
-                '<i class="fas fa-volume-mute"></i>' :
-                '<i class="fas fa-volume-up"></i>';
+            closeVolumeSlider();
         }
 
         function expandFloating() {
@@ -2741,6 +2906,8 @@
             if (!video) return;
 
             if (video.paused) {
+                // Pausar otros players si es necesario
+                pausarOtrosPlayers('video');
                 video.play();
                 if (playBtn) playBtn.classList.add('hidden');
             } else {
@@ -2770,6 +2937,7 @@
             fsVideo.src = video.src;
             fsVideo.poster = video.poster || '';
             fsVideo.muted = video.muted;
+            fsVideo.volume = video.volume || 1;
             fsVideo.load();
             fsVideo.play().catch(() => {});
 
