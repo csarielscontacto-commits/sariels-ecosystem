@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './MuroLive.css';
 
 // ================================================================
@@ -155,9 +155,83 @@ const MuroLive = () => {
   const [donacionMonto, setDonacionMonto] = useState('');
   const [donacionMensaje, setDonacionMensaje] = useState('');
   const [tokenSeleccionado, setTokenSeleccionado] = useState('USDT');
+  const [terminosChecks, setTerminosChecks] = useState({
+    check1: false,
+    check2: false,
+    check3: false,
+    check4: false,
+    check5: false
+  });
+  
+  const canvasRef = useRef(null);
 
   // ================================================================
-  // EFECTOS
+  // EFECTO: ESTRELLAS
+  // ================================================================
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let stars = [];
+    const STAR_COUNT = 200;
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+
+    const createStars = () => {
+      stars = [];
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          radius: Math.random() * 1.5 + 0.3,
+          speed: Math.random() * 0.015 + 0.005,
+          opacity: Math.random() * 0.7 + 0.3,
+          twinkleSpeed: Math.random() * 0.02 + 0.01,
+          twinklePhase: Math.random() * Math.PI * 2
+        });
+      }
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+      for (let star of stars) {
+        const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        ctx.fill();
+        star.twinklePhase += star.twinkleSpeed;
+        star.y += star.speed;
+        if (star.y > height) {
+          star.y = 0;
+          star.x = Math.random() * width;
+        }
+      }
+      requestAnimationFrame(draw);
+    };
+
+    resize();
+    createStars();
+    draw();
+
+    const handleResize = () => {
+      resize();
+      createStars();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // ================================================================
+  // EFECTO: TÉRMINOS Y STREAMER
   // ================================================================
   useEffect(() => {
     // Verificar términos
@@ -287,14 +361,26 @@ const MuroLive = () => {
   };
 
   // ================================================================
+  // MANEJO DE CHECKBOXES DE TÉRMINOS
+  // ================================================================
+  const handleTermCheck = (checkName) => {
+    setTerminosChecks(prev => ({
+      ...prev,
+      [checkName]: !prev[checkName]
+    }));
+  };
+
+  const allTermsChecked = () => {
+    return Object.values(terminosChecks).every(v => v === true);
+  };
+
+  // ================================================================
   // RENDER
   // ================================================================
   return (
     <div className="muro-live-container">
       {/* ===== FONDO ESTELAR ===== */}
-      <div className="stars-container">
-        <canvas id="stars-canvas"></canvas>
-      </div>
+      <canvas ref={canvasRef} id="stars-canvas" className="stars-canvas"></canvas>
       <div className="nebula nebula-1"></div>
       <div className="nebula nebula-2"></div>
       <div className="nebula nebula-3"></div>
@@ -324,7 +410,7 @@ const MuroLive = () => {
               <i className="fas fa-plus"></i> Publicar
             </button>
             <button 
-              className={`btn ${isLive ? 'btn-danger' : 'btn-danger'} btn-sm`}
+              className={`btn btn-danger btn-sm`}
               onClick={() => isLive ? terminarTransmision() : setShowLiveModal(true)}
             >
               <i className="fas fa-broadcast"></i> {isLive ? '🔴 Terminar' : 'Live'}
@@ -664,29 +750,54 @@ const MuroLive = () => {
 
             <div className="terminos-checklist">
               <label>
-                <input type="checkbox" id="termCheck1" />
+                <input 
+                  type="checkbox" 
+                  checked={terminosChecks.check1}
+                  onChange={() => handleTermCheck('check1')}
+                />
                 <span>He leído y acepto los <span className="highlight">Términos y Condiciones Generales</span> de Csariel's.</span>
               </label>
               <label>
-                <input type="checkbox" id="termCheck2" />
+                <input 
+                  type="checkbox" 
+                  checked={terminosChecks.check2}
+                  onChange={() => handleTermCheck('check2')}
+                />
                 <span>Comprendo que las transacciones son <span className="highlight">irreversibles</span> y operan bajo modelo <span className="highlight">no custodial</span>.</span>
               </label>
               <label>
-                <input type="checkbox" id="termCheck3" />
+                <input 
+                  type="checkbox" 
+                  checked={terminosChecks.check3}
+                  onChange={() => handleTermCheck('check3')}
+                />
                 <span>Declaro que cumplo con mis <span className="highlight">obligaciones fiscales</span> ante el SAT.</span>
               </label>
               <label>
-                <input type="checkbox" id="termCheck4" />
+                <input 
+                  type="checkbox" 
+                  checked={terminosChecks.check4}
+                  onChange={() => handleTermCheck('check4')}
+                />
                 <span>He leído y acepto el <span className="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span>
               </label>
               <label>
-                <input type="checkbox" id="termCheck5" />
+                <input 
+                  type="checkbox" 
+                  checked={terminosChecks.check5}
+                  onChange={() => handleTermCheck('check5')}
+                />
                 <span>Acepto la <span className="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span>
               </label>
             </div>
 
             <div className="modal-actions">
-              <button className="btn btn-success" onClick={aceptarTerminos} id="btnAceptarTerminos" disabled style={{ flex: 1, justifyContent: 'center' }}>
+              <button 
+                className="btn btn-success" 
+                onClick={aceptarTerminos} 
+                disabled={!allTermsChecked()}
+                style={{ flex: 1, justifyContent: 'center' }}
+              >
                 <i className="fas fa-check"></i> Aceptar y Continuar
               </button>
               <button className="btn btn-outline" onClick={() => setShowTerminosModal(false)}>
