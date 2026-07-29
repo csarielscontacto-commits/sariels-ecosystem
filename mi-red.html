@@ -97,6 +97,51 @@
 
         .app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 16px 20px 30px; }
 
+        /* ===== TOOLTIP ===== */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip-trigger .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background: rgba(15,45,26,0.95);
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--gold-dim);
+            position: absolute;
+            z-index: 100;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55rem;
+            font-weight: 400;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip-trigger .tooltip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--gold-dim);
+        }
+
+        .tooltip-trigger:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
         /* ===== HEADER ===== */
         .header {
             display: flex;
@@ -551,7 +596,31 @@
             border: 1px solid rgba(212,175,55,0.3);
         }
 
-        /* ===== SKINS AÑO 1 ===== */
+        .wallet-badge.polygon {
+            background: rgba(130,71,229,0.2);
+            color: #8247e5;
+            border: 1px solid rgba(130,71,229,0.3);
+        }
+
+        .wallet-badge.ethereum {
+            background: rgba(98,126,234,0.2);
+            color: #627eea;
+            border: 1px solid rgba(98,126,234,0.3);
+        }
+
+        .btn-switch-network {
+            background: rgba(130,71,229,0.15);
+            border-color: rgba(130,71,229,0.3);
+            color: #8247e5;
+            font-size: 0.5rem;
+            padding: 3px 10px;
+        }
+
+        .btn-switch-network:hover {
+            background: rgba(130,71,229,0.25);
+        }
+
+        /* ===== SKINS AÑO 1 - POLYGON ===== */
         .skins-section {
             margin-top: 12px;
             padding: 12px 16px;
@@ -568,6 +637,14 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .skins-section .skins-sub {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 400;
         }
 
         .skins-grid {
@@ -612,8 +689,31 @@
             margin: 4px 0;
         }
 
+        .skin-card .skin-price-mxn {
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .skin-card .skin-network {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-family: 'Orbitron', monospace;
+        }
+
         .skin-card .btn { width: 100%; justify-content: center; font-size: 0.5rem; padding: 4px 10px; }
         .skin-card .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .skins-footer {
+            margin-top: 10px;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            border-top: 1px solid var(--gold-dim);
+            padding-top: 10px;
+        }
 
         /* ===== TABS ===== */
         .tabs {
@@ -1263,7 +1363,15 @@
                 <div class="stat"><div class="number" id="statContactos">0</div><div class="label">Contactos</div></div>
                 <div class="stat"><div class="number" id="statSolicitudes">0</div><div class="label">Solicitudes</div></div>
                 <div class="stat"><div class="number" id="statGrupos">0</div><div class="label">Grupos</div></div>
-                <div class="stat"><div class="number" id="statAuraPoints">0</div><div class="label">AuraPoints</div></div>
+                <div class="stat">
+                    <div class="number" id="statAuraPoints">0</div>
+                    <div class="label">
+                        <span class="tooltip-trigger">
+                            AuraPoints
+                            <span class="tooltip-text">Puntos internos del ecosistema, no es cripto, sin comisiones. Se ganan con verificación .edu (50) y se gastan en IA.</span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1275,23 +1383,29 @@
             <button class="btn btn-sm btn-gold" id="btnDisconnectWallet" style="display:none;">
                 <i class="fas fa-power-off"></i> Desconectar
             </button>
+            <button class="btn btn-sm btn-switch-network" id="btnSwitchNetwork" style="display:none;">
+                <i class="fas fa-exchange-alt"></i> Cambiar a Polygon
+            </button>
             <span class="wallet-address" id="walletAddressDisplay">--</span>
             <span class="wallet-badge disconnected" id="walletStatusBadge">● Desconectado</span>
+            <span class="wallet-badge" id="walletNetworkBadge" style="display:none;background:rgba(130,71,229,0.2);color:#8247e5;border:1px solid rgba(130,71,229,0.3);">● Polygon</span>
         </div>
 
-        <!-- Skins Año 1 -->
+        <!-- Skins Año 1 - Polygon -->
         <div class="skins-section" id="skinsSection">
             <div class="skins-title">
                 <i class="fas fa-crown" style="color:var(--gold-cosmic);"></i> Skins de Lanzamiento - Año 1
-                <span style="font-size:0.5rem;color:var(--text-muted);font-weight:400;">(Verificación requerida)</span>
+                <span class="skins-sub">(Verificación requerida · Polygon)</span>
             </div>
             <div class="skins-grid">
                 <div class="skin-card">
                     <span class="skin-icon">🔥</span>
                     <div class="skin-name">GÉNESIS</div>
                     <div class="skin-supply">100 unidades</div>
-                    <div class="skin-price">0.05 ETH</div>
-                    <button class="btn btn-gold" id="skinGenesis" disabled onclick="comprarSkin('GÉNESIS')">
+                    <div class="skin-price">$99 MXN</div>
+                    <div class="skin-price-mxn">∼0.003 POL</div>
+                    <div class="skin-network">🔗 Polygon</div>
+                    <button class="btn btn-gold" id="skinGenesis" disabled onclick="comprarSkin('GÉNESIS', 99)">
                         <i class="fas fa-shopping-cart"></i> Comprar
                     </button>
                 </div>
@@ -1299,8 +1413,10 @@
                     <span class="skin-icon">⭐</span>
                     <div class="skin-name">AÑO 1 2026</div>
                     <div class="skin-supply">250 unidades</div>
-                    <div class="skin-price">0.03 ETH</div>
-                    <button class="btn btn-gold" id="skinAno1" disabled onclick="comprarSkin('AÑO 1 2026')">
+                    <div class="skin-price">$59 MXN</div>
+                    <div class="skin-price-mxn">∼0.002 POL</div>
+                    <div class="skin-network">🔗 Polygon</div>
+                    <button class="btn btn-gold" id="skinAno1" disabled onclick="comprarSkin('AÑO 1 2026', 59)">
                         <i class="fas fa-shopping-cart"></i> Comprar
                     </button>
                 </div>
@@ -1308,11 +1424,16 @@
                     <span class="skin-icon">🚀</span>
                     <div class="skin-name">PIONERO</div>
                     <div class="skin-supply">500 unidades</div>
-                    <div class="skin-price">0.01 ETH</div>
-                    <button class="btn btn-gold" id="skinPionero" disabled onclick="comprarSkin('PIONERO')">
+                    <div class="skin-price">$29 MXN</div>
+                    <div class="skin-price-mxn">∼0.001 POL</div>
+                    <div class="skin-network">🔗 Polygon</div>
+                    <button class="btn btn-gold" id="skinPionero" disabled onclick="comprarSkin('PIONERO', 29)">
                         <i class="fas fa-shopping-cart"></i> Comprar
                     </button>
                 </div>
+            </div>
+            <div class="skins-footer">
+                Red: <strong style="color:var(--gold-cosmic);">Polygon</strong> · Comisión &lt; $1 MXN · Contrato en Amoy testnet (demo)
             </div>
         </div>
 
@@ -1637,7 +1758,8 @@
             canUseAI: false,
             canBuySkins: false,
             walletConnected: false,
-            walletAddress: ''
+            walletAddress: '',
+            walletNetwork: 'polygon' // 'polygon' | 'ethereum'
         };
 
         let todosLosClientes = [
@@ -1928,7 +2050,7 @@
         }
 
         // ================================================================
-        // IA - RESTRINGIDA
+        // IA - RESTRINGIDA (gasta AURAPOINTS)
         // ================================================================
         function abrirIA() {
             if (!miPerfil.verificado) {
@@ -1949,7 +2071,7 @@
                 document.getElementById('iaModal').classList.add('active');
                 return;
             }
-            document.getElementById('iaResponse').innerHTML = '<span style="color:var(--text-muted);">Escribe tu pregunta para comenzar...</span>';
+            document.getElementById('iaResponse').innerHTML = '<span style="color:var(--text-muted);">Escribe tu pregunta para comenzar... (cuesta 1 AURAPOINT)</span>';
             document.getElementById('iaInput').value = '';
             document.getElementById('iaModal').classList.add('active');
         }
@@ -1964,12 +2086,24 @@
                 mostrarToast('🔒 Verifica tu .edu para usar IA', 'error');
                 return;
             }
+
+            // Gasta 1 AURAPOINT por pregunta
+            if ((miPerfil.aurapoints || 0) < 1) {
+                mostrarToast('⚠️ No tienes suficientes AURAPOINTS. Verifica .edu para obtener 50.', 'error');
+                return;
+            }
+
             const input = document.getElementById('iaInput');
             const pregunta = input.value.trim();
             if (!pregunta) return;
 
+            // Gastar AURAPOINT
+            miPerfil.aurapoints = (miPerfil.aurapoints || 0) - 1;
+            document.getElementById('statAuraPoints').textContent = miPerfil.aurapoints;
+            guardarPerfilLocal();
+
             const response = document.getElementById('iaResponse');
-            response.innerHTML = `<span style="color:var(--text-muted);">🧠 Pensando...</span>`;
+            response.innerHTML = `<span style="color:var(--text-muted);">🧠 Pensando... (${miPerfil.aurapoints} AURAPOINTS restantes)</span>`;
 
             setTimeout(() => {
                 const respuestas = [
@@ -1988,6 +2122,8 @@
                     <br>🎯 <em>¿Quieres profundizar en algún paso?</em>`
                 ];
                 response.innerHTML = respuestas[Math.floor(Math.random() * respuestas.length)];
+                // Actualizar AURAPOINTS en UI
+                document.getElementById('statAuraPoints').textContent = miPerfil.aurapoints;
             }, 1500);
         }
 
@@ -1997,19 +2133,26 @@
         }
 
         // ================================================================
-        // WALLET - CONEXIÓN
+        // WALLET - CONEXIÓN con detección de red
         // ================================================================
         function initWallet() {
             const btnConnect = document.getElementById('btnConnectWallet');
             const btnDisconnect = document.getElementById('btnDisconnectWallet');
+            const btnSwitch = document.getElementById('btnSwitchNetwork');
             const addressDisplay = document.getElementById('walletAddressDisplay');
             const statusBadge = document.getElementById('walletStatusBadge');
+            const networkBadge = document.getElementById('walletNetworkBadge');
 
             btnConnect.addEventListener('click', function() {
                 if (!miPerfil.verificado) {
                     mostrarToast('🔒 Conecta tu wallet después de verificar .edu', 'error');
                     return;
                 }
+
+                // Simular conexión - detectar red aleatoria (demo)
+                const networks = ['polygon', 'ethereum'];
+                const randomNetwork = networks[Math.floor(Math.random() * networks.length)];
+                
                 const mockAddress = '0x' + Array.from({length: 40}, () => 
                     Math.floor(Math.random() * 16).toString(16)).join('');
                 addressDisplay.textContent = mockAddress.slice(0, 6) + '...' + mockAddress.slice(-4);
@@ -2017,9 +2160,25 @@
                 statusBadge.innerHTML = '● Conectado';
                 btnConnect.style.display = 'none';
                 btnDisconnect.style.display = 'inline-flex';
+                
                 miPerfil.walletConnected = true;
                 miPerfil.walletAddress = mockAddress;
-                mostrarToast('🔗 Wallet conectada');
+                miPerfil.walletNetwork = randomNetwork;
+
+                // Mostrar red
+                if (randomNetwork === 'polygon') {
+                    networkBadge.style.display = 'inline-flex';
+                    networkBadge.className = 'wallet-badge polygon';
+                    networkBadge.innerHTML = '● Polygon';
+                    btnSwitch.style.display = 'none';
+                    mostrarToast('🔗 Wallet conectada a Polygon');
+                } else {
+                    networkBadge.style.display = 'inline-flex';
+                    networkBadge.className = 'wallet-badge ethereum';
+                    networkBadge.innerHTML = '● Ethereum';
+                    btnSwitch.style.display = 'inline-flex';
+                    mostrarToast('⚠️ Wallet en Ethereum - Cambia a Polygon para comprar skins', 'error');
+                }
             });
 
             btnDisconnect.addEventListener('click', function() {
@@ -2028,16 +2187,28 @@
                 statusBadge.innerHTML = '● Desconectado';
                 btnConnect.style.display = 'inline-flex';
                 btnDisconnect.style.display = 'none';
+                btnSwitch.style.display = 'none';
+                networkBadge.style.display = 'none';
                 miPerfil.walletConnected = false;
                 miPerfil.walletAddress = '';
+                miPerfil.walletNetwork = 'polygon';
                 mostrarToast('🔌 Wallet desconectada');
+            });
+
+            btnSwitch.addEventListener('click', function() {
+                // Cambiar a Polygon
+                miPerfil.walletNetwork = 'polygon';
+                networkBadge.className = 'wallet-badge polygon';
+                networkBadge.innerHTML = '● Polygon';
+                btnSwitch.style.display = 'none';
+                mostrarToast('✅ Cambiado a Polygon');
             });
         }
 
         // ================================================================
-        // SKINS - COMPRA
+        // SKINS - COMPRA en Polygon
         // ================================================================
-        function comprarSkin(nombre) {
+        function comprarSkin(nombre, precioMXN) {
             if (!miPerfil.verificado) {
                 mostrarToast('🔒 Verifica tu .edu para comprar skins', 'error');
                 return;
@@ -2046,9 +2217,13 @@
                 mostrarToast('🔗 Conecta tu wallet primero', 'error');
                 return;
             }
-            mostrarToast(`🛒 Comprando ${nombre}... (simulación wagmi)`);
+            if (miPerfil.walletNetwork !== 'polygon') {
+                mostrarToast('⚠️ Cambia a Polygon para comprar skins', 'error');
+                return;
+            }
+            mostrarToast(`🛒 Comprando ${nombre} por $${precioMXN} MXN en Polygon... (demo)`);
             setTimeout(() => {
-                mostrarToast(`✅ ${nombre} comprada exitosamente!`);
+                mostrarToast(`✅ ${nombre} comprada exitosamente en Polygon!`);
             }, 2000);
         }
 
