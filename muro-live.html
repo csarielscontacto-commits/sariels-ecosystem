@@ -44,7 +44,6 @@
             overflow-x: hidden;
         }
 
-        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--space-deep); }
         ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
@@ -548,34 +547,28 @@
             word-wrap: break-word;
         }
 
-        /* ===== VIDEO / MEDIA ===== */
+        /* ===== VIDEO / MEDIA - ESTILO TIKTOK ===== */
         .post-media {
             position: relative;
             margin-bottom: 10px;
             border-radius: 12px;
             overflow: hidden;
-            border: 1px solid var(--gold-dim);
-            background: #000;
-        }
-
-        .post-media.live-border {
-            border-color: var(--danger);
-            animation: live-border-pulse 1.5s infinite;
-        }
-
-        @keyframes live-border-pulse {
-            0%, 100% { border-color: var(--danger); box-shadow: 0 0 15px rgba(255,51,102,0.3); }
-            50% { border-color: #ff6699; box-shadow: 0 0 30px rgba(255,51,102,0.6); }
+            border: 1px solid rgba(212,175,55,0.2);
+            background: #0a0a0a;
+            aspect-ratio: 16/9;
+            max-height: 400px;
         }
 
         .post-media video {
             width: 100%;
-            max-height: 400px;
+            height: 100%;
             object-fit: cover;
             display: block;
             cursor: pointer;
+            background: #0a0a0a;
         }
 
+        /* Overlay superior - estilo TikTok */
         .post-media .media-overlay {
             position: absolute;
             top: 10px;
@@ -583,17 +576,17 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 10px 4px 6px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            padding: 4px 12px 4px 6px;
             border-radius: 20px;
-            backdrop-filter: blur(6px);
             z-index: 2;
             pointer-events: none;
         }
 
         .post-media .media-overlay .mini-avatar {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
             display: flex;
@@ -618,33 +611,91 @@
             font-family: 'Orbitron', monospace;
         }
 
-        .post-media .fullscreen-btn {
+        /* Botón de play custom - triangulo dorado */
+        .play-button {
             position: absolute;
-            bottom: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.5);
-            border: none;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: var(--transition);
-            z-index: 3;
-            backdrop-filter: blur(4px);
-        }
-
-        .post-media .fullscreen-btn:hover {
-            background: rgba(212,175,55,0.3);
-        }
-
-        .post-media .media-placeholder {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            background: rgba(212,175,55,0.2);
+            border: 2px solid rgba(212,175,55,0.5);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 120px;
-            font-size: 3rem;
-            background: rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+            opacity: 0.7;
+        }
+
+        .play-button.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .play-button:hover {
+            background: rgba(212,175,55,0.3);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .play-button .triangle {
+            width: 0;
+            height: 0;
+            border-left: 14px solid var(--gold-cosmic);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            margin-left: 4px;
+        }
+
+        /* Controles inferiores - minimalistas */
+        .video-controls {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 3;
+        }
+
+        .video-controls .ctrl-btn {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            border: none;
+            color: rgba(255,255,255,0.7);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .video-controls .ctrl-btn:hover {
+            background: rgba(212,175,55,0.3);
+            color: white;
+        }
+
+        /* ===== IMÁGENES REALES ===== */
+        .post-media.image-media {
+            aspect-ratio: auto;
+            max-height: 300px;
+            border: 1px solid rgba(212,175,55,0.15);
+        }
+
+        .post-media.image-media img {
+            width: 100%;
+            height: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            display: block;
+            border-radius: 12px;
         }
 
         /* ===== POST ACTIONS ===== */
@@ -1109,7 +1160,8 @@
             .modal-content { padding: 18px; margin: 10px; }
             .post-card { padding: 12px 14px; }
             .post-avatar { width: 34px; height: 34px; font-size: 0.85rem; }
-            .post-media video { max-height: 250px; }
+            .post-media { max-height: 300px; }
+            .post-media.image-media { max-height: 220px; }
             .fullscreen-overlay video { max-height: 80vh; }
         }
 
@@ -1121,7 +1173,10 @@
             .post-meta { font-size: 0.55rem; }
             .action-btn { font-size: 0.7rem; padding: 2px 6px; }
             .donacion-banner .banner-content { flex-direction: column; text-align: center; }
-            .post-media video { max-height: 200px; }
+            .post-media { max-height: 220px; }
+            .post-media.image-media { max-height: 180px; }
+            .play-button { width: 36px; height: 36px; }
+            .play-button .triangle { border-left-width: 11px; border-top-width: 6px; border-bottom-width: 6px; }
         }
     </style>
 </head>
@@ -1261,7 +1316,7 @@
                         <i class="fas fa-times"></i> Quitar video
                     </button>
                 </div>
-                <video id="videoPreviewElement" controls muted playsInline></video>
+                <video id="videoPreviewElement" muted playsInline></video>
             </div>
             
             <input type="file" id="videoFileInput" class="file-input-hidden" accept="video/*" onchange="handleVideoSelect(event)">
@@ -1470,7 +1525,11 @@
                 badge: 'AÑO 1 2026',
                 badgeColor: 'silver',
                 content: 'Vendo resumen de Conta, $50 o 10 AURAPOINTS',
-                media: { type: 'image', data: '📚' },
+                media: { 
+                    type: 'image', 
+                    url: 'https://picsum.photos/seed/maria/600/400',
+                    alt: 'Resumen de Contaduría'
+                },
                 likes: 12,
                 liked: false,
                 comments: 3,
@@ -1489,7 +1548,11 @@
                 badge: null,
                 badgeColor: null,
                 content: '📚 Estoy en biblioteca, si ocupan ayuda con cálculo avisen',
-                media: { type: 'video', url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+                media: { 
+                    type: 'video', 
+                    url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                    poster: 'https://picsum.photos/seed/carlos/600/400'
+                },
                 likes: 7,
                 liked: false,
                 comments: 2,
@@ -1633,33 +1696,46 @@
             container.innerHTML = posts.map(post => {
                 let mediaHTML = '';
                 if (post.media) {
-                    if (post.media.type === 'image') {
+                    if (post.media.type === 'image' && post.media.url) {
+                        // Imagen real con <img>
                         mediaHTML = `
-                            <div class="post-media">
-                                <div class="media-placeholder">${post.media.data}</div>
+                            <div class="post-media image-media">
+                                <img src="${post.media.url}" alt="${post.media.alt || 'Imagen'}" loading="lazy" />
                             </div>
                         `;
                     } else if (post.media.type === 'video' && post.media.url) {
                         const isLiveVideo = post.isLive;
+                        // Video estilo TikTok/Reels - autoplay, sin controles nativos
                         mediaHTML = `
-                            <div class="post-media ${isLiveVideo ? 'live-border' : ''}">
+                            <div class="post-media">
                                 <div class="media-overlay">
                                     <div class="mini-avatar">${post.avatar}</div>
                                     ${isLiveVideo ? '<span class="mini-live">● LIVE</span>' : ''}
                                     ${isLiveVideo && post.viewers ? `<span class="viewers-count">${post.viewers} viendo</span>` : ''}
                                 </div>
                                 <video 
-                                    src="${post.media.url}" 
-                                    controls 
-                                    muted 
-                                    playsInline
+                                    src="${post.media.url}"
                                     poster="${post.media.poster || ''}"
+                                    autoplay
+                                    muted
+                                    loop
+                                    playsInline
                                     preload="metadata"
-                                    onclick="event.stopPropagation(); abrirFullscreen('${post.media.url}')"
+                                    id="video-${post.id}"
                                 ></video>
-                                <button class="fullscreen-btn" onclick="event.stopPropagation(); abrirFullscreen('${post.media.url}')">
-                                    <i class="fas fa-expand"></i>
-                                </button>
+                                <!-- Botón de play custom -->
+                                <div class="play-button hidden" id="playBtn-${post.id}" onclick="event.stopPropagation(); toggleVideoPlay(${post.id})">
+                                    <div class="triangle"></div>
+                                </div>
+                                <!-- Controles inferiores minimalistas -->
+                                <div class="video-controls">
+                                    <button class="ctrl-btn" onclick="event.stopPropagation(); toggleVideoMute(${post.id})" id="muteBtn-${post.id}">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <button class="ctrl-btn" onclick="event.stopPropagation(); abrirFullscreenVideo(${post.id})">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
                             </div>
                         `;
                     }
@@ -1701,21 +1777,93 @@
                     </div>
                 `;
             }).join('');
+
+            // Inicializar videos después de renderizar
+            initVideos();
         }
 
         // ================================================================
-        // FULLSCREEN VIDEO
+        // INICIALIZAR VIDEOS - ESTILO TIKTOK
         // ================================================================
-        function abrirFullscreen(url) {
+        function initVideos() {
+            document.querySelectorAll('.post-media video').forEach(video => {
+                const postId = video.id.replace('video-', '');
+                const playBtn = document.getElementById(`playBtn-${postId}`);
+                
+                // Ocultar play button después de 1.5s (auto-play)
+                setTimeout(() => {
+                    if (playBtn) playBtn.classList.add('hidden');
+                }, 1500);
+
+                // Tap en video = pausa/play
+                video.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleVideoPlay(parseInt(postId));
+                });
+
+                // Mostrar play button al pausar
+                video.addEventListener('pause', function() {
+                    if (playBtn) playBtn.classList.remove('hidden');
+                });
+
+                video.addEventListener('play', function() {
+                    if (playBtn) playBtn.classList.add('hidden');
+                });
+
+                // Intentar reproducir (autoplay)
+                video.play().catch(() => {});
+            });
+        }
+
+        // ================================================================
+        // CONTROL DE VIDEOS
+        // ================================================================
+        function toggleVideoPlay(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            const playBtn = document.getElementById(`playBtn-${postId}`);
+            if (!video) return;
+
+            if (video.paused) {
+                video.play();
+                if (playBtn) playBtn.classList.add('hidden');
+            } else {
+                video.pause();
+                if (playBtn) playBtn.classList.remove('hidden');
+            }
+        }
+
+        function toggleVideoMute(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            const muteBtn = document.getElementById(`muteBtn-${postId}`);
+            if (!video || !muteBtn) return;
+
+            video.muted = !video.muted;
+            muteBtn.innerHTML = video.muted 
+                ? '<i class="fas fa-volume-mute"></i>' 
+                : '<i class="fas fa-volume-up"></i>';
+        }
+
+        function abrirFullscreenVideo(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            if (!video) return;
+            
             const overlay = document.getElementById('fullscreenOverlay');
-            const video = document.getElementById('fullscreenVideo');
-            video.src = url;
-            video.load();
-            video.play();
+            const fsVideo = document.getElementById('fullscreenVideo');
+            
+            // Copiar src y estado
+            fsVideo.src = video.src;
+            fsVideo.poster = video.poster || '';
+            fsVideo.muted = video.muted;
+            fsVideo.load();
+            fsVideo.play().catch(() => {});
+            
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
+        // ================================================================
+        // FULLSCREEN
+        // ================================================================
         function cerrarFullscreen() {
             const overlay = document.getElementById('fullscreenOverlay');
             const video = document.getElementById('fullscreenVideo');
@@ -1788,7 +1936,8 @@
             if (videoFile) {
                 media = {
                     type: 'video',
-                    url: videoPreviewURL
+                    url: videoPreviewURL,
+                    poster: ''
                 };
             }
 
@@ -1840,7 +1989,6 @@
             };
             isLive = true;
             
-            // Actualizar estado en UI
             document.getElementById('statusDot').className = 'status-dot live';
             document.getElementById('statusLabel').textContent = '🔴 EN VIVO';
             document.getElementById('btnLive').innerHTML = '<i class="fas fa-broadcast"></i> 🔴 Terminar';
