@@ -1,817 +1,1683 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './MuroLive.css';
-
-// ================================================================
-// CONFIGURACIÓN
-// ================================================================
-const CONFIG = {
-  VERSION: '1.0.0',
-  DOMINIOS_EDU: ['.edu', '.edu.mx', '.edu.uy', '.edu.co', '.edu.ar', '.edu.pe', '.edu.ec', '.edu.bo', '.edu.ve'],
-  UNIVERSIDADES: {
-    'udlap': 'UDLAP',
-    'buap': 'BUAP',
-    'tec': 'Tec de Monterrey',
-    'ibero': 'Ibero Puebla',
-    'upaep': 'UPAEP',
-    'unam': 'UNAM',
-    'uvm': 'UVM'
-  },
-  calcularComisionDirecto: (monto, token) => {
-    const comision = monto * 0.50;
-    return {
-      comision: comision,
-      streamerMonto: monto - comision,
-      token: token
-    };
-  }
-};
-
-// ================================================================
-// DATOS MOCK
-// ================================================================
-const MOCK_POSTS = [
-  {
-    id: 1,
-    author: 'Jorge Méndez',
-    avatar: 'J',
-    carrera: 'Ing. Industrial UDLAP',
-    badge: 'GÉNESIS',
-    badgeColor: 'gold',
-    content: '🔥 Ya quedó el Muro Live 🔥 ¿Quién se apunta a probar la IA predictiva? Me hizo la tarea en 10s',
-    media: null,
-    likes: 24,
-    liked: false,
-    comments: 8,
-    date: Date.now() - 120000,
-    online: true,
-    isPinned: true,
-    moderationStatus: 'approved',
-    tipo: 'publicacion',
-    showIA: true
-  },
-  {
-    id: 2,
-    author: 'María García',
-    avatar: 'M',
-    carrera: 'Contaduría UDLAP',
-    badge: 'AÑO 1 2026',
-    badgeColor: 'silver',
-    content: 'Vendo resumen de Conta, $50 o 10 AURAPOINTS',
-    media: { type: 'image', data: '📚' },
-    likes: 12,
-    liked: false,
-    comments: 3,
-    date: Date.now() - 7200000,
-    online: false,
-    isPinned: false,
-    moderationStatus: 'approved',
-    tipo: 'publicacion',
-    showIA: false
-  },
-  {
-    id: 3,
-    author: 'Carlos Ruiz',
-    avatar: 'C',
-    carrera: 'Ing. Civil BUAP',
-    badge: null,
-    badgeColor: null,
-    content: '📚 Estoy en biblioteca, si ocupan ayuda con cálculo avisen',
-    media: null,
-    likes: 7,
-    liked: false,
-    comments: 2,
-    date: Date.now() - 14400000,
-    online: true,
-    isPinned: false,
-    moderationStatus: 'approved',
-    tipo: 'publicacion',
-    isLive: true,
-    showIA: false
-  },
-  {
-    id: 4,
-    author: 'Ana López',
-    avatar: 'A',
-    carrera: 'Arquitectura Ibero',
-    badge: null,
-    badgeColor: null,
-    content: '🏠 Busco roomie cerca de UDLAP, presupuesto $3000',
-    media: null,
-    likes: 5,
-    liked: false,
-    comments: 1,
-    date: Date.now() - 21600000,
-    online: false,
-    isPinned: false,
-    moderationStatus: 'approved',
-    tipo: 'publicacion',
-    showIA: false
-  },
-  {
-    id: 5,
-    author: 'Sistema',
-    avatar: '◈',
-    carrera: 'Csariel\'s',
-    badge: null,
-    badgeColor: 'gold',
-    content: '🎉 Bienvenido a Año 1. Verifica tu .edu y gana 50 AURAPOINTS internos (sin gas) + Skins en Polygon < $1 MXN comisión',
-    media: null,
-    likes: 42,
-    liked: false,
-    comments: 6,
-    date: Date.now() - 86400000,
-    online: false,
-    isPinned: false,
-    moderationStatus: 'approved',
-    tipo: 'sistema',
-    showIA: false
-  }
-];
-
-const MOCK_STORIES = [
-  { id: 1, name: 'Tu estado', avatar: '+', isAdd: true },
-  { id: 2, name: 'María · 2h', avatar: 'M', isLive: true },
-  { id: 3, name: 'Carlos · 4h', avatar: 'C', isLive: false },
-  { id: 4, name: 'Ana · 6h', avatar: 'A', isLive: false },
-  { id: 5, name: 'Luis · 12h', avatar: 'L', isLive: false },
-  { id: 6, name: 'Sofía · 1d', avatar: 'S', isLive: false }
-];
-
-// ================================================================
-// COMPONENTE PRINCIPAL
-// ================================================================
-const MuroLive = () => {
-  const [posts, setPosts] = useState(MOCK_POSTS);
-  const [stories] = useState(MOCK_STORIES);
-  const [isLive, setIsLive] = useState(false);
-  const [showPostModal, setShowPostModal] = useState(false);
-  const [showLiveModal, setShowLiveModal] = useState(false);
-  const [showDonacionModal, setShowDonacionModal] = useState(false);
-  const [showTerminosModal, setShowTerminosModal] = useState(false);
-  const [terminosAceptados, setTerminosAceptados] = useState(false);
-  const [postText, setPostText] = useState('');
-  const [moderationResult, setModerationResult] = useState(null);
-  const [streamerInfo, setStreamerInfo] = useState(null);
-  const [donacionMonto, setDonacionMonto] = useState('');
-  const [donacionMensaje, setDonacionMensaje] = useState('');
-  const [tokenSeleccionado, setTokenSeleccionado] = useState('USDT');
-  const [terminosChecks, setTerminosChecks] = useState({
-    check1: false,
-    check2: false,
-    check3: false,
-    check4: false,
-    check5: false
-  });
-  
-  const canvasRef = useRef(null);
-
-  // ================================================================
-  // EFECTO: ESTRELLAS
-  // ================================================================
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muro Live | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
     
-    const ctx = canvas.getContext('2d');
-    let width, height;
-    let stars = [];
-    const STAR_COUNT = 200;
-
-    const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    };
-
-    const createStars = () => {
-      stars = [];
-      for (let i = 0; i < STAR_COUNT; i++) {
-        stars.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          radius: Math.random() * 1.5 + 0.3,
-          speed: Math.random() * 0.015 + 0.005,
-          opacity: Math.random() * 0.7 + 0.3,
-          twinkleSpeed: Math.random() * 0.02 + 0.01,
-          twinklePhase: Math.random() * Math.PI * 2
-        });
-      }
-    };
-
-    const draw = () => {
-      ctx.clearRect(0, 0, width, height);
-      for (let star of stars) {
-        const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-        ctx.fill();
-        star.twinklePhase += star.twinkleSpeed;
-        star.y += star.speed;
-        if (star.y > height) {
-          star.y = 0;
-          star.x = Math.random() * width;
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    
+    <style>
+        /* ================================================================
+           MURO LIVE - ESTILOS
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
         }
-      }
-      requestAnimationFrame(draw);
-    };
 
-    resize();
-    createStars();
-    draw();
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    const handleResize = () => {
-      resize();
-      createStars();
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // ================================================================
-  // EFECTO: TÉRMINOS Y STREAMER
-  // ================================================================
-  useEffect(() => {
-    // Verificar términos
-    const aceptado = localStorage.getItem('terminos_muro_live_aceptado');
-    if (aceptado === 'true') {
-      setTerminosAceptados(true);
-    } else {
-      setTimeout(() => setShowTerminosModal(true), 800);
-    }
-
-    // Verificar streamer activo
-    const streamerData = localStorage.getItem('streamer_activo');
-    if (streamerData) {
-      try {
-        const data = JSON.parse(streamerData);
-        if (data && data.wallet) {
-          setStreamerInfo(data);
-          setIsLive(true);
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-      } catch (e) {}
-    }
-  }, []);
 
-  // ================================================================
-  // FUNCIONES
-  // ================================================================
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000);
-    if (diff < 60) return 'Ahora mismo';
-    if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
-    if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
-    return date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+        .stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-  const toggleLike = (id) => {
-    setPosts(prev => prev.map(p => 
-      p.id === id ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 } : p
-    ));
-  };
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
 
-  const handlePublicar = () => {
-    if (!postText.trim()) return;
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: #00d4ff; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
 
-    const nuevoPost = {
-      id: Date.now(),
-      author: 'Usuario',
-      avatar: 'U',
-      carrera: 'Estudiante Csariel\'s',
-      badge: null,
-      badgeColor: null,
-      content: postText,
-      media: null,
-      likes: 0,
-      liked: false,
-      comments: 0,
-      date: Date.now(),
-      online: true,
-      isPinned: false,
-      moderationStatus: 'approved',
-      tipo: 'publicacion',
-      showIA: false
-    };
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
 
-    setPosts(prev => [nuevoPost, ...prev]);
-    setPostText('');
-    setShowPostModal(false);
-    setModerationResult(null);
-  };
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
 
-  const iniciarTransmision = () => {
-    const nuevoStreamer = {
-      nombre: 'Usuario',
-      wallet: '0x' + Array.from({length: 40}, () => 
-        Math.floor(Math.random() * 16).toString(16)).join(''),
-      inicio: Date.now()
-    };
-    setStreamerInfo(nuevoStreamer);
-    setIsLive(true);
-    localStorage.setItem('streamer_activo', JSON.stringify(nuevoStreamer));
-    setShowLiveModal(false);
-  };
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
 
-  const terminarTransmision = () => {
-    setIsLive(false);
-    setStreamerInfo(null);
-    localStorage.removeItem('streamer_activo');
-  };
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
 
-  const aceptarTerminos = () => {
-    localStorage.setItem('terminos_muro_live_aceptado', 'true');
-    setTerminosAceptados(true);
-    setShowTerminosModal(false);
-  };
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212,175,55,0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
 
-  const procesarDonacion = () => {
-    const monto = parseFloat(donacionMonto);
-    if (!monto || monto <= 0) return;
-    
-    const comision = CONFIG.calcularComisionDirecto(monto, tokenSeleccionado);
-    
-    // Guardar en localStorage para demo
-    const donaciones = JSON.parse(localStorage.getItem('donaciones_demo') || '[]');
-    donaciones.push({
-      id: Date.now(),
-      streamer: streamerInfo?.nombre || 'Streamer',
-      monto: monto,
-      token: tokenSeleccionado,
-      comision: comision.comision,
-      streamerMonto: comision.streamerMonto,
-      mensaje: donacionMensaje || '¡Buena transmisión!',
-      fecha: new Date().toISOString()
-    });
-    localStorage.setItem('donaciones_demo', JSON.stringify(donaciones));
-    
-    setShowDonacionModal(false);
-    setDonacionMonto('');
-    setDonacionMensaje('');
-  };
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
 
-  // ================================================================
-  // MANEJO DE CHECKBOXES DE TÉRMINOS
-  // ================================================================
-  const handleTermCheck = (checkName) => {
-    setTerminosChecks(prev => ({
-      ...prev,
-      [checkName]: !prev[checkName]
-    }));
-  };
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); }
+            50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); }
+        }
 
-  const allTermsChecked = () => {
-    return Object.values(terminosChecks).every(v => v === true);
-  };
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-  // ================================================================
-  // RENDER
-  // ================================================================
-  return (
-    <div className="muro-live-container">
-      {/* ===== FONDO ESTELAR ===== */}
-      <canvas ref={canvasRef} id="stars-canvas" className="stars-canvas"></canvas>
-      <div className="nebula nebula-1"></div>
-      <div className="nebula nebula-2"></div>
-      <div className="nebula nebula-3"></div>
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
 
-      <div className="app">
-        {/* ===== HEADER ===== */}
-        <header className="header">
-          <a href="#" className="logo" onClick={(e) => e.preventDefault()}>
-            <span className="logo-icon">
-              <span className="hex">◈</span>
-            </span>
-            <span className="logo-text">Csariel's</span>
-            <span className="logo-badge">MURO LIVE</span>
-          </a>
-          <div className="header-actions">
-            <div className="status-badge">
-              <span className={`status-dot ${isLive ? 'live' : 'online'}`}></span>
-              <span id="statusLabel">{isLive ? '🔴 EN VIVO' : 'En vivo'}</span>
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); }
+            50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+        .status-dot.live { background: var(--danger); box-shadow: 0 0 30px rgba(255,51,102,0.5); animation: live-pulse 1s infinite; }
+
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        @keyframes live-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.8); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        /* STORIES */
+        .stories-bar {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px 12px;
+            margin-bottom: 8px;
+            scrollbar-width: none;
+        }
+        .stories-bar::-webkit-scrollbar { display: none; }
+
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            min-width: 72px;
+            transition: var(--transition);
+        }
+        .story-item:hover { transform: scale(1.05); }
+
+        .story-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid var(--gold-cosmic);
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a0c10;
+            position: relative;
+        }
+
+        .story-avatar.add { border-style: dashed; }
+        .story-avatar .live-badge {
+            position: absolute;
+            bottom: -4px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.45rem;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            animation: live-pulse-badge 1.5s infinite;
+        }
+
+        @keyframes live-pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .story-name {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            text-align: center;
+            max-width: 70px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* QUICK POST */
+        .quick-post {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 16px;
+        }
+
+        .quick-post:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+
+        .quick-post .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0a0c10;
+            flex-shrink: 0;
+        }
+
+        .quick-post .placeholder {
+            flex: 1;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .quick-post .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .quick-post .actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .quick-post .actions button:hover {
+            background: rgba(212,175,55,0.1);
+            color: var(--gold-cosmic);
+        }
+
+        /* DONACION BANNER */
+        .donacion-banner {
+            background: linear-gradient(135deg, rgba(15,45,26,0.4), rgba(212,175,55,0.08));
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .donacion-banner:hover { border-color: var(--border-glow); }
+
+        .donacion-banner .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .donacion-banner .banner-icon { font-size: 1.5rem; }
+        .donacion-banner .banner-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
+        }
+        .donacion-banner .banner-sub { font-size: 0.7rem; color: var(--text-secondary); }
+
+        /* FEED */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* POST CARD */
+        .post-card {
+            background: #123722;
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-card.pinned {
+            border-color: var(--gold-cosmic);
+            border-width: 2px;
+        }
+
+        .post-card.pinned::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.2;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .post-card:hover { transform: translateY(-2px); border-color: var(--border-glow); }
+
+        .post-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a0c10;
+            flex-shrink: 0;
+        }
+
+        .post-author-info { flex: 1; min-width: 0; }
+
+        .post-author {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            flex-shrink: 0;
+        }
+
+        .live-tag {
+            font-size: 0.55rem;
+            color: var(--danger);
+            font-family: 'Orbitron', monospace;
+            animation: live-pulse 1s infinite;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        .post-carrera { color: var(--text-muted); }
+
+        .badge-nivel {
+            font-size: 0.45rem;
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .badge-nivel.gold {
+            background: rgba(212,175,55,0.15);
+            color: var(--gold-cosmic);
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .badge-nivel.silver {
+            background: rgba(192,194,200,0.15);
+            color: #c0c2c8;
+            border: 1px solid rgba(192,194,200,0.2);
+        }
+
+        .post-date {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+        }
+
+        .pinned-badge { font-size: 1rem; flex-shrink: 0; margin-left: auto; }
+
+        .post-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        .post-media {
+            margin-bottom: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .media-placeholder { font-size: 3rem; }
+
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            padding-top: 10px;
+            border-top: 1px solid var(--gold-dim);
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .action-btn:hover { color: var(--gold-cosmic); background: rgba(212,175,55,0.05); }
+        .action-btn.liked { color: var(--danger); }
+
+        .action-btn.ia-btn {
+            color: var(--gold-cosmic);
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .action-btn.live-btn {
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 0.7rem;
+            animation: live-pulse 1s infinite;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand { color: var(--gold-cosmic); }
+
+        .footer-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.6rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+        }
+
+        .footer-links a:hover { color: var(--gold-cosmic); }
+
+        /* MODALES */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: rgba(15,45,26,0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
+
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+
+        .modal-sub {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .modal-textarea:focus { border-color: var(--gold-cosmic); }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .modal-actions .btn { flex: 1; justify-content: center; }
+
+        /* LIVE MODAL */
+        .live-preview {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,51,102,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,51,102,0.2);
+            margin-bottom: 12px;
+        }
+
+        .live-info {
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(212,175,55,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+
+        /* DONACION MODAL */
+        .streamer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid var(--gold-dim);
+            margin-bottom: 12px;
+        }
+
+        .streamer-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #0a0c10;
+            font-size: 1rem;
+        }
+
+        .streamer-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .streamer-status {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .token-selector, .monto-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .monto-input, .mensaje-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .monto-input:focus, .mensaje-input:focus { border-color: var(--gold-cosmic); }
+
+        .resumen-donacion {
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid var(--gold-dim);
+            margin-bottom: 12px;
+        }
+
+        .resumen-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            padding: 2px 0;
+        }
+
+        .donacion-footer {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255,51,102,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255,51,102,0.1);
+        }
+
+        /* TERMINOS MODAL */
+        .terminos-resumen {
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border-left: 3px solid var(--gold-cosmic);
+            margin-bottom: 12px;
+        }
+
+        .terminos-resumen ul {
+            padding-left: 18px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        .terminos-resumen ul li { margin-bottom: 4px; }
+        .terminos-resumen strong { color: var(--text-primary); }
+
+        .terminos-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .terminos-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .terminos-checklist label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 2px 0;
+        }
+
+        .terminos-checklist label:hover { color: var(--text-primary); }
+
+        .terminos-checklist input[type="checkbox"] {
+            margin-top: 2px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .terminos-checklist .highlight {
+            color: var(--gold-cosmic);
+            font-weight: 600;
+        }
+
+        .terminos-warning {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .app { padding: 12px 14px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .logo-text { font-size: 1rem; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .story-avatar { width: 52px; height: 52px; font-size: 1.2rem; }
+            .modal-content { padding: 18px; margin: 10px; }
+            .post-card { padding: 12px 14px; }
+            .post-avatar { width: 34px; height: 34px; font-size: 0.85rem; }
+        }
+
+        @media (max-width: 480px) {
+            .btn { font-size: 0.5rem; padding: 4px 10px; }
+            .story-avatar { width: 44px; height: 44px; font-size: 1rem; }
+            .story-name { font-size: 0.5rem; }
+            .post-content { font-size: 0.8rem; }
+            .post-meta { font-size: 0.55rem; }
+            .action-btn { font-size: 0.7rem; padding: 2px 6px; }
+            .donacion-banner .banner-content { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starsCanvas" class="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="#" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">MURO LIVE</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online" id="statusDot"></span>
+                    <span id="statusLabel">En vivo</span>
+                </div>
+                <button class="btn" onclick="window.location.href='./mi-red.html'">
+                    <i class="fas fa-arrow-left"></i> Mi Red
+                </button>
+                <button class="btn btn-gold btn-sm" onclick="window.location.href='./servicios-comunitarios.html'">
+                    <i class="fas fa-tools"></i> Servicios
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="abrirModal('postModal')">
+                    <i class="fas fa-plus"></i> Publicar
+                </button>
+                <button class="btn btn-danger btn-sm" id="btnLive" onclick="toggleLive()">
+                    <i class="fas fa-broadcast"></i> Live
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="abrirModal('terminosModal')">
+                    <i class="fas fa-file-contract"></i> 📜 Términos
+                </button>
             </div>
-            <button className="btn" onClick={() => window.location.href = './mi-red.html'}>
-              <i className="fas fa-arrow-left"></i> Mi Red
-            </button>
-            <button className="btn btn-gold btn-sm" onClick={() => window.location.href = './servicios-comunitarios.html'}>
-              <i className="fas fa-tools"></i> Servicios
-            </button>
-            <button className="btn btn-primary btn-sm" onClick={() => setShowPostModal(true)}>
-              <i className="fas fa-plus"></i> Publicar
-            </button>
-            <button 
-              className={`btn btn-danger btn-sm`}
-              onClick={() => isLive ? terminarTransmision() : setShowLiveModal(true)}
-            >
-              <i className="fas fa-broadcast"></i> {isLive ? '🔴 Terminar' : 'Live'}
-            </button>
-            <button className="btn btn-outline btn-sm" onClick={() => setShowTerminosModal(true)}>
-              <i className="fas fa-file-contract"></i> 📜 Términos
-            </button>
-          </div>
         </header>
 
-        {/* ===== STORIES ===== */}
-        <div className="stories-bar">
-          {stories.map(story => (
-            <div 
-              key={story.id} 
-              className="story-item"
-              onClick={() => story.isAdd && setShowPostModal(true)}
-            >
-              <div 
-                className={`story-avatar ${story.isAdd ? 'add' : ''} ${story.isLive ? 'live' : ''}`}
-                style={story.isAdd ? { borderStyle: 'dashed' } : {}}
-              >
-                {story.isAdd ? (
-                  <i className="fas fa-plus" style={{ fontSize: '1.2rem', color: '#D4AF37' }}></i>
-                ) : (
-                  <>
-                    <span>{story.avatar}</span>
-                    {story.isLive && <span className="live-badge">● LIVE</span>}
-                  </>
-                )}
-              </div>
-              <span className="story-name">{story.name}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* ===== QUICK POST ===== */}
-        <div className="quick-post" onClick={() => setShowPostModal(true)}>
-          <div className="avatar">U</div>
-          <span className="placeholder">¿Qué está pasando? Comparte algo...</span>
-          <div className="actions">
-            <button onClick={(e) => e.stopPropagation()}><i className="fas fa-image"></i></button>
-            <button onClick={(e) => e.stopPropagation()}><i className="fas fa-video"></i></button>
-            <button onClick={(e) => e.stopPropagation()}><i className="fas fa-smile"></i></button>
-          </div>
-        </div>
-
-        {/* ===== BANNER DONACIÓN (si está en vivo) ===== */}
-        {isLive && streamerInfo && (
-          <div className="donacion-banner" onClick={() => setShowDonacionModal(true)}>
-            <div className="banner-content">
-              <span className="banner-icon">🎁</span>
-              <div className="banner-text">
-                <div className="banner-title">🔴 Apoya esta transmisión</div>
-                <div className="banner-sub">Envía donaciones en USDT, USDC o TOK</div>
-              </div>
-              <button className="btn btn-gold" onClick={(e) => { e.stopPropagation(); setShowDonacionModal(true); }}>
-                <i className="fas fa-gift"></i> Donar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ===== FEED ===== */}
-        <div className="feed-container">
-          {posts.map(post => (
-            <div 
-              key={post.id} 
-              className={`post-card ${post.isPinned ? 'pinned' : ''}`}
-            >
-              <div className="post-header">
-                <div className="post-avatar">{post.avatar}</div>
-                <div className="post-author-info">
-                  <div className="post-author">
-                    {post.author}
-                    {post.online && <span className="online-dot"></span>}
-                    {post.isLive && <span className="live-tag">● LIVE</span>}
-                  </div>
-                  <div className="post-meta">
-                    <span className="post-carrera">{post.carrera}</span>
-                    {post.badge && (
-                      <span className={`badge-nivel ${post.badgeColor || 'gold'}`}>
-                        {post.badge}
-                      </span>
-                    )}
-                    <span className="post-date">{formatDate(post.date)}</span>
-                  </div>
+        <!-- STORIES -->
+        <div class="stories-bar" id="storiesBar">
+            <div class="story-item" onclick="abrirModal('postModal')">
+                <div class="story-avatar add">
+                    <i class="fas fa-plus" style="font-size:1.2rem;color:#D4AF37;"></i>
                 </div>
-                {post.isPinned && <span className="pinned-badge">📌</span>}
-              </div>
-
-              <div className="post-content">{post.content}</div>
-
-              {post.media && post.media.type === 'image' && (
-                <div className="post-media">
-                  <div className="media-placeholder">{post.media.data}</div>
-                </div>
-              )}
-
-              <div className="post-actions">
-                <button 
-                  className={`action-btn ${post.liked ? 'liked' : ''}`}
-                  onClick={() => toggleLike(post.id)}
-                >
-                  <i className="fas fa-heart"></i>
-                  <span>{post.likes}</span>
-                </button>
-                <button className="action-btn">
-                  <i className="fas fa-comment"></i>
-                  <span>{post.comments}</span>
-                </button>
-                <button className="action-btn">
-                  <i className="fas fa-share"></i>
-                </button>
-                {post.showIA && (
-                  <button className="action-btn ia-btn">
-                    <i className="fas fa-brain"></i> Ver IA
-                  </button>
-                )}
-                {post.isLive && (
-                  <button className="action-btn live-btn">
-                    <i className="fas fa-broadcast"></i> Live
-                  </button>
-                )}
-              </div>
+                <span class="story-name">Tu estado</span>
             </div>
-          ))}
+            <div class="story-item">
+                <div class="story-avatar">M<span class="live-badge">● LIVE</span></div>
+                <span class="story-name">María · 2h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">C</div>
+                <span class="story-name">Carlos · 4h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">A</div>
+                <span class="story-name">Ana · 6h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">L</div>
+                <span class="story-name">Luis · 12h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">S</div>
+                <span class="story-name">Sofía · 1d</span>
+            </div>
         </div>
 
-        {/* ===== FOOTER ===== */}
-        <footer className="footer">
-          <span className="footer-text">
-            <span className="brand">◈ Csariel's</span> — Muro Live · Moderación IA · Donaciones en Directo
-          </span>
-          <div className="footer-links">
-            <a href="./mi-red.html">👥 Mi Red</a>
-            <a href="./servicios-comunitarios.html">🔧 Servicios</a>
-            <a href="./panel-web3.html">🔗 Web3</a>
-            <a href="#" style={{ color: '#D4AF37' }} onClick={() => setShowTerminosModal(true)}>📜 Términos</a>
-            <a href="#" style={{ color: '#D4AF37' }}>🔐 Privacidad</a>
-          </div>
+        <!-- QUICK POST -->
+        <div class="quick-post" onclick="abrirModal('postModal')">
+            <div class="avatar">U</div>
+            <span class="placeholder">¿Qué está pasando? Comparte algo...</span>
+            <div class="actions">
+                <button onclick="event.stopPropagation();"><i class="fas fa-image"></i></button>
+                <button onclick="event.stopPropagation();"><i class="fas fa-video"></i></button>
+                <button onclick="event.stopPropagation();"><i class="fas fa-smile"></i></button>
+            </div>
+        </div>
+
+        <!-- DONACION BANNER (oculto por defecto) -->
+        <div class="donacion-banner" id="donacionBanner" style="display:none;" onclick="abrirModal('donacionModal')">
+            <div class="banner-content">
+                <span class="banner-icon">🎁</span>
+                <div class="banner-text">
+                    <div class="banner-title">🔴 Apoya esta transmisión</div>
+                    <div class="banner-sub">Envía donaciones en USDT, USDC o TOK</div>
+                </div>
+                <button class="btn btn-gold" onclick="event.stopPropagation(); abrirModal('donacionModal')">
+                    <i class="fas fa-gift"></i> Donar
+                </button>
+            </div>
+        </div>
+
+        <!-- FEED -->
+        <div class="feed-container" id="feedContainer"></div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Muro Live · Moderación IA · Donaciones en Directo
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./servicios-comunitarios.html">🔧 Servicios</a>
+                <a href="./panel-web3.html">🔗 Web3</a>
+                <a href="#" style="color:#D4AF37;" onclick="abrirModal('terminosModal')">📜 Términos</a>
+                <a href="#" style="color:#D4AF37;">🔐 Privacidad</a>
+            </div>
         </footer>
-      </div>
-
-      {/* ===== MODAL PUBLICAR ===== */}
-      {showPostModal && (
-        <div className="modal-overlay active" onClick={(e) => e.target === e.currentTarget && setShowPostModal(false)}>
-          <div className="modal-content">
-            <button className="modal-close" onClick={() => setShowPostModal(false)}>✕</button>
-            <h3 className="modal-title">📝 Crear Publicación</h3>
-            <p className="modal-sub">Tu contenido será moderado por IA antes de publicarse</p>
-            <textarea 
-              className="modal-textarea"
-              placeholder="¿Qué quieres compartir?..."
-              value={postText}
-              onChange={(e) => setPostText(e.target.value)}
-            />
-            {moderationResult && (
-              <div className="moderation-result">
-                <p>{moderationResult}</p>
-              </div>
-            )}
-            <div className="modal-actions">
-              <button className="btn btn-gold" onClick={handlePublicar}>
-                <i className="fas fa-rocket"></i> Publicar
-              </button>
-              <button className="btn btn-outline" onClick={() => setShowPostModal(false)}>
-                <i className="fas fa-times"></i> Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== MODAL LIVE ===== */}
-      {showLiveModal && (
-        <div className="modal-overlay active" onClick={(e) => e.target === e.currentTarget && setShowLiveModal(false)}>
-          <div className="modal-content" style={{ maxWidth: '400px' }}>
-            <button className="modal-close" onClick={() => setShowLiveModal(false)}>✕</button>
-            <h3 className="modal-title">📡 Iniciar Transmisión</h3>
-            <p className="modal-sub">Comparte en vivo con tu comunidad</p>
-            <div className="live-preview">
-              <i className="fas fa-broadcast" style={{ fontSize: '3rem', color: '#ff3366' }}></i>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '8px' }}>
-                <strong style={{ color: '#ff3366' }}>● EN VIVO</strong><br />
-                Recibe donaciones en tiempo real desde tu comunidad.
-              </p>
-            </div>
-            <div className="modal-actions">
-              <button className="btn btn-danger" onClick={iniciarTransmision} style={{ flex: 1, justifyContent: 'center' }}>
-                <i className="fas fa-play"></i> Iniciar Live
-              </button>
-              <button className="btn btn-outline" onClick={() => setShowLiveModal(false)}>
-                <i className="fas fa-times"></i> Cancelar
-              </button>
-            </div>
-            <div className="live-info">
-              <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: '1.6' }}>
-                💰 <strong style={{ color: '#D4AF37' }}>Donaciones activas:</strong> 50% para el streamer · 50% para Csariel's<br />
-                🪙 Tokens aceptados: USDT · USDC · TOK (1:1)
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== MODAL DONACIÓN ===== */}
-      {showDonacionModal && (
-        <div className="modal-overlay active" onClick={(e) => e.target === e.currentTarget && setShowDonacionModal(false)}>
-          <div className="modal-content" style={{ maxWidth: '480px' }}>
-            <button className="modal-close" onClick={() => setShowDonacionModal(false)}>✕</button>
-            <h3 className="modal-title">🎁 Donar en Directo</h3>
-            <p className="modal-sub">
-              Apoya al streamer en su transmisión. <span style={{ color: '#D4AF37' }}>50% para el streamer · 50% para Csariel's</span>
-            </p>
-
-            <div className="streamer-info">
-              <div className="streamer-avatar">{streamerInfo?.nombre?.charAt(0) || 'S'}</div>
-              <div>
-                <div className="streamer-name">{streamerInfo?.nombre || 'Streamer'}</div>
-                <div className="streamer-status"><span style={{ color: '#ff3366' }}>● EN VIVO</span></div>
-              </div>
-            </div>
-
-            <div className="token-selector">
-              {['USDT', 'USDC', 'TOK'].map(token => (
-                <button 
-                  key={token}
-                  className={`btn btn-sm ${tokenSeleccionado === token ? 'btn-gold' : 'btn-outline'}`}
-                  onClick={() => setTokenSeleccionado(token)}
-                  style={{ flex: 1, justifyContent: 'center' }}
-                >
-                  {token === 'USDT' && '💵'} {token === 'USDC' && '💳'} {token === 'TOK' && '🪙'} {token}
-                  {token === 'TOK' && ' (Próximo)'}
-                </button>
-              ))}
-            </div>
-
-            <div className="monto-selector">
-              {[1, 5, 10, 25, 50].map(m => (
-                <button 
-                  key={m}
-                  className="btn btn-sm btn-outline"
-                  onClick={() => setDonacionMonto(m.toString())}
-                  style={{ flex: 1, justifyContent: 'center' }}
-                >
-                  ${m}
-                </button>
-              ))}
-            </div>
-
-            <input 
-              type="number" 
-              className="monto-input"
-              placeholder="Monto personalizado (mín 1)"
-              value={donacionMonto}
-              onChange={(e) => setDonacionMonto(e.target.value)}
-              min="1"
-            />
-
-            <input 
-              type="text" 
-              className="mensaje-input"
-              placeholder="Mensaje para el streamer (opcional)"
-              value={donacionMensaje}
-              onChange={(e) => setDonacionMensaje(e.target.value)}
-            />
-
-            <div className="resumen-donacion">
-              <div className="resumen-row">
-                <span>💰 Donación</span>
-                <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>
-                  ${donacionMonto || 0} {tokenSeleccionado}
-                </span>
-              </div>
-              <div className="resumen-row">
-                <span>🎁 Para el streamer (50%)</span>
-                <span style={{ color: '#00b894' }}>
-                  ${donacionMonto ? (parseFloat(donacionMonto) * 0.50).toFixed(2) : '0.00'} {tokenSeleccionado}
-                </span>
-              </div>
-              <div className="resumen-row">
-                <span>🏢 Csariel's (50%)</span>
-                <span style={{ color: '#D4AF37' }}>
-                  ${donacionMonto ? (parseFloat(donacionMonto) * 0.50).toFixed(2) : '0.00'} {tokenSeleccionado}
-                </span>
-              </div>
-            </div>
-
-            <div className="modal-actions">
-              <button className="btn btn-gold" onClick={procesarDonacion} style={{ flex: 1, justifyContent: 'center' }}>
-                <i className="fas fa-rocket"></i> Enviar Donación
-              </button>
-              <button className="btn btn-outline" onClick={() => setShowDonacionModal(false)}>
-                <i className="fas fa-times"></i> Cancelar
-              </button>
-            </div>
-
-            <div className="donacion-footer">
-              <p style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: '1.6' }}>
-                ⚡ Las donaciones se procesan en la red Polygon.<br />
-                Comisión del 50% para mantener la plataforma y los directos.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== MODAL TÉRMINOS ===== */}
-      {showTerminosModal && (
-        <div className="modal-overlay active" onClick={(e) => e.target === e.currentTarget && setShowTerminosModal(false)}>
-          <div className="modal-content" style={{ maxWidth: '540px' }}>
-            <button className="modal-close" onClick={() => setShowTerminosModal(false)}>✕</button>
-            <h3 className="modal-title">📜 Términos y Condiciones</h3>
-            <p className="modal-sub">Csariel's — Muro Live · Pasarela de Pagos</p>
-
-            <div className="terminos-resumen">
-              <p><strong>📋 Resumen del Acuerdo:</strong></p>
-              <ul>
-                <li>🔒 <strong>Modelo No Custodial:</strong> Tú controlas tus activos.</li>
-                <li>⚡ <strong>Irreversibilidad:</strong> Las transacciones en blockchain son finales.</li>
-                <li>📊 <strong>Declaración Fiscal:</strong> Eres responsable ante el SAT.</li>
-                <li>🛡️ <strong>Prevención de Lavado:</strong> Cumplimos con la LFPIORPI.</li>
-                <li>📜 <strong>Jurisdicción:</strong> Puebla, México.</li>
-                <li>🔐 <strong>Datos Personales:</strong> Conforme a la LFPDPPP.</li>
-              </ul>
-            </div>
-
-            <div className="terminos-buttons">
-              <a href="#" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
-                <i className="fas fa-file-pdf"></i> 📖 Leer Términos Completos (81 arts.)
-              </a>
-              <a href="#" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>
-                <i className="fas fa-shield-alt"></i> 🔐 Aviso de Privacidad
-              </a>
-            </div>
-
-            <div className="terminos-checklist">
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={terminosChecks.check1}
-                  onChange={() => handleTermCheck('check1')}
-                />
-                <span>He leído y acepto los <span className="highlight">Términos y Condiciones Generales</span> de Csariel's.</span>
-              </label>
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={terminosChecks.check2}
-                  onChange={() => handleTermCheck('check2')}
-                />
-                <span>Comprendo que las transacciones son <span className="highlight">irreversibles</span> y operan bajo modelo <span className="highlight">no custodial</span>.</span>
-              </label>
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={terminosChecks.check3}
-                  onChange={() => handleTermCheck('check3')}
-                />
-                <span>Declaro que cumplo con mis <span className="highlight">obligaciones fiscales</span> ante el SAT.</span>
-              </label>
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={terminosChecks.check4}
-                  onChange={() => handleTermCheck('check4')}
-                />
-                <span>He leído y acepto el <span className="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span>
-              </label>
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={terminosChecks.check5}
-                  onChange={() => handleTermCheck('check5')}
-                />
-                <span>Acepto la <span className="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span>
-              </label>
-            </div>
-
-            <div className="modal-actions">
-              <button 
-                className="btn btn-success" 
-                onClick={aceptarTerminos} 
-                disabled={!allTermsChecked()}
-                style={{ flex: 1, justifyContent: 'center' }}
-              >
-                <i className="fas fa-check"></i> Aceptar y Continuar
-              </button>
-              <button className="btn btn-outline" onClick={() => setShowTerminosModal(false)}>
-                <i className="fas fa-times"></i> Rechazar
-              </button>
-            </div>
-            <p className="terminos-warning">
-              ⚠️ Debes aceptar <strong style={{ color: '#ff3366' }}>TODOS</strong> los puntos para continuar usando el Muro Live.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
-  );
-};
 
-export default MuroLive;
+    <!-- ===== MODALES ===== -->
+
+    <!-- MODAL PUBLICAR -->
+    <div class="modal-overlay" id="postModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModal('postModal')">✕</button>
+            <h3 class="modal-title">📝 Crear Publicación</h3>
+            <p class="modal-sub">Tu contenido será moderado por IA antes de publicarse</p>
+            <textarea class="modal-textarea" id="postTextInput" placeholder="¿Qué quieres compartir?..."></textarea>
+            <div class="modal-actions">
+                <button class="btn btn-gold" onclick="publicarPost()"><i class="fas fa-rocket"></i> Publicar</button>
+                <button class="btn btn-outline" onclick="cerrarModal('postModal')"><i class="fas fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LIVE -->
+    <div class="modal-overlay" id="liveModal">
+        <div class="modal-content" style="max-width:400px;">
+            <button class="modal-close" onclick="cerrarModal('liveModal')">✕</button>
+            <h3 class="modal-title">📡 Iniciar Transmisión</h3>
+            <p class="modal-sub">Comparte en vivo con tu comunidad</p>
+            <div class="live-preview">
+                <i class="fas fa-broadcast" style="font-size:3rem;color:#ff3366;"></i>
+                <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:8px;">
+                    <strong style="color:#ff3366;">● EN VIVO</strong><br>
+                    Recibe donaciones en tiempo real desde tu comunidad.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="iniciarLive()" style="flex:1;justify-content:center;">
+                    <i class="fas fa-play"></i> Iniciar Live
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModal('liveModal')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+            <div class="live-info">
+                <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                    💰 <strong style="color:#D4AF37;">Donaciones activas:</strong> 50% para el streamer · 50% para Csariel's<br>
+                    🪙 Tokens aceptados: USDT · USDC · TOK (1:1)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DONACIÓN -->
+    <div class="modal-overlay" id="donacionModal">
+        <div class="modal-content" style="max-width:480px;">
+            <button class="modal-close" onclick="cerrarModal('donacionModal')">✕</button>
+            <h3 class="modal-title">🎁 Donar en Directo</h3>
+            <p class="modal-sub">
+                Apoya al streamer en su transmisión. <span style="color:#D4AF37;">50% para el streamer · 50% para Csariel's</span>
+            </p>
+
+            <div class="streamer-info">
+                <div class="streamer-avatar" id="donacionAvatar">S</div>
+                <div>
+                    <div class="streamer-name" id="donacionNombre">Streamer</div>
+                    <div class="streamer-status"><span style="color:#ff3366;">● EN VIVO</span></div>
+                </div>
+            </div>
+
+            <div class="token-selector">
+                <button class="btn btn-sm btn-gold" onclick="seleccionarToken('USDT')" style="flex:1;justify-content:center;">💵 USDT</button>
+                <button class="btn btn-sm btn-outline" onclick="seleccionarToken('USDC')" style="flex:1;justify-content:center;">💳 USDC</button>
+                <button class="btn btn-sm btn-outline" onclick="seleccionarToken('TOK')" style="flex:1;justify-content:center;">🪙 TOK (Próximo)</button>
+            </div>
+
+            <div class="monto-selector">
+                <button class="btn btn-sm btn-outline" onclick="setMonto(1)" style="flex:1;justify-content:center;">$1</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(5)" style="flex:1;justify-content:center;">$5</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(10)" style="flex:1;justify-content:center;">$10</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(25)" style="flex:1;justify-content:center;">$25</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(50)" style="flex:1;justify-content:center;">$50</button>
+            </div>
+
+            <input type="number" class="monto-input" id="donacionMontoInput" placeholder="Monto personalizado (mín 1)" min="1">
+            <input type="text" class="mensaje-input" id="donacionMensajeInput" placeholder="Mensaje para el streamer (opcional)">
+
+            <div class="resumen-donacion">
+                <div class="resumen-row">
+                    <span>💰 Donación</span>
+                    <span style="color:var(--text-primary);font-weight:600;" id="resumenMonto">$0.00 USDT</span>
+                </div>
+                <div class="resumen-row">
+                    <span>🎁 Para el streamer (50%)</span>
+                    <span style="color:#00b894;" id="resumenStreamer">$0.00 USDT</span>
+                </div>
+                <div class="resumen-row">
+                    <span>🏢 Csariel's (50%)</span>
+                    <span style="color:#D4AF37;" id="resumenCsariels">$0.00 USDT</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-gold" onclick="procesarDonacion()" style="flex:1;justify-content:center;">
+                    <i class="fas fa-rocket"></i> Enviar Donación
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModal('donacionModal')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+
+            <div class="donacion-footer">
+                <p style="font-size:0.55rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                    ⚡ Las donaciones se procesan en la red Polygon.<br>
+                    Comisión del 50% para mantener la plataforma y los directos.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TÉRMINOS -->
+    <div class="modal-overlay" id="terminosModal">
+        <div class="modal-content" style="max-width:540px;">
+            <button class="modal-close" onclick="cerrarModal('terminosModal')">✕</button>
+            <h3 class="modal-title">📜 Términos y Condiciones</h3>
+            <p class="modal-sub">Csariel's — Muro Live · Pasarela de Pagos</p>
+
+            <div class="terminos-resumen">
+                <p><strong>📋 Resumen del Acuerdo:</strong></p>
+                <ul>
+                    <li>🔒 <strong>Modelo No Custodial:</strong> Tú controlas tus activos.</li>
+                    <li>⚡ <strong>Irreversibilidad:</strong> Las transacciones en blockchain son finales.</li>
+                    <li>📊 <strong>Declaración Fiscal:</strong> Eres responsable ante el SAT.</li>
+                    <li>🛡️ <strong>Prevención de Lavado:</strong> Cumplimos con la LFPIORPI.</li>
+                    <li>📜 <strong>Jurisdicción:</strong> Puebla, México.</li>
+                    <li>🔐 <strong>Datos Personales:</strong> Conforme a la LFPDPPP.</li>
+                </ul>
+            </div>
+
+            <div class="terminos-buttons">
+                <a href="#" class="btn btn-primary" style="flex:1;justify-content:center;">
+                    <i class="fas fa-file-pdf"></i> 📖 Leer Términos Completos (81 arts.)
+                </a>
+                <a href="#" class="btn btn-outline" style="flex:1;justify-content:center;">
+                    <i class="fas fa-shield-alt"></i> 🔐 Aviso de Privacidad
+                </a>
+            </div>
+
+            <div class="terminos-checklist">
+                <label>
+                    <input type="checkbox" id="termCheck1" onchange="verificarTerminos()">
+                    <span>He leído y acepto los <span class="highlight">Términos y Condiciones Generales</span> de Csariel's.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck2" onchange="verificarTerminos()">
+                    <span>Comprendo que las transacciones son <span class="highlight">irreversibles</span> y operan bajo modelo <span class="highlight">no custodial</span>.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck3" onchange="verificarTerminos()">
+                    <span>Declaro que cumplo con mis <span class="highlight">obligaciones fiscales</span> ante el SAT.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck4" onchange="verificarTerminos()">
+                    <span>He leído y acepto el <span class="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck5" onchange="verificarTerminos()">
+                    <span>Acepto la <span class="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span>
+                </label>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-success" id="btnAceptarTerminos" onclick="aceptarTerminos()" disabled style="flex:1;justify-content:center;">
+                    <i class="fas fa-check"></i> Aceptar y Continuar
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModal('terminosModal')">
+                    <i class="fas fa-times"></i> Rechazar
+                </button>
+            </div>
+            <p class="terminos-warning">
+                ⚠️ Debes aceptar <strong style="color:#ff3366;">TODOS</strong> los puntos para continuar usando el Muro Live.
+            </p>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ================================================================
+        // DATOS MOCK
+        // ================================================================
+        const MOCK_POSTS = [
+            {
+                id: 1,
+                author: 'Jorge Méndez',
+                avatar: 'J',
+                carrera: 'Ing. Industrial UDLAP',
+                badge: 'GÉNESIS',
+                badgeColor: 'gold',
+                content: '🔥 Ya quedó el Muro Live 🔥 ¿Quién se apunta a probar la IA predictiva? Me hizo la tarea en 10s',
+                media: null,
+                likes: 24,
+                liked: false,
+                comments: 8,
+                date: Date.now() - 120000,
+                online: true,
+                isPinned: true,
+                showIA: true
+            },
+            {
+                id: 2,
+                author: 'María García',
+                avatar: 'M',
+                carrera: 'Contaduría UDLAP',
+                badge: 'AÑO 1 2026',
+                badgeColor: 'silver',
+                content: 'Vendo resumen de Conta, $50 o 10 AURAPOINTS',
+                media: { type: 'image', data: '📚' },
+                likes: 12,
+                liked: false,
+                comments: 3,
+                date: Date.now() - 7200000,
+                online: false,
+                isPinned: false,
+                showIA: false
+            },
+            {
+                id: 3,
+                author: 'Carlos Ruiz',
+                avatar: 'C',
+                carrera: 'Ing. Civil BUAP',
+                badge: null,
+                badgeColor: null,
+                content: '📚 Estoy en biblioteca, si ocupan ayuda con cálculo avisen',
+                media: null,
+                likes: 7,
+                liked: false,
+                comments: 2,
+                date: Date.now() - 14400000,
+                online: true,
+                isPinned: false,
+                isLive: true,
+                showIA: false
+            },
+            {
+                id: 4,
+                author: 'Ana López',
+                avatar: 'A',
+                carrera: 'Arquitectura Ibero',
+                badge: null,
+                badgeColor: null,
+                content: '🏠 Busco roomie cerca de UDLAP, presupuesto $3000',
+                media: null,
+                likes: 5,
+                liked: false,
+                comments: 1,
+                date: Date.now() - 21600000,
+                online: false,
+                isPinned: false,
+                showIA: false
+            },
+            {
+                id: 5,
+                author: 'Sistema',
+                avatar: '◈',
+                carrera: 'Csariel\'s',
+                badge: null,
+                badgeColor: 'gold',
+                content: '🎉 Bienvenido a Año 1. Verifica tu .edu y gana 50 AURAPOINTS internos (sin gas) + Skins en Polygon < $1 MXN comisión',
+                media: null,
+                likes: 42,
+                liked: false,
+                comments: 6,
+                date: Date.now() - 86400000,
+                online: false,
+                isPinned: false,
+                showIA: false
+            }
+        ];
+
+        let posts = [...MOCK_POSTS];
+        let isLive = false;
+        let streamerInfo = null;
+        let tokenSeleccionado = 'USDT';
+        let toastTimeout = null;
+
+        // ================================================================
+        // ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('starsCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // FORMATO DE FECHA
+        // ================================================================
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'Ahora mismo';
+            if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+            if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+            if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
+            return date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // ================================================================
+        // RENDER FEED
+        // ================================================================
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+            
+            container.innerHTML = posts.map(post => `
+                <div class="post-card ${post.isPinned ? 'pinned' : ''}">
+                    <div class="post-header">
+                        <div class="post-avatar">${post.avatar}</div>
+                        <div class="post-author-info">
+                            <div class="post-author">
+                                ${post.author}
+                                ${post.online ? '<span class="online-dot"></span>' : ''}
+                                ${post.isLive ? '<span class="live-tag">● LIVE</span>' : ''}
+                            </div>
+                            <div class="post-meta">
+                                <span class="post-carrera">${post.carrera}</span>
+                                ${post.badge ? `<span class="badge-nivel ${post.badgeColor}">${post.badge}</span>` : ''}
+                                <span class="post-date">${formatDate(post.date)}</span>
+                            </div>
+                        </div>
+                        ${post.isPinned ? '<span class="pinned-badge">📌</span>' : ''}
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.media && post.media.type === 'image' ? `
+                        <div class="post-media">
+                            <div class="media-placeholder">${post.media.data}</div>
+                        </div>
+                    ` : ''}
+                    <div class="post-actions">
+                        <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                            <i class="fas fa-heart"></i> <span>${post.likes}</span>
+                        </button>
+                        <button class="action-btn">
+                            <i class="fas fa-comment"></i> <span>${post.comments}</span>
+                        </button>
+                        <button class="action-btn">
+                            <i class="fas fa-share"></i>
+                        </button>
+                        ${post.showIA ? `<button class="action-btn ia-btn"><i class="fas fa-brain"></i> Ver IA</button>` : ''}
+                        ${post.isLive ? `<button class="action-btn live-btn"><i class="fas fa-broadcast"></i> Live</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // TOGGLE LIKE
+        // ================================================================
+        function toggleLike(id) {
+            const post = posts.find(p => p.id === id);
+            if (post) {
+                post.liked = !post.liked;
+                post.likes += post.liked ? 1 : -1;
+                renderFeed();
+            }
+        }
+
+        // ================================================================
+        // PUBLICAR POST
+        // ================================================================
+        function publicarPost() {
+            const textarea = document.getElementById('postTextInput');
+            const texto = textarea.value.trim();
+            if (!texto) {
+                mostrarToast('⚠️ Escribe algo para publicar', 'error');
+                return;
+            }
+
+            const nuevoPost = {
+                id: Date.now(),
+                author: 'Usuario',
+                avatar: 'U',
+                carrera: 'Estudiante Csariel\'s',
+                badge: null,
+                badgeColor: null,
+                content: texto,
+                media: null,
+                likes: 0,
+                liked: false,
+                comments: 0,
+                date: Date.now(),
+                online: true,
+                isPinned: false,
+                showIA: false
+            };
+
+            posts.unshift(nuevoPost);
+            renderFeed();
+            cerrarModal('postModal');
+            document.getElementById('postTextInput').value = '';
+            mostrarToast('✅ Publicación creada');
+        }
+
+        // ================================================================
+        // LIVE
+        // ================================================================
+        function toggleLive() {
+            if (isLive) {
+                terminarLive();
+            } else {
+                abrirModal('liveModal');
+            }
+        }
+
+        function iniciarLive() {
+            streamerInfo = {
+                nombre: 'Usuario',
+                wallet: '0x' + Array.from({length: 40}, () => 
+                    Math.floor(Math.random() * 16).toString(16)).join(''),
+                inicio: Date.now()
+            };
+            isLive = true;
+            
+            document.getElementById('statusDot').className = 'status-dot live';
+            document.getElementById('statusLabel').textContent = '🔴 EN VIVO';
+            document.getElementById('btnLive').innerHTML = '<i class="fas fa-broadcast"></i> 🔴 Terminar';
+            document.getElementById('donacionBanner').style.display = 'block';
+            document.getElementById('donacionAvatar').textContent = streamerInfo.nombre.charAt(0);
+            document.getElementById('donacionNombre').textContent = streamerInfo.nombre;
+            
+            localStorage.setItem('streamer_activo', JSON.stringify(streamerInfo));
+            cerrarModal('liveModal');
+            mostrarToast('📹 Transmisión iniciada');
+        }
+
+        function terminarLive() {
+            isLive = false;
+            streamerInfo = null;
+            
+            document.getElementById('statusDot').className = 'status-dot online';
+            document.getElementById('statusLabel').textContent = 'En vivo';
+            document.getElementById('btnLive').innerHTML = '<i class="fas fa-broadcast"></i> Live';
+            document.getElementById('donacionBanner').style.display = 'none';
+            
+            localStorage.removeItem('streamer_activo');
+            mostrarToast('📹 Transmisión finalizada');
+        }
+
+        // ================================================================
+        // DONACIONES
+        // ================================================================
+        function seleccionarToken(token) {
+            tokenSeleccionado = token;
+            document.querySelectorAll('.token-selector .btn').forEach(b => {
+                b.className = 'btn btn-sm ' + (b.textContent.includes(token) ? 'btn-gold' : 'btn-outline');
+            });
+            actualizarResumenDonacion();
+        }
+
+        function setMonto(monto) {
+            document.getElementById('donacionMontoInput').value = monto;
+            actualizarResumenDonacion();
+        }
+
+        function actualizarResumenDonacion() {
+            const monto = parseFloat(document.getElementById('donacionMontoInput').value) || 0;
+            const token = tokenSeleccionado;
+            
+            document.getElementById('resumenMonto').textContent = `$${monto.toFixed(2)} ${token}`;
+            document.getElementById('resumenStreamer').textContent = `$${(monto * 0.50).toFixed(2)} ${token}`;
+            document.getElementById('resumenCsariels').textContent = `$${(monto * 0.50).toFixed(2)} ${token}`;
+        }
+
+        function procesarDonacion() {
+            const monto = parseFloat(document.getElementById('donacionMontoInput').value) || 0;
+            const mensaje = document.getElementById('donacionMensajeInput').value.trim();
+            
+            if (!monto || monto <= 0) {
+                mostrarToast('⚠️ Ingresa un monto válido', 'error');
+                return;
+            }
+            
+            if (!streamerInfo) {
+                mostrarToast('⚠️ No hay transmisión activa', 'error');
+                return;
+            }
+            
+            mostrarToast(`🎁 Donación de $${monto} ${tokenSeleccionado} enviada!`);
+            cerrarModal('donacionModal');
+            document.getElementById('donacionMontoInput').value = '';
+            document.getElementById('donacionMensajeInput').value = '';
+        }
+
+        // ================================================================
+        // TÉRMINOS
+        // ================================================================
+        function verificarTerminos() {
+            const checks = document.querySelectorAll('.terminos-checklist input[type="checkbox"]');
+            const todos = Array.from(checks).every(c => c.checked);
+            document.getElementById('btnAceptarTerminos').disabled = !todos;
+        }
+
+        function aceptarTerminos() {
+            localStorage.setItem('terminos_muro_live_aceptado', 'true');
+            cerrarModal('terminosModal');
+            mostrarToast('✅ Términos aceptados');
+        }
+
+        // ================================================================
+        // MODALES
+        // ================================================================
+        function abrirModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ================================================================
+        // TOAST
+        // ================================================================
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // CERRAR MODALES CON ESC
+        // ================================================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                    m.classList.remove('active');
+                });
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // ================================================================
+        // INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initStars();
+            renderFeed();
+            
+            // Verificar términos
+            if (localStorage.getItem('terminos_muro_live_aceptado') !== 'true') {
+                setTimeout(() => abrirModal('terminosModal'), 800);
+            }
+            
+            // Verificar streamer activo
+            const streamerData = localStorage.getItem('streamer_activo');
+            if (streamerData) {
+                try {
+                    const data = JSON.parse(streamerData);
+                    if (data && data.wallet) {
+                        streamerInfo = data;
+                        isLive = true;
+                        document.getElementById('statusDot').className = 'status-dot live';
+                        document.getElementById('statusLabel').textContent = '🔴 EN VIVO';
+                        document.getElementById('btnLive').innerHTML = '<i class="fas fa-broadcast"></i> 🔴 Terminar';
+                        document.getElementById('donacionBanner').style.display = 'block';
+                        document.getElementById('donacionAvatar').textContent = streamerInfo.nombre.charAt(0);
+                        document.getElementById('donacionNombre').textContent = streamerInfo.nombre;
+                    }
+                } catch (e) {}
+            }
+            
+            // Event listener para inputs de donación
+            document.getElementById('donacionMontoInput').addEventListener('input', actualizarResumenDonacion);
+        });
+    </script>
+</body>
+</html>
