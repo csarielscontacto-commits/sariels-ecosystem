@@ -44,6 +44,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             padding-bottom: 80px;
+            user-select: none;
         }
 
         ::-webkit-scrollbar { width: 5px; }
@@ -594,7 +595,7 @@
             border: 1px solid rgba(255,51,102,0.2);
         }
 
-        /* ===== VIDEO / MEDIA - ESTILO TIKTOK ===== */
+        /* ===== VIDEO / MEDIA ===== */
         .post-media {
             position: relative;
             margin-bottom: 10px;
@@ -891,11 +892,9 @@
             margin-top: 16px;
         }
 
-        /* ===== FLOATING LIVE PLAYER ===== */
+        /* ===== FLOATING LIVE PLAYER - DRAGGABLE ===== */
         .floating-live-player {
             position: fixed;
-            bottom: 90px;
-            right: 16px;
             width: 200px;
             height: 115px;
             border-radius: 12px;
@@ -905,17 +904,31 @@
             background: #0a0a0a;
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             display: none;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        .floating-live-player.dragging {
+            opacity: 0.85;
+            transform: scale(1.05);
+            cursor: grabbing;
+            transition: none;
         }
 
         .floating-live-player.show {
             display: block;
         }
 
+        .floating-live-player.snap {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
         .floating-live-player video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            pointer-events: none;
         }
 
         .floating-live-player .floating-controls {
@@ -941,6 +954,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            pointer-events: auto;
         }
 
         .floating-live-player .floating-controls button:hover {
@@ -965,6 +979,7 @@
             justify-content: center;
             z-index: 2;
             transition: all 0.3s;
+            pointer-events: auto;
         }
 
         .floating-live-player .floating-close:hover {
@@ -982,6 +997,29 @@
             padding: 2px 8px;
             border-radius: 8px;
             z-index: 2;
+            animation: live-pulse 1s infinite;
+            pointer-events: none;
+        }
+
+        .floating-live-player .floating-header {
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            font-size: 0.5rem;
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 8px;
+            border-radius: 8px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .floating-live-player .floating-header .dot {
+            color: var(--danger);
             animation: live-pulse 1s infinite;
         }
 
@@ -1493,8 +1531,6 @@
             .floating-live-player {
                 width: 160px;
                 height: 92px;
-                bottom: 80px;
-                right: 10px;
             }
             .mini-audio-player .audio-controls .progress { width: 80px; }
         }
@@ -1514,8 +1550,6 @@
             .floating-live-player {
                 width: 140px;
                 height: 80px;
-                bottom: 70px;
-                right: 8px;
             }
             .mini-audio-player .audio-controls .progress { width: 60px; }
             .cabina-card .cover { font-size: 2rem; }
@@ -1529,8 +1563,11 @@
     <div class="nebula nebula-2"></div>
     <div class="nebula nebula-3"></div>
 
-    <!-- ===== FLOATING LIVE PLAYER ===== -->
+    <!-- ===== FLOATING LIVE PLAYER - DRAGGABLE ===== -->
     <div class="floating-live-player" id="floatingPlayer">
+        <div class="floating-header">
+            <span class="dot">●</span> <span id="floatingTitle">Carlos</span> · <span id="floatingViewers">12</span> viendo
+        </div>
         <button class="floating-close" onclick="cerrarFloating()">✕</button>
         <video id="floatingVideo" autoplay muted loop playsInline></video>
         <div class="floating-label">🔴 LIVE</div>
@@ -2055,6 +2092,195 @@
         let floatingVideoSrc = null;
         let floatingPostId = null;
         let isFloatingMuted = true;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragStartPlayerX = 0;
+        let dragStartPlayerY = 0;
+        let hasMoved = false;
+        let playerX = 0;
+        let playerY = 0;
+
+        // ================================================================
+        // FLOATING PLAYER - DRAGGABLE
+        // ================================================================
+        function initFloatingDraggable() {
+            const player = document.getElementById('floatingPlayer');
+            if (!player) return;
+
+            // Cargar posición guardada
+            try {
+                const saved = localStorage.getItem('csariels_float_pos');
+                if (saved) {
+                    const pos = JSON.parse(saved);
+                    if (pos.x !== undefined && pos.y !== undefined) {
+                        playerX = pos.x;
+                        playerY = pos.y;
+                        player.style.left = playerX + 'px';
+                        player.style.top = playerY + 'px';
+                        player.style.right = 'auto';
+                        player.style.bottom = 'auto';
+                    }
+                }
+            } catch (e) {}
+
+            // Mouse events
+            player.addEventListener('mousedown', onDragStart);
+            document.addEventListener('mousemove', onDragMove);
+            document.addEventListener('mouseup', onDragEnd);
+
+            // Touch events
+            player.addEventListener('touchstart', onTouchStart, { passive: false });
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd, { passive: false });
+        }
+
+        function getPlayerRect() {
+            const player = document.getElementById('floatingPlayer');
+            if (!player) return { left: 0, top: 0, width: 200, height: 115 };
+            const rect = player.getBoundingClientRect();
+            return {
+                left: rect.left,
+                top: rect.top,
+                width: rect.width || 200,
+                height: rect.height || 115
+            };
+        }
+
+        function onDragStart(e) {
+            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls')) return;
+            const player = document.getElementById('floatingPlayer');
+            if (!player.classList.contains('show')) return;
+
+            isDragging = true;
+            hasMoved = false;
+            const rect = getPlayerRect();
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            dragStartPlayerX = rect.left;
+            dragStartPlayerY = rect.top;
+            player.classList.add('dragging');
+            player.classList.remove('snap');
+            e.preventDefault();
+        }
+
+        function onDragMove(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 5) hasMoved = true;
+
+            const player = document.getElementById('floatingPlayer');
+            const width = player.offsetWidth || 200;
+            const height = player.offsetHeight || 115;
+            const maxX = window.innerWidth - width - 12;
+            const maxY = window.innerHeight - height - 80;
+
+            let newX = Math.max(12, Math.min(maxX, dragStartPlayerX + dx));
+            let newY = Math.max(12, Math.min(maxY, dragStartPlayerY + dy));
+
+            player.style.left = newX + 'px';
+            player.style.top = newY + 'px';
+            player.style.right = 'auto';
+            player.style.bottom = 'auto';
+            e.preventDefault();
+        }
+
+        function onDragEnd(e) {
+            if (!isDragging) return;
+            const player = document.getElementById('floatingPlayer');
+            isDragging = false;
+            player.classList.remove('dragging');
+
+            // Si no hubo movimiento significativo, abrir fullscreen
+            if (!hasMoved && floatingPostId !== null) {
+                abrirFullscreenVideo(floatingPostId);
+                return;
+            }
+
+            // Snap a la esquina más cercana
+            snapToCorner();
+            player.classList.add('snap');
+
+            // Guardar posición
+            try {
+                const rect = player.getBoundingClientRect();
+                localStorage.setItem('csariels_float_pos', JSON.stringify({
+                    x: rect.left,
+                    y: rect.top
+                }));
+            } catch (e) {}
+
+            // Vibrar
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function snapToCorner() {
+            const player = document.getElementById('floatingPlayer');
+            const rect = player.getBoundingClientRect();
+            const width = rect.width || 200;
+            const height = rect.height || 115;
+            const margin = 12;
+            const bottomMargin = 80;
+
+            const centerX = rect.left + width / 2;
+            const centerY = rect.top + height / 2;
+
+            const corners = [
+                { x: margin, y: margin, label: 'top-left' },
+                { x: window.innerWidth - width - margin, y: margin, label: 'top-right' },
+                { x: margin, y: window.innerHeight - height - bottomMargin, label: 'bottom-left' },
+                { x: window.innerWidth - width - margin, y: window.innerHeight - height - bottomMargin, label: 'bottom-right' }
+            ];
+
+            let closest = corners[0];
+            let minDist = Infinity;
+
+            corners.forEach(corner => {
+                const dist = Math.sqrt(
+                    Math.pow(corner.x + width/2 - centerX, 2) +
+                    Math.pow(corner.y + height/2 - centerY, 2)
+                );
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = corner;
+                }
+            });
+
+            player.style.left = closest.x + 'px';
+            player.style.top = closest.y + 'px';
+            player.style.right = 'auto';
+            player.style.bottom = 'auto';
+        }
+
+        // Touch events
+        function onTouchStart(e) {
+            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls')) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+            });
+            onDragStart(mouseEvent);
+        }
+
+        function onTouchMove(e) {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+            });
+            onDragMove(mouseEvent);
+            e.preventDefault();
+        }
+
+        function onTouchEnd(e) {
+            if (!isDragging) return;
+            const mouseEvent = new MouseEvent('mouseup', {});
+            onDragEnd(mouseEvent);
+        }
 
         // ================================================================
         // ESTRELLAS
@@ -2310,7 +2536,6 @@
 
             updateAudioUI();
 
-            // Activar waveform
             document.querySelectorAll('.cabina-card .waveform .bar').forEach(bar => {
                 bar.style.background = 'var(--gold-cosmic)';
                 bar.style.opacity = Math.random() * 0.5 + 0.5;
@@ -2381,6 +2606,10 @@
             video.src = floatingVideoSrc;
             video.load();
             video.play().catch(() => {});
+
+            // Actualizar header
+            document.getElementById('floatingTitle').textContent = post.author;
+            document.getElementById('floatingViewers').textContent = post.viewers || 12;
 
             player.classList.add('show');
             post.isFloating = true;
@@ -2814,6 +3043,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initStars();
             renderFeed();
+            initFloatingDraggable();
 
             if (localStorage.getItem('terminos_muro_live_aceptado') !== 'true') {
                 setTimeout(() => abrirModal('terminosModal'), 800);
