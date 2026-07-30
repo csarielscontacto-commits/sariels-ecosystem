@@ -3,45 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Csariel's</title>
-    <meta name="theme-color" content="#0B3D2E" />
+    <title>Servicios Comunitarios | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- ===== SUPABASE Y CONECTORES ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="./js/servicios-connector.js"></script>
+    <script src="./js/perfil-connector.js"></script>
+    <script src="./js/config.js"></script>
     
     <style>
-        /* ===== TODOS LOS ESTILOS ===== */
+        /* ================================================================
+           SERVICIOS COMUNITARIOS - ESTILOS
+           ================================================================ */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
-            --verde-bosque: #0B3D2E;
-            --verde-bosque-light: #1a5a44;
-            --gold-cosmic: #f7d44a;
-            --gold-dim: rgba(247,212,74,0.15);
-            --gold-glow: rgba(247,212,74,0.25);
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
             --text-primary: #e8f0f8;
             --text-secondary: #8ba3c7;
             --text-muted: #4a6a8a;
-            --border: rgba(247,212,74,0.08);
-            --border-glow: rgba(247,212,74,0.25);
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
             --radius: 16px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --success: #00b894;
             --danger: #ff3366;
-            --warning: #f7d44a;
+            --warning: #D4AF37;
             --quantum: #00e5ff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
             background: var(--space-deep);
             color: var(--text-primary);
             font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-            line-height: 1.5;
+            line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
@@ -117,7 +125,7 @@
             gap: 12px;
             text-decoration: none;
         }
-        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
         .logo-icon .hex {
             display: inline-block;
             background: var(--verde-bosque);
@@ -129,7 +137,7 @@
             border: 2px solid var(--gold-cosmic);
             font-family: 'Orbitron', monospace;
         }
-        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); } }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
 
         .logo-text {
             font-family: 'Orbitron', monospace;
@@ -151,18 +159,18 @@
             letter-spacing: 1.5px;
             text-transform: uppercase;
             -webkit-text-fill-color: white;
-            border: 1px solid rgba(247,212,74,0.2);
+            border: 1px solid rgba(212,175,55,0.2);
             animation: badge-pulse 2s ease-in-out infinite;
         }
-        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(11,61,46,0.3); } 50% { box-shadow: 0 0 60px rgba(247,212,74,0.2); } }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
 
         .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .status-badge {
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(247,212,74,0.06);
-            border: 1px solid rgba(247,212,74,0.15);
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
             padding: 6px 14px;
             border-radius: 30px;
             font-size: 0.6rem;
@@ -181,7 +189,7 @@
             padding: 7px 16px;
             border: 1px solid var(--border);
             border-radius: 30px;
-            background: rgba(247,212,74,0.03);
+            background: rgba(212,175,55,0.03);
             color: var(--text-primary);
             font-family: 'Orbitron', monospace;
             font-size: 0.6rem;
@@ -219,30 +227,13 @@
 
         /* ===== SMART SEARCH ===== */
         .smart-search-container {
-            background: rgba(11,61,46,0.2);
+            background: rgba(15,45,26,0.2);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
             padding: 16px 20px;
             margin-bottom: 16px;
             backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
         }
-        .smart-search-container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
-            background-size: 300% 300%;
-            border-radius: var(--radius);
-            z-index: -1;
-            opacity: 0;
-            animation: border-flow 4s ease-in-out infinite;
-        }
-        .smart-search-container:hover::before { opacity: 0.15; }
         .smart-search-container .title {
             font-family: 'Orbitron', monospace;
             font-size: 0.9rem;
@@ -274,7 +265,7 @@
         }
         .smart-search-container .search-input-wrapper input:focus {
             border-color: var(--gold-cosmic);
-            box-shadow: 0 0 30px rgba(247,212,74,0.1);
+            box-shadow: 0 0 30px rgba(212,175,55,0.1);
         }
         .smart-search-results {
             margin-top: 16px;
@@ -344,7 +335,6 @@
             padding: 20px;
             color: var(--text-muted);
         }
-        .smart-search-results .no-resultados .icon { font-size: 2.5rem; opacity: 0.3; margin-bottom: 8px; }
         .smart-search-results .sugerencias {
             display: flex;
             gap: 6px;
@@ -355,7 +345,7 @@
         }
         .smart-search-results .sugerencias .sugerencia {
             font-size: 0.65rem;
-            background: rgba(247,212,74,0.05);
+            background: rgba(212,175,55,0.05);
             border: 1px solid var(--gold-dim);
             padding: 4px 12px;
             border-radius: 20px;
@@ -364,35 +354,132 @@
             transition: var(--transition);
         }
         .smart-search-results .sugerencias .sugerencia:hover {
-            background: rgba(247,212,74,0.1);
+            background: rgba(212,175,55,0.1);
             color: var(--gold-cosmic);
         }
 
-        /* ===== DASHBOARD ===== */
-        .dashboard-grid {
+        /* ===== SEARCH BAR ===== */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .search-bar .search-input-wrapper {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .search-bar .search-input-wrapper input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .search-bar .search-input-wrapper input:focus { border-color: var(--gold-cosmic); }
+        .search-bar .search-input-wrapper .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        .search-bar .btn-geolocation {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.15);
+            color: var(--quantum);
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            white-space: nowrap;
+        }
+        .search-bar .btn-geolocation:hover {
+            background: rgba(0,212,255,0.2);
+            border-color: var(--quantum);
+        }
+
+        /* ===== CATEGORÍAS ===== */
+        .categories-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 12px;
+            margin-bottom: 16px;
+            scrollbar-width: thin;
+            flex-wrap: nowrap;
+        }
+        .categories-scroll::-webkit-scrollbar { height: 3px; }
+        .categories-scroll::-webkit-scrollbar-thumb { background: var(--gold-cosmic); border-radius: 3px; }
+        .cat-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            background: rgba(15,45,26,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            min-width: 60px;
+        }
+        .cat-btn:hover { border-color: var(--border-glow); color: var(--text-primary); }
+        .cat-btn.active { border-color: var(--gold-cosmic); background: var(--gold-dim); color: var(--gold-cosmic); }
+        .cat-btn .cat-icon { font-size: 1.4rem; }
+
+        /* ===== MAPA ===== */
+        #map-container {
+            width: 100%;
+            height: 300px;
+            border-radius: var(--radius);
+            border: 1px solid var(--gold-dim);
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: var(--space-deep);
+        }
+        #map-container .leaflet-control-zoom a {
+            background: rgba(15,45,26,0.8);
+            color: var(--text-primary);
+            border-color: var(--gold-dim);
+        }
+        #map-container .leaflet-control-zoom a:hover {
+            background: rgba(15,45,26,0.9);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== SERVICES GRID ===== */
+        .services-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
         }
-
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ===== CARDS ===== */
-        .stat-card {
-            background: rgba(11,61,46,0.25);
+        .service-card {
+            background: rgba(15,45,26,0.25);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
-            padding: 16px 20px;
-            backdrop-filter: blur(10px);
+            padding: 16px 18px;
             transition: var(--transition);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
             position: relative;
             overflow: hidden;
         }
-        .stat-card::before {
+        .service-card::before {
             content: '';
             position: absolute;
             top: -2px;
@@ -406,218 +493,110 @@
             opacity: 0;
             animation: border-flow 4s ease-in-out infinite;
         }
-        .stat-card:hover::before { opacity: 0.15; }
-        .stat-card:hover { transform: translateY(-2px); border-color: var(--border-glow); }
-
         @keyframes border-flow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
-        .stat-card .stat-number {
-            font-family: 'Orbitron', monospace;
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--gold-cosmic);
-            line-height: 1.2;
-        }
-        .stat-card .stat-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            font-family: 'Orbitron', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .stat-card .stat-icon {
-            font-size: 2rem;
-            opacity: 0.3;
-            position: absolute;
-            top: 12px;
-            right: 16px;
-        }
-        .stat-card .stat-change {
-            font-size: 0.65rem;
-            margin-top: 4px;
-        }
-        .stat-card .stat-change.positive { color: var(--success); }
-        .stat-card .stat-change.negative { color: var(--danger); }
-
-        /* ===== MAPA ===== */
-        #map-container {
-            width: 100%;
-            height: 300px;
-            border-radius: var(--radius);
-            border: 1px solid var(--gold-dim);
-            overflow: hidden;
-            background: var(--space-deep);
-        }
-        #map-container .leaflet-control-zoom a {
-            background: rgba(11,61,46,0.8);
-            color: var(--text-primary);
-            border-color: var(--gold-dim);
-        }
-        #map-container .leaflet-control-zoom a:hover {
-            background: rgba(11,61,46,0.9);
-            color: var(--gold-cosmic);
+        .service-card:hover::before { opacity: 0.15; }
+        .service-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-glow);
         }
 
-        /* ===== CHART ===== */
-        .chart-container {
-            background: rgba(11,61,46,0.2);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            backdrop-filter: blur(10px);
-        }
-        .chart-container .chart-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-        .chart-container canvas {
-            max-height: 200px;
-            width: 100% !important;
-        }
-
-        /* ===== SERVICIOS ===== */
-        .service-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .service-list::-webkit-scrollbar { width: 3px; }
-        .service-list::-webkit-scrollbar-thumb { background: var(--gold-cosmic); border-radius: 3px; }
-
-        .service-item {
+        .service-card .service-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            border: 1px solid var(--gold-dim);
-            transition: var(--transition);
-            cursor: pointer;
+            align-items: flex-start;
+            margin-bottom: 6px;
         }
-        .service-item:hover {
-            border-color: var(--border-glow);
-            transform: translateX(4px);
-        }
-        .service-item .service-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .service-item .service-name {
-            font-weight: 600;
+        .service-card .service-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
             color: var(--text-primary);
-            font-size: 0.85rem;
         }
-        .service-item .service-meta {
-            font-size: 0.6rem;
+        .service-card .service-category {
+            font-size: 0.5rem;
+            background: rgba(212,175,55,0.1);
+            border: 1px solid rgba(212,175,55,0.15);
+            padding: 2px 10px;
+            border-radius: 20px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .service-card .service-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 4px 0;
+        }
+        .service-card .service-rating .stars { color: var(--gold-cosmic); font-size: 0.8rem; }
+        .service-card .service-rating .score { font-size: 0.75rem; color: var(--text-secondary); }
+        .service-card .service-distance {
+            font-size: 0.65rem;
             color: var(--text-muted);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
+        }
+        .service-card .service-distance i { color: var(--quantum); }
+        .service-card .service-contact {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--gold-dim);
             flex-wrap: wrap;
         }
-        .service-item .service-meta .badge {
-            font-size: 0.45rem;
-            padding: 1px 8px;
-            border-radius: 12px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
+        .service-card .service-contact .contact-item {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        .service-item .service-meta .badge.golden {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            color: #0a0c10;
-        }
-        .service-item .service-meta .badge.verified {
+        .service-card .service-contact .contact-item i { color: var(--gold-cosmic); }
+        .service-card .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             background: rgba(0,184,148,0.15);
             color: var(--success);
             border: 1px solid rgba(0,184,148,0.2);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.45rem;
+            font-family: 'Orbitron', monospace;
         }
-        .service-item .service-meta .badge.urgent {
+        .badge-golden {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            color: #0a0c10;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.45rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(212,175,55,0.3);
+        }
+        .badge-quarantine {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             background: rgba(255,51,102,0.15);
             color: var(--danger);
             border: 1px solid rgba(255,51,102,0.2);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.45rem;
+            font-family: 'Orbitron', monospace;
             animation: pulse-warning 1.5s infinite;
         }
-        .service-item .service-actions {
-            display: flex;
-            gap: 4px;
-        }
-        .service-item .service-actions .btn {
-            padding: 2px 10px;
-            font-size: 0.5rem;
-        }
 
-        /* ===== RESEÑAS ===== */
-        .reviews-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            max-height: 250px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .reviews-list::-webkit-scrollbar { width: 3px; }
-        .reviews-list::-webkit-scrollbar-thumb { background: var(--gold-cosmic); border-radius: 3px; }
-
-        .review-item {
-            padding: 8px 12px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            border: 1px solid var(--gold-dim);
-        }
-        .review-item .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2px;
-        }
-        .review-item .review-user {
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: var(--text-primary);
-        }
-        .review-item .review-stars {
-            color: var(--gold-cosmic);
-            font-size: 0.7rem;
-        }
-        .review-item .review-comment {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-        .review-item .review-date {
-            font-size: 0.5rem;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-        }
-        .review-item .review-quarantine {
-            font-size: 0.5rem;
-            color: var(--warning);
-            font-family: 'Orbitron', monospace;
-            background: rgba(247,212,74,0.1);
-            padding: 1px 8px;
-            border-radius: 10px;
-            border: 1px solid rgba(247,212,74,0.2);
-        }
-
-        /* ===== BADGES ===== */
-        .badges-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 4px 0;
-        }
-
-        /* ===== MODAL ===== */
+        /* ===== MODALES ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -631,7 +610,7 @@
         }
         .modal-overlay.active { display: flex; }
         .modal-content {
-            background: rgba(11,61,46,0.95);
+            background: rgba(15,45,26,0.95);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
             padding: 24px;
@@ -664,6 +643,17 @@
             font-size: 0.75rem;
             margin-bottom: 12px;
         }
+        .modal-body { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.8; }
+        .modal-body .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid var(--gold-dim);
+        }
+        .modal-body .detail-row:last-child { border-bottom: none; }
+        .modal-body .detail-row .label { color: var(--text-muted); }
+        .modal-body .detail-row .value { color: var(--text-primary); font-weight: 500; }
+        .modal-body .detail-row .value.gold { color: var(--gold-cosmic); }
         .modal-actions {
             display: flex;
             gap: 8px;
@@ -671,14 +661,13 @@
             margin-top: 14px;
         }
         .modal-actions .btn { flex: 1; justify-content: center; }
-
-        .form-group { margin-bottom: 12px; }
+        .form-group { margin-bottom: 10px; }
         .form-group label {
             display: block;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--text-muted);
             font-family: 'Orbitron', monospace;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .form-group input,
         .form-group textarea,
@@ -689,7 +678,7 @@
             border: 1px solid var(--gold-dim);
             border-radius: 10px;
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             outline: none;
             transition: var(--transition);
             font-family: 'Space Grotesk', sans-serif;
@@ -697,7 +686,35 @@
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus { border-color: var(--gold-cosmic); }
-        .form-group textarea { resize: vertical; min-height: 70px; }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+
+        /* ===== RATING EXTREME ===== */
+        .rating-extreme-modal .extreme-form {
+            background: rgba(255,51,102,0.05);
+            border: 1px solid rgba(255,51,102,0.15);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        .rating-extreme-modal .extreme-form .confirm-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--danger);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .rating-extreme-modal .extreme-form .confirm-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(255,51,102,0.3);
+        }
 
         /* ===== TOAST ===== */
         .toast {
@@ -716,7 +733,7 @@
             z-index: 5000;
             pointer-events: none;
             font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(247,212,74,0.15);
+            border: 1px solid rgba(212,175,55,0.15);
             max-width: 90%;
             text-align: center;
         }
@@ -733,37 +750,42 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 12px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
         }
         .footer-text {
             color: var(--text-muted);
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             letter-spacing: 0.5px;
             font-family: 'Orbitron', monospace;
         }
         .footer-text .brand { color: var(--gold-cosmic); }
-        .footer-links { display: flex; gap: 12px; flex-wrap: wrap; }
+        .footer-links { display: flex; gap: 10px; flex-wrap: wrap; }
         .footer-links a {
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             transition: var(--transition);
             font-family: 'Orbitron', monospace;
         }
         .footer-links a:hover { color: var(--gold-cosmic); }
 
-        .section-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-title .sub {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            font-weight: 400;
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 2.5rem; opacity: 0.3; margin-bottom: 8px; }
+        .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 0.85rem; color: var(--text-secondary); }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
@@ -771,22 +793,24 @@
             .header { flex-direction: column; align-items: flex-start; gap: 8px; }
             .logo-text { font-size: 1rem; }
             .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-            .stat-card .stat-number { font-size: 1.5rem; }
+            .smart-search-container .search-input-wrapper input { font-size: 0.85rem; }
+            .services-grid { grid-template-columns: 1fr 1fr; }
             #map-container { height: 220px; }
-            .smart-search-container .search-input-wrapper input { font-size: 0.9rem; }
+            .cat-btn { min-width: 50px; padding: 6px 10px; font-size: 0.45rem; }
+            .cat-btn .cat-icon { font-size: 1rem; }
+            .modal-content { padding: 18px; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.5rem; padding: 4px 10px; }
-            .stat-card .stat-number { font-size: 1.2rem; }
-            .service-item { flex-wrap: wrap; gap: 6px; }
-            .service-item .service-actions { width: 100%; justify-content: flex-end; }
+            .services-grid { grid-template-columns: 1fr; }
             #map-container { height: 180px; }
-            .smart-search-results .result-item { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .smart-search-results .result-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .modal-content { padding: 14px; }
         }
     </style>
 </head>
 <body>
-    <canvas id="stars-canvas"></canvas>
+    <canvas id="starsCanvas" class="stars-canvas"></canvas>
     <div class="nebula nebula-1"></div>
     <div class="nebula nebula-2"></div>
     <div class="nebula nebula-3"></div>
@@ -797,31 +821,30 @@
             <a href="./index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Dashboard</span>
+                <span class="logo-badge">Servicios</span>
             </a>
             <div class="header-actions">
                 <div class="status-badge">
                     <span class="status-dot online"></span>
-                    <span>Prestador</span>
+                    <span>Comunidad</span>
                 </div>
-                <a href="./servicios-comunitarios.html" class="btn"><i class="fas fa-arrow-left"></i> Servicios</a>
+                <a href="./mi-red.html" class="btn"><i class="fas fa-users"></i> Mi Red</a>
                 <a href="./muro-live.html" class="btn"><i class="fas fa-rss"></i> Muro Live</a>
                 <button class="btn btn-gold btn-sm" onclick="abrirFormularioServicio()">
-                    <i class="fas fa-plus"></i> Nuevo
+                    <i class="fas fa-plus-circle"></i> Ofrecer
                 </button>
-                <button class="btn btn-outline btn-sm" onclick="refreshData()">
-                    <i class="fas fa-sync-alt"></i>
+                <button class="btn btn-outline btn-sm" onclick="window.location.href='./dashboard-prestador.html'">
+                    <i class="fas fa-chart-bar"></i> Dashboard
                 </button>
             </div>
         </header>
 
-        <!-- ===== BUSCADOR INTELIGENTE CON IA ===== -->
+        <!-- SMART SEARCH -->
         <div class="smart-search-container">
             <div class="title">🔍 Buscador Inteligente IA</div>
-            <div class="subtitle">Describe tu necesidad y la IA encontrará el servicio perfecto entre tus ofertas</div>
-            
+            <div class="subtitle">Describe tu necesidad y la IA encontrará el servicio perfecto</div>
             <div class="search-input-wrapper">
-                <input type="text" id="smartSearchInput" placeholder="Ej: Busco un mecánico cerca de mí..." onkeypress="if(event.key==='Enter'){buscarInteligente()}">
+                <input type="text" id="smartSearchInput" placeholder="Ej: Se ponchó mi llanta, necesito ayuda..." onkeypress="if(event.key==='Enter'){buscarInteligente()}">
                 <button class="btn btn-gold" onclick="buscarInteligente()">
                     <i class="fas fa-magic"></i> Buscar
                 </button>
@@ -829,8 +852,6 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
-            <!-- Resultados del buscador -->
             <div class="smart-search-results" id="smartResults">
                 <div class="result-header">
                     <span class="icono" id="resultIcono">🔧</span>
@@ -844,106 +865,113 @@
             </div>
         </div>
 
-        <!-- ===== STATS ===== -->
-        <div class="dashboard-grid">
-            <div class="stat-card">
-                <span class="stat-icon">📋</span>
-                <div class="stat-number" id="totalServices">0</div>
-                <div class="stat-label">Servicios Activos</div>
-                <div class="stat-change positive" id="servicesChange">+0% este mes</div>
+        <!-- SEARCH BAR -->
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <span class="search-icon"><i class="fas fa-search"></i></span>
+                <input type="text" id="searchInput" placeholder="Buscar servicio, categoría..." oninput="filtrarServicios()">
             </div>
-
-            <div class="stat-card">
-                <span class="stat-icon">⭐</span>
-                <div class="stat-number" id="avgRating">0.0</div>
-                <div class="stat-label">Calificación Promedio</div>
-                <div class="stat-change positive" id="ratingChange">+0 estrellas</div>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-icon">🌟</span>
-                <div class="stat-number" id="goldenStatus">❌</div>
-                <div class="stat-label">Palomita Dorada</div>
-                <div class="stat-change" id="goldenProgress" style="color:var(--text-muted);">4.7+ estrellas y 10+ reseñas</div>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-icon">💬</span>
-                <div class="stat-number" id="totalReviews">0</div>
-                <div class="stat-label">Reseñas Recibidas</div>
-                <div class="stat-change" id="reviewsChange" style="color:var(--text-muted);">0 en cuarentena</div>
-            </div>
+            <button class="btn-geolocation" onclick="obtenerUbicacion()">
+                <i class="fas fa-location-dot"></i> Cerca de mí
+            </button>
+            <span style="font-size:0.6rem;color:var(--text-muted);font-family:'Orbitron',monospace;">
+                <span id="serviceCount">0</span> servicios
+            </span>
         </div>
 
-        <!-- ===== MAPA ===== -->
-        <div style="margin-top:16px;">
-            <div class="section-title">
-                <i class="fas fa-map" style="color:var(--gold-cosmic);"></i> Ubicación de tus Servicios
-                <span class="sub">(tus servicios en el mapa)</span>
-            </div>
-            <div id="map-container"></div>
+        <!-- CATEGORÍAS -->
+        <div class="categories-scroll" id="categoriesContainer">
+            <button class="cat-btn active" data-cat="all" onclick="filtrarPorCategoria('all')">
+                <span class="cat-icon">📍</span>Todos
+            </button>
+            <button class="cat-btn" data-cat="mecanico" onclick="filtrarPorCategoria('mecanico')">
+                <span class="cat-icon">🔧</span>Mecánico
+            </button>
+            <button class="cat-btn" data-cat="llantera" onclick="filtrarPorCategoria('llantera')">
+                <span class="cat-icon">🛞</span>Llantera
+            </button>
+            <button class="cat-btn" data-cat="grua" onclick="filtrarPorCategoria('grua')">
+                <span class="cat-icon">🚗</span>Grúa
+            </button>
+            <button class="cat-btn" data-cat="gasolina" onclick="filtrarPorCategoria('gasolina')">
+                <span class="cat-icon">⛽</span>Gasolina
+            </button>
+            <button class="cat-btn" data-cat="plomero" onclick="filtrarPorCategoria('plomero')">
+                <span class="cat-icon">🚰</span>Plomero
+            </button>
+            <button class="cat-btn" data-cat="electricista" onclick="filtrarPorCategoria('electricista')">
+                <span class="cat-icon">⚡</span>Electricista
+            </button>
+            <button class="cat-btn" data-cat="albañil" onclick="filtrarPorCategoria('albañil')">
+                <span class="cat-icon">🧱</span>Albañil
+            </button>
+            <button class="cat-btn" data-cat="tecnico" onclick="filtrarPorCategoria('tecnico')">
+                <span class="cat-icon">🖥️</span>Técnico
+            </button>
+            <button class="cat-btn" data-cat="celular" onclick="filtrarPorCategoria('celular')">
+                <span class="cat-icon">📱</span>Celulares
+            </button>
+            <button class="cat-btn" data-cat="limpieza" onclick="filtrarPorCategoria('limpieza')">
+                <span class="cat-icon">🧹</span>Limpieza
+            </button>
+            <button class="cat-btn" data-cat="mudanza" onclick="filtrarPorCategoria('mudanza')">
+                <span class="cat-icon">🚚</span>Mudanza
+            </button>
+            <button class="cat-btn" data-cat="transporte" onclick="filtrarPorCategoria('transporte')">
+                <span class="cat-icon">🚕</span>Transporte
+            </button>
+            <button class="cat-btn" data-cat="comida" onclick="filtrarPorCategoria('comida')">
+                <span class="cat-icon">🍽️</span>Comida
+            </button>
+            <button class="cat-btn" data-cat="medico" onclick="filtrarPorCategoria('medico')">
+                <span class="cat-icon">🩺</span>Médico
+            </button>
+            <button class="cat-btn" data-cat="farmacia" onclick="filtrarPorCategoria('farmacia')">
+                <span class="cat-icon">💊</span>Farmacia
+            </button>
+            <button class="cat-btn" data-cat="profesor" onclick="filtrarPorCategoria('profesor')">
+                <span class="cat-icon">📚</span>Profesor
+            </button>
+            <button class="cat-btn" data-cat="veterinario" onclick="filtrarPorCategoria('veterinario')">
+                <span class="cat-icon">🐕</span>Veterinario
+            </button>
+            <button class="cat-btn" data-cat="cerrajero" onclick="filtrarPorCategoria('cerrajero')">
+                <span class="cat-icon">🏠</span>Cerrajero
+            </button>
+            <button class="cat-btn" data-cat="jardineria" onclick="filtrarPorCategoria('jardineria')">
+                <span class="cat-icon">🌳</span>Jardinería
+            </button>
+            <button class="cat-btn" data-cat="aire" onclick="filtrarPorCategoria('aire')">
+                <span class="cat-icon">❄️</span>Aire Acond.
+            </button>
+            <button class="cat-btn" data-cat="diseno" onclick="filtrarPorCategoria('diseno')">
+                <span class="cat-icon">🎨</span>Diseño
+            </button>
         </div>
 
-        <!-- ===== GRÁFICA ===== -->
-        <div class="chart-container" style="margin-top:16px;">
-            <div class="chart-title">📊 Evolución de Calificaciones</div>
-            <canvas id="ratingChart"></canvas>
-        </div>
+        <!-- MAPA -->
+        <div id="map-container"></div>
 
-        <!-- ===== SERVICIOS Y RESEÑAS ===== -->
-        <div class="dashboard-grid" style="margin-top:16px;">
-            <!-- Mis Servicios -->
-            <div class="stat-card" style="padding-bottom:8px;">
-                <div class="section-title">
-                    <i class="fas fa-tools" style="color:var(--gold-cosmic);"></i> Mis Servicios
-                    <span class="sub">(gestiona tus servicios)</span>
-                </div>
-                <div class="service-list" id="myServicesList">
-                    <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.8rem;">
-                        <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>
-                        Cargando servicios...
-                    </div>
-                </div>
-            </div>
-
-            <!-- Últimas Reseñas -->
-            <div class="stat-card" style="padding-bottom:8px;">
-                <div class="section-title">
-                    <i class="fas fa-star" style="color:var(--gold-cosmic);"></i> Últimas Reseñas
-                    <span class="sub">(todas las calificaciones)</span>
-                </div>
-                <div class="reviews-list" id="reviewsList">
-                    <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.8rem;">
-                        <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>
-                        Cargando reseñas...
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== BADGES ===== -->
-        <div class="stat-card" style="margin-top:16px;background:rgba(11,61,46,0.15);border-color:var(--gold-dim);">
-            <div class="section-title">
-                <i class="fas fa-award" style="color:var(--gold-cosmic);"></i> Logros y Badges
-                <span class="sub">(reconocimientos por tu trabajo)</span>
-            </div>
-            <div class="badges-container" id="badgesContainer"></div>
-        </div>
+        <!-- SERVICES GRID -->
+        <div class="services-grid" id="servicesGrid"></div>
 
         <!-- FOOTER -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Dashboard de Prestador
+                <span class="brand">◈ Csariel's</span> — Servicios Comunitarios · Buscador IA
             </span>
             <div class="footer-links">
-                <a href="./servicios-comunitarios.html">🔧 Servicios</a>
                 <a href="./mi-red.html">👥 Mi Red</a>
-                <a href="./terminos/terminos-servicios.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="./muro-live.html">📱 Muro Live</a>
+                <a href="#" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="#" style="color:var(--gold-cosmic);">🔐 Privacidad</a>
             </div>
         </footer>
     </div>
 
-    <!-- ===== MODAL OFRECER SERVICIO ===== -->
+    <!-- ===== MODALES ===== -->
+
+    <!-- MODAL OFRECER SERVICIO -->
     <div class="modal-overlay" id="offerServiceModal">
         <div class="modal-content">
             <button class="modal-close" onclick="cerrarFormularioServicio()">✕</button>
@@ -954,7 +982,6 @@
                 <label>Nombre del servicio *</label>
                 <input type="text" id="offerName" placeholder="Ej: Taller Mecánico Elías">
             </div>
-
             <div class="form-group">
                 <label>Categoría *</label>
                 <select id="offerCategory">
@@ -982,27 +1009,23 @@
                     <option value="otros">📌 Otros</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Descripción *</label>
                 <textarea id="offerDescription" placeholder="Describe tu servicio..."></textarea>
             </div>
-
             <div class="form-group">
                 <label>Teléfono *</label>
                 <input type="tel" id="offerPhone" placeholder="55 1234 5678">
             </div>
-
             <div class="form-group">
                 <label>Correo *</label>
                 <input type="email" id="offerEmail" placeholder="servicio@ejemplo.com">
             </div>
-
             <div class="form-group">
                 <label>Nivel de urgencia</label>
                 <select id="offerUrgencia">
                     <option value="normal">🟢 Normal</option>
-                    <option value="urgente">🔴 Urgente (🚨)</option>
+                    <option value="urgente">🔴 Urgente</option>
                 </select>
             </div>
 
@@ -1017,214 +1040,109 @@
         </div>
     </div>
 
-    <!-- ===== TOAST ===== -->
+    <!-- MODAL SERVICIO -->
+    <div class="modal-overlay" id="serviceModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModalServicio()">✕</button>
+            <h3 class="modal-title" id="modalServiceTitle">Detalles del Servicio</h3>
+            <div class="modal-body" id="modalServiceBody"></div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="contactarServicio()">
+                    <i class="fas fa-phone"></i> Contactar
+                </button>
+                <button class="btn btn-gold" onclick="calificarServicio()">
+                    <i class="fas fa-star"></i> Calificar
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModalServicio()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CALIFICACIÓN -->
+    <div class="modal-overlay" id="ratingModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModalRating()">✕</button>
+            <h3 class="modal-title">⭐ Calificar Servicio</h3>
+            <p class="modal-sub">¿Cómo calificarías tu experiencia?</p>
+            <div style="display:flex;gap:8px;justify-content:center;font-size:2.5rem;margin:12px 0;" id="ratingStars">
+                <span style="cursor:pointer;" onclick="setRating(1)">☆</span>
+                <span style="cursor:pointer;" onclick="setRating(2)">☆</span>
+                <span style="cursor:pointer;" onclick="setRating(3)">☆</span>
+                <span style="cursor:pointer;" onclick="setRating(4)">☆</span>
+                <span style="cursor:pointer;" onclick="setRating(5)">☆</span>
+            </div>
+            <div style="text-align:center;color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;" id="ratingText">Selecciona una calificación</div>
+            <div class="form-group">
+                <label>Comentario</label>
+                <textarea id="ratingComment" placeholder="Comparte tu experiencia..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-gold" onclick="enviarCalificacion()" id="btnSubmitRating" disabled>
+                    <i class="fas fa-check"></i> Enviar
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModalRating()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RATING EXTREME (1 estrella) -->
+    <div class="modal-overlay rating-extreme-modal" id="ratingExtremeModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModalRatingExtreme()">✕</button>
+            <h3 class="modal-title">⚠️ Calificación Extrema</h3>
+            <p class="modal-sub">Estás a punto de calificar con <span style="color:var(--danger);font-weight:700;">1 estrella</span></p>
+            <div class="extreme-form">
+                <div class="form-group">
+                    <label style="color:var(--danger);">¿Estás seguro?</label>
+                    <button class="confirm-btn" onclick="confirmarCalificacionExtrema()" style="width:100%;justify-content:center;">
+                        <i class="fas fa-check-circle"></i> Sí, confirmo
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Motivo <span style="color:var(--danger);">*</span></label>
+                    <textarea id="extremeReason" placeholder="Explica detalladamente... (mín 20 caracteres)"></textarea>
+                    <div style="font-size:0.55rem;color:var(--text-muted);margin-top:4px;" id="extremeCharCount">0 / 20</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="cerrarModalRatingExtreme()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
     <script>
         // ================================================================
-        // CONFIGURACIÓN
+        // SERVICIOS COMUNITARIOS - CONECTADO A SUPABASE
         // ================================================================
-        const CATEGORIAS = {
-            mecanico: 'Mecánico', llantera: 'Llantera', grua: 'Grúa',
-            gasolina: 'Gasolina', plomero: 'Plomero', electricista: 'Electricista',
-            albañil: 'Albañil', tecnico: 'Técnico', celular: 'Celulares',
-            limpieza: 'Limpieza', mudanza: 'Mudanza', transporte: 'Transporte',
-            comida: 'Comida', medico: 'Médico', farmacia: 'Farmacia',
-            profesor: 'Profesor', veterinario: 'Veterinario', cerrajero: 'Cerrajero',
-            jardineria: 'Jardinería', aire: 'Aire Acondicionado', diseno: 'Diseño',
-            otros: 'Otros'
-        };
 
-        const ICONOS = {
-            mecanico: '🔧', llantera: '🛞', grua: '🚗', gasolina: '⛽',
-            plomero: '🚰', electricista: '⚡', albañil: '🧱', tecnico: '🖥️',
-            celular: '📱', limpieza: '🧹', mudanza: '🚚', transporte: '🚕',
-            comida: '🍽️', medico: '🩺', farmacia: '💊', profesor: '📚',
-            veterinario: '🐕', cerrajero: '🏠', jardineria: '🌳', aire: '❄️',
-            diseno: '🎨', otros: '📌'
-        };
-
-        // ================================================================
-        // DATOS
-        // ================================================================
-        let miPerfil = {
-            nombre: 'Prestador Demo',
-            verificado: true,
-            userId: 'user_' + Date.now()
-        };
+        let currentUserId = localStorage.getItem('csariels_user_id') || 'user_test';
+        let currentUserName = localStorage.getItem('csariels_user_name') || 'Usuario';
 
         let servicios = [];
         let calificaciones = [];
-        let reseñasEnCuarentena = [];
-        let chartInstance = null;
+        let currentService = null;
+        let selectedRating = 0;
+        let currentServiceForRating = null;
         let map = null;
         let markers = [];
-        let userMarker = null;
-
-        // ================================================================
-        // IA - BUSCADOR INTELIGENTE
-        // ================================================================
-        function buscarInteligente() {
-            const input = document.getElementById('smartSearchInput');
-            const texto = input.value.trim();
-            
-            if (!texto) {
-                mostrarToast('⚠️ Escribe lo que necesitas', 'error');
-                return;
-            }
-
-            // Detectar categoría usando IA (simulada con palabras clave)
-            const palabras = texto.toLowerCase().split(' ');
-            let categoriaDetectada = null;
-            let confianza = 50;
-            
-            const palabrasClave = {
-                mecanico: ['mecánico', 'mecanico', 'taller', 'carro', 'auto', 'motor', 'frenos', 'llanta', 'aceite'],
-                llantera: ['llanta', 'llantera', 'parche', 'balanceo', 'neumático', 'rueda'],
-                grua: ['grúa', 'grua', 'remolque', 'arrastre', 'accidente'],
-                gasolina: ['gasolina', 'gas', 'combustible', 'petróleo', 'diésel'],
-                plomero: ['plomero', 'tubería', 'fuga', 'agua', 'drenaje', 'sanitario'],
-                electricista: ['electricista', 'luz', 'cable', 'circuito', 'electro', 'enchufe'],
-                albañil: ['albañil', 'construcción', 'muro', 'piso', 'cemento', 'tabique'],
-                tecnico: ['técnico', 'tecnico', 'computadora', 'pc', 'laptop', 'software'],
-                celular: ['celular', 'teléfono', 'iphone', 'android', 'pantalla', 'batería'],
-                limpieza: ['limpieza', 'limpiar', 'aseo', 'trapear', 'polvo', 'desinfección'],
-                mudanza: ['mudanza', 'mudar', 'mover', 'camión', 'carga'],
-                transporte: ['transporte', 'viaje', 'llevar', 'recoger', 'taxi'],
-                comida: ['comida', 'cocina', 'restaurante', 'taco', 'comer', 'pedir'],
-                medico: ['médico', 'medico', 'doctor', 'enfermedad', 'consulta', 'salud'],
-                farmacia: ['farmacia', 'medicina', 'pastilla', 'receta', 'fármaco'],
-                profesor: ['profesor', 'clase', 'tarea', 'enseñar', 'matemáticas', 'curso'],
-                veterinario: ['veterinario', 'mascota', 'perro', 'gato', 'animal', 'vacuna'],
-                cerrajero: ['cerrajero', 'cerradura', 'llave', 'puerta', 'cerrar'],
-                jardineria: ['jardín', 'jardineria', 'planta', 'poda', 'césped', 'árbol'],
-                aire: ['aire', 'acondicionado', 'clima', 'frio', 'ventilación'],
-                diseno: ['diseño', 'diseñador', 'grafico', 'logo', 'publicidad']
-            };
-
-            for (const [categoria, palabrasCat] of Object.entries(palabrasClave)) {
-                let coincidencias = 0;
-                for (const palabra of palabras) {
-                    if (palabrasCat.some(p => palabra.includes(p) || p.includes(palabra))) {
-                        coincidencias++;
-                    }
-                }
-                if (coincidencias > 0) {
-                    const score = Math.min(coincidencias / 2 * 20, 95);
-                    if (score > confianza) {
-                        confianza = score;
-                        categoriaDetectada = categoria;
-                    }
-                }
-            }
-
-            const container = document.getElementById('smartResults');
-            const listContainer = document.getElementById('resultList');
-            const icono = document.getElementById('resultIcono');
-            const categoria = document.getElementById('resultCategoria');
-            const confianzaEl = document.getElementById('resultConfianza');
-            const sugerencias = document.getElementById('sugerenciasContainer');
-
-            container.classList.add('visible');
-
-            if (!categoriaDetectada) {
-                icono.textContent = '🔍';
-                categoria.textContent = 'No se detectó una categoría clara';
-                confianzaEl.textContent = 'Confianza: 0%';
-                listContainer.innerHTML = `
-                    <div class="no-resultados">
-                        <div class="icon">🔍</div>
-                        <p>No pude detectar qué servicio buscas. Intenta con palabras clave como "mecánico", "plomero" o "electricista".</p>
-                        <p style="font-size:0.75rem;color:var(--text-muted);">Ejemplo: "Necesito un mecánico para mi carro"</p>
-                    </div>
-                `;
-                sugerencias.innerHTML = `
-                    <span style="font-size:0.7rem;color:var(--text-muted);">Sugerencias:</span>
-                    <span class="sugerencia" onclick="buscarSugerencia('mecánico cerca')">🔧 Mecánico</span>
-                    <span class="sugerencia" onclick="buscarSugerencia('plomero urgencia')">🚰 Plomero</span>
-                    <span class="sugerencia" onclick="buscarSugerencia('electricista')">⚡ Electricista</span>
-                    <span class="sugerencia" onclick="buscarSugerencia('grúa ayuda')">🚗 Grúa</span>
-                `;
-                return;
-            }
-
-            // Buscar servicios de esa categoría
-            const serviciosFiltrados = servicios.filter(s => s.categoria === categoriaDetectada);
-            const catNombre = CATEGORIAS[categoriaDetectada] || categoriaDetectada;
-            const icon = ICONOS[categoriaDetectada] || '📌';
-
-            icono.textContent = icon;
-            categoria.textContent = `🔍 ${catNombre}`;
-            confianzaEl.textContent = `Confianza: ${Math.round(confianza)}% · ${serviciosFiltrados.length} servicios encontrados`;
-
-            if (serviciosFiltrados.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="no-resultados">
-                        <div class="icon">😅</div>
-                        <p>No tienes ${catNombre} registrados aún.</p>
-                        <p style="font-size:0.75rem;color:var(--text-muted);">¡Ofrece este servicio para ayudar a la comunidad!</p>
-                        <button class="btn btn-gold btn-sm" style="margin-top:8px;" onclick="abrirFormularioServicio()">
-                            <i class="fas fa-plus"></i> Ofrecer ${catNombre}
-                        </button>
-                    </div>
-                `;
-            } else {
-                listContainer.innerHTML = serviciosFiltrados.map(s => {
-                    const dist = userLocation ? calcularDistancia(userLocation.lat, userLocation.lng, s.lat, s.lng) : null;
-                    const distText = dist !== null ? `${(dist * 1.6).toFixed(1)} km` : '📍';
-                    const emergencia = s.urgencia === 'urgente' ? '<span class="urgente">🚨 Urgente</span>' : '';
-                    const golden = s.palomitaDorada ? '<span style="color:var(--gold-cosmic);">🌟</span>' : '';
-                    
-                    return `
-                        <div class="result-item" onclick="verServicio(${s.id})">
-                            <div>
-                                <div class="nombre">${s.nombre} ${golden}</div>
-                                <div style="font-size:0.7rem;color:var(--text-secondary);">${s.descripcion.substring(0, 60)}${s.descripcion.length > 60 ? '...' : ''}</div>
-                            </div>
-                            <div class="detalle">
-                                ${emergencia}
-                                <span class="calificacion">⭐ ${s.calificacion?.toFixed(1) || 'N/A'}</span>
-                                <span class="distancia"><i class="fas fa-location-dot"></i> ${distText}</span>
-                                ${s.verificado ? '<span style="color:var(--success);">✅</span>' : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            // Sugerencias relacionadas
-            const sugerenciasRelacionadas = [
-                `${catNombre} económico`,
-                `${catNombre} 24h`,
-                `${catNombre} urgente`,
-                `${catNombre} con reseñas`
-            ];
-
-            sugerencias.innerHTML = `
-                <span style="font-size:0.7rem;color:var(--text-muted);">Búsquedas relacionadas:</span>
-                ${sugerenciasRelacionadas.map(sug => `
-                    <span class="sugerencia" onclick="buscarSugerencia('${sug}')">🔍 ${sug}</span>
-                `).join('')}
-            `;
-
-            mostrarToast(`✅ ${serviciosFiltrados.length} ${catNombre} encontrados`);
-        }
-
-        function buscarSugerencia(texto) {
-            document.getElementById('smartSearchInput').value = texto;
-            buscarInteligente();
-        }
-
-        function limpiarBusquedaInteligente() {
-            document.getElementById('smartSearchInput').value = '';
-            document.getElementById('smartResults').classList.remove('visible');
-        }
+        let userLocation = null;
+        let categoriaActual = 'all';
+        let toastTimeout = null;
 
         // ================================================================
         // ESTRELLAS
         // ================================================================
         function initStars() {
-            const canvas = document.getElementById('stars-canvas');
+            const canvas = document.getElementById('starsCanvas');
             const ctx = canvas.getContext('2d');
             let width, height, stars = [];
 
@@ -1241,11 +1159,11 @@
                     stars.push({
                         x: Math.random() * width,
                         y: Math.random() * height,
-                        radius: Math.random() * 1.8 + 0.3,
-                        speed: Math.random() * 0.02 + 0.005,
-                        opacity: Math.random() * 0.8 + 0.2,
-                        twinklePhase: Math.random() * Math.PI * 2,
-                        twinkleSpeed: Math.random() * 0.02 + 0.01
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
                     });
                 }
             }
@@ -1253,12 +1171,12 @@
             function draw() {
                 ctx.clearRect(0, 0, width, height);
                 for (let star of stars) {
-                    star.twinklePhase += star.twinkleSpeed;
                     const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
                     ctx.beginPath();
                     ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(255,255,255,${opacity})`;
                     ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
                     star.y += star.speed;
                     if (star.y > height) {
                         star.y = 0;
@@ -1279,453 +1197,141 @@
         // ================================================================
         function initMap() {
             if (map) return;
-            map = L.map('map-container', {
-                center: [19.0413, -98.2062],
-                zoom: 13,
-                zoomControl: true
-            });
-
+            map = L.map('map-container').setView([19.0413, -98.2062], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 maxZoom: 19
             }).addTo(map);
+            obtenerUbicacion();
+        }
 
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(pos) {
-                        const lat = pos.coordinates.latitude;
-                        const lng = pos.coordinates.longitude;
-                        if (userMarker) map.removeLayer(userMarker);
-                        userMarker = L.marker([lat, lng], {
-                            icon: L.divIcon({
-                                html: '<div style="background:var(--gold-cosmic);width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 20px rgba(247,212,74,0.5);"></div>',
-                                className: '', iconSize: [14, 14]
-                            })
-                        }).addTo(map).bindPopup('📍 Tu ubicación');
-                        map.setView([lat, lng], 14);
-                    },
-                    function() {},
-                    { enableHighAccuracy: true }
+        function obtenerUbicacion() {
+            if (!navigator.geolocation) return;
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    userLocation = { lat, lng };
+                    if (userMarker) map.removeLayer(userMarker);
+                    userMarker = L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            html: '<div style="background:var(--gold-cosmic);width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 20px rgba(212,175,55,0.5);"></div>',
+                            className: '', iconSize: [14, 14]
+                        })
+                    }).addTo(map).bindPopup('📍 Tu ubicación');
+                    map.setView([lat, lng], 14);
+                    mostrarToast('📍 Ubicación obtenida');
+                },
+                function() {
+                    userLocation = { lat: 19.0413, lng: -98.2062 };
+                },
+                { enableHighAccuracy: true }
+            );
+        }
+
+        // ================================================================
+        // 🚀 SUPABASE - CARGAR SERVICIOS
+        // ================================================================
+        async function cargarServicios() {
+            try {
+                const resultado = await serviciosConnector.obtenerServicios();
+                if (resultado.error) {
+                    console.error('❌ Error al cargar servicios:', resultado.error);
+                    mostrarToast('❌ Error al cargar servicios', 'error');
+                    return;
+                }
+                servicios = resultado.data || [];
+                console.log(`✅ ${servicios.length} servicios cargados de Supabase`);
+                renderizarServicios();
+                actualizarContador();
+                actualizarMarcadores();
+            } catch (error) {
+                console.error('❌ Error en cargarServicios:', error);
+                mostrarToast('❌ Error de conexión', 'error');
+            }
+        }
+
+        // ================================================================
+        // RENDERIZAR SERVICIOS
+        // ================================================================
+        function renderizarServicios() {
+            const grid = document.getElementById('servicesGrid');
+            let filtrados = [...servicios];
+
+            if (categoriaActual !== 'all') {
+                filtrados = filtrados.filter(s => s.categoria === categoriaActual);
+            }
+
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (searchTerm) {
+                filtrados = filtrados.filter(s =>
+                    s.nombre.toLowerCase().includes(searchTerm) ||
+                    s.descripcion.toLowerCase().includes(searchTerm) ||
+                    s.categoria.toLowerCase().includes(searchTerm)
                 );
             }
 
-            actualizarMarcadores();
-        }
-
-        function actualizarMarcadores() {
-            if (!map) return;
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-
-            servicios.forEach(s => {
-                const color = s.palomitaDorada ? 'var(--gold-cosmic)' :
-                              (s.verificado ? 'var(--success)' :
-                              (s.urgencia === 'urgente' ? 'var(--danger)' : 'var(--text-muted)'));
-
-                const icon = L.divIcon({
-                    html: `<div style="background:${color};width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);${s.palomitaDorada ? 'animation:pulse-glow 2s ease-in-out infinite;' : ''}"></div>`,
-                    className: '', iconSize: [12, 12]
-                });
-
-                const marker = L.marker([s.lat, s.lng], { icon })
-                    .addTo(map)
-                    .bindPopup(`
-                        <strong>${s.nombre}</strong>${s.palomitaDorada ? ' 🌟' : ''}
-                        <br>${s.descripcion.substring(0, 50)}...
-                        <br>⭐ ${s.calificacion?.toFixed(1) || 'N/A'} (${s.reseñas || 0} reseñas)
-                        <br><button onclick="verServicio(${s.id})" style="background:var(--gold-cosmic);color:#0a0c10;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Ver</button>
-                    `);
-
-                markers.push(marker);
-            });
-
-            if (servicios.length > 0 && markers.length > 0) {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds(), { padding: [30, 30] });
-            }
-        }
-
-        function calcularDistancia(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            return 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * R;
-        }
-
-        let userLocation = null;
-
-        // ================================================================
-        // CARGAR DATOS
-        // ================================================================
-        function cargarDatos() {
-            try {
-                const data = localStorage.getItem('servicios_comunitarios');
-                if (data) {
-                    const allServices = JSON.parse(data);
-                    servicios = allServices.filter(s => s.usuario === miPerfil.nombre);
-                } else {
-                    servicios = [{
-                        id: 1,
-                        nombre: 'Taller Mecánico Elías',
-                        categoria: 'mecanico',
-                        descripcion: 'Mecánica general, frenos, suspensión y diagnóstico computarizado.',
-                        telefono: '222 123 4567',
-                        email: 'elias@taller.com',
-                        lat: 19.0450,
-                        lng: -98.2050,
-                        calificacion: 4.8,
-                        reseñas: 23,
-                        verificado: true,
-                        usuario: miPerfil.nombre,
-                        urgencia: 'normal',
-                        palomitaDorada: false
-                    }, {
-                        id: 2,
-                        nombre: 'Llantera Express 24h',
-                        categoria: 'llantera',
-                        descripcion: 'Parches, cambio de llantas y balanceo. Atención 24/7.',
-                        telefono: '222 345 6789',
-                        email: 'express@llantera.com',
-                        lat: 19.0380,
-                        lng: -98.2080,
-                        calificacion: 4.7,
-                        reseñas: 34,
-                        verificado: true,
-                        usuario: miPerfil.nombre,
-                        urgencia: 'urgente',
-                        palomitaDorada: true
-                    }];
-                    guardarServicios();
-                }
-            } catch (e) { servicios = []; }
-
-            try {
-                const data = localStorage.getItem('calificaciones_servicios');
-                if (data) calificaciones = JSON.parse(data);
-            } catch (e) { calificaciones = []; }
-
-            try {
-                const data = localStorage.getItem('reseñas_cuarentena');
-                if (data) reseñasEnCuarentena = JSON.parse(data);
-            } catch (e) { reseñasEnCuarentena = []; }
-
-            if (calificaciones.length === 0 && servicios.length > 0) {
-                const nombres = ['María García', 'Carlos Ruiz', 'Ana López', 'Pedro Sánchez', 'Lupita Vega'];
-                servicios.forEach(s => {
-                    const numReviews = Math.floor(Math.random() * 8) + 3;
-                    for (let i = 0; i < numReviews; i++) {
-                        const rating = Math.floor(Math.random() * 4) + 2;
-                        calificaciones.push({
-                            servicioId: s.id,
-                            usuarioId: 'user_' + i,
-                            usuarioNombre: nombres[i % nombres.length],
-                            calificacion: rating,
-                            comentario: ['Excelente servicio!', 'Muy recomendado', 'Buen trabajo', 'Volveré a contratar', 'Regular'][i % 5],
-                            fecha: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-                            extrema: false,
-                            enCuarentena: false
-                        });
-                    }
-                });
-                guardarCalificaciones();
+            if (userLocation) {
+                filtrados = filtrados.map(s => {
+                    const dist = calcularDistancia(userLocation.lat, userLocation.lng, s.lat, s.lng);
+                    return { ...s, distancia: dist };
+                }).sort((a, b) => (a.distancia || 999) - (b.distancia || 999));
             }
 
-            actualizarPromedios();
-            renderDashboard();
-            renderChart();
-            setTimeout(() => {
-                initMap();
-                actualizarMarcadores();
-            }, 500);
-        }
-
-        function guardarServicios() {
-            try {
-                const allServices = JSON.parse(localStorage.getItem('servicios_comunitarios') || '[]');
-                const otros = allServices.filter(s => s.usuario !== miPerfil.nombre);
-                const nuevos = [...otros, ...servicios];
-                localStorage.setItem('servicios_comunitarios', JSON.stringify(nuevos));
-            } catch (e) {}
-        }
-
-        function guardarCalificaciones() {
-            try {
-                localStorage.setItem('calificaciones_servicios', JSON.stringify(calificaciones));
-            } catch (e) {}
-        }
-
-        function actualizarPromedios() {
-            servicios.forEach(s => {
-                const califs = calificaciones.filter(c => c.servicioId === s.id && !c.enCuarentena);
-                if (califs.length > 0) {
-                    s.calificacion = califs.reduce((sum, c) => sum + c.calificacion, 0) / califs.length;
-                    s.reseñas = califs.length;
-                } else {
-                    s.calificacion = 0;
-                    s.reseñas = 0;
-                }
-                if (s.calificacion >= 4.7 && s.reseñas >= 10) {
-                    s.palomitaDorada = true;
-                } else {
-                    s.palomitaDorada = false;
-                }
-            });
-            guardarServicios();
-        }
-
-        // ================================================================
-        // RENDER DASHBOARD
-        // ================================================================
-        function renderDashboard() {
-            document.getElementById('totalServices').textContent = servicios.length;
-
-            const califs = calificaciones.filter(c => servicios.some(s => s.id === c.servicioId) && !c.enCuarentena);
-            const avg = califs.length > 0 ?
-                califs.reduce((sum, c) => sum + c.calificacion, 0) / califs.length :
-                0;
-            document.getElementById('avgRating').textContent = avg.toFixed(1);
-
-            const hasGolden = servicios.some(s => s.palomitaDorada);
-            document.getElementById('goldenStatus').textContent = hasGolden ? '🌟' : '❌';
-            document.getElementById('goldenStatus').style.color = hasGolden ? 'var(--gold-cosmic)' : 'var(--text-muted)';
-
-            const mejorServicio = servicios.reduce((best, s) =>
-                (s.calificacion || 0) > (best.calificacion || 0) ? s : best, { calificacion: 0, reseñas: 0 });
-            document.getElementById('goldenProgress').textContent =
-                `${mejorServicio.calificacion?.toFixed(1) || 0}⭐ · ${mejorServicio.reseñas || 0} reseñas`;
-
-            const total = calificaciones.filter(c => servicios.some(s => s.id === c.servicioId)).length;
-            const enCuarentena = reseñasEnCuarentena.filter(c => servicios.some(s => s.id === c.servicioId)).length;
-            document.getElementById('totalReviews').textContent = total;
-            document.getElementById('reviewsChange').textContent = `${enCuarentena} en cuarentena`;
-
-            document.getElementById('servicesChange').textContent = `+${servicios.length} servicios activos`;
-            document.getElementById('ratingChange').textContent = avg > 0 ? `${avg.toFixed(1)} ⭐ promedio` : 'Sin calificaciones';
-
-            renderServices();
-            renderReviews();
-            renderBadges();
-        }
-
-        // ================================================================
-        // RENDER SERVICIOS
-        // ================================================================
-        function renderServices() {
-            const container = document.getElementById('myServicesList');
-
-            if (servicios.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.8rem;">
-                        <i class="fas fa-tools" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>
-                        No tienes servicios registrados.
-                        <br>
-                        <button class="btn btn-gold btn-sm" style="margin-top:8px;" onclick="abrirFormularioServicio()">
-                            <i class="fas fa-plus"></i> Ofrecer Servicio
+            if (filtrados.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-muted);">
+                        <div style="font-size:2.5rem;opacity:0.3;margin-bottom:8px;">🔍</div>
+                        <h3 style="font-family:'Orbitron',monospace;color:var(--text-secondary);">No hay servicios</h3>
+                        <p style="font-size:0.8rem;">${searchTerm ? 'No se encontraron servicios con esa búsqueda.' : 'Sé el primero en ofrecer un servicio.'}</p>
+                        <button class="btn btn-gold" style="margin-top:8px;" onclick="abrirFormularioServicio()">
+                            <i class="fas fa-plus-circle"></i> Ofrecer Servicio
                         </button>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = servicios.map(s => {
-                const icon = ICONOS[s.categoria] || '📌';
-                const catName = CATEGORIAS[s.categoria] || s.categoria;
-                const badges = [];
-                if (s.palomitaDorada) badges.push('<span class="badge golden">🌟 Palomita</span>');
-                if (s.verificado) badges.push('<span class="badge verified">✅ Verificado</span>');
-                if (s.urgencia === 'urgente') badges.push('<span class="badge urgent">🚨 Urgente</span>');
+            grid.innerHTML = filtrados.map(s => {
+                const icon = getIcono(s.categoria);
+                const catName = getCategoriaNombre(s.categoria);
+                const dist = s.distancia !== undefined ? `${(s.distancia * 1.6).toFixed(1)} km` : '📍';
+                const estrellas = s.calificacion ? '★'.repeat(Math.round(s.calificacion)) + '☆'.repeat(5 - Math.round(s.calificacion)) : '☆☆☆☆☆';
+                const score = s.calificacion ? s.calificacion.toFixed(1) : 'N/A';
+                const urgente = s.urgencia === 'urgente' ? '<span style="color:var(--danger);font-size:0.55rem;font-weight:700;">🚨 Urgente</span>' : '';
+                const golden = s.palomita_dorada ? '<span class="badge-golden"><i class="fas fa-star"></i> Palomita</span>' : '';
+                const verificado = s.verificado ? '<span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado</span>' : '';
 
                 return `
-                    <div class="service-item">
-                        <div class="service-info">
-                            <div class="service-name">${icon} ${s.nombre}</div>
-                            <div class="service-meta">
-                                ${catName} · ${s.reseñas || 0} reseñas · ⭐ ${s.calificacion?.toFixed(1) || 'N/A'}
-                                ${badges.join('')}
-                            </div>
+                    <div class="service-card" onclick="abrirDetalleServicio(${s.id})">
+                        <div class="service-header">
+                            <span class="service-name">${s.nombre}</span>
+                            <span class="service-category">${icon} ${catName}</span>
                         </div>
-                        <div class="service-actions">
-                            <button class="btn btn-primary btn-sm" onclick="editarServicio(${s.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger btn-sm" onclick="eliminarServicio(${s.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        ${urgente}
+                        <div class="service-rating">
+                            <span class="stars">${estrellas}</span>
+                            <span class="score">${score} (${s.reseñas || 0} reseñas)</span>
+                            ${verificado} ${golden}
                         </div>
+                        <p style="font-size:0.8rem;color:var(--text-secondary);margin:4px 0;">${s.descripcion}</p>
+                        <div class="service-distance"><i class="fas fa-location-dot"></i> ${dist}</div>
+                        <div class="service-contact">
+                            <span class="contact-item"><i class="fas fa-phone"></i> ${s.telefono}</span>
+                            <span class="contact-item"><i class="fas fa-envelope"></i> ${s.email}</span>
+                        </div>
+                        <button class="btn btn-sm btn-gold" onclick="event.stopPropagation();abrirDetalleServicio(${s.id})">
+                            <i class="fas fa-info-circle"></i> Ver detalles
+                        </button>
                     </div>
                 `;
             }).join('');
         }
 
         // ================================================================
-        // RENDER RESEÑAS
+        // 🚀 SUPABASE - REGISTRAR SERVICIO
         // ================================================================
-        function renderReviews() {
-            const container = document.getElementById('reviewsList');
-            const serviceIds = servicios.map(s => s.id);
-            const reviews = calificaciones
-                .filter(c => serviceIds.includes(c.servicioId) && !c.enCuarentena)
-                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-                .slice(0, 10);
-
-            const quarantine = reseñasEnCuarentena
-                .filter(c => serviceIds.includes(c.servicioId))
-                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-            if (reviews.length === 0 && quarantine.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.8rem;">
-                        <i class="fas fa-star" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>
-                        Aún no tienes reseñas.
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '';
-            quarantine.slice(0, 3).forEach(q => {
-                const stars = '★'.repeat(q.calificacion) + '☆'.repeat(5 - q.calificacion);
-                const serviceName = servicios.find(s => s.id === q.servicioId)?.nombre || 'Servicio';
-                html += `
-                    <div class="review-item" style="border-color:rgba(247,212,74,0.3);">
-                        <div class="review-header">
-                            <span class="review-user">${q.usuarioNombre || 'Anónimo'}</span>
-                            <span class="review-stars">${stars}</span>
-                        </div>
-                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
-                            <span class="review-quarantine"><i class="fas fa-shield-alt"></i> En cuarentena</span>
-                            <span style="font-size:0.5rem;color:var(--text-muted);">${serviceName}</span>
-                        </div>
-                        <div class="review-comment">${q.comentario || 'Sin comentario'}</div>
-                        <div class="review-date">${new Date(q.fecha).toLocaleDateString()}</div>
-                    </div>
-                `;
-            });
-
-            reviews.forEach(r => {
-                const stars = '★'.repeat(r.calificacion) + '☆'.repeat(5 - r.calificacion);
-                const serviceName = servicios.find(s => s.id === r.servicioId)?.nombre || 'Servicio';
-                html += `
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="review-user">${r.usuarioNombre || 'Anónimo'}</span>
-                            <span class="review-stars">${stars}</span>
-                        </div>
-                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
-                            <span style="font-size:0.5rem;color:var(--text-muted);">${serviceName}</span>
-                        </div>
-                        <div class="review-comment">${r.comentario || 'Sin comentario'}</div>
-                        <div class="review-date">${new Date(r.fecha).toLocaleDateString()}</div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        // ================================================================
-        // RENDER BADGES
-        // ================================================================
-        function renderBadges() {
-            const container = document.getElementById('badgesContainer');
-            const totalReviews = calificaciones.filter(c => servicios.some(s => s.id === c.servicioId) && !c.enCuarentena).length;
-            const hasGolden = servicios.some(s => s.palomitaDorada);
-            const hasVerified = servicios.some(s => s.verificado);
-            const hasUrgent = servicios.some(s => s.urgencia === 'urgente');
-
-            const badges = [
-                { icon: '🛡️', label: 'Verificado', active: hasVerified, detail: hasVerified ? '✅ Activo' : 'Pendiente' },
-                { icon: '🌟', label: 'Palomita Dorada', active: hasGolden, detail: hasGolden ? '🏆 Logrado' : '4.7+ ⭐ · 10+ reseñas' },
-                { icon: '🏆', label: '50+ Reseñas', active: totalReviews >= 50, detail: totalReviews >= 50 ? '✅ Logrado' : `${totalReviews}/50` },
-                { icon: '⚡', label: 'Servicio Urgente', active: hasUrgent, detail: hasUrgent ? '🚨 Activo' : 'Sin urgencias' }
-            ];
-
-            container.innerHTML = badges.map(b => `
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid ${b.active ? 'var(--gold-cosmic)' : 'var(--gold-dim)'};${!b.active ? 'opacity:0.4;' : ''}">
-                    <div style="font-size:2rem;">${b.icon}</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">${b.label}</div>
-                    <div style="font-size:0.45rem;color:${b.active ? 'var(--success)' : 'var(--text-muted)'};">${b.detail}</div>
-                </div>
-            `).join('');
-        }
-
-        // ================================================================
-        // CHART
-        // ================================================================
-        function renderChart() {
-            const ctx = document.getElementById('ratingChart').getContext('2d');
-            const months = {};
-            const serviceIds = servicios.map(s => s.id);
-
-            calificaciones
-                .filter(c => serviceIds.includes(c.servicioId) && !c.enCuarentena)
-                .forEach(c => {
-                    const date = new Date(c.fecha);
-                    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                    if (!months[key]) months[key] = { total: 0, count: 0 };
-                    months[key].total += c.calificacion;
-                    months[key].count += 1;
-                });
-
-            const labels = Object.keys(months).sort();
-            const data = labels.map(key => months[key].total / months[key].count);
-
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Calificación Promedio',
-                        data: data,
-                        borderColor: '#f7d44a',
-                        backgroundColor: 'rgba(247,212,74,0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#f7d44a',
-                        pointBorderColor: '#0F2D1A',
-                        pointBorderWidth: 2,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `⭐ ${context.parsed.y.toFixed(1)} estrellas`
-                            }
-                        }
-                    },
-                    scales: {
-                        y: { min: 0, max: 5, ticks: { color: '#4a6a8a', stepSize: 1 }, grid: { color: 'rgba(247,212,74,0.05)' } },
-                        x: { ticks: { color: '#4a6a8a', font: { size: 10 } }, grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        // ================================================================
-        // ACCIONES
-        // ================================================================
-        function abrirFormularioServicio() {
-            document.getElementById('offerServiceModal').classList.add('active');
-            document.getElementById('offerName').value = '';
-            document.getElementById('offerDescription').value = '';
-            document.getElementById('offerPhone').value = '';
-            document.getElementById('offerEmail').value = '';
-            document.getElementById('offerUrgencia').value = 'normal';
-        }
-
-        function cerrarFormularioServicio() {
-            document.getElementById('offerServiceModal').classList.remove('active');
-        }
-
-        function registrarServicio() {
+        async function registrarServicio() {
             const nombre = document.getElementById('offerName').value.trim();
             const categoria = document.getElementById('offerCategory').value;
             const descripcion = document.getElementById('offerDescription').value.trim();
@@ -1738,103 +1344,372 @@
                 return;
             }
 
+            const lat = userLocation?.lat || 19.0413;
+            const lng = userLocation?.lng || -98.2062;
+
             const nuevoServicio = {
-                id: Date.now(),
-                nombre,
-                categoria,
-                descripcion,
-                telefono,
-                email,
-                lat: 19.0413 + (Math.random() - 0.5) * 0.02,
-                lng: -98.2062 + (Math.random() - 0.5) * 0.02,
-                calificacion: 0,
-                reseñas: 0,
-                verificado: miPerfil.verificado,
-                usuario: miPerfil.nombre,
+                nombre: nombre,
+                categoria: categoria,
+                descripcion: descripcion,
+                telefono: telefono,
+                email: email,
+                lat: lat + (Math.random() - 0.5) * 0.02,
+                lng: lng + (Math.random() - 0.5) * 0.02,
+                user_id: currentUserId,
                 urgencia: urgencia,
-                palomitaDorada: false
+                verificado: false
             };
 
-            servicios.push(nuevoServicio);
-            guardarServicios();
-            cerrarFormularioServicio();
-            renderDashboard();
-            renderChart();
-            actualizarMarcadores();
-            mostrarToast('✅ ¡Servicio registrado con éxito!');
-        }
+            try {
+                const resultado = await serviciosConnector.registrarServicio(nuevoServicio);
+                if (resultado.error) {
+                    console.error('❌ Error al registrar:', resultado.error);
+                    mostrarToast('❌ Error al registrar servicio', 'error');
+                    return;
+                }
 
-        function editarServicio(id) {
-            const servicio = servicios.find(s => s.id === id);
-            if (!servicio) return;
-
-            document.getElementById('offerName').value = servicio.nombre;
-            document.getElementById('offerCategory').value = servicio.categoria;
-            document.getElementById('offerDescription').value = servicio.descripcion;
-            document.getElementById('offerPhone').value = servicio.telefono;
-            document.getElementById('offerEmail').value = servicio.email;
-            document.getElementById('offerUrgencia').value = servicio.urgencia;
-
-            const btn = document.querySelector('#offerServiceModal .btn-gold');
-            btn.innerHTML = '<i class="fas fa-save"></i> Actualizar';
-            btn.onclick = function() {
-                actualizarServicio(id);
-            };
-
-            document.getElementById('offerServiceModal').classList.add('active');
-        }
-
-        function actualizarServicio(id) {
-            const servicio = servicios.find(s => s.id === id);
-            if (!servicio) return;
-
-            servicio.nombre = document.getElementById('offerName').value.trim();
-            servicio.categoria = document.getElementById('offerCategory').value;
-            servicio.descripcion = document.getElementById('offerDescription').value.trim();
-            servicio.telefono = document.getElementById('offerPhone').value.trim();
-            servicio.email = document.getElementById('offerEmail').value.trim();
-            servicio.urgencia = document.getElementById('offerUrgencia').value;
-
-            guardarServicios();
-            cerrarFormularioServicio();
-
-            const btn = document.querySelector('#offerServiceModal .btn-gold');
-            btn.innerHTML = '<i class="fas fa-check"></i> Registrar';
-            btn.onclick = registrarServicio;
-
-            renderDashboard();
-            renderChart();
-            actualizarMarcadores();
-            mostrarToast('✅ ¡Servicio actualizado!');
-        }
-
-        function eliminarServicio(id) {
-            if (!confirm('¿Seguro que quieres eliminar este servicio?')) return;
-            servicios = servicios.filter(s => s.id !== id);
-            guardarServicios();
-            renderDashboard();
-            renderChart();
-            actualizarMarcadores();
-            mostrarToast('🗑️ Servicio eliminado');
-        }
-
-        function verServicio(id) {
-            const servicio = servicios.find(s => s.id === id);
-            if (servicio) {
-                mostrarToast(`📋 ${servicio.nombre} - ⭐ ${servicio.calificacion?.toFixed(1) || 'N/A'} (${servicio.reseñas || 0} reseñas)`);
+                mostrarToast('✅ ¡Servicio registrado con éxito!');
+                cerrarFormularioServicio();
+                limpiarFormulario();
+                await cargarServicios();
+            } catch (error) {
+                console.error('❌ Error en registrarServicio:', error);
+                mostrarToast('❌ Error de conexión', 'error');
             }
         }
 
-        function refreshData() {
-            cargarDatos();
-            mostrarToast('🔄 Datos actualizados');
+        // ================================================================
+        // 🚀 SUPABASE - CALIFICAR
+        // ================================================================
+        async function enviarCalificacion() {
+            if (!currentServiceForRating || selectedRating < 1) return;
+
+            const comment = document.getElementById('ratingComment').value.trim();
+
+            const calificacion = {
+                servicio_id: currentServiceForRating.id,
+                usuario_id: currentUserId,
+                usuario_nombre: currentUserName,
+                calificacion: selectedRating,
+                comentario: comment || '',
+                extrema: selectedRating === 1,
+                en_cuarentena: selectedRating === 1
+            };
+
+            try {
+                const resultado = await serviciosConnector.registrarCalificacion(calificacion);
+                if (resultado.error) {
+                    console.error('❌ Error al calificar:', resultado.error);
+                    mostrarToast('❌ Error al enviar calificación', 'error');
+                    return;
+                }
+
+                if (selectedRating === 1) {
+                    mostrarToast('🛡️ Calificación enviada a revisión', 'warning');
+                } else {
+                    mostrarToast(`✅ Calificación de ${selectedRating} estrellas registrada!`);
+                }
+
+                cerrarModalRating();
+                cerrarModalRatingExtreme();
+                await cargarServicios();
+            } catch (error) {
+                console.error('❌ Error en enviarCalificacion:', error);
+                mostrarToast('❌ Error de conexión', 'error');
+            }
+        }
+
+        // ================================================================
+        // BUSCADOR INTELIGENTE
+        // ================================================================
+        function buscarInteligente() {
+            const input = document.getElementById('smartSearchInput');
+            const texto = input.value.trim();
+
+            if (!texto) {
+                mostrarToast('⚠️ Escribe lo que necesitas', 'error');
+                return;
+            }
+
+            const resultado = serviciosConnector.buscarServiciosConIA(texto, servicios);
+
+            const container = document.getElementById('smartResults');
+            const listContainer = document.getElementById('resultList');
+            const icono = document.getElementById('resultIcono');
+            const categoria = document.getElementById('resultCategoria');
+            const confianza = document.getElementById('resultConfianza');
+            const sugerencias = document.getElementById('sugerenciasContainer');
+
+            container.classList.add('visible');
+
+            if (!resultado.encontrado) {
+                icono.textContent = '🔍';
+                categoria.textContent = 'No se encontraron servicios';
+                confianza.textContent = '';
+                listContainer.innerHTML = `
+                    <div class="no-resultados">
+                        <div class="icon">🔍</div>
+                        <p>${resultado.mensaje}</p>
+                    </div>
+                `;
+                sugerencias.innerHTML = `
+                    <span class="sugerencia" onclick="buscarSugerencia('mecánico')">🔧 Mecánico</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('plomero')">🚰 Plomero</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('electricista')">⚡ Electricista</span>
+                `;
+                return;
+            }
+
+            icono.textContent = resultado.categoriaIcono;
+            categoria.textContent = `🔍 ${resultado.categoriaNombre}`;
+            confianza.textContent = `Confianza: ${resultado.confianza}% · ${resultado.servicios.length} servicios`;
+
+            if (resultado.servicios.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="no-resultados">
+                        <div class="icon">😅</div>
+                        <p>No hay ${resultado.categoriaNombre} registrados aún.</p>
+                    </div>
+                `;
+            } else {
+                listContainer.innerHTML = resultado.servicios.map(s => `
+                    <div class="result-item" onclick="abrirDetalleServicio(${s.id})">
+                        <div>
+                            <div class="nombre">${s.nombre} ${s.palomita_dorada ? '🌟' : ''}</div>
+                            <div style="font-size:0.65rem;color:var(--text-secondary);">${s.descripcion}</div>
+                        </div>
+                        <div class="detalle">
+                            ${s.urgencia === 'urgente' ? '<span class="urgente">🚨</span>' : ''}
+                            <span class="calificacion">⭐ ${s.calificacion?.toFixed(1) || 'N/A'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            sugerencias.innerHTML = `
+                <span style="font-size:0.65rem;color:var(--text-muted);">Búsquedas relacionadas:</span>
+                <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} económico')">💰 Económico</span>
+                <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} 24h')">🕐 24h</span>
+                <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} urgente')">🚨 Urgente</span>
+            `;
+        }
+
+        function buscarSugerencia(texto) {
+            document.getElementById('smartSearchInput').value = texto;
+            buscarInteligente();
+        }
+
+        function limpiarBusquedaInteligente() {
+            document.getElementById('smartSearchInput').value = '';
+            document.getElementById('smartResults').classList.remove('visible');
+        }
+
+        // ================================================================
+        // FUNCIONES AUXILIARES
+        // ================================================================
+        function getIcono(categoria) {
+            const iconos = {
+                mecanico: '🔧', llantera: '🛞', grua: '🚗', gasolina: '⛽',
+                plomero: '🚰', electricista: '⚡', albañil: '🧱', tecnico: '🖥️',
+                celular: '📱', limpieza: '🧹', mudanza: '🚚', transporte: '🚕',
+                comida: '🍽️', medico: '🩺', farmacia: '💊', profesor: '📚',
+                veterinario: '🐕', cerrajero: '🏠', jardineria: '🌳', aire: '❄️',
+                diseno: '🎨', otros: '📌'
+            };
+            return iconos[categoria] || '📌';
+        }
+
+        function getCategoriaNombre(categoria) {
+            const nombres = {
+                mecanico: 'Mecánico', llantera: 'Llantera', grua: 'Grúa',
+                gasolina: 'Gasolina', plomero: 'Plomero', electricista: 'Electricista',
+                albañil: 'Albañil', tecnico: 'Técnico', celular: 'Celulares',
+                limpieza: 'Limpieza', mudanza: 'Mudanza', transporte: 'Transporte',
+                comida: 'Comida', medico: 'Médico', farmacia: 'Farmacia',
+                profesor: 'Profesor', veterinario: 'Veterinario', cerrajero: 'Cerrajero',
+                jardineria: 'Jardinería', aire: 'Aire Acondicionado', diseno: 'Diseño',
+                otros: 'Otros'
+            };
+            return nombres[categoria] || categoria;
+        }
+
+        function calcularDistancia(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * R;
+        }
+
+        function actualizarContador() {
+            document.getElementById('serviceCount').textContent = servicios.length;
+        }
+
+        function actualizarMarcadores() {
+            if (!map) return;
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            servicios.forEach(s => {
+                const color = s.palomita_dorada ? 'var(--gold-cosmic)' :
+                              (s.verificado ? 'var(--success)' :
+                              (s.urgencia === 'urgente' ? 'var(--danger)' : 'var(--text-muted)'));
+                const icon = L.divIcon({
+                    html: `<div style="background:${color};width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);"></div>`,
+                    className: '', iconSize: [12, 12]
+                });
+                const marker = L.marker([s.lat, s.lng], { icon })
+                    .addTo(map)
+                    .bindPopup(`<strong>${s.nombre}</strong><br>${s.descripcion}<br>⭐ ${s.calificacion?.toFixed(1) || 'N/A'}`);
+                markers.push(marker);
+            });
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('offerName').value = '';
+            document.getElementById('offerDescription').value = '';
+            document.getElementById('offerPhone').value = '';
+            document.getElementById('offerEmail').value = '';
+            document.getElementById('offerUrgencia').value = 'normal';
+        }
+
+        // ================================================================
+        // MODALES
+        // ================================================================
+        function abrirFormularioServicio() {
+            document.getElementById('offerServiceModal').classList.add('active');
+        }
+
+        function cerrarFormularioServicio() {
+            document.getElementById('offerServiceModal').classList.remove('active');
+        }
+
+        function abrirDetalleServicio(id) {
+            const servicio = servicios.find(s => s.id === id);
+            if (!servicio) return;
+            currentService = servicio;
+            document.getElementById('modalServiceTitle').textContent = servicio.nombre;
+
+            const body = document.getElementById('modalServiceBody');
+            const icon = getIcono(servicio.categoria);
+            const catName = getCategoriaNombre(servicio.categoria);
+            const estrellas = servicio.calificacion ? '★'.repeat(Math.round(servicio.calificacion)) + '☆'.repeat(5 - Math.round(servicio.calificacion)) : '☆☆☆☆☆';
+            const golden = servicio.palomita_dorada ? '<span class="badge-golden"><i class="fas fa-star"></i> Palomita</span>' : '';
+
+            body.innerHTML = `
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+                    <span style="background:rgba(212,175,55,0.1);padding:2px 10px;border-radius:20px;font-size:0.65rem;color:var(--gold-cosmic);">
+                        ${icon} ${catName}
+                    </span>
+                    ${servicio.verificado ? '<span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado</span>' : ''}
+                    ${golden}
+                </div>
+                <p style="color:var(--text-secondary);margin-bottom:8px;">${servicio.descripcion}</p>
+                <div class="detail-row"><span class="label">⭐ Calificación</span><span class="value gold">${estrellas} ${servicio.calificacion?.toFixed(1) || 'N/A'} (${servicio.reseñas || 0})</span></div>
+                <div class="detail-row"><span class="label">📞 Teléfono</span><span class="value">${servicio.telefono}</span></div>
+                <div class="detail-row"><span class="label">✉️ Correo</span><span class="value">${servicio.email}</span></div>
+                <div class="detail-row"><span class="label">📍 Ubicación</span><span class="value">${servicio.lat.toFixed(4)}, ${servicio.lng.toFixed(4)}</span></div>
+                <div class="detail-row"><span class="label">🚨 Urgencia</span><span class="value">${servicio.urgencia === 'urgente' ? '🔴 Urgente' : '🟢 Normal'}</span></div>
+            `;
+
+            document.getElementById('serviceModal').classList.add('active');
+        }
+
+        function cerrarModalServicio() {
+            document.getElementById('serviceModal').classList.remove('active');
+            currentService = null;
+        }
+
+        function contactarServicio() {
+            if (!currentService) return;
+            mostrarToast(`📞 Contactando a ${currentService.usuario_nombre || 'Prestador'}...`);
+        }
+
+        function calificarServicio() {
+            if (!currentService) return;
+            currentServiceForRating = currentService;
+            document.getElementById('ratingServiceName')?.textContent = currentService.nombre;
+            document.getElementById('ratingStars').innerHTML =
+                '<span style="cursor:pointer;" onclick="setRating(1)">☆</span>' +
+                '<span style="cursor:pointer;" onclick="setRating(2)">☆</span>' +
+                '<span style="cursor:pointer;" onclick="setRating(3)">☆</span>' +
+                '<span style="cursor:pointer;" onclick="setRating(4)">☆</span>' +
+                '<span style="cursor:pointer;" onclick="setRating(5)">☆</span>';
+            document.getElementById('ratingText').textContent = 'Selecciona una calificación';
+            document.getElementById('ratingComment').value = '';
+            document.getElementById('btnSubmitRating').disabled = true;
+            selectedRating = 0;
+            cerrarModalServicio();
+            document.getElementById('ratingModal').classList.add('active');
+        }
+
+        function setRating(rating) {
+            selectedRating = rating;
+            const stars = document.getElementById('ratingStars');
+            const text = document.getElementById('ratingText');
+
+            if (rating === 1) {
+                cerrarModalRating();
+                setTimeout(() => {
+                    document.getElementById('ratingExtremeModal').classList.add('active');
+                }, 300);
+                return;
+            }
+
+            stars.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.textContent = i <= rating ? '★' : '☆';
+                star.style.cssText = `cursor:pointer;color:${i <= rating ? 'var(--gold-cosmic)' : 'var(--text-muted)'};font-size:2.5rem;`;
+                star.onclick = () => setRating(i);
+                stars.appendChild(star);
+            }
+            const textos = ['', 'Muy malo 😡', 'Malo 😕', 'Regular 😐', 'Bueno 😊', 'Excelente 🎉'];
+            text.textContent = textos[rating] || '';
+            document.getElementById('btnSubmitRating').disabled = false;
+        }
+
+        function cerrarModalRating() {
+            document.getElementById('ratingModal').classList.remove('active');
+        }
+
+        function cerrarModalRatingExtreme() {
+            document.getElementById('ratingExtremeModal').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('ratingModal').classList.add('active');
+            }, 300);
+        }
+
+        function confirmarCalificacionExtrema() {
+            const reason = document.getElementById('extremeReason').value.trim();
+            if (reason.length < 20) {
+                mostrarToast('⚠️ Debes explicar el motivo (mín 20 caracteres)', 'error');
+                return;
+            }
+            cerrarModalRatingExtreme();
+            document.getElementById('ratingComment').value = `⭐ 1 estrella - ${reason}`;
+            enviarCalificacion();
+        }
+
+        // ================================================================
+        // FILTROS
+        // ================================================================
+        function filtrarPorCategoria(categoria) {
+            categoriaActual = categoria;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cat === categoria);
+            });
+            renderizarServicios();
+        }
+
+        function filtrarServicios() {
+            renderizarServicios();
         }
 
         // ================================================================
         // TOAST
         // ================================================================
-        let toastTimeout = null;
-
         function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
             toast.textContent = mensaje;
@@ -1845,16 +1720,25 @@
         }
 
         // ================================================================
-        // MODALES
+        // CIERRE DE MODALES
         // ================================================================
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cerrarFormularioServicio();
+            if (e.key === 'Escape') {
+                cerrarFormularioServicio();
+                cerrarModalServicio();
+                limpiarBusquedaInteligente();
+                cerrarModalRating();
+                cerrarModalRatingExtreme();
+            }
         });
 
         document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.addEventListener('click', function(e) {
                 if (e.target === this) {
                     if (this.id === 'offerServiceModal') cerrarFormularioServicio();
+                    if (this.id === 'serviceModal') cerrarModalServicio();
+                    if (this.id === 'ratingModal') cerrarModalRating();
+                    if (this.id === 'ratingExtremeModal') cerrarModalRatingExtreme();
                 }
             });
         });
@@ -1862,25 +1746,39 @@
         // ================================================================
         // INICIALIZAR
         // ================================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Dashboard de Prestador con Buscador IA y Mapa');
-            console.log('🔍 Buscador Inteligente con detección de categorías');
-            console.log('🗺️ Mapa interactivo con tus servicios');
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('◈ Csariel\'s - Servicios Comunitarios (Conectado a Supabase)');
             initStars();
-            cargarDatos();
+            initMap();
+            await cargarServicios();
+
+            // Contador de caracteres para calificación extrema
+            document.getElementById('extremeReason').addEventListener('input', function() {
+                const count = this.value.length;
+                document.getElementById('extremeCharCount').textContent = `${count} / 20`;
+                document.getElementById('extremeCharCount').style.color = count >= 20 ? 'var(--success)' : 'var(--danger)';
+            });
+
+            console.log('✅ Servicios Comunitarios conectado a Supabase');
         });
 
-        // Exponer funciones globalmente
+        // Exponer funciones globales
         window.buscarInteligente = buscarInteligente;
         window.buscarSugerencia = buscarSugerencia;
         window.limpiarBusquedaInteligente = limpiarBusquedaInteligente;
+        window.filtrarPorCategoria = filtrarPorCategoria;
+        window.filtrarServicios = filtrarServicios;
+        window.abrirDetalleServicio = abrirDetalleServicio;
+        window.cerrarModalServicio = cerrarModalServicio;
+        window.contactarServicio = contactarServicio;
+        window.calificarServicio = calificarServicio;
+        window.setRating = setRating;
+        window.confirmarCalificacionExtrema = confirmarCalificacionExtrema;
+        window.enviarCalificacion = enviarCalificacion;
         window.abrirFormularioServicio = abrirFormularioServicio;
         window.cerrarFormularioServicio = cerrarFormularioServicio;
         window.registrarServicio = registrarServicio;
-        window.editarServicio = editarServicio;
-        window.eliminarServicio = eliminarServicio;
-        window.verServicio = verServicio;
-        window.refreshData = refreshData;
+        window.obtenerUbicacion = obtenerUbicacion;
         window.mostrarToast = mostrarToast;
     </script>
 </body>
