@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     
+    <!-- ===== CONECTORES Y SUPABASE ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="./js/muro-connector.js"></script>
+    <script src="./js/perfil-connector.js"></script>
+    <script src="./js/config.js"></script>
+    
     <style>
         /* ================================================================
            MURO LIVE - ESTILOS
@@ -1635,7 +1641,6 @@
             <button onclick="toggleVolumeSlider()" id="floatingMuteBtn"><i class="fas fa-volume-up"></i></button>
             <button onclick="expandFloating()"><i class="fas fa-expand"></i></button>
         </div>
-        <!-- VOLUMEN SLIDER -->
         <div class="volume-container" id="volumeContainer">
             <input type="range" min="0" max="100" value="100" id="volumeSlider" orient="vertical" oninput="updateVolume(this.value)" />
         </div>
@@ -2007,119 +2012,16 @@
 
     <script>
         // ================================================================
-        // DATOS MOCK
+        // CONFIGURACIÓN DE USUARIO
         // ================================================================
-        const MOCK_POSTS = [{
-            id: 1,
-            author: 'Jorge Méndez',
-            avatar: 'J',
-            carrera: 'Ing. Industrial UDLAP',
-            badge: 'GÉNESIS',
-            badgeColor: 'gold',
-            content: '🔥 Ya quedó el Muro Live 🔥 ¿Quién se apunta a probar la IA predictiva? Me hizo la tarea en 10s',
-            media: null,
-            likes: 24,
-            liked: false,
-            comments: 8,
-            date: Date.now() - 120000,
-            online: true,
-            isPinned: true,
-            isLive: false,
-            showIA: true,
-            viewers: 0,
-            liveCategory: null,
-            isFloating: false
-        }, {
-            id: 2,
-            author: 'María García',
-            avatar: 'M',
-            carrera: 'Contaduría UDLAP',
-            badge: 'AÑO 1 2026',
-            badgeColor: 'silver',
-            content: 'Vendo resumen de Conta, $50 o 10 AURAPOINTS',
-            media: {
-                type: 'image',
-                url: 'https://picsum.photos/seed/maria/600/400',
-                alt: 'Resumen de Contaduría'
-            },
-            likes: 12,
-            liked: false,
-            comments: 3,
-            date: Date.now() - 7200000,
-            online: false,
-            isPinned: false,
-            isLive: false,
-            showIA: false,
-            viewers: 0,
-            liveCategory: null,
-            isFloating: false
-        }, {
-            id: 3,
-            author: 'Carlos Ruiz',
-            avatar: 'C',
-            carrera: 'Ing. Civil BUAP',
-            badge: null,
-            badgeColor: null,
-            content: '📚 Estoy en biblioteca, si ocupan ayuda con cálculo avisen',
-            media: {
-                type: 'video',
-                url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                poster: 'https://picsum.photos/seed/carlos/600/400'
-            },
-            likes: 7,
-            liked: false,
-            comments: 2,
-            date: Date.now() - 14400000,
-            online: true,
-            isPinned: false,
-            isLive: true,
-            showIA: false,
-            viewers: 12,
-            liveCategory: '🎮 Jugando',
-            isFloating: false
-        }, {
-            id: 4,
-            author: 'Ana López',
-            avatar: 'A',
-            carrera: 'Arquitectura Ibero',
-            badge: null,
-            badgeColor: null,
-            content: '🏠 Busco roomie cerca de UDLAP, presupuesto $3000',
-            media: null,
-            likes: 5,
-            liked: false,
-            comments: 1,
-            date: Date.now() - 21600000,
-            online: false,
-            isPinned: false,
-            isLive: false,
-            showIA: false,
-            viewers: 0,
-            liveCategory: null,
-            isFloating: false
-        }, {
-            id: 5,
-            author: 'Sistema',
-            avatar: '◈',
-            carrera: 'Csariel\'s',
-            badge: null,
-            badgeColor: 'gold',
-            content: '🎉 Bienvenido a Año 1. Verifica tu .edu y gana 50 AURAPOINTS internos (sin gas) + Skins en Polygon < $1 MXN comisión',
-            media: null,
-            likes: 42,
-            liked: false,
-            comments: 6,
-            date: Date.now() - 86400000,
-            online: false,
-            isPinned: false,
-            isLive: false,
-            showIA: false,
-            viewers: 0,
-            liveCategory: null,
-            isFloating: false
-        }];
+        let usuarioActual = {
+            id: localStorage.getItem('csariels_user_id') || 'user_test',
+            nombre: localStorage.getItem('csariels_user_name') || 'Usuario'
+        };
 
-        // ===== CABINA MOCK =====
+        // ================================================================
+        // DATOS MOCK (CABINA - SIN CAMBIOS)
+        // ================================================================
         const MOCK_AUDIOS = [{
             id: 1,
             title: 'Chisme contado',
@@ -2136,8 +2038,8 @@
             cover: '🎸'
         }];
 
-        let posts = [...MOCK_POSTS];
         let audios = [...MOCK_AUDIOS];
+        let posts = [];
         let isLive = false;
         let streamerInfo = null;
         let tokenSeleccionado = 'USDT';
@@ -2150,7 +2052,6 @@
         let audioElement = null;
         let currentAudio = null;
         let isAudioPlaying = false;
-        let audioInterval = null;
 
         // ===== FLOATING PLAYER STATE =====
         let floatingVideoSrc = null;
@@ -2168,27 +2069,463 @@
         let isVolumeSliderOpen = false;
 
         // ================================================================
-        // CONFLICTO DE AUDIO - Solo un player suena a la vez
+        // CONFLICTO DE AUDIO
         // ================================================================
         function pausarOtrosPlayers(tipo) {
-            // tipo: 'video' o 'audio'
             if (tipo === 'audio' && floatingPostId !== null) {
-                // Pausar video flotante
                 const video = document.getElementById('floatingVideo');
                 if (video && !video.paused) {
                     video.pause();
-                    mostrarToast('🔇 Audio pausado por reproducción de podcast');
+                    mostrarToast('🔇 Video pausado por reproducción de podcast');
                 }
             }
-
             if (tipo === 'video' && isAudioPlaying) {
-                // Pausar audio
                 if (audioElement) {
                     audioElement.pause();
                     isAudioPlaying = false;
                     updateAudioUI();
                     mostrarToast('🔇 Podcast pausado por reproducción de video');
                 }
+            }
+        }
+
+        // ================================================================
+        // ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('starsCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize();
+                createStars(); });
+        }
+
+        // ================================================================
+        // FORMATO DE FECHA
+        // ================================================================
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'Ahora mismo';
+            if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+            if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+            if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
+            return date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // ================================================================
+        // 🚀 SUPABASE - CARGAR POSTS
+        // ================================================================
+        async function cargarPosts() {
+            try {
+                const resultado = await muroConnector.obtenerPosts('live', 20);
+                if (resultado.error) {
+                    console.error('❌ Error al cargar posts:', resultado.error);
+                    mostrarToast('❌ Error al cargar publicaciones', 'error');
+                    return;
+                }
+                posts = resultado.data || [];
+                renderFeed();
+                console.log(`✅ ${posts.length} posts cargados de Supabase`);
+            } catch (error) {
+                console.error('❌ Error en cargarPosts:', error);
+                mostrarToast('❌ Error de conexión con Supabase', 'error');
+            }
+        }
+
+        // ================================================================
+        // RENDER FEED (CON DATOS DE SUPABASE)
+        // ================================================================
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin publicaciones</h3>
+                        <p>Sé el primero en compartir algo en el muro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = posts.map(post => {
+                // Extraer datos del usuario (embebido)
+                const autor = post.usuario?.nombre || 'Usuario';
+                const avatar = post.usuario?.foto_perfil || autor.charAt(0);
+                const verificado = post.usuario?.verificado || false;
+                const universidad = post.usuario?.universidad || '';
+
+                // Determinar si es live
+                const isLiveVideo = post.is_live || false;
+                const viewers = post.viewers || Math.floor(Math.random() * 20) + 1;
+
+                let mediaHTML = '';
+                let floatingTag = '';
+
+                if (post.media_url) {
+                    const isImage = post.media_type === 'image';
+                    const isVideo = post.media_type === 'video' || post.media_url.endsWith('.mp4');
+
+                    if (isImage) {
+                        mediaHTML = `
+                            <div class="post-media image-media">
+                                <img src="${post.media_url}" alt="Imagen" loading="lazy" />
+                            </div>
+                        `;
+                    } else if (isVideo) {
+                        const categoryTag = post.liveCategory ?
+                            `<span class="live-tag-category">${post.liveCategory}</span>` : '';
+
+                        floatingTag = isLiveVideo ?
+                            `<span class="mini-player-tag" onclick="event.stopPropagation(); activarFloating(${post.id})">
+                                <i class="fas fa-external-link-alt"></i> 🔴 Viendo en mini
+                            </span>` : '';
+
+                        mediaHTML = `
+                            <div class="post-media">
+                                <div class="media-overlay">
+                                    <div class="mini-avatar">${avatar}</div>
+                                    ${isLiveVideo ? '<span class="mini-live">● LIVE</span>' : ''}
+                                    ${isLiveVideo ? `<span class="viewers-count">${viewers} viendo</span>` : ''}
+                                    ${categoryTag}
+                                </div>
+                                <video 
+                                    src="${post.media_url}"
+                                    autoplay
+                                    muted
+                                    loop
+                                    playsInline
+                                    preload="metadata"
+                                    id="video-${post.id}"
+                                ></video>
+                                <div class="play-button hidden" id="playBtn-${post.id}" onclick="event.stopPropagation(); toggleVideoPlay(${post.id})">
+                                    <div class="triangle"></div>
+                                </div>
+                                <div class="video-controls">
+                                    <button class="ctrl-btn" onclick="event.stopPropagation(); toggleVideoMute(${post.id})" id="muteBtn-${post.id}">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <button class="ctrl-btn" onclick="event.stopPropagation(); abrirFullscreenVideo(${post.id})">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                    ${isLiveVideo ? `<button class="ctrl-btn" onclick="event.stopPropagation(); activarFloating(${post.id})" style="color:var(--gold-cosmic);">
+                                        <i class="fas fa-window-restore"></i>
+                                    </button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Verificar si el usuario actual dio like
+                const userLiked = post.usuario_liked || false;
+
+                return `
+                    <div class="post-card ${post.is_pinned ? 'pinned' : ''}">
+                        <div class="post-header">
+                            <div class="post-avatar">${avatar}</div>
+                            <div class="post-author-info">
+                                <div class="post-author">
+                                    ${autor}
+                                    ${verificado ? '<span style="color:var(--success);font-size:0.55rem;">✅</span>' : ''}
+                                    ${isLiveVideo ? '<span class="live-tag">● LIVE</span>' : ''}
+                                    ${floatingTag}
+                                </div>
+                                <div class="post-meta">
+                                    <span class="post-carrera">${universidad || 'Estudiante'}</span>
+                                    ${post.badge ? `<span class="badge-nivel gold">${post.badge}</span>` : ''}
+                                    <span class="post-date">${formatDate(post.created_at)}</span>
+                                </div>
+                            </div>
+                            ${post.is_pinned ? '<span class="pinned-badge">📌</span>' : ''}
+                        </div>
+                        <div class="post-content">${post.contenido || ''}</div>
+                        ${mediaHTML}
+                        <div class="post-actions">
+                            <button class="action-btn ${userLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                                <i class="fas fa-heart"></i> <span id="likes-${post.id}">${post.likes_count || 0}</span>
+                            </button>
+                            <button class="action-btn" onclick="mostrarToast('💬 Comentarios pronto')">
+                                <i class="fas fa-comment"></i> <span>${post.comments_count || 0}</span>
+                            </button>
+                            <button class="action-btn" onclick="mostrarToast('📋 Enlace copiado')">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            ${post.is_live ? `<button class="action-btn live-btn" onclick="abrirModal('donacionModal')"><i class="fas fa-broadcast"></i> Live</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            initVideos();
+        }
+
+        // ================================================================
+        // 🚀 SUPABASE - PUBLICAR POST
+        // ================================================================
+        async function publicarPost() {
+            const textarea = document.getElementById('postTextInput');
+            const texto = textarea.value.trim();
+
+            if (!texto && !videoFile) {
+                mostrarToast('⚠️ Escribe algo o sube un video', 'error');
+                return;
+            }
+
+            let mediaUrl = null;
+            let mediaType = null;
+
+            if (videoFile) {
+                mediaUrl = videoPreviewURL;
+                mediaType = 'video';
+            }
+
+            const nuevoPost = {
+                usuario_id: usuarioActual.id,
+                contenido: texto || '📹 Video compartido',
+                media_url: mediaUrl,
+                media_type: mediaType,
+                tipo: 'publicacion',
+                is_live: false,
+                is_18: false
+            };
+
+            try {
+                const resultado = await muroConnector.crearPost(nuevoPost);
+                if (resultado.error) {
+                    console.error('❌ Error al publicar:', resultado.error);
+                    mostrarToast('❌ Error al publicar', 'error');
+                    return;
+                }
+
+                mostrarToast('✅ Publicación creada');
+                cerrarModal('postModal');
+                document.getElementById('postTextInput').value = '';
+                removerVideoPreview();
+                await cargarPosts(); // Recargar feed
+            } catch (error) {
+                console.error('❌ Error en publicarPost:', error);
+                mostrarToast('❌ Error de conexión', 'error');
+            }
+        }
+
+        // ================================================================
+        // 🚀 SUPABASE - LIKE
+        // ================================================================
+        async function toggleLike(postId) {
+            try {
+                const resultado = await muroConnector.darLike(postId, usuarioActual.id);
+                if (resultado.error) {
+                    console.error('❌ Error al dar like:', resultado.error);
+                    mostrarToast('❌ Error al dar like', 'error');
+                    return;
+                }
+
+                // Actualizar el contador de likes localmente sin recargar todo
+                const likeSpan = document.getElementById(`likes-${postId}`);
+                if (likeSpan) {
+                    const current = parseInt(likeSpan.textContent) || 0;
+                    likeSpan.textContent = resultado.liked ? current + 1 : current - 1;
+                }
+
+                // Actualizar clase del botón
+                const postCard = document.querySelector(`.post-card:has(#likes-${postId})`);
+                if (postCard) {
+                    const likeBtn = postCard.querySelector('.action-btn i.fa-heart')?.closest('.action-btn');
+                    if (likeBtn) {
+                        likeBtn.classList.toggle('liked', resultado.liked);
+                    }
+                }
+
+            } catch (error) {
+                console.error('❌ Error en toggleLike:', error);
+                mostrarToast('❌ Error de conexión', 'error');
+            }
+        }
+
+        // ================================================================
+        // VIDEO PLAYER - CONTROL
+        // ================================================================
+        function initVideos() {
+            document.querySelectorAll('.post-media video').forEach(video => {
+                const postId = video.id.replace('video-', '');
+                const playBtn = document.getElementById(`playBtn-${postId}`);
+
+                setTimeout(() => {
+                    if (playBtn) playBtn.classList.add('hidden');
+                }, 1500);
+
+                video.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleVideoPlay(parseInt(postId));
+                });
+
+                video.addEventListener('pause', function() {
+                    if (playBtn) playBtn.classList.remove('hidden');
+                });
+
+                video.addEventListener('play', function() {
+                    if (playBtn) playBtn.classList.add('hidden');
+                });
+
+                video.play().catch(() => {});
+            });
+        }
+
+        function toggleVideoPlay(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            const playBtn = document.getElementById(`playBtn-${postId}`);
+            if (!video) return;
+
+            if (video.paused) {
+                pausarOtrosPlayers('video');
+                video.play();
+                if (playBtn) playBtn.classList.add('hidden');
+            } else {
+                video.pause();
+                if (playBtn) playBtn.classList.remove('hidden');
+            }
+        }
+
+        function toggleVideoMute(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            const muteBtn = document.getElementById(`muteBtn-${postId}`);
+            if (!video || !muteBtn) return;
+
+            video.muted = !video.muted;
+            muteBtn.innerHTML = video.muted ?
+                '<i class="fas fa-volume-mute"></i>' :
+                '<i class="fas fa-volume-up"></i>';
+        }
+
+        function abrirFullscreenVideo(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            if (!video) return;
+
+            const overlay = document.getElementById('fullscreenOverlay');
+            const fsVideo = document.getElementById('fullscreenVideo');
+
+            fsVideo.src = video.src;
+            fsVideo.poster = video.poster || '';
+            fsVideo.muted = video.muted;
+            fsVideo.volume = video.volume || 1;
+            fsVideo.load();
+            fsVideo.play().catch(() => {});
+
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarFullscreen() {
+            const overlay = document.getElementById('fullscreenOverlay');
+            const video = document.getElementById('fullscreenVideo');
+            video.pause();
+            video.src = '';
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ================================================================
+        // FLOATING PLAYER
+        // ================================================================
+        function activarFloating(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post || !post.media_url) return;
+
+            pausarOtrosPlayers('video');
+
+            const player = document.getElementById('floatingPlayer');
+            const video = document.getElementById('floatingVideo');
+
+            floatingVideoSrc = post.media_url;
+            floatingPostId = postId;
+
+            video.volume = currentVolume / 100;
+            video.muted = currentVolume === 0;
+
+            video.src = floatingVideoSrc;
+            video.load();
+            video.play().catch(() => {});
+
+            document.getElementById('floatingTitle').textContent = post.usuario?.nombre || 'Usuario';
+            document.getElementById('floatingViewers').textContent = post.viewers || 12;
+
+            player.classList.add('show');
+            mostrarToast('📹 Video flotante activado');
+        }
+
+        function cerrarFloating() {
+            const player = document.getElementById('floatingPlayer');
+            const video = document.getElementById('floatingVideo');
+
+            video.pause();
+            video.src = '';
+            player.classList.remove('show');
+
+            floatingPostId = null;
+            floatingVideoSrc = null;
+            closeVolumeSlider();
+        }
+
+        function expandFloating() {
+            const video = document.getElementById('floatingVideo');
+            if (video.src) {
+                abrirFullscreenVideo(floatingPostId || 3);
             }
         }
 
@@ -2214,7 +2551,6 @@
                 }
             } catch (e) {}
 
-            // Cargar volumen guardado
             try {
                 const vol = localStorage.getItem('csariels_volume');
                 if (vol !== null) {
@@ -2251,7 +2587,6 @@
             const player = document.getElementById('floatingPlayer');
             if (!player.classList.contains('show')) return;
 
-            // Cerrar volumen slider
             closeVolumeSlider();
 
             isDragging = true;
@@ -2399,7 +2734,6 @@
             const video = document.getElementById('floatingVideo');
             if (video) {
                 video.volume = currentVolume / 100;
-                // Si el volumen es 0, muteamos; si es > 0, unmuteamos
                 if (currentVolume === 0) {
                     video.muted = true;
                     isFloatingMuted = true;
@@ -2427,13 +2761,11 @@
         function toggleFloatingMute() {
             const video = document.getElementById('floatingVideo');
             if (currentVolume === 0) {
-                // Si está muteado, restaurar volumen al 50%
                 currentVolume = 50;
                 video.volume = 0.5;
                 video.muted = false;
                 isFloatingMuted = false;
             } else {
-                // Mute
                 currentVolume = 0;
                 video.volume = 0;
                 video.muted = true;
@@ -2445,184 +2777,24 @@
         }
 
         // ================================================================
-        // ESTRELLAS
+        // TABS
         // ================================================================
-        function initStars() {
-            const canvas = document.getElementById('starsCanvas');
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            let stars = [];
-            const STAR_COUNT = 200;
+        function switchTab(tab) {
+            currentTab = tab;
 
-            function resize() {
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width;
-                canvas.height = height;
-            }
-
-            function createStars() {
-                stars = [];
-                for (let i = 0; i < STAR_COUNT; i++) {
-                    stars.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        radius: Math.random() * 1.5 + 0.3,
-                        speed: Math.random() * 0.015 + 0.005,
-                        opacity: Math.random() * 0.7 + 0.3,
-                        twinkleSpeed: Math.random() * 0.02 + 0.01,
-                        twinklePhase: Math.random() * Math.PI * 2
-                    });
-                }
-            }
-
-            function draw() {
-                ctx.clearRect(0, 0, width, height);
-                for (let star of stars) {
-                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
-                    ctx.beginPath();
-                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-                    ctx.fill();
-                    star.twinklePhase += star.twinkleSpeed;
-                    star.y += star.speed;
-                    if (star.y > height) {
-                        star.y = 0;
-                        star.x = Math.random() * width;
-                    }
-                }
-                requestAnimationFrame(draw);
-            }
-
-            resize();
-            createStars();
-            draw();
-            window.addEventListener('resize', () => { resize();
-                createStars(); });
-        }
-
-        // ================================================================
-        // FORMATO DE FECHA
-        // ================================================================
-        function formatDate(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diff = Math.floor((now - date) / 1000);
-            if (diff < 60) return 'Ahora mismo';
-            if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
-            if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
-            if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
-            return date.toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tab);
             });
-        }
 
-        // ================================================================
-        // RENDER FEED
-        // ================================================================
-        function renderFeed() {
-            const container = document.getElementById('feedContainer');
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
 
-            container.innerHTML = posts.map(post => {
-                let mediaHTML = '';
-                let floatingTag = '';
-                if (post.media) {
-                    if (post.media.type === 'image' && post.media.url) {
-                        mediaHTML = `
-                            <div class="post-media image-media">
-                                <img src="${post.media.url}" alt="${post.media.alt || 'Imagen'}" loading="lazy" />
-                            </div>
-                        `;
-                    } else if (post.media.type === 'video' && post.media.url) {
-                        const isLiveVideo = post.isLive;
-                        const categoryTag = post.liveCategory ?
-                            `<span class="live-tag-category">${post.liveCategory}</span>` : '';
-                        floatingTag = isLiveVideo ?
-                            `<span class="mini-player-tag" onclick="event.stopPropagation(); activarFloating(${post.id})">
-                                <i class="fas fa-external-link-alt"></i> 🔴 Viendo en mini
-                            </span>` :
-                            '';
+            document.getElementById(`tab-${tab}`).classList.add('active');
 
-                        mediaHTML = `
-                            <div class="post-media">
-                                <div class="media-overlay">
-                                    <div class="mini-avatar">${post.avatar}</div>
-                                    ${isLiveVideo ? '<span class="mini-live">● LIVE</span>' : ''}
-                                    ${isLiveVideo && post.viewers ? `<span class="viewers-count">${post.viewers} viendo</span>` : ''}
-                                    ${categoryTag}
-                                </div>
-                                <video 
-                                    src="${post.media.url}"
-                                    poster="${post.media.poster || ''}"
-                                    autoplay
-                                    muted
-                                    loop
-                                    playsInline
-                                    preload="metadata"
-                                    id="video-${post.id}"
-                                ></video>
-                                <div class="play-button hidden" id="playBtn-${post.id}" onclick="event.stopPropagation(); toggleVideoPlay(${post.id})">
-                                    <div class="triangle"></div>
-                                </div>
-                                <div class="video-controls">
-                                    <button class="ctrl-btn" onclick="event.stopPropagation(); toggleVideoMute(${post.id})" id="muteBtn-${post.id}">
-                                        <i class="fas fa-volume-up"></i>
-                                    </button>
-                                    <button class="ctrl-btn" onclick="event.stopPropagation(); abrirFullscreenVideo(${post.id})">
-                                        <i class="fas fa-expand"></i>
-                                    </button>
-                                    ${isLiveVideo ? `<button class="ctrl-btn" onclick="event.stopPropagation(); activarFloating(${post.id})" style="color:var(--gold-cosmic);">
-                                        <i class="fas fa-window-restore"></i>
-                                    </button>` : ''}
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-
-                return `
-                    <div class="post-card ${post.isPinned ? 'pinned' : ''}">
-                        <div class="post-header">
-                            <div class="post-avatar">${post.avatar}</div>
-                            <div class="post-author-info">
-                                <div class="post-author">
-                                    ${post.author}
-                                    ${post.online ? '<span class="online-dot"></span>' : ''}
-                                    ${post.isLive ? '<span class="live-tag">● LIVE</span>' : ''}
-                                    ${floatingTag}
-                                </div>
-                                <div class="post-meta">
-                                    <span class="post-carrera">${post.carrera}</span>
-                                    ${post.badge ? `<span class="badge-nivel ${post.badgeColor}">${post.badge}</span>` : ''}
-                                    <span class="post-date">${formatDate(post.date)}</span>
-                                </div>
-                            </div>
-                            ${post.isPinned ? '<span class="pinned-badge">📌</span>' : ''}
-                        </div>
-                        <div class="post-content">${post.content}</div>
-                        ${mediaHTML}
-                        <div class="post-actions">
-                            <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
-                                <i class="fas fa-heart"></i> <span>${post.likes}</span>
-                            </button>
-                            <button class="action-btn" onclick="mostrarToast('💬 Comentarios pronto')">
-                                <i class="fas fa-comment"></i> <span>${post.comments}</span>
-                            </button>
-                            <button class="action-btn" onclick="mostrarToast('📋 Enlace copiado')">
-                                <i class="fas fa-share"></i>
-                            </button>
-                            ${post.showIA ? `<button class="action-btn ia-btn" onclick="mostrarToast('🧠 IA Predictiva: Análisis disponible')"><i class="fas fa-brain"></i> Ver IA</button>` : ''}
-                            ${post.isLive ? `<button class="action-btn live-btn" onclick="abrirModal('donacionModal')"><i class="fas fa-broadcast"></i> Live</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            initVideos();
+            if (tab === 'cabina') {
+                renderCabina();
+            }
         }
 
         // ================================================================
@@ -2661,7 +2833,6 @@
             const audio = audios.find(a => a.id === id);
             if (!audio) return;
 
-            // Pausar video flotante si está reproduciéndose
             pausarOtrosPlayers('audio');
 
             if (currentAudio && currentAudio.id === id && audioElement && isAudioPlaying) {
@@ -2714,7 +2885,6 @@
                 audioElement.pause();
                 isAudioPlaying = false;
             } else {
-                // Pausar video flotante si está reproduciéndose
                 pausarOtrosPlayers('audio');
                 audioElement.play().catch(() => {});
                 isAudioPlaying = true;
@@ -2758,215 +2928,6 @@
         }
 
         // ================================================================
-        // FLOATING PLAYER
-        // ================================================================
-        function activarFloating(postId) {
-            const post = posts.find(p => p.id === postId);
-            if (!post || !post.media || post.media.type !== 'video') return;
-
-            // Pausar audio si está reproduciéndose
-            pausarOtrosPlayers('video');
-
-            const player = document.getElementById('floatingPlayer');
-            const video = document.getElementById('floatingVideo');
-
-            floatingVideoSrc = post.media.url;
-            floatingPostId = postId;
-
-            // Restaurar volumen guardado
-            video.volume = currentVolume / 100;
-            video.muted = currentVolume === 0;
-
-            video.src = floatingVideoSrc;
-            video.load();
-            video.play().catch(() => {});
-
-            document.getElementById('floatingTitle').textContent = post.author;
-            document.getElementById('floatingViewers').textContent = post.viewers || 12;
-
-            player.classList.add('show');
-            post.isFloating = true;
-            mostrarToast('📹 Video flotante activado');
-        }
-
-        function cerrarFloating() {
-            const player = document.getElementById('floatingPlayer');
-            const video = document.getElementById('floatingVideo');
-
-            video.pause();
-            video.src = '';
-            player.classList.remove('show');
-
-            if (floatingPostId) {
-                const post = posts.find(p => p.id === floatingPostId);
-                if (post) post.isFloating = false;
-            }
-            floatingPostId = null;
-            floatingVideoSrc = null;
-            closeVolumeSlider();
-        }
-
-        function expandFloating() {
-            const video = document.getElementById('floatingVideo');
-            if (video.src) {
-                abrirFullscreenVideo(floatingPostId || 3);
-            }
-        }
-
-        // ================================================================
-        // VIDEO PICKER - CABINA
-        // ================================================================
-        function handleAudioUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const dmcaCheck = document.getElementById('dmcaCheck');
-            if (!dmcaCheck.checked) {
-                mostrarToast('⚠️ Debes confirmar que es contenido original', 'error');
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                mostrarToast('⚠️ El audio excede 5 MB', 'error');
-                return;
-            }
-
-            const url = URL.createObjectURL(file);
-            const newAudio = {
-                id: Date.now(),
-                title: file.name.replace(/\.[^/.]+$/, ''),
-                author: '@anonimo',
-                duration: '0:00',
-                url: url,
-                cover: '🎵'
-            };
-
-            audios.unshift(newAudio);
-            renderCabina();
-            mostrarToast('✅ Audio subido exitosamente');
-            event.target.value = '';
-        }
-
-        // ================================================================
-        // TABS
-        // ================================================================
-        function switchTab(tab) {
-            currentTab = tab;
-
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.toggle('active', el.dataset.tab === tab);
-            });
-
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
-
-            document.getElementById(`tab-${tab}`).classList.add('active');
-
-            if (tab === 'cabina') {
-                renderCabina();
-            }
-        }
-
-        // ================================================================
-        // INICIALIZAR VIDEOS
-        // ================================================================
-        function initVideos() {
-            document.querySelectorAll('.post-media video').forEach(video => {
-                const postId = video.id.replace('video-', '');
-                const playBtn = document.getElementById(`playBtn-${postId}`);
-
-                setTimeout(() => {
-                    if (playBtn) playBtn.classList.add('hidden');
-                }, 1500);
-
-                video.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    toggleVideoPlay(parseInt(postId));
-                });
-
-                video.addEventListener('pause', function() {
-                    if (playBtn) playBtn.classList.remove('hidden');
-                });
-
-                video.addEventListener('play', function() {
-                    if (playBtn) playBtn.classList.add('hidden');
-                });
-
-                video.play().catch(() => {});
-            });
-        }
-
-        // ================================================================
-        // CONTROL DE VIDEOS
-        // ================================================================
-        function toggleVideoPlay(postId) {
-            const video = document.getElementById(`video-${postId}`);
-            const playBtn = document.getElementById(`playBtn-${postId}`);
-            if (!video) return;
-
-            if (video.paused) {
-                // Pausar otros players si es necesario
-                pausarOtrosPlayers('video');
-                video.play();
-                if (playBtn) playBtn.classList.add('hidden');
-            } else {
-                video.pause();
-                if (playBtn) playBtn.classList.remove('hidden');
-            }
-        }
-
-        function toggleVideoMute(postId) {
-            const video = document.getElementById(`video-${postId}`);
-            const muteBtn = document.getElementById(`muteBtn-${postId}`);
-            if (!video || !muteBtn) return;
-
-            video.muted = !video.muted;
-            muteBtn.innerHTML = video.muted ?
-                '<i class="fas fa-volume-mute"></i>' :
-                '<i class="fas fa-volume-up"></i>';
-        }
-
-        function abrirFullscreenVideo(postId) {
-            const video = document.getElementById(`video-${postId}`);
-            if (!video) return;
-
-            const overlay = document.getElementById('fullscreenOverlay');
-            const fsVideo = document.getElementById('fullscreenVideo');
-
-            fsVideo.src = video.src;
-            fsVideo.poster = video.poster || '';
-            fsVideo.muted = video.muted;
-            fsVideo.volume = video.volume || 1;
-            fsVideo.load();
-            fsVideo.play().catch(() => {});
-
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function cerrarFullscreen() {
-            const overlay = document.getElementById('fullscreenOverlay');
-            const video = document.getElementById('fullscreenVideo');
-            video.pause();
-            video.src = '';
-            overlay.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        // ================================================================
-        // TOGGLE LIKE
-        // ================================================================
-        function toggleLike(id) {
-            const post = posts.find(p => p.id === id);
-            if (post) {
-                post.liked = !post.liked;
-                post.likes += post.liked ? 1 : -1;
-                renderFeed();
-            }
-        }
-
-        // ================================================================
         // VIDEO PICKER
         // ================================================================
         function abrirVideoPicker() {
@@ -3002,57 +2963,6 @@
         }
 
         // ================================================================
-        // PUBLICAR POST
-        // ================================================================
-        function publicarPost() {
-            const textarea = document.getElementById('postTextInput');
-            const texto = textarea.value.trim();
-
-            if (!texto && !videoFile) {
-                mostrarToast('⚠️ Escribe algo o sube un video', 'error');
-                return;
-            }
-
-            let media = null;
-            if (videoFile) {
-                media = {
-                    type: 'video',
-                    url: videoPreviewURL,
-                    poster: ''
-                };
-            }
-
-            const nuevoPost = {
-                id: Date.now(),
-                author: 'Usuario',
-                avatar: 'U',
-                carrera: 'Estudiante Csariel\'s',
-                badge: null,
-                badgeColor: null,
-                content: texto || '📹 Video compartido',
-                media: media,
-                likes: 0,
-                liked: false,
-                comments: 0,
-                date: Date.now(),
-                online: true,
-                isPinned: false,
-                isLive: false,
-                showIA: false,
-                viewers: 0,
-                liveCategory: null,
-                isFloating: false
-            };
-
-            posts.unshift(nuevoPost);
-            renderFeed();
-            cerrarModal('postModal');
-            document.getElementById('postTextInput').value = '';
-            removerVideoPreview();
-            mostrarToast('✅ Publicación creada');
-        }
-
-        // ================================================================
         // LIVE
         // ================================================================
         function toggleLive() {
@@ -3063,9 +2973,9 @@
             }
         }
 
-        function iniciarLive() {
+        async function iniciarLive() {
             streamerInfo = {
-                nombre: 'Usuario',
+                nombre: usuarioActual.nombre || 'Usuario',
                 wallet: '0x' + Array.from({ length: 40 }, () =>
                     Math.floor(Math.random() * 16).toString(16)).join(''),
                 inicio: Date.now()
@@ -3144,6 +3054,40 @@
         }
 
         // ================================================================
+        // VIDEO PICKER - CABINA
+        // ================================================================
+        function handleAudioUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const dmcaCheck = document.getElementById('dmcaCheck');
+            if (!dmcaCheck.checked) {
+                mostrarToast('⚠️ Debes confirmar que es contenido original', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                mostrarToast('⚠️ El audio excede 5 MB', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(file);
+            const newAudio = {
+                id: Date.now(),
+                title: file.name.replace(/\.[^/.]+$/, ''),
+                author: '@anonimo',
+                duration: '0:00',
+                url: url,
+                cover: '🎵'
+            };
+
+            audios.unshift(newAudio);
+            renderCabina();
+            mostrarToast('✅ Audio subido exitosamente');
+            event.target.value = '';
+        }
+
+        // ================================================================
         // TÉRMINOS
         // ================================================================
         function verificarTerminos() {
@@ -3208,14 +3152,17 @@
         // ================================================================
         // INICIALIZAR
         // ================================================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('◈ Csariel\'s - Muro Live (Conectado a Supabase)');
             initStars();
-            renderFeed();
             initFloatingDraggable();
 
             if (localStorage.getItem('terminos_muro_live_aceptado') !== 'true') {
                 setTimeout(() => abrirModal('terminosModal'), 800);
             }
+
+            // Cargar posts desde Supabase
+            await cargarPosts();
 
             const streamerData = localStorage.getItem('streamer_activo');
             if (streamerData) {
@@ -3235,6 +3182,8 @@
             }
 
             document.getElementById('donacionMontoInput').addEventListener('input', actualizarResumenDonacion);
+
+            console.log('✅ Muro Live conectado a Supabase');
         });
     </script>
 </body>
