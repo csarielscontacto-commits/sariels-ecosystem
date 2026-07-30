@@ -8,11 +8,12 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <style>
-        /* ===== BASE ===== */
+        /* ===== TODOS LOS ESTILOS ===== */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -291,7 +292,26 @@
         .stat-card .stat-change.positive { color: var(--success); }
         .stat-card .stat-change.negative { color: var(--danger); }
 
-        /* ===== CHART CONTAINER ===== */
+        /* ===== MAPA ===== */
+        #map-container {
+            width: 100%;
+            height: 300px;
+            border-radius: var(--radius);
+            border: 1px solid var(--gold-dim);
+            overflow: hidden;
+            background: var(--space-deep);
+        }
+        #map-container .leaflet-control-zoom a {
+            background: rgba(11,61,46,0.8);
+            color: var(--text-primary);
+            border-color: var(--gold-dim);
+        }
+        #map-container .leaflet-control-zoom a:hover {
+            background: rgba(11,61,46,0.9);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== CHART ===== */
         .chart-container {
             background: rgba(11,61,46,0.2);
             border: 1px solid var(--gold-dim);
@@ -310,7 +330,7 @@
             width: 100% !important;
         }
 
-        /* ===== SERVICIOS DEL PRESTADOR ===== */
+        /* ===== SERVICIOS ===== */
         .service-list {
             display: flex;
             flex-direction: column;
@@ -390,7 +410,7 @@
             font-size: 0.5rem;
         }
 
-        /* ===== CALIFICACIONES ===== */
+        /* ===== RESEÑAS ===== */
         .reviews-list {
             display: flex;
             flex-direction: column;
@@ -440,6 +460,14 @@
             padding: 1px 8px;
             border-radius: 10px;
             border: 1px solid rgba(247,212,74,0.2);
+        }
+
+        /* ===== BADGES ===== */
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 4px 0;
         }
 
         /* ===== MODAL ===== */
@@ -497,6 +525,33 @@
         }
         .modal-actions .btn { flex: 1; justify-content: center; }
 
+        .form-group { margin-bottom: 12px; }
+        .form-group label {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 4px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus { border-color: var(--gold-cosmic); }
+        .form-group textarea { resize: vertical; min-height: 70px; }
+
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
@@ -521,23 +576,33 @@
         .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--danger); color: white; }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .app { padding: 12px 14px; }
-            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
-            .logo-text { font-size: 1rem; }
-            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-            .stat-card .stat-number { font-size: 1.5rem; }
-            .dashboard-grid { gap: 10px; }
-            .modal-content { padding: 18px; margin: 10px; }
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        @media (max-width: 480px) {
-            .btn { font-size: 0.5rem; padding: 4px 10px; }
-            .stat-card .stat-number { font-size: 1.2rem; }
-            .stat-card .stat-icon { font-size: 1.5rem; }
-            .service-item { flex-wrap: wrap; gap: 6px; }
-            .service-item .service-actions { width: 100%; justify-content: flex-end; }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
         }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 12px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.6rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
 
         .section-title {
             font-family: 'Orbitron', monospace;
@@ -552,6 +617,22 @@
             font-size: 0.6rem;
             color: var(--text-muted);
             font-weight: 400;
+        }
+
+        @media (max-width: 768px) {
+            .app { padding: 12px 14px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .logo-text { font-size: 1rem; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .stat-card .stat-number { font-size: 1.5rem; }
+            #map-container { height: 220px; }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.5rem; padding: 4px 10px; }
+            .stat-card .stat-number { font-size: 1.2rem; }
+            .service-item { flex-wrap: wrap; gap: 6px; }
+            .service-item .service-actions { width: 100%; justify-content: flex-end; }
+            #map-container { height: 180px; }
         }
     </style>
 </head>
@@ -585,9 +666,8 @@
             </div>
         </header>
 
-        <!-- ===== DASHBOARD ===== -->
+        <!-- ===== STATS ===== -->
         <div class="dashboard-grid">
-            <!-- Servicios Totales -->
             <div class="stat-card">
                 <span class="stat-icon">📋</span>
                 <div class="stat-number" id="totalServices">0</div>
@@ -595,7 +675,6 @@
                 <div class="stat-change positive" id="servicesChange">+0% este mes</div>
             </div>
 
-            <!-- Calificación Promedio -->
             <div class="stat-card">
                 <span class="stat-icon">⭐</span>
                 <div class="stat-number" id="avgRating">0.0</div>
@@ -603,7 +682,6 @@
                 <div class="stat-change positive" id="ratingChange">+0 estrellas</div>
             </div>
 
-            <!-- Palomita Dorada -->
             <div class="stat-card">
                 <span class="stat-icon">🌟</span>
                 <div class="stat-number" id="goldenStatus">❌</div>
@@ -611,13 +689,21 @@
                 <div class="stat-change" id="goldenProgress" style="color:var(--text-muted);">4.7+ estrellas y 10+ reseñas</div>
             </div>
 
-            <!-- Reseñas Totales -->
             <div class="stat-card">
                 <span class="stat-icon">💬</span>
                 <div class="stat-number" id="totalReviews">0</div>
                 <div class="stat-label">Reseñas Recibidas</div>
                 <div class="stat-change" id="reviewsChange" style="color:var(--text-muted);">0 en cuarentena</div>
             </div>
+        </div>
+
+        <!-- ===== MAPA ===== -->
+        <div style="margin-top:16px;">
+            <div class="section-title">
+                <i class="fas fa-map" style="color:var(--gold-cosmic);"></i> Ubicación de tus Servicios
+                <span class="sub">(tus servicios en el mapa)</span>
+            </div>
+            <div id="map-container"></div>
         </div>
 
         <!-- ===== GRÁFICA ===== -->
@@ -663,35 +749,18 @@
                 <i class="fas fa-award" style="color:var(--gold-cosmic);"></i> Logros y Badges
                 <span class="sub">(reconocimientos por tu trabajo)</span>
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 0;" id="badgesContainer">
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid var(--gold-dim);">
-                    <div style="font-size:2rem;">🛡️</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">Verificado</div>
-                </div>
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid var(--gold-dim);opacity:0.4;">
-                    <div style="font-size:2rem;">🌟</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">Palomita Dorada</div>
-                </div>
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid var(--gold-dim);opacity:0.4;">
-                    <div style="font-size:2rem;">🏆</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">100+ Reseñas</div>
-                </div>
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid var(--gold-dim);opacity:0.4;">
-                    <div style="font-size:2rem;">⚡</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">Respuesta Rápida</div>
-                </div>
-            </div>
+            <div class="badges-container" id="badgesContainer"></div>
         </div>
 
         <!-- FOOTER -->
-        <footer class="footer" style="margin-top:40px;padding-top:20px;border-top:1px solid var(--gold-dim);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-            <span class="footer-text" style="color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;font-family:'Orbitron',monospace;">
-                <span class="brand" style="color:var(--gold-cosmic);">◈ Csariel's</span> — Dashboard de Prestador
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Dashboard de Prestador
             </span>
-            <div class="footer-links" style="display:flex;gap:12px;flex-wrap:wrap;">
-                <a href="./servicios-comunitarios.html" style="color:var(--text-muted);text-decoration:none;font-size:0.6rem;transition:var(--transition);font-family:'Orbitron',monospace;">🔧 Servicios</a>
-                <a href="./mi-red.html" style="color:var(--text-muted);text-decoration:none;font-size:0.6rem;transition:var(--transition);font-family:'Orbitron',monospace;">👥 Mi Red</a>
-                <a href="./terminos/terminos-servicios.html" style="color:var(--gold-cosmic);text-decoration:none;font-size:0.6rem;transition:var(--transition);font-family:'Orbitron',monospace;">📜 Términos</a>
+            <div class="footer-links">
+                <a href="./servicios-comunitarios.html">🔧 Servicios</a>
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./terminos/terminos-servicios.html" style="color:var(--gold-cosmic);">📜 Términos</a>
             </div>
         </footer>
     </div>
@@ -703,14 +772,14 @@
             <h3 class="modal-title">🛠️ Ofrecer Servicio</h3>
             <p class="modal-sub">Comparte tu servicio con la comunidad</p>
             
-            <div class="form-group" style="margin-bottom:12px;">
-                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Nombre del servicio *</label>
-                <input type="text" id="offerName" placeholder="Ej: Taller Mecánico Elías" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;transition:var(--transition);font-family:'Space Grotesk',sans-serif;">
+            <div class="form-group">
+                <label>Nombre del servicio *</label>
+                <input type="text" id="offerName" placeholder="Ej: Taller Mecánico Elías">
             </div>
 
-            <div class="form-group" style="margin-bottom:12px;">
-                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Categoría *</label>
-                <select id="offerCategory" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;transition:var(--transition);font-family:'Space Grotesk',sans-serif;">
+            <div class="form-group">
+                <label>Categoría *</label>
+                <select id="offerCategory">
                     <option value="mecanico">🔧 Mecánico</option>
                     <option value="llantera">🛞 Llantera</option>
                     <option value="grua">🚗 Grúa</option>
@@ -736,24 +805,24 @@
                 </select>
             </div>
 
-            <div class="form-group" style="margin-bottom:12px;">
-                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Descripción *</label>
-                <textarea id="offerDescription" placeholder="Describe tu servicio..." style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;transition:var(--transition);font-family:'Space Grotesk',sans-serif;min-height:70px;resize:vertical;"></textarea>
+            <div class="form-group">
+                <label>Descripción *</label>
+                <textarea id="offerDescription" placeholder="Describe tu servicio..."></textarea>
             </div>
 
-            <div class="form-group" style="margin-bottom:12px;">
-                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Teléfono *</label>
-                <input type="tel" id="offerPhone" placeholder="55 1234 5678" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;transition:var(--transition);font-family:'Space Grotesk',sans-serif;">
+            <div class="form-group">
+                <label>Teléfono *</label>
+                <input type="tel" id="offerPhone" placeholder="55 1234 5678">
             </div>
 
-            <div class="form-group" style="margin-bottom:12px;">
-                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Correo *</label>
-                <input type="email" id="offerEmail" placeholder="servicio@ejemplo.com" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;transition:var(--transition);font-family:'Space Grotesk',sans-serif;">
+            <div class="form-group">
+                <label>Correo *</label>
+                <input type="email" id="offerEmail" placeholder="servicio@ejemplo.com">
             </div>
 
-            <div class="form-group" style="margin-bottom:12px;">
-                <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Orbitron',monospace;margin-bottom:4px;">Nivel de urgencia</label>
-                <select id="offerUrgencia" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;transition:var(--transition);font-family:'Space Grotesk',sans-serif;">
+            <div class="form-group">
+                <label>Nivel de urgencia</label>
+                <select id="offerUrgencia">
                     <option value="normal">🟢 Normal</option>
                     <option value="urgente">🔴 Urgente (🚨)</option>
                 </select>
@@ -798,7 +867,7 @@
         };
 
         // ================================================================
-        // DATOS MOCK
+        // DATOS
         // ================================================================
         let miPerfil = {
             nombre: 'Prestador Demo',
@@ -810,6 +879,9 @@
         let calificaciones = [];
         let reseñasEnCuarentena = [];
         let chartInstance = null;
+        let map = null;
+        let markers = [];
+        let userMarker = null;
 
         // ================================================================
         // ESTRELLAS
@@ -862,23 +934,108 @@
             resize();
             createStars();
             draw();
-            window.addEventListener('resize', () => { resize();
-                createStars(); });
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // MAPA
+        // ================================================================
+        function initMap() {
+            if (map) return;
+            map = L.map('map-container', {
+                center: [19.0413, -98.2062],
+                zoom: 13,
+                zoomControl: true
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Ubicación del usuario
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        if (userMarker) map.removeLayer(userMarker);
+                        userMarker = L.marker([lat, lng], {
+                            icon: L.divIcon({
+                                html: '<div style="background:var(--gold-cosmic);width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 20px rgba(247,212,74,0.5);"></div>',
+                                className: '', iconSize: [14, 14]
+                            })
+                        }).addTo(map).bindPopup('📍 Tu ubicación');
+                        map.setView([lat, lng], 14);
+                    },
+                    function() {
+                        // Usar ubicación por defecto
+                    },
+                    { enableHighAccuracy: true }
+                );
+            }
+
+            actualizarMarcadores();
+        }
+
+        function actualizarMarcadores() {
+            if (!map) return;
+
+            // Eliminar marcadores anteriores
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            // Agregar marcadores de servicios
+            servicios.forEach(s => {
+                const color = s.palomitaDorada ? 'var(--gold-cosmic)' :
+                              (s.verificado ? 'var(--success)' :
+                              (s.urgencia === 'urgente' ? 'var(--danger)' : 'var(--text-muted)'));
+
+                const icon = L.divIcon({
+                    html: `<div style="background:${color};width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);${s.palomitaDorada ? 'animation:pulse-glow 2s ease-in-out infinite;' : ''}"></div>`,
+                    className: '', iconSize: [12, 12]
+                });
+
+                const marker = L.marker([s.lat, s.lng], { icon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <strong>${s.nombre}</strong>${s.palomitaDorada ? ' 🌟' : ''}
+                        <br>${s.descripcion.substring(0, 50)}...
+                        <br>⭐ ${s.calificacion?.toFixed(1) || 'N/A'} (${s.reseñas || 0} reseñas)
+                        <br><button onclick="verServicio(${s.id})" style="background:var(--gold-cosmic);color:#0a0c10;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Ver</button>
+                    `);
+
+                markers.push(marker);
+            });
+
+            // Si hay servicios, ajustar el zoom para mostrarlos todos
+            if (servicios.length > 0) {
+                const group = L.featureGroup(markers);
+                if (markers.length > 0) {
+                    map.fitBounds(group.getBounds(), { padding: [30, 30] });
+                }
+            }
+        }
+
+        function verServicio(id) {
+            const servicio = servicios.find(s => s.id === id);
+            if (servicio) {
+                // Mostrar un toast con los detalles
+                mostrarToast(`📋 ${servicio.nombre} - ⭐ ${servicio.calificacion?.toFixed(1) || 'N/A'}`);
+                // Aquí podrías abrir un modal con los detalles completos
+            }
         }
 
         // ================================================================
         // CARGAR DATOS
         // ================================================================
         function cargarDatos() {
-            // Cargar servicios del prestador desde localStorage
             try {
                 const data = localStorage.getItem('servicios_comunitarios');
                 if (data) {
                     const allServices = JSON.parse(data);
-                    // Filtrar solo los servicios de este prestador
                     servicios = allServices.filter(s => s.usuario === miPerfil.nombre);
                 } else {
-                    // Datos demo
                     servicios = [{
                         id: 1,
                         nombre: 'Taller Mecánico Elías',
@@ -912,33 +1069,24 @@
                     }];
                     guardarServicios();
                 }
-            } catch (e) {
-                servicios = [];
-            }
+            } catch (e) { servicios = []; }
 
-            // Cargar calificaciones
             try {
                 const data = localStorage.getItem('calificaciones_servicios');
-                if (data) {
-                    calificaciones = JSON.parse(data);
-                }
+                if (data) calificaciones = JSON.parse(data);
             } catch (e) { calificaciones = []; }
 
-            // Cargar calificaciones en cuarentena
             try {
                 const data = localStorage.getItem('reseñas_cuarentena');
-                if (data) {
-                    reseñasEnCuarentena = JSON.parse(data);
-                }
+                if (data) reseñasEnCuarentena = JSON.parse(data);
             } catch (e) { reseñasEnCuarentena = []; }
 
-            // Si no hay calificaciones, crear algunas demo
             if (calificaciones.length === 0 && servicios.length > 0) {
                 const nombres = ['María García', 'Carlos Ruiz', 'Ana López', 'Pedro Sánchez', 'Lupita Vega'];
                 servicios.forEach(s => {
                     const numReviews = Math.floor(Math.random() * 8) + 3;
                     for (let i = 0; i < numReviews; i++) {
-                        const rating = Math.floor(Math.random() * 4) + 2; // 2-5 estrellas
+                        const rating = Math.floor(Math.random() * 4) + 2;
                         calificaciones.push({
                             servicioId: s.id,
                             usuarioId: 'user_' + i,
@@ -954,17 +1102,18 @@
                 guardarCalificaciones();
             }
 
-            // Actualizar promedios
             actualizarPromedios();
-
             renderDashboard();
             renderChart();
+            setTimeout(() => {
+                initMap();
+                actualizarMarcadores();
+            }, 500);
         }
 
         function guardarServicios() {
             try {
                 const allServices = JSON.parse(localStorage.getItem('servicios_comunitarios') || '[]');
-                // Reemplazar servicios del prestador
                 const otros = allServices.filter(s => s.usuario !== miPerfil.nombre);
                 const nuevos = [...otros, ...servicios];
                 localStorage.setItem('servicios_comunitarios', JSON.stringify(nuevos));
@@ -987,7 +1136,6 @@
                     s.calificacion = 0;
                     s.reseñas = 0;
                 }
-                // Verificar Palomita Dorada
                 if (s.calificacion >= 4.7 && s.reseñas >= 10) {
                     s.palomitaDorada = true;
                 } else {
@@ -1001,45 +1149,34 @@
         // RENDER DASHBOARD
         // ================================================================
         function renderDashboard() {
-            // Servicios totales
             document.getElementById('totalServices').textContent = servicios.length;
 
-            // Calificación promedio
             const califs = calificaciones.filter(c => servicios.some(s => s.id === c.servicioId) && !c.enCuarentena);
             const avg = califs.length > 0 ?
                 califs.reduce((sum, c) => sum + c.calificacion, 0) / califs.length :
                 0;
             document.getElementById('avgRating').textContent = avg.toFixed(1);
 
-            // Palomita Dorada
             const hasGolden = servicios.some(s => s.palomitaDorada);
             document.getElementById('goldenStatus').textContent = hasGolden ? '🌟' : '❌';
             document.getElementById('goldenStatus').style.color = hasGolden ? 'var(--gold-cosmic)' : 'var(--text-muted)';
 
-            // Progreso Palomita
             const mejorServicio = servicios.reduce((best, s) =>
                 (s.calificacion || 0) > (best.calificacion || 0) ? s : best, { calificacion: 0, reseñas: 0 });
             document.getElementById('goldenProgress').textContent =
                 `${mejorServicio.calificacion?.toFixed(1) || 0}⭐ · ${mejorServicio.reseñas || 0} reseñas`;
 
-            // Reseñas totales
             const total = calificaciones.filter(c => servicios.some(s => s.id === c.servicioId)).length;
             const enCuarentena = reseñasEnCuarentena.filter(c => servicios.some(s => s.id === c.servicioId)).length;
             document.getElementById('totalReviews').textContent = total;
             document.getElementById('reviewsChange').textContent = `${enCuarentena} en cuarentena`;
 
-            // Servicios
-            renderServices();
-
-            // Reseñas
-            renderReviews();
-
-            // Badges
-            renderBadges();
-
-            // Cambios
             document.getElementById('servicesChange').textContent = `+${servicios.length} servicios activos`;
             document.getElementById('ratingChange').textContent = avg > 0 ? `${avg.toFixed(1)} ⭐ promedio` : 'Sin calificaciones';
+
+            renderServices();
+            renderReviews();
+            renderBadges();
         }
 
         // ================================================================
@@ -1097,8 +1234,6 @@
         // ================================================================
         function renderReviews() {
             const container = document.getElementById('reviewsList');
-
-            // Obtener reseñas de los servicios del prestador
             const serviceIds = servicios.map(s => s.id);
             const reviews = calificaciones
                 .filter(c => serviceIds.includes(c.servicioId) && !c.enCuarentena)
@@ -1119,7 +1254,6 @@
                 return;
             }
 
-            // Mostrar reseñas en cuarentena primero
             let html = '';
             quarantine.slice(0, 3).forEach(q => {
                 const stars = '★'.repeat(q.calificacion) + '☆'.repeat(5 - q.calificacion);
@@ -1171,47 +1305,20 @@
             const hasVerified = servicios.some(s => s.verificado);
             const hasUrgent = servicios.some(s => s.urgencia === 'urgente');
 
-            const badges = [];
+            const badges = [
+                { icon: '🛡️', label: 'Verificado', active: hasVerified, detail: hasVerified ? '✅ Activo' : 'Pendiente' },
+                { icon: '🌟', label: 'Palomita Dorada', active: hasGolden, detail: hasGolden ? '🏆 Logrado' : '4.7+ ⭐ · 10+ reseñas' },
+                { icon: '🏆', label: '50+ Reseñas', active: totalReviews >= 50, detail: totalReviews >= 50 ? '✅ Logrado' : `${totalReviews}/50` },
+                { icon: '⚡', label: 'Servicio Urgente', active: hasUrgent, detail: hasUrgent ? '🚨 Activo' : 'Sin urgencias' }
+            ];
 
-            // Badge Verificado
-            badges.push(`
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid ${hasVerified ? 'var(--gold-cosmic)' : 'var(--gold-dim)'};${!hasVerified ? 'opacity:0.4;' : ''}">
-                    <div style="font-size:2rem;">🛡️</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">Verificado</div>
-                    ${hasVerified ? '<div style="font-size:0.45rem;color:var(--success);">✅ Activo</div>' : '<div style="font-size:0.45rem;color:var(--text-muted);">Pendiente</div>'}
+            container.innerHTML = badges.map(b => `
+                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid ${b.active ? 'var(--gold-cosmic)' : 'var(--gold-dim)'};${!b.active ? 'opacity:0.4;' : ''}">
+                    <div style="font-size:2rem;">${b.icon}</div>
+                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">${b.label}</div>
+                    <div style="font-size:0.45rem;color:${b.active ? 'var(--success)' : 'var(--text-muted)'};">${b.detail}</div>
                 </div>
-            `);
-
-            // Badge Palomita Dorada
-            badges.push(`
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid ${hasGolden ? 'var(--gold-cosmic)' : 'var(--gold-dim)'};${!hasGolden ? 'opacity:0.4;' : ''}">
-                    <div style="font-size:2rem;">🌟</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">Palomita Dorada</div>
-                    ${hasGolden ? '<div style="font-size:0.45rem;color:var(--gold-cosmic);">🏆 Logrado</div>' : '<div style="font-size:0.45rem;color:var(--text-muted);">4.7+ ⭐ · 10+ reseñas</div>'}
-                </div>
-            `);
-
-            // Badge 50+ Reseñas
-            const has50Reviews = totalReviews >= 50;
-            badges.push(`
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid ${has50Reviews ? 'var(--gold-cosmic)' : 'var(--gold-dim)'};${!has50Reviews ? 'opacity:0.4;' : ''}">
-                    <div style="font-size:2rem;">🏆</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">50+ Reseñas</div>
-                    ${has50Reviews ? '<div style="font-size:0.45rem;color:var(--gold-cosmic);">✅ Logrado</div>' : `<div style="font-size:0.45rem;color:var(--text-muted);">${totalReviews}/50</div>`}
-                </div>
-            `);
-
-            // Badge Respuesta Rápida
-            const hasUrgentService = hasUrgent;
-            badges.push(`
-                <div style="text-align:center;padding:12px 20px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid ${hasUrgentService ? 'var(--gold-cosmic)' : 'var(--gold-dim)'};${!hasUrgentService ? 'opacity:0.4;' : ''}">
-                    <div style="font-size:2rem;">⚡</div>
-                    <div style="font-size:0.55rem;color:var(--text-secondary);font-family:'Orbitron',monospace;">Servicio Urgente</div>
-                    ${hasUrgentService ? '<div style="font-size:0.45rem;color:var(--danger);">🚨 Activo</div>' : '<div style="font-size:0.45rem;color:var(--text-muted);">Sin urgencias</div>'}
-                </div>
-            `);
-
-            container.innerHTML = badges.join('');
+            `).join('');
         }
 
         // ================================================================
@@ -1219,8 +1326,6 @@
         // ================================================================
         function renderChart() {
             const ctx = document.getElementById('ratingChart').getContext('2d');
-
-            // Preparar datos por mes
             const months = {};
             const serviceIds = servicios.map(s => s.id);
 
@@ -1237,9 +1342,7 @@
             const labels = Object.keys(months).sort();
             const data = labels.map(key => months[key].total / months[key].count);
 
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
+            if (chartInstance) chartInstance.destroy();
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
@@ -1268,16 +1371,8 @@
                         }
                     },
                     scales: {
-                        y: {
-                            min: 0,
-                            max: 5,
-                            ticks: { color: '#4a6a8a', stepSize: 1 },
-                            grid: { color: 'rgba(247,212,74,0.05)' }
-                        },
-                        x: {
-                            ticks: { color: '#4a6a8a', font: { size: 10 } },
-                            grid: { display: false }
-                        }
+                        y: { min: 0, max: 5, ticks: { color: '#4a6a8a', stepSize: 1 }, grid: { color: 'rgba(247,212,74,0.05)' } },
+                        x: { ticks: { color: '#4a6a8a', font: { size: 10 } }, grid: { display: false } }
                     }
                 }
             });
@@ -1334,6 +1429,7 @@
             cerrarFormularioServicio();
             renderDashboard();
             renderChart();
+            actualizarMarcadores();
             mostrarToast('✅ ¡Servicio registrado con éxito!');
         }
 
@@ -1341,7 +1437,6 @@
             const servicio = servicios.find(s => s.id === id);
             if (!servicio) return;
 
-            // Simular edición - abrir formulario con datos
             document.getElementById('offerName').value = servicio.nombre;
             document.getElementById('offerCategory').value = servicio.categoria;
             document.getElementById('offerDescription').value = servicio.descripcion;
@@ -1349,7 +1444,6 @@
             document.getElementById('offerEmail').value = servicio.email;
             document.getElementById('offerUrgencia').value = servicio.urgencia;
 
-            // Cambiar botón para actualizar
             const btn = document.querySelector('#offerServiceModal .btn-gold');
             btn.innerHTML = '<i class="fas fa-save"></i> Actualizar';
             btn.onclick = function() {
@@ -1373,23 +1467,23 @@
             guardarServicios();
             cerrarFormularioServicio();
 
-            // Restaurar botón
             const btn = document.querySelector('#offerServiceModal .btn-gold');
             btn.innerHTML = '<i class="fas fa-check"></i> Registrar';
             btn.onclick = registrarServicio;
 
             renderDashboard();
             renderChart();
+            actualizarMarcadores();
             mostrarToast('✅ ¡Servicio actualizado!');
         }
 
         function eliminarServicio(id) {
             if (!confirm('¿Seguro que quieres eliminar este servicio?')) return;
-
             servicios = servicios.filter(s => s.id !== id);
             guardarServicios();
             renderDashboard();
             renderChart();
+            actualizarMarcadores();
             mostrarToast('🗑️ Servicio eliminado');
         }
 
@@ -1416,9 +1510,7 @@
         // MODALES
         // ================================================================
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                cerrarFormularioServicio();
-            }
+            if (e.key === 'Escape') cerrarFormularioServicio();
         });
 
         document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -1433,7 +1525,7 @@
         // INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Dashboard de Prestador');
+            console.log('◈ Csariel\'s - Dashboard de Prestador con Mapa');
             initStars();
             cargarDatos();
         });
@@ -1445,6 +1537,7 @@
         window.editarServicio = editarServicio;
         window.eliminarServicio = eliminarServicio;
         window.refreshData = refreshData;
+        window.verServicio = verServicio;
         window.mostrarToast = mostrarToast;
     </script>
 </body>
