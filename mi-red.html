@@ -386,6 +386,22 @@
             flex-shrink: 0;
         }
 
+        .verify-banner .banner-actions .btn-rechazar {
+            background: rgba(255,51,102,0.1);
+            border: 1px solid rgba(255,51,102,0.2);
+            color: var(--danger);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .verify-banner .banner-actions .btn-rechazar:hover {
+            background: rgba(255,51,102,0.2);
+        }
+
         /* ===== PERFIL COMPACTO ===== */
         .profile-card {
             background: rgba(15,45,26,0.3);
@@ -553,6 +569,32 @@
         }
 
         .btn-edit-profile:hover { background: rgba(212,175,55,0.15); }
+
+        /* Botón verificar pequeño en perfil */
+        .btn-verify-small {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-verify-small:hover { 
+            box-shadow: 0 0 20px rgba(212,175,55,0.3);
+            transform: scale(1.05);
+        }
+
+        .btn-verify-small:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
 
         /* ===== WALLET ===== */
         .wallet-section {
@@ -1316,7 +1358,7 @@
             </div>
         </header>
 
-        <!-- ===== BANNER DE VERIFICACIÓN ===== -->
+        <!-- ===== BANNER DE VERIFICACIÓN (ocultable) ===== -->
         <div class="verify-banner" id="verifyBanner">
             <div class="banner-text">
                 <span class="icon">🎓</span>
@@ -1328,6 +1370,9 @@
             <div class="banner-actions">
                 <button class="btn btn-gold btn-sm" id="btnDesbloquearPro" onclick="abrirVerificacion()">
                     <i class="fas fa-unlock"></i> Desbloquear Pro
+                </button>
+                <button class="btn-rechazar" id="btnRechazarVerificacion" onclick="rechazarVerificacion()">
+                    <i class="fas fa-times"></i> Rechazar
                 </button>
             </div>
         </div>
@@ -1348,6 +1393,10 @@
                     <span id="verificationBadge" class="badge-unverified">
                         <i class="fas fa-times-circle"></i> No verificado
                     </span>
+                    <!-- Botón pequeño de verificación -->
+                    <button class="btn-verify-small" id="btnVerifySmall" onclick="abrirVerificacion()">
+                        <i class="fas fa-check-circle"></i> Verificar
+                    </button>
                 </div>
                 <div class="profile-details">
                     <span class="detail-item"><i class="fas fa-calendar-alt"></i> <span id="profileSemester">---</span></span>
@@ -1759,7 +1808,7 @@
             canBuySkins: false,
             walletConnected: false,
             walletAddress: '',
-            walletNetwork: 'polygon' // 'polygon' | 'ethereum'
+            walletNetwork: 'polygon'
         };
 
         let todosLosClientes = [
@@ -1796,6 +1845,27 @@
         let toastTimeout = null;
         let otpEnviado = false;
         let otpCodigo = '';
+        let bannerRechazado = false;
+
+        // ================================================================
+        // BANNER DE VERIFICACIÓN - RECHAZAR
+        // ================================================================
+        function rechazarVerificacion() {
+            bannerRechazado = true;
+            document.getElementById('verifyBanner').style.display = 'none';
+            localStorage.setItem('banner_verificacion_rechazado', 'true');
+            mostrarToast('❌ Banner de verificación ocultado permanentemente');
+        }
+
+        function cargarEstadoBanner() {
+            try {
+                const rechazado = localStorage.getItem('banner_verificacion_rechazado');
+                if (rechazado === 'true') {
+                    bannerRechazado = true;
+                    document.getElementById('verifyBanner').style.display = 'none';
+                }
+            } catch (e) {}
+        }
 
         // ================================================================
         // ESTRELLAS
@@ -1884,9 +1954,13 @@
             document.getElementById('statAuraPoints').textContent = miPerfil.aurapoints || 0;
             
             const badge = document.getElementById('verificationBadge');
+            const btnVerifySmall = document.getElementById('btnVerifySmall');
+            
             if (miPerfil.verificado) {
                 badge.className = 'badge-verified';
                 badge.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Verificado · ${miPerfil.universidad || 'Universidad'}`;
+                btnVerifySmall.textContent = '✅ Verificado';
+                btnVerifySmall.disabled = true;
                 document.getElementById('btnDesbloquearPro').textContent = '✅ Verificado';
                 document.getElementById('btnDesbloquearPro').disabled = true;
                 document.getElementById('bannerTitle').innerHTML = `✅ Año 1 Verificado - <span class="highlight">50 AURAPOINTS liberados</span>`;
@@ -1897,6 +1971,8 @@
             } else {
                 badge.className = 'badge-unverified';
                 badge.innerHTML = `<i class="fas fa-times-circle"></i> ❌ No verificado`;
+                btnVerifySmall.textContent = 'Verificar';
+                btnVerifySmall.disabled = false;
                 document.getElementById('btnDesbloquearPro').textContent = 'Desbloquear Pro';
                 document.getElementById('btnDesbloquearPro').disabled = false;
                 document.getElementById('bannerTitle').innerHTML = `Desbloquea <span class="highlight">Herramientas Pro</span> + <span class="highlight">50 AURAPOINTS</span> gratis`;
@@ -1913,34 +1989,6 @@
             
             guardarPerfilLocal();
             actualizarContadores();
-        }
-
-        function abrirEditorPerfil() {
-            document.getElementById('editNombre').value = miPerfil.nombre;
-            document.getElementById('editEdad').value = miPerfil.edad || 21;
-            document.getElementById('editOrigen').value = miPerfil.origen || '';
-            document.getElementById('editMusica').value = miPerfil.musica || '🎸 Indie';
-            document.getElementById('editStatus').value = miPerfil.status || '💔 Amante de última hora';
-            document.getElementById('editSemestre').value = miPerfil.semestre || '5to Semestre';
-            document.getElementById('editSituacion').value = miPerfil.situacion || 'Solo estudio';
-            document.getElementById('modalEditarPerfil').classList.add('active');
-        }
-
-        function cerrarEditorPerfil() {
-            document.getElementById('modalEditarPerfil').classList.remove('active');
-        }
-
-        function guardarPerfil() {
-            miPerfil.nombre = document.getElementById('editNombre').value || 'Usuario';
-            miPerfil.edad = parseInt(document.getElementById('editEdad').value) || 21;
-            miPerfil.origen = document.getElementById('editOrigen').value || '---';
-            miPerfil.musica = document.getElementById('editMusica').value;
-            miPerfil.status = document.getElementById('editStatus').value;
-            miPerfil.semestre = document.getElementById('editSemestre').value || '---';
-            miPerfil.situacion = document.getElementById('editSituacion').value;
-            actualizarUI();
-            cerrarEditorPerfil();
-            mostrarToast('✅ Perfil actualizado');
         }
 
         // ================================================================
@@ -1984,7 +2032,6 @@
                 return;
             }
 
-            // Simular envío de OTP
             otpCodigo = Math.floor(100000 + Math.random() * 900000).toString();
             console.log('📧 Código OTP enviado a', email, ':', otpCodigo);
 
@@ -2028,7 +2075,6 @@
                 }
             }
 
-            // Verificación exitosa
             miPerfil.verificado = true;
             miPerfil.emailInstitucional = email;
             miPerfil.universidad = universidad;
@@ -2050,7 +2096,7 @@
         }
 
         // ================================================================
-        // IA - RESTRINGIDA (gasta AURAPOINTS)
+        // IA - RESTRINGIDA
         // ================================================================
         function abrirIA() {
             if (!miPerfil.verificado) {
@@ -2071,7 +2117,7 @@
                 document.getElementById('iaModal').classList.add('active');
                 return;
             }
-            document.getElementById('iaResponse').innerHTML = '<span style="color:var(--text-muted);">Escribe tu pregunta para comenzar... (cuesta 1 AURAPOINT)</span>';
+            document.getElementById('iaResponse').innerHTML = '<span style="color:var(--text-muted);">Escribe tu pregunta para comenzar...</span>';
             document.getElementById('iaInput').value = '';
             document.getElementById('iaModal').classList.add('active');
         }
@@ -2087,9 +2133,8 @@
                 return;
             }
 
-            // Gasta 1 AURAPOINT por pregunta
             if ((miPerfil.aurapoints || 0) < 1) {
-                mostrarToast('⚠️ No tienes suficientes AURAPOINTS. Verifica .edu para obtener 50.', 'error');
+                mostrarToast('⚠️ No tienes suficientes AURAPOINTS', 'error');
                 return;
             }
 
@@ -2097,7 +2142,6 @@
             const pregunta = input.value.trim();
             if (!pregunta) return;
 
-            // Gastar AURAPOINT
             miPerfil.aurapoints = (miPerfil.aurapoints || 0) - 1;
             document.getElementById('statAuraPoints').textContent = miPerfil.aurapoints;
             guardarPerfilLocal();
@@ -2122,7 +2166,6 @@
                     <br>🎯 <em>¿Quieres profundizar en algún paso?</em>`
                 ];
                 response.innerHTML = respuestas[Math.floor(Math.random() * respuestas.length)];
-                // Actualizar AURAPOINTS en UI
                 document.getElementById('statAuraPoints').textContent = miPerfil.aurapoints;
             }, 1500);
         }
@@ -2133,7 +2176,7 @@
         }
 
         // ================================================================
-        // WALLET - CONEXIÓN con detección de red
+        // WALLET
         // ================================================================
         function initWallet() {
             const btnConnect = document.getElementById('btnConnectWallet');
@@ -2149,7 +2192,6 @@
                     return;
                 }
 
-                // Simular conexión - detectar red aleatoria (demo)
                 const networks = ['polygon', 'ethereum'];
                 const randomNetwork = networks[Math.floor(Math.random() * networks.length)];
                 
@@ -2165,7 +2207,6 @@
                 miPerfil.walletAddress = mockAddress;
                 miPerfil.walletNetwork = randomNetwork;
 
-                // Mostrar red
                 if (randomNetwork === 'polygon') {
                     networkBadge.style.display = 'inline-flex';
                     networkBadge.className = 'wallet-badge polygon';
@@ -2177,7 +2218,7 @@
                     networkBadge.className = 'wallet-badge ethereum';
                     networkBadge.innerHTML = '● Ethereum';
                     btnSwitch.style.display = 'inline-flex';
-                    mostrarToast('⚠️ Wallet en Ethereum - Cambia a Polygon para comprar skins', 'error');
+                    mostrarToast('⚠️ Wallet en Ethereum - Cambia a Polygon', 'error');
                 }
             });
 
@@ -2196,7 +2237,6 @@
             });
 
             btnSwitch.addEventListener('click', function() {
-                // Cambiar a Polygon
                 miPerfil.walletNetwork = 'polygon';
                 networkBadge.className = 'wallet-badge polygon';
                 networkBadge.innerHTML = '● Polygon';
@@ -2206,7 +2246,7 @@
         }
 
         // ================================================================
-        // SKINS - COMPRA en Polygon
+        // SKINS
         // ================================================================
         function comprarSkin(nombre, precioMXN) {
             if (!miPerfil.verificado) {
@@ -2228,14 +2268,14 @@
         }
 
         // ================================================================
-        // MURO LIVE - ACCESO LIBRE
+        // MURO LIVE
         // ================================================================
         function abrirMuro() {
             mostrarToast('📱 Abriendo Muro Live... (todos pueden postear)');
         }
 
         // ================================================================
-        // CONTACTOS - RENDERIZADO COMPACTO
+        // CONTACTOS
         // ================================================================
         function emojiNivel(nivel) {
             const map = { 'bronze': '🥉', 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
@@ -2371,7 +2411,6 @@
             }
         }
 
-        // Cerrar dropdowns al hacer click fuera
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.contact-actions')) {
                 document.querySelectorAll('.dropdown-menu.active').forEach(d => d.classList.remove('active'));
@@ -2865,6 +2904,24 @@
             }
         });
 
+        // ================================================================
+        // INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('◈ Csariel\'s - Mironova v' + CONFIG.VERSION);
+            cargarEstadoBanner();
+            initStars();
+            initWallet();
+            cargarPerfil();
+            cargarDatosLocales();
+            renderAll();
+            actualizarContadores();
+            initTerminosMironova();
+            console.log('✅ Mironova cargada correctamente');
+            console.log('🔴 Botón "Rechazar" en banner de verificación');
+            console.log('🟢 Botón pequeño "Verificar" en perfil');
+        });
+
         // Exponer funciones globales
         window.cambiarTab = cambiarTab;
         window.abrirPerfil = abrirPerfil;
@@ -2903,21 +2960,7 @@
         window.openTerminosMironovaModal = openTerminosMironovaModal;
         window.closeTerminosMironovaModal = closeTerminosMironovaModal;
         window.aceptarTerminosMironova = aceptarTerminosMironova;
-
-        // ================================================================
-        // INICIALIZAR
-        // ================================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Mironova v' + CONFIG.VERSION);
-            initStars();
-            initWallet();
-            cargarPerfil();
-            cargarDatosLocales();
-            renderAll();
-            actualizarContadores();
-            initTerminosMironova();
-            console.log('✅ Mironova cargada correctamente');
-        });
+        window.rechazarVerificacion = rechazarVerificacion;
     </script>
 </body>
 </html>
