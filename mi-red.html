@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mironova | Csariel's</title>
+    <title>Mi Red | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     
-    <!-- ===== ASISTENTE IA - CSS ===== -->
-    <link rel="stylesheet" href="/assets/css/asistente-styles.css" />
+    <!-- ===== SUPABASE Y CONECTORES ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="./js/muro-connector.js"></script>
+    <script src="./js/perfil-connector.js"></script>
+    <script src="./js/esim-connector.js"></script>
+    <script src="./js/config.js"></script>
     
     <style>
-        /* ===== TODOS LOS ESTILOS EXISTENTES CON COLORES ORIGINALES ===== */
+        /* ===== TODOS LOS ESTILOS EXISTENTES ===== */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -86,48 +90,6 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 16px 20px 30px;
-        }
-
-        /* ===== TOOLTIP ===== */
-        .tooltip-trigger {
-            position: relative;
-            cursor: help;
-        }
-        .tooltip-trigger .tooltip-text {
-            visibility: hidden;
-            width: 220px;
-            background: rgba(15,45,26,0.95);
-            color: var(--text-secondary);
-            text-align: center;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--gold-dim);
-            position: absolute;
-            z-index: 100;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.55rem;
-            font-weight: 400;
-            font-family: 'Space Grotesk', sans-serif;
-            line-height: 1.4;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            backdrop-filter: blur(10px);
-        }
-        .tooltip-trigger .tooltip-text::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: var(--gold-dim);
-        }
-        .tooltip-trigger:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
         }
 
         /* ===== HEADER ===== */
@@ -273,7 +235,101 @@
         }
         .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
 
-        /* ===== BANNER DE REGISTRO - REDUCIDO ===== */
+        /* ===== CONNECTION STATUS BAR ===== */
+        .connection-bar {
+            background: rgba(15,45,26,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            padding: 8px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .connection-bar .status-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .connection-bar .status-left .icono {
+            font-size: 1.2rem;
+        }
+        .connection-bar .status-left .info {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .connection-bar .status-left .info strong {
+            color: var(--text-primary);
+        }
+        .connection-bar .status-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .connection-bar .status-right .datos {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+        .connection-bar .status-right .mini-progress {
+            width: 60px;
+            height: 4px;
+            background: var(--gold-dim);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .connection-bar .status-right .mini-progress .fill {
+            height: 100%;
+            background: var(--gold-cosmic);
+            border-radius: 2px;
+            transition: width 0.5s;
+        }
+        .connection-bar .status-right .badge-wifi {
+            font-size: 0.5rem;
+            color: var(--success);
+            background: rgba(0,184,148,0.1);
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,184,148,0.2);
+        }
+        .connection-bar .status-right .badge-esim {
+            font-size: 0.5rem;
+            color: var(--gold-cosmic);
+            background: rgba(212,175,55,0.1);
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+        .connection-bar .status-right .badge-offline {
+            font-size: 0.5rem;
+            color: var(--danger);
+            background: rgba(255,51,102,0.1);
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,51,102,0.2);
+        }
+        .connection-bar .btn-cambiar {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        .connection-bar .btn-cambiar:hover {
+            color: var(--gold-cosmic);
+            background: rgba(212,175,55,0.05);
+        }
+
+        /* ===== BANNER DE REGISTRO ===== */
         .register-banner {
             background: linear-gradient(135deg, rgba(212,175,55,0.08), rgba(15,45,26,0.4));
             border: 1px solid var(--gold-dim);
@@ -294,56 +350,21 @@
             gap: 6px;
             font-size: 0.65rem;
         }
-        .register-banner .banner-text .icon { 
-            font-size: 1rem; 
-            opacity: 0.8;
-        }
-        .register-banner .banner-text .highlight { 
-            color: var(--gold-cosmic); 
-            font-weight: 700;
-        }
-        .register-banner .banner-text .sub { 
-            color: var(--text-secondary); 
-            font-size: 0.5rem;
-            display: inline;
-        }
-        .register-banner .banner-actions { 
-            display: flex; 
-            gap: 4px; 
-            flex-shrink: 0;
-        }
-        .register-banner .banner-actions .btn {
-            padding: 3px 10px;
-            font-size: 0.45rem;
-            border-radius: 20px;
-        }
-        .register-banner .banner-actions .btn i {
-            font-size: 0.45rem;
-        }
+        .register-banner .banner-text .icon { font-size: 1rem; opacity: 0.8; }
+        .register-banner .banner-text .highlight { color: var(--gold-cosmic); font-weight: 700; }
+        .register-banner .banner-text .sub { color: var(--text-secondary); font-size: 0.5rem; display: inline; }
+        .register-banner .banner-actions { display: flex; gap: 4px; flex-shrink: 0; }
+        .register-banner .banner-actions .btn { padding: 3px 10px; font-size: 0.45rem; border-radius: 20px; }
 
         @media (max-width: 600px) {
-            .register-banner .banner-text .sub {
-                display: none;
-            }
-            .register-banner {
-                padding: 4px 8px;
-                min-height: 32px;
-                border-radius: 8px;
-            }
-            .register-banner .banner-text {
-                font-size: 0.55rem;
-                gap: 4px;
-            }
-            .register-banner .banner-text .icon {
-                font-size: 0.8rem;
-            }
-            .register-banner .banner-actions .btn {
-                padding: 2px 8px;
-                font-size: 0.4rem;
-            }
+            .register-banner .banner-text .sub { display: none; }
+            .register-banner { padding: 4px 8px; min-height: 32px; border-radius: 8px; }
+            .register-banner .banner-text { font-size: 0.55rem; gap: 4px; }
+            .register-banner .banner-text .icon { font-size: 0.8rem; }
+            .register-banner .banner-actions .btn { padding: 2px 8px; font-size: 0.4rem; }
         }
 
-        /* ===== PERFIL COMPACTO ===== */
+        /* ===== PERFIL ===== */
         .profile-card {
             background: rgba(15,45,26,0.3);
             border: 1px solid var(--gold-dim);
@@ -495,18 +516,18 @@
         }
         .btn-edit-profile:hover { background: rgba(212,175,55,0.15); }
 
-        /* ===== RED CSARIEL'S ===== */
-        .esim-section {
-            background: rgba(15,45,26,0.2);
+        /* ===== eSIM DASHBOARD ===== */
+        .esim-dashboard {
+            background: rgba(15,45,26,0.25);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-top: 10px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
             backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
         }
-        .esim-section::before {
+        .esim-dashboard::before {
             content: '';
             position: absolute;
             top: -2px;
@@ -520,70 +541,89 @@
             opacity: 0.08;
             animation: border-flow 4s ease-in-out infinite;
         }
-
-        .esim-section .esim-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-            color: var(--gold-cosmic);
-            margin-bottom: 2px;
+        .esim-dashboard .esim-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
         }
-        .esim-section .esim-title .sub {
-            font-size: 0.5rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .world-icon {
-            display: inline-block;
-            font-size: 1.4rem;
-            color: var(--verde-bosque);
-            text-shadow: 0 0 6px #1a4a2a;
-            animation: pulse-world 3s infinite ease-in-out;
-            filter: drop-shadow(0 0 6px rgba(26,74,42,0.6));
-            line-height: 1;
-            cursor: pointer;
-            user-select: none;
-        }
-        .world-icon.paused {
-            animation-play-state: paused;
-        }
-        @keyframes pulse-world {
-            0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px rgba(26,74,42,0.6)); }
-            50% { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(26,74,42,0.9)); }
-        }
-
-        .esim-section .esim-footer {
-            margin-top: 4px;
-            font-size: 0.4rem;
-            color: var(--text-muted);
-            text-align: center;
+        .esim-dashboard .esim-header .title {
             font-family: 'Orbitron', monospace;
-            border-top: 1px solid var(--gold-dim);
-            padding-top: 4px;
-            letter-spacing: 0.3px;
-        }
-        .esim-section .esim-footer strong {
+            font-size: 0.85rem;
             color: var(--gold-cosmic);
-            font-weight: 400;
         }
-
-        .battery-tip {
-            font-size: 0.35rem;
-            color: var(--text-muted);
-            opacity: 0.6;
-            text-align: center;
-            margin-top: 2px;
+        .esim-dashboard .esim-header .status-badge-esim {
+            font-size: 0.5rem;
+            padding: 2px 12px;
+            border-radius: 20px;
             font-family: 'Orbitron', monospace;
-            animation: tip-fade 2s ease-in-out forwards;
         }
-        @keyframes tip-fade {
-            0% { opacity: 0.6; }
-            80% { opacity: 0.6; }
-            100% { opacity: 0; transform: translateY(-4px); }
+        .esim-dashboard .esim-header .status-badge-esim.activa {
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+            border: 1px solid rgba(0,184,148,0.2);
         }
+        .esim-dashboard .esim-header .status-badge-esim.inactiva {
+            background: rgba(255,51,102,0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255,51,102,0.2);
+        }
+        .esim-dashboard .esim-header .status-badge-esim.vigente {
+            background: rgba(212,175,55,0.1);
+            color: var(--gold-cosmic);
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+        .esim-dashboard .datos-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 6px 0 10px;
+        }
+        .esim-dashboard .datos-row .dato-item {
+            flex: 1;
+            min-width: 60px;
+            text-align: center;
+            background: rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 6px 8px;
+            border: 1px solid var(--gold-dim);
+        }
+        .esim-dashboard .datos-row .dato-item .numero {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+        }
+        .esim-dashboard .datos-row .dato-item .label {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .esim-dashboard .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--gold-dim);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0 10px;
+        }
+        .esim-dashboard .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-cosmic), var(--quantum));
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+        .esim-dashboard .esim-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .esim-dashboard .esim-actions .btn { flex: 1; justify-content: center; min-width: 80px; }
 
         /* ===== WALLET ===== */
         .wallet-section {
@@ -621,11 +661,6 @@
             background: rgba(212,175,55,0.15);
             color: var(--gold-cosmic);
             border: 1px solid rgba(212,175,55,0.3);
-        }
-        .wallet-badge.polygon {
-            background: rgba(130,71,229,0.2);
-            color: #8247e5;
-            border: 1px solid rgba(130,71,229,0.3);
         }
 
         /* ===== TABS ===== */
@@ -665,7 +700,7 @@
         }
         .tab .badge.hidden { display: none; }
 
-        /* ===== CONTACTOS COMPACTOS ===== */
+        /* ===== CONTACTOS ===== */
         .search-filter-bar {
             display: flex;
             align-items: center;
@@ -758,7 +793,6 @@
         }
         .contact-info .contact-name .online-dot.online { background: var(--success); }
         .contact-info .contact-name .online-dot.offline { background: var(--text-muted); }
-
         .contact-info .contact-meta {
             font-size: 0.5rem;
             color: var(--text-secondary);
@@ -767,17 +801,6 @@
             gap: 4px;
             flex-wrap: wrap;
         }
-        .contact-info .contact-meta .badge-nivel {
-            font-size: 0.4rem;
-            padding: 1px 5px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-family: 'Orbitron', monospace;
-        }
-        .badge-nivel.bronze { background: rgba(184,115,51,0.2); color: #d99b5f; }
-        .badge-nivel.silver { background: rgba(192,194,200,0.15); color: #c0c2c8; }
-        .badge-nivel.gold { background: rgba(212,175,55,0.15); color: var(--gold-cosmic); }
-        .badge-nivel.diamond { background: rgba(0,212,255,0.15); color: var(--quantum); }
 
         .contact-actions { display: flex; gap: 4px; flex-shrink: 0; }
         .contact-actions .btn { padding: 2px 8px; font-size: 0.45rem; border-radius: 20px; }
@@ -832,6 +855,39 @@
         .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 0.75rem; color: var(--text-secondary); }
         .empty-state p { font-size: 0.65rem; }
 
+        /* ===== RED CSARIEL'S ===== */
+        .esim-section {
+            background: rgba(15,45,26,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        .esim-section .esim-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .esim-section .esim-title .sub { font-size: 0.5rem; color: var(--text-muted); font-weight: 400; }
+        .esim-section .esim-footer {
+            margin-top: 4px;
+            font-size: 0.4rem;
+            color: var(--text-muted);
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            border-top: 1px solid var(--gold-dim);
+            padding-top: 4px;
+            letter-spacing: 0.3px;
+        }
+        .esim-section .esim-footer strong { color: var(--gold-cosmic); font-weight: 400; }
+
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
@@ -846,7 +902,7 @@
             font-size: 0.7rem;
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 2000;
+            z-index: 5000;
             pointer-events: none;
             font-family: 'Orbitron', monospace;
             border: 1px solid rgba(212,175,55,0.15);
@@ -896,6 +952,58 @@
         }
         .footer-links a:hover { color: var(--gold-cosmic); }
 
+        /* ===== MODAL CONEXIÓN ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: rgba(15,45,26,0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 2px;
+            color: var(--gold-cosmic);
+        }
+        .modal-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+        }
+        .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .modal-actions .btn { flex: 1; justify-content: center; min-width: 60px; }
+
         @media (max-width: 768px) {
             .app { padding: 12px 14px; }
             .header { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -916,6 +1024,11 @@
             .contact-actions .btn { padding: 2px 6px; font-size: 0.4rem; }
             .search-filter-bar input { font-size: 0.55rem; padding: 4px 8px; min-width: 70px; }
             .filter-btn { font-size: 0.4rem; padding: 2px 8px; }
+            .esim-dashboard .datos-row { gap: 8px; }
+            .esim-dashboard .datos-row .dato-item { padding: 4px 6px; }
+            .esim-dashboard .datos-row .dato-item .numero { font-size: 0.7rem; }
+            .connection-bar { flex-direction: column; align-items: flex-start; }
+            .connection-bar .status-right { width: 100%; justify-content: flex-start; }
         }
 
         @media (max-width: 480px) {
@@ -926,6 +1039,9 @@
             .contact-avatar { width: 24px; height: 24px; font-size: 0.5rem; }
             .contact-info .contact-name { font-size: 0.55rem; }
             .contact-info .contact-meta { font-size: 0.4rem; }
+            .modal-content { padding: 16px; }
+            .esim-dashboard { padding: 12px 14px; }
+            .esim-dashboard .esim-actions .btn { font-size: 0.4rem; padding: 4px 8px; }
         }
     </style>
 </head>
@@ -942,23 +1058,44 @@
             <a href="#" class="logo" onclick="event.preventDefault()">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Mironova</span>
+                <span class="logo-badge">Mi Red</span>
             </a>
             <div class="header-actions">
                 <div class="status-badge">
                     <span class="status-dot online" id="statusDot"></span>
                     <span id="statusLabel">En línea</span>
                 </div>
-                <a href="#" class="btn btn-primary" onclick="abrirMuro()">
-                    <i class="fas fa-rss"></i> Muro Live
+                <a href="./index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-home"></i> Inicio
                 </a>
-                <a href="#" class="btn btn-outline btn-sm" onclick="openTerminosMironovaModal()">
-                    <i class="fas fa-file-contract"></i> Términos
+                <a href="./muro-live.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-rss"></i> Muro Live
                 </a>
             </div>
         </header>
 
-        <!-- ===== BANNER DE REGISTRO - REDUCIDO ===== -->
+        <!-- ===== CONNECTION STATUS BAR ===== -->
+        <div class="connection-bar" id="connectionBar">
+            <div class="status-left">
+                <span class="icono" id="connIcon">📶</span>
+                <div class="info" id="connInfo">
+                    <strong>Detectando...</strong>
+                    <span id="connDetail">Cargando estado de conexión...</span>
+                </div>
+            </div>
+            <div class="status-right" id="connStatusRight">
+                <span class="datos" id="connDatos">--</span>
+                <div class="mini-progress" id="connProgress">
+                    <div class="fill" id="connProgressFill" style="width:0%"></div>
+                </div>
+                <span class="badge-wifi" id="connBadge">● WiFi</span>
+                <button class="btn-cambiar" onclick="abrirSelectorConexion()">
+                    <i class="fas fa-exchange-alt"></i> Cambiar
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== BANNER DE REGISTRO ===== -->
         <div class="register-banner" id="registerBanner">
             <div class="banner-text">
                 <span class="icon">🌐</span>
@@ -1018,6 +1155,48 @@
             </div>
         </div>
 
+        <!-- ===== eSIM DASHBOARD ===== -->
+        <div class="esim-dashboard" id="esimDashboard">
+            <div class="esim-header">
+                <span class="title">🌐 Mi eSIM Csariel's</span>
+                <span class="status-badge-esim inactiva" id="esimStatusBadge">● Inactiva</span>
+            </div>
+            
+            <div class="datos-row" id="esimDatosRow">
+                <div class="dato-item">
+                    <div class="numero" id="esimRestantes">--</div>
+                    <div class="label">MB Restantes</div>
+                </div>
+                <div class="dato-item">
+                    <div class="numero" id="esimConsumidos">--</div>
+                    <div class="label">MB Consumidos</div>
+                </div>
+                <div class="dato-item">
+                    <div class="numero" id="esimTotal">--</div>
+                    <div class="label">MB Total</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="fill" id="esimProgress" style="width:0%"></div>
+            </div>
+            
+            <div class="esim-actions">
+                <button class="btn btn-gold" id="btnActivarEsim" onclick="activarEsimHandler()">
+                    <i class="fas fa-sim-card"></i> Activar eSIM
+                </button>
+                <button class="btn btn-primary" id="btnRecargar" onclick="recargarDatosHandler()" style="display:none;">
+                    <i class="fas fa-plus"></i> Recargar
+                </button>
+                <button class="btn btn-outline" id="btnVerHistorial" onclick="verHistorial()" style="display:none;">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+            </div>
+            <div style="margin-top:6px;font-size:0.5rem;color:var(--text-muted);text-align:center;font-family:'Orbitron',monospace;" id="esimFechaRenovacion">
+                Renovación: --
+            </div>
+        </div>
+
         <!-- ===== WALLET ===== -->
         <div class="wallet-section" id="walletSection">
             <button class="btn btn-sm btn-primary" id="btnConnectWallet">
@@ -1026,22 +1205,17 @@
             <button class="btn btn-sm btn-gold" id="btnDisconnectWallet" style="display:none;">
                 <i class="fas fa-power-off"></i> Desconectar
             </button>
-            <button class="btn btn-sm btn-switch-network" id="btnSwitchNetwork" style="display:none;">
-                <i class="fas fa-exchange-alt"></i> Cambiar a Polygon
-            </button>
             <span class="wallet-address" id="walletAddressDisplay">--</span>
             <span class="wallet-badge disconnected" id="walletStatusBadge">● Desconectado</span>
-            <span class="wallet-badge" id="walletNetworkBadge" style="display:none;background:rgba(130,71,229,0.2);color:#8247e5;border:1px solid rgba(130,71,229,0.3);">● Polygon</span>
         </div>
 
         <!-- ===== RED CSARIEL'S ===== -->
         <div class="esim-section" id="esimSection">
             <div class="esim-title">
-                <span class="world-icon" id="worldIcon" onclick="toggleWorldPause()">🌍</span>
+                <span id="worldIcon">🌍</span>
                 Red Csariel's
                 <span class="sub">Internet de alta velocidad</span>
             </div>
-            <div class="battery-tip" id="batteryTip">💡 Toca el mundo para pausar animación · ahorra batería</div>
             <div class="esim-footer">
                 <strong>Cobertura Nacional 4G/5G · Activación inmediata</strong>
             </div>
@@ -1083,21 +1257,54 @@
         <div id="tab-grupos" style="display:none;"><div id="listaGrupos"></div></div>
         <div id="tab-bloqueados" style="display:none;"><div id="listaBloqueados"></div></div>
 
+        <!-- ===== MODAL SELECTOR DE CONEXIÓN ===== -->
+        <div class="modal-overlay" id="conexionModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="cerrarSelectorConexion()">✕</button>
+                <h3 class="modal-title">📶 Selector de Conexión</h3>
+                <p class="modal-sub">Elige cómo quieres conectarte a Csariel's</p>
+                
+                <div style="padding:10px 14px;background:rgba(0,0,0,0.2);border-radius:8px;margin-bottom:12px;border:1px solid var(--gold-dim);">
+                    <p style="font-size:0.75rem;color:var(--text-secondary);" id="modalConexionStatus">Cargando...</p>
+                    <p style="font-size:0.6rem;color:var(--gold-cosmic);font-family:'Orbitron',monospace;" id="modalConexionTipo">--</p>
+                </div>
+                
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <button class="btn btn-primary" onclick="seleccionarConexionHandler('wifi')" style="justify-content:center;">
+                        <i class="fas fa-wifi"></i> WiFi (gratis)
+                    </button>
+                    <button class="btn btn-gold" onclick="seleccionarConexionHandler('esim')" style="justify-content:center;">
+                        <i class="fas fa-sim-card"></i> eSIM Csariel's
+                    </button>
+                    <button class="btn btn-outline" onclick="seleccionarConexionHandler('auto')" style="justify-content:center;">
+                        <i class="fas fa-magic"></i> Automático (recomendado)
+                    </button>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-outline" onclick="cerrarSelectorConexion()">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TOAST ===== -->
+        <div class="toast" id="toast"></div>
+
         <!-- FOOTER -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Red Social Integral · IA · Web3 · Red Csariel's
+                <span class="brand">◈ Csariel's</span> — Mi Red · eSIM · Web3
             </span>
             <div class="footer-links">
-                <a href="#" onclick="abrirMuro()">📱 Muro Live</a>
-                <a href="#" onclick="openTerminosMironovaModal()" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="./index.html">🏠 Inicio</a>
+                <a href="./muro-live.html">📱 Muro Live</a>
+                <a href="#" style="color:var(--gold-cosmic);">📜 Términos</a>
                 <span class="footer-hex" style="display:inline-block;background:var(--verde-bosque);color:var(--gold-cosmic);padding:2px 8px;border-radius:4px;font-size:0.45rem;font-weight:700;border:1px solid var(--gold-cosmic);font-family:'Orbitron',monospace;">◈</span>
             </div>
         </footer>
     </div>
-
-    <!-- ===== CONTENEDOR DEL ASISTENTE IA ===== -->
-    <div id="asistenteContainer"></div>
 
     <!-- ===== SCRIPTS ===== -->
     <script>
@@ -1173,21 +1380,6 @@
         let worldPaused = false;
 
         // ================================================================
-        // MUNDO - PAUSAR ANIMACIÓN
-        // ================================================================
-        function toggleWorldPause() {
-            worldPaused = !worldPaused;
-            const icon = document.getElementById('worldIcon');
-            if (worldPaused) {
-                icon.classList.add('paused');
-                mostrarToast('⏸️ Animación pausada · ahorra batería');
-            } else {
-                icon.classList.remove('paused');
-                mostrarToast('▶️ Animación reanudada');
-            }
-        }
-
-        // ================================================================
         // ESTRELLAS
         // ================================================================
         function initStars() {
@@ -1244,10 +1436,15 @@
         }
 
         // ================================================================
-        // BANNER DE REGISTRO
+        // TOAST
         // ================================================================
-        function abrirRegistro() {
-            mostrarToast('📝 Registro: Nombre completo, Fecha de nacimiento, Email, MetaMask o Teléfono');
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
         }
 
         // ================================================================
@@ -1301,9 +1498,32 @@
             actualizarContadores();
         }
 
-        // ================================================================
-        // VERIFICACIÓN
-        // ================================================================
+        function actualizarContadores() {
+            const contactos = Object.keys(relaciones).filter(id => relaciones[id] === 'contacto').length;
+            const solicitudes = Object.keys(relaciones).filter(id => relaciones[id] === 'solicitud_recibida').length;
+            
+            document.getElementById('statContactos').textContent = contactos;
+            document.getElementById('statSolicitudes').textContent = solicitudes;
+            document.getElementById('statGrupos').textContent = grupos.length;
+            document.getElementById('statSeguidores').textContent = Math.floor(Math.random() * 20);
+            
+            const badge = document.getElementById('badgeSolicitudes');
+            if (solicitudes > 0) {
+                badge.textContent = solicitudes;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function abrirEditorPerfil() {
+            mostrarToast('✏️ Editor de perfil (demo)');
+        }
+
+        function abrirEditorFoto() {
+            mostrarToast('📷 Cambiar foto de perfil (demo)');
+        }
+
         function abrirVerificacion() {
             if (miPerfil.verificado) {
                 mostrarToast('✅ Ya estás verificado');
@@ -1312,16 +1532,192 @@
             mostrarToast('📧 Función de verificación (demo)');
         }
 
-        // ================================================================
-        // MURO LIVE
-        // ================================================================
-        function abrirMuro() {
-            mostrarToast('📱 Abriendo Muro Live...');
+        function abrirRegistro() {
+            mostrarToast('📝 Registro: Nombre completo, Fecha de nacimiento, Email, MetaMask o Teléfono');
         }
 
         // ================================================================
-        // CONTACTOS
+        // 🚀 eSIM - CONECTADO CON esim-connector.js
         // ================================================================
+        
+        // Estado de eSIM
+        let esimStatus = {
+            activa: false,
+            asignados: 0,
+            consumidos: 0,
+            restantes: 0,
+            porcentaje: 0,
+            fecha_renovacion: null
+        };
+
+        async function actualizarEsimUI() {
+            try {
+                // Usar el conector de eSIM
+                const status = await window.esimConnector?.consultarEsim();
+                
+                if (status && status.activa) {
+                    esimStatus = status;
+                    
+                    document.getElementById('esimStatusBadge').textContent = '● Activa';
+                    document.getElementById('esimStatusBadge').className = 'status-badge-esim activa';
+                    
+                    document.getElementById('esimRestantes').textContent = status.restantes.toFixed(0);
+                    document.getElementById('esimConsumidos').textContent = status.consumidos.toFixed(0);
+                    document.getElementById('esimTotal').textContent = status.asignados.toFixed(0);
+                    
+                    document.getElementById('esimProgress').style.width = status.porcentaje + '%';
+                    
+                    document.getElementById('esimFechaRenovacion').textContent = 'Renovación: ' + (status.fecha_renovacion ? new Date(status.fecha_renovacion).toLocaleDateString('es-ES') : '--');
+                    
+                    document.getElementById('btnActivarEsim').style.display = 'none';
+                    document.getElementById('btnRecargar').style.display = 'inline-flex';
+                    document.getElementById('btnVerHistorial').style.display = 'inline-flex';
+                } else {
+                    document.getElementById('esimStatusBadge').textContent = '● Inactiva';
+                    document.getElementById('esimStatusBadge').className = 'status-badge-esim inactiva';
+                    
+                    document.getElementById('esimRestantes').textContent = '--';
+                    document.getElementById('esimConsumidos').textContent = '--';
+                    document.getElementById('esimTotal').textContent = '--';
+                    
+                    document.getElementById('esimProgress').style.width = '0%';
+                    document.getElementById('esimFechaRenovacion').textContent = 'Renovación: --';
+                    
+                    document.getElementById('btnActivarEsim').style.display = 'inline-flex';
+                    document.getElementById('btnRecargar').style.display = 'none';
+                    document.getElementById('btnVerHistorial').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error actualizando eSIM UI:', error);
+            }
+        }
+
+        async function activarEsimHandler() {
+            try {
+                const resultado = await window.esimConnector?.activarEsim();
+                if (resultado && resultado.success) {
+                    mostrarToast('✅ ' + resultado.mensaje);
+                    await actualizarEsimUI();
+                    await actualizarConexionUI();
+                } else {
+                    mostrarToast('❌ ' + (resultado?.error || 'Error al activar eSIM'), 'error');
+                }
+            } catch (error) {
+                console.error('Error activando eSIM:', error);
+                mostrarToast('❌ Error al activar eSIM', 'error');
+            }
+        }
+
+        async function recargarDatosHandler() {
+            const mb = prompt('¿Cuántos MB quieres recargar? (mínimo 100 MB)', '500');
+            if (!mb) return;
+            
+            const cantidad = parseInt(mb);
+            if (isNaN(cantidad) || cantidad < 100) {
+                mostrarToast('⚠️ Mínimo 100 MB', 'error');
+                return;
+            }
+            
+            try {
+                const resultado = await window.esimConnector?.recargarDatos(cantidad);
+                if (resultado && resultado.success) {
+                    mostrarToast('✅ ' + resultado.mensaje);
+                    await actualizarEsimUI();
+                    await actualizarConexionUI();
+                } else {
+                    mostrarToast('❌ ' + (resultado?.error || 'Error al recargar'), 'error');
+                }
+            } catch (error) {
+                console.error('Error recargando datos:', error);
+                mostrarToast('❌ Error al recargar', 'error');
+            }
+        }
+
+        function verHistorial() {
+            mostrarToast('📜 Historial de consumo (próximamente)');
+        }
+
+        // ================================================================
+        // 🌐 CONEXIÓN UI
+        // ================================================================
+        
+        async function actualizarConexionUI() {
+            try {
+                const estado = await window.esimConnector?.obtenerInternetDisponible();
+                if (!estado) return;
+                
+                const icono = document.getElementById('connIcon');
+                const info = document.getElementById('connInfo');
+                const detail = document.getElementById('connDetail');
+                const datos = document.getElementById('connDatos');
+                const progress = document.getElementById('connProgressFill');
+                const badge = document.getElementById('connBadge');
+                
+                if (estado.tipo === 'wifi') {
+                    icono.textContent = '📶';
+                    info.innerHTML = '<strong>WiFi</strong>';
+                    detail.textContent = 'Conectado (gratis)';
+                    datos.textContent = '∞';
+                    progress.style.width = '100%';
+                    badge.className = 'badge-wifi';
+                    badge.textContent = '● WiFi';
+                    document.getElementById('connectionBar').style.borderColor = 'var(--success)';
+                } else if (estado.tipo === 'esim') {
+                    icono.textContent = '🌐';
+                    info.innerHTML = '<strong>eSIM Csariel\'s</strong>';
+                    detail.textContent = estado.restantes.toFixed(0) + ' MB restantes';
+                    datos.textContent = estado.restantes.toFixed(0) + ' MB';
+                    progress.style.width = (100 - estado.porcentaje) + '%';
+                    badge.className = 'badge-esim';
+                    badge.textContent = '● eSIM';
+                    document.getElementById('connectionBar').style.borderColor = 'var(--gold-cosmic)';
+                } else {
+                    icono.textContent = '⚠️';
+                    info.innerHTML = '<strong>Sin conexión</strong>';
+                    detail.textContent = 'Activa tu eSIM o conecta WiFi';
+                    datos.textContent = '0 MB';
+                    progress.style.width = '0%';
+                    badge.className = 'badge-offline';
+                    badge.textContent = '● Sin conexión';
+                    document.getElementById('connectionBar').style.borderColor = 'var(--danger)';
+                }
+            } catch (error) {
+                console.error('Error actualizando conexión UI:', error);
+            }
+        }
+
+        function abrirSelectorConexion() {
+            const modal = document.getElementById('conexionModal');
+            const status = document.getElementById('modalConexionStatus');
+            const tipo = document.getElementById('modalConexionTipo');
+            
+            window.esimConnector?.obtenerInternetDisponible().then(estado => {
+                if (estado) {
+                    status.textContent = estado.mensaje;
+                    tipo.textContent = '📶 Preferencia actual: ' + (window.esimConnector?.getConexionPreferida?.() || 'auto');
+                }
+            });
+            
+            modal.classList.add('active');
+        }
+
+        function cerrarSelectorConexion() {
+            document.getElementById('conexionModal').classList.remove('active');
+        }
+
+        function seleccionarConexionHandler(tipo) {
+            window.esimConnector?.seleccionarConexion(tipo);
+            cerrarSelectorConexion();
+            setTimeout(() => {
+                actualizarConexionUI();
+                actualizarEsimUI();
+            }, 500);
+        }
+
+        // ================================================================
+        // CONTACTOS (funciones existentes sin cambios)
+        // ================================================================
+        
         function emojiNivel(nivel) {
             const map = { 'bronze': '🥉', 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
             return map[nivel] || '⭐';
@@ -1442,9 +1838,6 @@
             }).join('');
         }
 
-        // ================================================================
-        // ACCIONES DE CONTACTO
-        // ================================================================
         function toggleDropdown(id) {
             const dropdown = document.getElementById(`dropdown-${id}`);
             if (dropdown) {
@@ -1512,11 +1905,6 @@
             document.querySelectorAll('.dropdown-menu.active').forEach(d => d.classList.remove('active'));
         }
 
-        // ================================================================
-        // CHAT RÁPIDO
-        // ================================================================
-        let chatContactoActual = null;
-
         function abrirChat(id) {
             const p = todosLosContactos.find(c => c.id === id);
             if (!p) return;
@@ -1524,13 +1912,19 @@
                 mostrarToast('⚠️ No puedes chatear con un usuario bloqueado', 'error');
                 return;
             }
-            chatContactoActual = p;
             mostrarToast(`💬 Abriendo chat con ${p.nombre}...`);
+        }
+
+        function abrirPerfil(id) {
+            const p = todosLosContactos.find(c => c.id === id);
+            if (!p) return;
+            mostrarToast(`👤 Perfil de ${p.nombre} · ${p.ubicacion || 'Ubicación no especificada'}`);
         }
 
         // ================================================================
         // RENDERIZAR SOLICITUDES, DESCUBRIR, GRUPOS, BLOQUEADOS
         // ================================================================
+        
         function renderSolicitudes() {
             const ids = Object.keys(relaciones).filter(id => relaciones[id] === 'solicitud_recibida');
             const cont = document.getElementById('listaSolicitudes');
@@ -1692,6 +2086,7 @@
         // ================================================================
         // ACCIONES DE SOLICITUDES
         // ================================================================
+        
         function enviarSolicitud(id) {
             relaciones[id] = 'solicitud_enviada';
             guardarDatosLocales();
@@ -1719,6 +2114,7 @@
         // ================================================================
         // RENDERIZAR TODOS
         // ================================================================
+        
         function renderAll() {
             renderContactos();
             renderSolicitudes();
@@ -1727,27 +2123,10 @@
             renderBloqueados();
         }
 
-        function actualizarContadores() {
-            const contactos = Object.keys(relaciones).filter(id => relaciones[id] === 'contacto').length;
-            const solicitudes = Object.keys(relaciones).filter(id => relaciones[id] === 'solicitud_recibida').length;
-            
-            document.getElementById('statContactos').textContent = contactos;
-            document.getElementById('statSolicitudes').textContent = solicitudes;
-            document.getElementById('statGrupos').textContent = grupos.length;
-            document.getElementById('statSeguidores').textContent = Math.floor(Math.random() * 20);
-            
-            const badge = document.getElementById('badgeSolicitudes');
-            if (solicitudes > 0) {
-                badge.textContent = solicitudes;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
         // ================================================================
         // CAMBIAR TAB
         // ================================================================
+        
         function cambiarTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
@@ -1763,28 +2142,9 @@
         }
 
         // ================================================================
-        // ABRIR PERFIL
-        // ================================================================
-        function abrirPerfil(id) {
-            const p = todosLosContactos.find(c => c.id === id);
-            if (!p) return;
-            mostrarToast(`👤 Perfil de ${p.nombre} · ${p.ubicacion || 'Ubicación no especificada'}`);
-        }
-
-        // ================================================================
-        // EDITOR DE PERFIL
-        // ================================================================
-        function abrirEditorPerfil() {
-            mostrarToast('✏️ Editor de perfil (demo)');
-        }
-
-        function abrirEditorFoto() {
-            mostrarToast('📷 Cambiar foto de perfil (demo)');
-        }
-
-        // ================================================================
         // GUARDAR DATOS LOCALES
         // ================================================================
+        
         function guardarDatosLocales() {
             try {
                 localStorage.setItem('mironova_datos', JSON.stringify({
@@ -1810,48 +2170,11 @@
         }
 
         // ================================================================
-        // TOAST
+        // WALLET
         // ================================================================
-        function mostrarToast(mensaje, tipo = '') {
-            const toast = document.getElementById('toast');
-            toast.textContent = mensaje;
-            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
-            toast.classList.add('active');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
-        }
-
-        // ================================================================
-        // TÉRMINOS MIRONOVA
-        // ================================================================
-        function openTerminosMironovaModal() {
-            mostrarToast('📜 Términos y Condiciones (demo)');
-        }
-
-        // ================================================================
-        // INICIALIZAR
-        // ================================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Mironova v' + CONFIG.VERSION);
-            console.log('📱 Red Csariel\'s - Internet de alta velocidad');
-            console.log('🌐 Red Social Integral - Para personas de todo el mundo');
-            console.log('📝 Registro: Nombre, Fecha, Email, MetaMask o Teléfono');
-            console.log('🤖 Asistente IA cargado en Mi Red');
-            
-            initStars();
-            cargarPerfil();
-            cargarDatosLocales();
-            renderAll();
-            actualizarContadores();
-            
-            // Ocultar mensaje de batería después de 2 segundos
-            setTimeout(() => {
-                const tip = document.getElementById('batteryTip');
-                if (tip) tip.style.display = 'none';
-            }, 2000);
-            
-            // Simular wallet
-            document.getElementById('btnConnectWallet').addEventListener('click', function() {
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('btnConnectWallet')?.addEventListener('click', function() {
                 const mockAddress = '0x' + Array.from({length: 40}, () => 
                     Math.floor(Math.random() * 16).toString(16)).join('');
                 document.getElementById('walletAddressDisplay').textContent = mockAddress.slice(0, 6) + '...' + mockAddress.slice(-4);
@@ -1862,7 +2185,7 @@
                 mostrarToast('🔗 Wallet conectada');
             });
 
-            document.getElementById('btnDisconnectWallet').addEventListener('click', function() {
+            document.getElementById('btnDisconnectWallet')?.addEventListener('click', function() {
                 document.getElementById('walletAddressDisplay').textContent = '--';
                 document.getElementById('walletStatusBadge').className = 'wallet-badge disconnected';
                 document.getElementById('walletStatusBadge').innerHTML = '● Desconectado';
@@ -1870,59 +2193,67 @@
                 this.style.display = 'none';
                 mostrarToast('🔌 Wallet desconectada');
             });
-
-            // ===== ASISTENTE IA =====
-            // Cargar el widget HTML del asistente
-            fetch('/assets/components/asistente-widget.html')
-                .then(res => {
-                    if (!res.ok) throw new Error('No se pudo cargar el widget');
-                    return res.text();
-                })
-                .then(html => {
-                    document.getElementById('asistenteContainer').innerHTML = html;
-                    console.log('✅ Asistente IA cargado en Mi Red');
-                    
-                    // Inicializar el asistente para Mi Red (Social)
-                    if (typeof window.CsarielsAsistente !== 'undefined') {
-                        window.CsarielsAsistente.iniciar('mi-red');
-                    } else {
-                        // Cargar scripts del asistente si no están disponibles
-                        cargarScriptsAsistente();
-                    }
-                })
-                .catch(err => {
-                    console.warn('⚠️ Error cargando widget asistente:', err);
-                });
-
-            console.log('✅ Mironova cargada correctamente');
         });
 
         // ================================================================
-        // CARGAR SCRIPTS DEL ASISTENTE (si no están disponibles)
+        // INICIALIZAR
         // ================================================================
-        function cargarScriptsAsistente() {
-            const scripts = [
-                '/assets/js/asistente-config.js',
-                '/assets/js/asistente-ia.js'
-            ];
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('◈ Csariel\'s - Mi Red v' + CONFIG.VERSION);
+            console.log('📱 Red Csariel\'s - Internet de alta velocidad');
+            console.log('🌐 Red Social Integral - Para personas de todo el mundo');
+            console.log('📝 Registro: Nombre, Fecha, Email, MetaMask o Teléfono');
+            console.log('📶 eSIM integrada con esim-connector.js');
             
-            let loaded = 0;
-            scripts.forEach(src => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = () => {
-                    loaded++;
-                    if (loaded === scripts.length && typeof window.CsarielsAsistente !== 'undefined') {
-                        window.CsarielsAsistente.iniciar('mi-red');
-                        console.log('✅ Asistente IA inicializado en Mi Red');
-                    }
-                };
-                script.onerror = () => {
-                    console.warn('⚠️ No se pudo cargar:', src);
-                };
-                document.body.appendChild(script);
-            });
-        }
+            initStars();
+            cargarPerfil();
+            cargarDatosLocales();
+            renderAll();
+            actualizarContadores();
+            
+            // Inicializar eSIM y conexión
+            await actualizarEsimUI();
+            await actualizarConexionUI();
+            
+            // Actualizar cada 30 segundos
+            setInterval(async () => {
+                await actualizarEsimUI();
+                await actualizarConexionUI();
+            }, 30000);
+            
+            console.log('✅ Mi Red cargada correctamente');
+        });
+
+        // Exponer funciones globales
+        window.mostrarToast = mostrarToast;
+        window.cambiarTab = cambiarTab;
+        window.filtrarContactosPor = filtrarContactosPor;
+        window.filtrarContactos = filtrarContactos;
+        window.abrirChat = abrirChat;
+        window.abrirPerfil = abrirPerfil;
+        window.enviarSolicitud = enviarSolicitud;
+        window.aceptarSolicitud = aceptarSolicitud;
+        window.rechazarSolicitud = rechazarSolicitud;
+        window.toggleDropdown = toggleDropdown;
+        window.toggleFavorito = toggleFavorito;
+        window.toggleBloqueado = toggleBloqueado;
+        window.toggleSilenciado = toggleSilenciado;
+        window.eliminarContacto = eliminarContacto;
+        window.abrirEditorPerfil = abrirEditorPerfil;
+        window.abrirEditorFoto = abrirEditorFoto;
+        window.abrirVerificacion = abrirVerificacion;
+        window.abrirRegistro = abrirRegistro;
+        
+        // eSIM functions
+        window.activarEsimHandler = activarEsimHandler;
+        window.recargarDatosHandler = recargarDatosHandler;
+        window.verHistorial = verHistorial;
+        window.abrirSelectorConexion = abrirSelectorConexion;
+        window.cerrarSelectorConexion = cerrarSelectorConexion;
+        window.seleccionarConexionHandler = seleccionarConexionHandler;
+        window.actualizarEsimUI = actualizarEsimUI;
+        window.actualizarConexionUI = actualizarConexionUI;
     </script>
 </body>
 </html>
