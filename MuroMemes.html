@@ -13,6 +13,9 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- ===== ASISTENTE IA - CSS ===== -->
+    <link rel="stylesheet" href="/assets/css/asistente-styles.css" />
+
     <!-- ===== SUPABASE Y CONECTORES ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="./js/muro-connector.js"></script>
@@ -20,18 +23,22 @@
     <script src="./js/config.js"></script>
 
     <style>
-        /* ===== PALETA ===== */
+        /* ===== PALETA CSARIEL'S ===== */
         :root {
             --verde: #0F2D1A;
             --verde-claro: #1a4a2a;
             --dorado: #D4AF37;
-            --dorado-dim: rgba(212,175,55,0.15);
+            --dorado-dim: rgba(212, 175, 55, 0.15);
             --card-bg: #123722;
             --texto: #e8f0f8;
             --texto-sec: #8ba3c7;
             --texto-muted: #4a6a8a;
             --danger: #ff3366;
             --success: #00b894;
+            --border: rgba(212, 175, 55, 0.08);
+            --border-glow: rgba(212, 175, 55, 0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -64,7 +71,7 @@
             transition: all 0.3s;
             font-size: 0.65rem;
         }
-        .btn-gold:hover { transform: scale(1.03); box-shadow: 0 0 30px rgba(212,175,55,0.3); }
+        .btn-gold:hover { transform: scale(1.03); box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
         .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 
         .btn-outline-gold {
@@ -79,12 +86,12 @@
             transition: all 0.3s;
             font-size: 0.55rem;
         }
-        .btn-outline-gold:hover { background: rgba(212,175,55,0.1); }
+        .btn-outline-gold:hover { background: rgba(212, 175, 55, 0.1); }
 
         .btn-danger {
-            background: rgba(255,51,102,0.15);
+            background: rgba(255, 51, 102, 0.15);
             color: var(--danger);
-            border: 1px solid rgba(255,51,102,0.3);
+            border: 1px solid rgba(255, 51, 102, 0.3);
             font-family: 'Orbitron', monospace;
             font-weight: 700;
             padding: 6px 14px;
@@ -93,7 +100,7 @@
             transition: all 0.3s;
             font-size: 0.5rem;
         }
-        .btn-danger:hover { background: rgba(255,51,102,0.25); }
+        .btn-danger:hover { background: rgba(255, 51, 102, 0.25); }
 
         /* ===== MODAL 18+ ===== */
         .modal-18 {
@@ -145,13 +152,13 @@
             font-family: 'Orbitron', monospace;
             font-weight: 600;
             cursor: pointer;
-            border: 1px solid rgba(212,175,55,0.15);
+            border: 1px solid rgba(212, 175, 55, 0.15);
             background: transparent;
             color: var(--texto-muted);
             transition: all 0.3s;
         }
         .flair-chip.active {
-            background: rgba(212,175,55,0.15);
+            background: rgba(212, 175, 55, 0.15);
             border-color: var(--dorado);
             color: var(--dorado);
         }
@@ -164,11 +171,11 @@
             font-weight: 700;
             font-family: 'Orbitron', monospace;
         }
-        .flair-meme { background: rgba(212,175,55,0.2); color: var(--dorado); }
-        .flair-confesion { background: rgba(255,51,102,0.15); color: var(--danger); }
-        .flair-chisme { background: rgba(0,212,255,0.15); color: #00d4ff; }
-        .flair-rant { background: rgba(255,165,0,0.15); color: #ffa500; }
-        .flair-crush { background: rgba(255,107,157,0.15); color: #ff6b9d; }
+        .flair-meme { background: rgba(212, 175, 55, 0.2); color: var(--dorado); }
+        .flair-confesion { background: rgba(255, 51, 102, 0.15); color: var(--danger); }
+        .flair-chisme { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+        .flair-rant { background: rgba(255, 165, 0, 0.15); color: #ffa500; }
+        .flair-crush { background: rgba(255, 107, 157, 0.15); color: #ff6b9d; }
 
         /* ===== VOTES ===== */
         .vote-btn {
@@ -188,14 +195,14 @@
         /* ===== POST CARD ===== */
         .post-card {
             background: var(--card-bg);
-            border: 1px solid rgba(212,175,55,0.08);
+            border: 1px solid rgba(212, 175, 55, 0.08);
             border-radius: 16px;
             padding: 16px;
             display: flex;
             gap: 14px;
             transition: all 0.3s;
         }
-        .post-card:hover { border-color: rgba(212,175,55,0.2); }
+        .post-card:hover { border-color: rgba(212, 175, 55, 0.2); }
 
         .video-container {
             border-radius: 12px;
@@ -226,7 +233,7 @@
             z-index: 5000;
             pointer-events: none;
             font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(212,175,55,0.15);
+            border: 1px solid rgba(212, 175, 55, 0.15);
             max-width: 90%;
             text-align: center;
         }
@@ -269,6 +276,15 @@
             transition: all 0.3s;
         }
         .toggle-switch.active .knob { left: 20px; }
+
+        /* ===== PULSE GLOW ===== */
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2)); }
+            50% { filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4)); }
+        }
 
         @media (max-width: 768px) {
             .modal-card { padding: 20px; margin: 10px; }
@@ -402,6 +418,9 @@
             </div>
         </footer>
     </div>
+
+    <!-- ===== CONTENEDOR DEL ASISTENTE IA ===== -->
+    <div id="asistenteContainer"></div>
 
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
@@ -616,8 +635,6 @@
         // 🚀 SUPABASE - VOTAR (Reddit style)
         // ================================================================
         async function votarPost(postId, direction) {
-            // El voto funciona como like/downvote
-            // Si es upvote, da like; si es downvote, quita like (simplificado)
             if (direction === 1) {
                 await toggleLike(postId);
             } else {
@@ -637,9 +654,7 @@
         }
 
         function revelarPost(postId) {
-            // Simplificado: recargar posts o marcar como revelado localmente
             mostrarToast('👀 Confesión revelada');
-            // En producción, actualizarías la BD
         }
 
         function simularVideo() {
@@ -685,16 +700,62 @@
         }
 
         // ================================================================
+        // CARGAR SCRIPTS DEL ASISTENTE
+        // ================================================================
+        function cargarScriptsAsistente() {
+            const scripts = [
+                '/assets/js/asistente-config.js',
+                '/assets/js/asistente-ia.js'
+            ];
+            
+            let loaded = 0;
+            scripts.forEach(src => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    loaded++;
+                    if (loaded === scripts.length && typeof window.CsarielsAsistente !== 'undefined') {
+                        window.CsarielsAsistente.iniciar('ayuda-comunitaria');
+                        console.log('✅ Asistente IA inicializado en Memes y Confesiones');
+                    }
+                };
+                script.onerror = () => {
+                    console.warn('⚠️ No se pudo cargar:', src);
+                };
+                document.body.appendChild(script);
+            });
+        }
+
+        // ================================================================
         // INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎭 Csariel\'s - Memes y Confesiones');
+            console.log('🤖 Asistente IA cargado en Memes y Confesiones');
+
+            // Cargar scripts del asistente
+            cargarScriptsAsistente();
+
+            // Cargar el widget HTML del asistente
+            fetch('/assets/components/asistente-widget.html')
+                .then(res => {
+                    if (!res.ok) throw new Error('No se pudo cargar el widget');
+                    return res.text();
+                })
+                .then(html => {
+                    document.getElementById('asistenteContainer').innerHTML = html;
+                    console.log('✅ Widget Asistente IA cargado en Memes y Confesiones');
+                })
+                .catch(err => {
+                    console.warn('⚠️ Error cargando widget asistente:', err);
+                });
+
             // Verificar edad (18+)
             const edadConfirmada = localStorage.getItem('csariels_18_confirmed') || localStorage.getItem('csariels_18');
             if (edadConfirmada === '1' || edadConfirmada === 'true') {
                 document.getElementById('modal18').classList.add('hidden');
                 document.getElementById('app').style.display = 'block';
                 
-                // Cargar perfil del usuario
                 const perfil = JSON.parse(localStorage.getItem('miPerfil_csariels') || '{}');
                 if (perfil.userId) currentUserId = perfil.userId;
                 if (perfil.nombre) currentUserName = perfil.nombre;
