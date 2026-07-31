@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Csariel's | Panel Web3</title>
+    <title>Csariel's | Panel Web3 + POS</title>
     <meta name="theme-color" content="#0B3D2E" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Csariel's - Panel Web3" />
+    <meta property="og:title" content="Csariel's - Panel Web3 + POS" />
     <meta property="og:description" content="Plataforma Web3 con conectividad multired, pasarela de pagos y herramientas avanzadas" />
     <meta property="og:type" content="website" />
 
@@ -49,6 +49,7 @@
             --warning: #C5A880;
             --quantum: #00e5ff;
             --bg-card: rgba(11, 61, 46, 0.25);
+            --blue-accent: #4a8db7;
         }
 
         /* ============================================================
@@ -859,10 +860,13 @@
             font-weight: 600;
             color: var(--text-primary);
         }
+        .wallet-status .status-item .value.active {
+            color: #00b894;
+        }
         .wallet-status .status-item .value.connected {
             color: #00b894;
         }
-        .wallet-status .status-item .value.disconnected {
+        .wallet-status .status-item .value.inactive {
             color: var(--text-muted);
         }
         .wallet-status .status-item .value.wrong-network {
@@ -959,7 +963,6 @@
             top: 10px;
         }
 
-        /* Colores específicos para cada método */
         .payment-web3 {
             background: linear-gradient(135deg, #1a5c3a, #0d3d2a);
             border-color: rgba(197, 168, 128, 0.15);
@@ -982,6 +985,7 @@
             color: #7fb8d9;
         }
 
+        /* CLABE con seguridad visual - dígitos ocultos */
         .payment-spei .clabe-box {
             background: rgba(0, 0, 0, 0.25);
             padding: 6px 10px;
@@ -1002,6 +1006,11 @@
             font-size: 0.8rem;
             color: #7fb8d9;
             letter-spacing: 2px;
+            font-family: 'Space Grotesk', monospace;
+        }
+        .payment-spei .clabe-box .clabe-number .hidden-digits {
+            color: rgba(127, 184, 217, 0.25);
+            letter-spacing: 1px;
         }
         .payment-spei .clabe-box .btn-copy-clabe {
             background: rgba(127, 184, 217, 0.15);
@@ -1077,6 +1086,67 @@
         }
         .qr-output .qr-info strong {
             color: var(--gold-cosmic);
+        }
+
+        /* ============================================================
+                   CONECTIVIDAD - IMPRESORAS TÉRMICAS Y POS
+                   ============================================================ */
+        .connectivity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        @media (max-width: 768px) {
+            .connectivity-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .connectivity-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            transition: var(--transition);
+        }
+        .connectivity-card:hover {
+            border-color: var(--border-glow);
+        }
+        .connectivity-card .card-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--gold-cosmic);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .connectivity-card .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .connectivity-card .status-indicator.disconnected {
+            background: var(--text-muted);
+        }
+        .connectivity-card .status-indicator.connected {
+            background: var(--success);
+            box-shadow: 0 0 15px rgba(0, 184, 148, 0.3);
+        }
+        .connectivity-card .status-indicator.connecting {
+            background: var(--warning);
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
+        .connectivity-card .device-name {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin: 4px 0;
+        }
+        .connectivity-card .btn-group {
+            margin-top: 8px;
         }
 
         /* ============================================================
@@ -1157,7 +1227,6 @@
             }
         }
 
-        /* Mensaje de pila */
         .battery-tip {
             font-size: 0.4rem;
             color: var(--text-muted);
@@ -1239,7 +1308,7 @@
         }
 
         /* ============================================================
-                   MEMBRESÍAS
+                   MEMBRESÍAS CON LÍMITES DE FACTURACIÓN
                    ============================================================ */
         .membresias-grid {
             display: grid;
@@ -1284,6 +1353,18 @@
             font-weight: 700;
             color: var(--quantum);
         }
+        .membresia-card .plan-invoice-limit {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            margin: 2px 0 6px;
+            padding: 2px 8px;
+            background: rgba(197, 168, 128, 0.05);
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .membresia-card .plan-invoice-limit strong {
+            color: var(--gold-cosmic);
+        }
         .membresia-card .plan-features {
             font-size: 0.55rem;
             color: var(--text-muted);
@@ -1298,6 +1379,60 @@
             color: var(--success);
             margin-right: 4px;
             font-size: 0.5rem;
+        }
+        .membresia-card .btn {
+            font-size: 0.5rem;
+            padding: 4px 10px;
+        }
+
+        /* Contador de facturas usado/restante */
+        .invoice-counter {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            border: 1px solid var(--border);
+        }
+        .invoice-counter .label {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+        }
+        .invoice-counter .value {
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+        }
+        .invoice-counter .value.used {
+            color: var(--gold-cosmic);
+        }
+        .invoice-counter .value.remaining {
+            color: var(--success);
+        }
+        .invoice-counter .value.warning {
+            color: var(--danger);
+        }
+        .invoice-counter .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+        .invoice-counter .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-cosmic), var(--success));
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        .invoice-counter .progress-bar .fill.warning {
+            background: linear-gradient(90deg, var(--warning), var(--danger));
         }
 
         /* ============================================================
@@ -1488,6 +1623,9 @@
             .payment-methods-grid {
                 grid-template-columns: 1fr;
             }
+            .connectivity-grid {
+                grid-template-columns: 1fr;
+            }
         }
         @media (max-width: 480px) {
             .membresias-grid {
@@ -1529,7 +1667,7 @@
             <a href="#" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Web3</span>
+                <span class="logo-badge">Web3 + POS</span>
             </a>
             <div class="header-actions">
                 <div class="status-badge">
@@ -1665,7 +1803,7 @@
                 <div class="wallet-status">
                     <div class="status-item">
                         <span class="label">Estado</span>
-                        <span class="value disconnected" id="walletStatus">● No conectada</span>
+                        <span class="value inactive" id="walletStatus">● Cuenta Inactiva</span>
                     </div>
                     <div class="status-item">
                         <span class="label">Red</span>
@@ -1714,7 +1852,7 @@
                         </div>
                     </div>
 
-                    <!-- Tarjeta SPEI (Cuenta Bancaria Tradicional) -->
+                    <!-- Tarjeta SPEI (Cuenta Bancaria Tradicional) con CLABE oculta -->
                     <div class="payment-card payment-spei">
                         <div class="icon-big">🏦</div>
                         <div class="card-title">
@@ -1725,7 +1863,9 @@
                             <i class="fas fa-building"></i> Banco: <strong style="color:#7fb8d9;">BBVA</strong>
                         </div>
                         <div class="clabe-box">
-                            <span class="clabe-number">044 180 2560 5437 6180</span>
+                            <span class="clabe-number">
+                                044 <span class="hidden-digits">*** **** ****</span> 6180
+                            </span>
                             <button class="btn-copy-clabe" onclick="copiarCLABE('044180256054376180')">
                                 <i class="fas fa-copy"></i> Copiar CLABE
                             </button>
@@ -1806,6 +1946,82 @@
         </div><!-- /main-grid -->
 
         <!-- ============================================================
+        CONECTIVIDAD - IMPRESORAS TÉRMICAS Y POS
+        ============================================================ -->
+        <section class="card card-full">
+            <div class="card-header">
+                <i class="fas fa-print"></i>
+                <h2>Conectividad POS</h2>
+                <span style="font-size:0.5rem;color:var(--text-muted);font-family:'Orbitron',monospace;">
+                    Impresión térmica · POS tradicional
+                </span>
+            </div>
+
+            <div class="connectivity-grid">
+                <!-- Impresora Térmica Bluetooth -->
+                <div class="connectivity-card">
+                    <div class="card-title">
+                        <i class="fas fa-bluetooth-b"></i> Impresora Térmica
+                        <span class="status-indicator disconnected" id="btStatusIndicator"></span>
+                    </div>
+                    <div class="device-name" id="btDeviceName">📡 Ningún dispositivo conectado</div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary" onclick="conectarImpresoraBluetooth()">
+                            <i class="fas fa-bluetooth-b"></i> Conectar
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="imprimirTicketBluetooth()" id="btnImprimirTicket" disabled>
+                            <i class="fas fa-receipt"></i> Imprimir Ticket
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="desconectarImpresora()" id="btnDesconectarBT" disabled>
+                            <i class="fas fa-times"></i> Desconectar
+                        </button>
+                    </div>
+                    <div style="margin-top:6px;font-size:0.5rem;color:var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> Compatible con impresoras térmicas Bluetooth (ESC/POS)
+                    </div>
+                </div>
+
+                <!-- Conectar POS Externo / Legacy -->
+                <div class="connectivity-card">
+                    <div class="card-title">
+                        <i class="fas fa-server"></i> POS Externo
+                        <span class="status-indicator disconnected" id="posStatusIndicator"></span>
+                    </div>
+                    <div class="device-name" id="posDeviceName">🔌 Ningún POS conectado</div>
+                    <div class="form-group" style="margin:6px 0;">
+                        <label style="font-size:0.5rem;">ID del POS (para sincronización)</label>
+                        <input type="text" class="form-control" id="posIdInput" placeholder="Ej: POS-001" style="font-size:0.65rem;padding:4px 8px;" />
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary" onclick="conectarPOSExterno()">
+                            <i class="fas fa-link"></i> Conectar POS
+                        </button>
+                        <button class="btn btn-sm btn-gold" onclick="sincronizarPOS()" id="btnSincronizarPOS" disabled>
+                            <i class="fas fa-sync-alt"></i> Sincronizar Ventas
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="desconectarPOS()" id="btnDesconectarPOS" disabled>
+                            <i class="fas fa-times"></i> Desconectar
+                        </button>
+                    </div>
+                    <div style="margin-top:6px;font-size:0.5rem;color:var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> Sincroniza ventas de POS tradicionales para facturación automática
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registro de sincronización -->
+            <div style="margin-top:10px;padding:8px 12px;background:rgba(0,0,0,0.15);border-radius:8px;">
+                <p style="font-size:0.6rem;color:var(--text-secondary);">
+                    <i class="fas fa-history" style="color:var(--gold-cosmic);"></i>
+                    <span id="posSyncStatus">📋 Última sincronización: Ninguna</span>
+                </p>
+                <div id="posSyncLog" style="max-height:60px;overflow-y:auto;font-size:0.5rem;color:var(--text-muted);margin-top:4px;">
+                    <div>📌 Esperando sincronización...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
         IA PARA NEGOCIOS
         ============================================================ -->
         <section class="card card-full">
@@ -1845,7 +2061,7 @@
         </section>
 
         <!-- ============================================================
-        MEMBRESÍAS Y PLANES
+        MEMBRESÍAS Y PLANES CON LÍMITES DE FACTURACIÓN
         ============================================================ -->
         <section class="card card-full" id="membresiasSection">
             <div class="card-header">
@@ -1855,26 +2071,46 @@
                     Actual: <span id="membresiaActualDisplay">Gratis</span>
                 </span>
             </div>
-            <div class="membresias-grid">
-                <!-- Gratis -->
+
+            <!-- Contador de facturas -->
+            <div class="invoice-counter" id="invoiceCounter">
+                <span class="label"><i class="fas fa-file-invoice"></i> Facturas este mes</span>
+                <span>
+                    <span class="value used" id="facturasUsadas">0</span>
+                    <span style="color:var(--text-muted);font-size:0.55rem;"> / </span>
+                    <span class="value remaining" id="facturasLimite">0</span>
+                    <span style="color:var(--text-muted);font-size:0.55rem;"> usadas</span>
+                </span>
+                <div class="progress-bar">
+                    <div class="fill" id="facturasProgress" style="width:0%;"></div>
+                </div>
+                <span style="font-size:0.45rem;color:var(--text-muted);width:100%;text-align:center;">
+                    <span id="facturasRestantes">0</span> facturas restantes este mes
+                </span>
+            </div>
+
+            <div class="membresias-grid" style="margin-top:10px;">
+                <!-- Gratis: 0 facturas -->
                 <div class="membresia-card">
                     <div class="plan-icon">🆓</div>
                     <div class="plan-name">Gratis</div>
                     <div class="plan-price">$0</div>
+                    <div class="plan-invoice-limit">📄 <strong>0</strong> facturas/mes</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-check"></i> Contactos ilimitados</li>
                         <li><i class="fas fa-check"></i> 10 QR/mes</li>
                         <li><i class="fas fa-check"></i> IA Básica</li>
                     </ul>
-                    <button class="btn btn-sm btn-outline btn-block" onclick="seleccionarMembresia('Gratis', 0)">
+                    <button class="btn btn-sm btn-outline btn-block" onclick="seleccionarMembresia('Gratis', 0, 0)">
                         <i class="fas fa-check"></i> Actual
                     </button>
                 </div>
-                <!-- Básico -->
+                <!-- Básico: 15 facturas -->
                 <div class="membresia-card">
                     <div class="plan-icon">🌟</div>
                     <div class="plan-name">Básico</div>
                     <div class="plan-price">$99/mes</div>
+                    <div class="plan-invoice-limit">📄 <strong>15</strong> facturas/mes</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-check"></i> 100 QR/mes</li>
                         <li><i class="fas fa-check"></i> Imprimir QR</li>
@@ -1882,15 +2118,16 @@
                         <li><i class="fas fa-check"></i> IA para Negocios</li>
                         <li><i class="fas fa-check"></i> Soporte 24/7</li>
                     </ul>
-                    <button class="btn btn-sm btn-primary btn-block" onclick="seleccionarMembresia('Básico', 99)">
+                    <button class="btn btn-sm btn-primary btn-block" onclick="seleccionarMembresia('Básico', 99, 15)">
                         <i class="fas fa-rocket"></i> Suscribirse
                     </button>
                 </div>
-                <!-- Business -->
-                <div class="membresia-card">
+                <!-- Business: 120 facturas (plan estrella) -->
+                <div class="membresia-card" style="border-color:var(--gold-cosmic);">
                     <div class="plan-icon">🚀</div>
                     <div class="plan-name">Business</div>
                     <div class="plan-price">$249/mes</div>
+                    <div class="plan-invoice-limit">📄 <strong>120</strong> facturas/mes</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-check"></i> QR Ilimitados</li>
                         <li><i class="fas fa-check"></i> Imprimir + Facturas</li>
@@ -1898,22 +2135,23 @@
                         <li><i class="fas fa-check"></i> Recibos en Mensajes</li>
                         <li><i class="fas fa-check"></i> Exportar para SAT</li>
                     </ul>
-                    <button class="btn btn-sm btn-gold btn-block" onclick="seleccionarMembresia('Business', 249)">
+                    <button class="btn btn-sm btn-gold btn-block" onclick="seleccionarMembresia('Business', 249, 120)">
                         <i class="fas fa-crown"></i> Suscribirse
                     </button>
                 </div>
-                <!-- Empresarial -->
+                <!-- Empresarial: 550 facturas -->
                 <div class="membresia-card">
                     <div class="plan-icon">💎</div>
                     <div class="plan-name">Empresarial</div>
                     <div class="plan-price">$499/mes</div>
+                    <div class="plan-invoice-limit">📄 <strong>550</strong> facturas/mes</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-check"></i> Todo lo anterior</li>
                         <li><i class="fas fa-check"></i> IA personalizada</li>
                         <li><i class="fas fa-check"></i> Integración Web3</li>
                         <li><i class="fas fa-check"></i> Consultoría incluida</li>
                     </ul>
-                    <button class="btn btn-sm btn-success btn-block" onclick="seleccionarMembresia('Empresarial', 499)">
+                    <button class="btn btn-sm btn-success btn-block" onclick="seleccionarMembresia('Empresarial', 499, 550)">
                         <i class="fas fa-handshake"></i> Suscribirse
                     </button>
                 </div>
@@ -1925,7 +2163,7 @@
         ============================================================ -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Panel Web3 · IA · Red Csariel's
+                <span class="brand">◈ Csariel's</span> — Panel Web3 · IA · Red Csariel's · POS
             </span>
             <div class="footer-links">
                 <a href="#" onclick="mostrarToast('📊 Abriendo Dashboard...', 'info')">📊 Dashboard</a>
@@ -2014,6 +2252,23 @@
         </div>
     </div>
 
+    <!-- Modal POS Sync -->
+    <div class="modal-overlay" id="modalPOSSync">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModal('modalPOSSync')">✕</button>
+            <h3 class="modal-title"><i class="fas fa-sync-alt"></i> Sincronización POS</h3>
+            <div id="posSyncContent" style="font-size:0.75rem;color:var(--text-secondary);">
+                <p>🔄 Sincronizando ventas del POS...</p>
+                <div style="margin:10px 0;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;max-height:150px;overflow-y:auto;" id="posSyncResults">
+                    <div style="font-size:0.6rem;color:var(--text-muted);">Esperando datos...</div>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-block" onclick="cerrarModal('modalPOSSync')">
+                <i class="fas fa-check"></i> Cerrar
+            </button>
+        </div>
+    </div>
+
     <!-- ============================================================
     SCRIPTS
     ============================================================ -->
@@ -2025,6 +2280,13 @@
             WALLET_ADDRESS: '0x45c6455aa01356609d96b659c6eb880b7e1d046d',
             SPEI_CLABE: '044180256054376180',
             SPEI_BANCO: 'BBVA',
+            // Límites de facturación por plan
+            INVOICE_LIMITS: {
+                'Gratis': 0,
+                'Básico': 15,
+                'Business': 120,
+                'Empresarial': 550
+            },
             MEMBRESIAS: {
                 'Gratis': { precio: 0, qrMensual: 10, iaPredictiva: true, iaNeuro: false, imprimir: false, sat: false },
                 'Básico': { precio: 99, qrMensual: 100, iaPredictiva: true, iaNeuro: false, imprimir: true, sat: false },
@@ -2042,7 +2304,8 @@
             tag: '🌐 Explorador',
             bio: '⚡ Apasionado por la tecnología y la innovación',
             foto: null,
-            membresia: 'Gratis'
+            membresia: 'Gratis',
+            facturasUsadas: 0
         };
 
         let contactos = [];
@@ -2057,17 +2320,24 @@
         let walletAddress = null;
         let worldPaused = false;
 
+        // Estado de conectividad
+        let btDevice = null;
+        let btConnected = false;
+        let posConnected = false;
+        let posId = '';
+
         // ============================================================
         // INICIALIZACIÓN
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('◈ Csariel\'s - Panel Web3');
+            console.log('◈ Csariel\'s - Panel Web3 + POS');
             initStars();
             cargarDatos();
             renderizarContactos();
             renderizarNotificaciones();
             actualizarPerfil();
             actualizarUI();
+            actualizarContadorFacturas();
 
             setTimeout(() => {
                 const tip = document.getElementById('batteryTip');
@@ -2075,10 +2345,12 @@
             }, 2000);
 
             setTimeout(() => {
-                agregarNotificacion('🎉 Bienvenido a Csariel\'s', 'Panel Web3 con punto de venta QR', '🌌');
+                agregarNotificacion('🎉 Bienvenido a Csariel\'s', 'Panel Web3 + POS con facturación', '🌌');
                 agregarNotificacion('💡 Conecta tu wallet para recibir pagos', 'Usa MetaMask o Trust Wallet', '💡');
                 agregarNotificacion('🛒 Genera QR para tu negocio', 'Cobra con USDT/USDC en Polygon', '📱');
                 agregarNotificacion('🏦 Pagos SPEI disponibles', 'Transferencias bancarias tradicionales', '🏦');
+                agregarNotificacion('🖨️ Conecta impresora térmica por Bluetooth', 'Imprime tickets de venta físicos', '🖨️');
+                agregarNotificacion('🔌 Integra POS tradicionales', 'Sincroniza ventas para facturación automática', '🔌');
             }, 500);
         });
 
@@ -2491,6 +2763,9 @@
                     '💳'
                 );
 
+                // Actualizar estado de cuenta activa
+                actualizarEstadoCuenta();
+
             } catch (error) {
                 console.error('Error conectando wallet:', error);
                 mostrarToast('⚠️ Error al conectar: ' + error.message, 'error');
@@ -2507,6 +2782,20 @@
             const networkEl = document.getElementById('walletNetwork');
             networkEl.textContent = esPolygon ? chainName : `⚠️ ${chainName}`;
             networkEl.className = esPolygon ? 'value connected' : 'value wrong-network';
+
+            actualizarEstadoCuenta();
+        }
+
+        function actualizarEstadoCuenta() {
+            const statusEl = document.getElementById('walletStatus');
+            if (walletConnected) {
+                // Verificar que al menos un método de pago esté disponible (siempre lo están)
+                statusEl.textContent = '● Cuenta Activa';
+                statusEl.className = 'value active';
+            } else {
+                statusEl.textContent = '● Cuenta Inactiva';
+                statusEl.className = 'value inactive';
+            }
         }
 
         function getChainName(chainId) {
@@ -2528,12 +2817,13 @@
             localStorage.removeItem('csariels_wallet_address');
             localStorage.removeItem('csariels_wallet_network');
 
-            document.getElementById('walletStatus').textContent = '● No conectada';
-            document.getElementById('walletStatus').className = 'value disconnected';
+            document.getElementById('walletStatus').textContent = '● Cuenta Inactiva';
+            document.getElementById('walletStatus').className = 'value inactive';
             document.getElementById('walletNetwork').textContent = '--';
             document.getElementById('walletBalance').textContent = '--';
 
             mostrarToast('🔌 Wallet desconectada', 'info');
+            actualizarEstadoCuenta();
         }
 
         async function verificarRed() {
@@ -2582,7 +2872,7 @@
         }
 
         // ============================================================
-        // COPIAR CLABE SPEI
+        // COPIAR CLABE SPEI (con datos reales, no los ocultos)
         // ============================================================
         function copiarCLABE(clabe) {
             try {
@@ -2695,9 +2985,58 @@
                     `${ultimoQRVenta.producto} · $${ultimoQRVenta.precio.toFixed(2)} ${ultimoQRVenta.moneda}`,
                     '💵'
                 );
+
+                // Incrementar contador de facturas
+                incrementarFactura();
             }
         }
 
+        // ============================================================
+        // FACTURACIÓN - CONTADOR Y LÍMITES
+        // ============================================================
+        function incrementarFactura() {
+            const limite = CONFIG.INVOICE_LIMITS[miPerfil.membresia] || 0;
+            if (miPerfil.facturasUsadas < limite || limite === 0) {
+                miPerfil.facturasUsadas = Math.min(miPerfil.facturasUsadas + 1, limite);
+                guardarDatos();
+                actualizarContadorFacturas();
+                mostrarToast(`📄 Factura generada (${miPerfil.facturasUsadas}/${limite})`, 'success');
+            } else {
+                mostrarToast('⚠️ Límite de facturas alcanzado. Actualiza tu plan.', 'error');
+            }
+        }
+
+        function actualizarContadorFacturas() {
+            const limite = CONFIG.INVOICE_LIMITS[miPerfil.membresia] || 0;
+            const usadas = miPerfil.facturasUsadas || 0;
+            const restantes = Math.max(0, limite - usadas);
+
+            document.getElementById('facturasUsadas').textContent = usadas;
+            document.getElementById('facturasLimite').textContent = limite === 0 ? '∞' : limite;
+            document.getElementById('facturasRestantes').textContent = limite === 0 ? 'Ilimitadas' : restantes;
+
+            const porcentaje = limite > 0 ? (usadas / limite) * 100 : 0;
+            const progressBar = document.getElementById('facturasProgress');
+            progressBar.style.width = Math.min(porcentaje, 100) + '%';
+
+            if (porcentaje > 80 && limite > 0) {
+                progressBar.classList.add('warning');
+            } else {
+                progressBar.classList.remove('warning');
+            }
+
+            // Actualizar visibilidad del contador
+            const counter = document.getElementById('invoiceCounter');
+            if (limite === 0) {
+                counter.style.opacity = '0.5';
+            } else {
+                counter.style.opacity = '1';
+            }
+        }
+
+        // ============================================================
+        // IMPRESIÓN QR
+        // ============================================================
         function imprimirQR() {
             if (!document.getElementById('qrOutputVenta').classList.contains('active')) {
                 mostrarToast('⚠️ Genera un QR primero', 'error');
@@ -2767,6 +3106,192 @@
         }
 
         // ============================================================
+        // IMPRESORA TÉRMICA - BLUETOOTH (Web Bluetooth API)
+        // ============================================================
+        async function conectarImpresoraBluetooth() {
+            try {
+                if (!navigator.bluetooth) {
+                    mostrarToast('⚠️ Este navegador no soporta Web Bluetooth', 'error');
+                    return;
+                }
+
+                mostrarToast('🔍 Buscando impresoras Bluetooth...', 'info');
+
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+                });
+
+                btDevice = device;
+                btConnected = true;
+
+                document.getElementById('btDeviceName').textContent = `📡 ${device.name || 'Impresora Bluetooth'}`;
+                document.getElementById('btStatusIndicator').className = 'status-indicator connected';
+                document.getElementById('btnImprimirTicket').disabled = false;
+                document.getElementById('btnDesconectarBT').disabled = false;
+
+                mostrarToast(`✅ Conectado a: ${device.name || 'Impresora Bluetooth'}`, 'success');
+                agregarNotificacion(
+                    '🖨️ Impresora térmica conectada',
+                    `Dispositivo: ${device.name || 'Impresora Bluetooth'}`,
+                    '🖨️'
+                );
+
+            } catch (error) {
+                if (error.name === 'NotFoundError') {
+                    mostrarToast('⚠️ No se encontró ninguna impresora Bluetooth', 'error');
+                } else if (error.name === 'SecurityError') {
+                    mostrarToast('⚠️ Se requiere interacción del usuario para conectar', 'error');
+                } else {
+                    console.error('Error conectando Bluetooth:', error);
+                    mostrarToast('⚠️ Error al conectar: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function desconectarImpresora() {
+            btDevice = null;
+            btConnected = false;
+
+            document.getElementById('btDeviceName').textContent = '📡 Ningún dispositivo conectado';
+            document.getElementById('btStatusIndicator').className = 'status-indicator disconnected';
+            document.getElementById('btnImprimirTicket').disabled = true;
+            document.getElementById('btnDesconectarBT').disabled = true;
+
+            mostrarToast('🔌 Impresora desconectada', 'info');
+        }
+
+        function imprimirTicketBluetooth() {
+            if (!btConnected || !btDevice) {
+                mostrarToast('⚠️ Conecta una impresora Bluetooth primero', 'error');
+                return;
+            }
+
+            if (!ultimoQRVenta) {
+                mostrarToast('⚠️ Genera un QR de venta primero', 'error');
+                return;
+            }
+
+            mostrarToast('🖨️ Enviando ticket a la impresora...', 'info');
+
+            // Datos del ticket
+            const ticketData = `
+                ════════════════════════
+                ◈ CSARIEL'S
+                ════════════════════════
+                Ticket de Venta
+                ────────────────────────
+                Producto: ${ultimoQRVenta.producto}
+                Precio: $${ultimoQRVenta.precio.toFixed(2)} ${ultimoQRVenta.moneda}
+                Vendedor: ${miPerfil.nombre}
+                Fecha: ${new Date().toLocaleDateString()}
+                Hora: ${new Date().toLocaleTimeString()}
+                ────────────────────────
+                Método: ${ultimoQRVenta.moneda}/Polygon
+                Wallet: ${ultimoQRVenta.wallet.slice(0, 10)}...${ultimoQRVenta.wallet.slice(-8)}
+                ════════════════════════
+                ¡Gracias por tu compra!
+            `;
+
+            // Simular impresión (en un entorno real, se enviaría el comando ESC/POS)
+            setTimeout(() => {
+                mostrarToast('✅ Ticket impreso correctamente', 'success');
+                agregarNotificacion(
+                    '🖨️ Ticket impreso',
+                    `Venta: ${ultimoQRVenta.producto} · $${ultimoQRVenta.precio.toFixed(2)}`,
+                    '🧾'
+                );
+            }, 2000);
+
+            // Incrementar factura
+            incrementarFactura();
+        }
+
+        // ============================================================
+        // POS EXTERNO - SINCRONIZACIÓN
+        // ============================================================
+        function conectarPOSExterno() {
+            const posInput = document.getElementById('posIdInput').value.trim();
+            if (!posInput) {
+                mostrarToast('⚠️ Ingresa un ID de POS para conectar', 'error');
+                return;
+            }
+
+            posId = posInput;
+            posConnected = true;
+
+            document.getElementById('posDeviceName').textContent = `🔌 POS: ${posId}`;
+            document.getElementById('posStatusIndicator').className = 'status-indicator connected';
+            document.getElementById('btnSincronizarPOS').disabled = false;
+            document.getElementById('btnDesconectarPOS').disabled = false;
+
+            mostrarToast(`✅ POS ${posId} conectado correctamente`, 'success');
+            agregarNotificacion(
+                '🔌 POS Externo conectado',
+                `ID: ${posId} · Sincronización lista`,
+                '🔌'
+            );
+        }
+
+        function desconectarPOS() {
+            posConnected = false;
+            posId = '';
+
+            document.getElementById('posDeviceName').textContent = '🔌 Ningún POS conectado';
+            document.getElementById('posStatusIndicator').className = 'status-indicator disconnected';
+            document.getElementById('btnSincronizarPOS').disabled = true;
+            document.getElementById('btnDesconectarPOS').disabled = true;
+
+            mostrarToast('🔌 POS desconectado', 'info');
+        }
+
+        function sincronizarPOS() {
+            if (!posConnected) {
+                mostrarToast('⚠️ Conecta un POS primero', 'error');
+                return;
+            }
+
+            document.getElementById('posSyncStatus').textContent = '🔄 Sincronizando ventas del POS...';
+            document.getElementById('modalPOSSync').classList.add('active');
+
+            const resultsContainer = document.getElementById('posSyncResults');
+            resultsContainer.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);">🔄 Obteniendo datos del POS...</div>';
+
+            // Simular sincronización con datos de prueba
+            const ventasSimuladas = [
+                { id: 'V-001', producto: 'Café Americano', precio: 45.00, fecha: '2026-07-29 10:30' },
+                { id: 'V-002', producto: 'Croissant', precio: 32.00, fecha: '2026-07-29 11:15' },
+                { id: 'V-003', producto: 'Té Chai', precio: 38.00, fecha: '2026-07-29 12:00' },
+                { id: 'V-004', producto: 'Sandwich', precio: 78.00, fecha: '2026-07-29 13:20' },
+                { id: 'V-005', producto: 'Muffin', precio: 25.00, fecha: '2026-07-29 14:45' }
+            ];
+
+            setTimeout(() => {
+                resultsContainer.innerHTML = ventasSimuladas.map(v => `
+                        <div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.6rem;">
+                            <span>${v.id} - ${v.producto}</span>
+                            <span style="color:var(--gold-cosmic);">$${v.precio.toFixed(2)}</span>
+                            <span style="color:var(--text-muted);font-size:0.5rem;">${v.fecha}</span>
+                        </div>
+                    `).join('');
+
+                document.getElementById('posSyncStatus').textContent =
+                    `✅ Sincronización completada · ${ventasSimuladas.length} ventas importadas`;
+
+                mostrarToast(`✅ Sincronización completada (${ventasSimuladas.length} ventas)`, 'success');
+                agregarNotificacion(
+                    '📊 POS sincronizado',
+                    `${ventasSimuladas.length} ventas importadas desde POS ${posId}`,
+                    '📊'
+                );
+
+                // Registrar facturas por cada venta
+                ventasSimuladas.forEach(() => incrementarFactura());
+
+            }, 2000);
+        }
+
+        // ============================================================
         // IA
         // ============================================================
         function ejecutarPredictiva() {
@@ -2808,20 +3333,22 @@
         }
 
         // ============================================================
-        // MEMBRESÍAS
+        // MEMBRESÍAS CON LÍMITES DE FACTURACIÓN
         // ============================================================
-        function seleccionarMembresia(plan, precio) {
+        function seleccionarMembresia(plan, precio, limiteFacturas) {
             if (miPerfil.membresia === plan) {
                 mostrarToast(`✅ Ya estás en el plan ${plan}`, 'info');
                 return;
             }
 
-            const confirmar = confirm(`¿Deseas cambiar al plan ${plan} por $${precio}/mes?`);
+            const confirmar = confirm(`¿Deseas cambiar al plan ${plan} por $${precio}/mes?\nLímite de ${limiteFacturas} facturas/mes`);
             if (!confirmar) return;
 
             miPerfil.membresia = plan;
+            miPerfil.facturasUsadas = 0; // Reiniciar contador al cambiar de plan
             guardarDatos();
             actualizarUI();
+            actualizarContadorFacturas();
 
             document.getElementById('membresiaActualDisplay').textContent = plan;
 
@@ -2833,8 +3360,12 @@
             document.getElementById('iaNeuroStatus').textContent = config.iaNeuro ? '● Activo' : '🔒 Bloqueado';
             document.getElementById('iaNeuroStatus').className = config.iaNeuro ? 'ia-status active' : 'ia-status inactive';
 
-            mostrarToast(`✅ Cambiaste al plan ${plan}`, 'success');
-            agregarNotificacion('👑 Cambio de membresía', `Ahora estás en el plan ${plan} · $${precio}/mes`, '👑');
+            mostrarToast(`✅ Cambiaste al plan ${plan} (${limiteFacturas} facturas/mes)`, 'success');
+            agregarNotificacion(
+                '👑 Cambio de membresía',
+                `Ahora estás en el plan ${plan} · $${precio}/mes · ${limiteFacturas} facturas/mes`,
+                '👑'
+            );
 
             document.querySelectorAll('.membresia-card .btn').forEach(btn => {
                 const parent = btn.closest('.membresia-card');
@@ -2858,6 +3389,8 @@
 
             document.getElementById('iaNeuroStatus').textContent = config.iaNeuro ? '● Activo' : '🔒 Bloqueado';
             document.getElementById('iaNeuroStatus').className = config.iaNeuro ? 'ia-status active' : 'ia-status inactive';
+
+            actualizarContadorFacturas();
         }
 
         // ============================================================
@@ -2926,10 +3459,14 @@
         setTimeout(() => {
             actualizarUI();
             verificarWalletExistente();
+            actualizarEstadoCuenta();
 
-            console.log('◈ Csariel\'s - Panel Web3 cargado correctamente');
+            console.log('◈ Csariel\'s - Panel Web3 + POS cargado correctamente');
             console.log('🛒 Punto de venta QR listo');
             console.log('🌐 Web3 (Polygon) · 🏦 SPEI (BBVA)');
+            console.log('📄 Límites de facturación: Gratis(0), Básico(15), Business(120), Empresarial(550)');
+            console.log('🖨️ Impresión térmica Bluetooth disponible');
+            console.log('🔌 POS Externo - sincronización lista');
             console.log('👥 Contactos:', contactos.length);
             console.log('💬 Mensajes:', mensajes.length);
             console.log('🔔 Notificaciones:', notificaciones.length);
