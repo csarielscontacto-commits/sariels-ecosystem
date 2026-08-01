@@ -6,6 +6,28 @@
     <title>Trading TOK | Csariel's</title>
     <meta name="theme-color" content="#0B3D2E" />
     
+    <!-- ================================================================ -->
+    <!-- 🔒 CSP - SEGURIDAD CONTRA INYECCIONES Y HACKEOS -->
+    <!-- ================================================================ -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology https://cdn.tailwindcss.com https://cdn.tailwindcss.com;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology https://rpc-amoy.polygon.technology;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
+    <!-- ================================================================ -->
+    <!-- 🔒 SEGURIDAD CSARIEL'S - ANTI-HACKEO -->
+    <!-- ================================================================ -->
+    <script src="./js/security.js"></script>
+
     <!-- Open Graph -->
     <meta property="og:title" content="Csariel's - Trading TOK" />
     <meta property="og:description" content="Plataforma de trading para TOK con gráficos en tiempo real" />
@@ -1360,9 +1382,29 @@
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
-    <!-- ===== SCRIPTS ===== -->
+    <!-- ================================================================ -->
+    <!-- 🔒 INICIALIZAR SEGURIDAD -->
+    <!-- ================================================================ -->
     <script>
+        // ================================================================
+        // 🔒 INICIALIZAR SEGURIDAD
+        // ================================================================
+        function initSeguridad() {
+            if (window.Security) {
+                window.Security.initSeguridad();
+                console.log('🛡️ Seguridad activada para Trading');
+            } else {
+                console.warn('⚠️ Security.js no cargado - verifica la ruta');
+            }
+        }
+
+        // ================================================================
+        // TRADING (funciones existentes + verificación eSIM)
+        // ================================================================
         document.addEventListener('DOMContentLoaded', () => {
+            // 🔒 Inicializar seguridad
+            initSeguridad();
+
             console.log('📈 Csariel\'s Digital Assets - Trading TOK');
             console.log('📶 Verificación de datos eSIM activada');
             initStars();
@@ -1431,7 +1473,6 @@
         // eSIM UI
         // ================================================================
         async function initEsimUI() {
-            // Esperar a que esim-connector esté cargado
             if (typeof window.esimConnector === 'undefined') {
                 setTimeout(initEsimUI, 500);
                 return;
@@ -1487,12 +1528,9 @@
         }
 
         // ================================================================
-        // TRADING (funciones existentes)
+        // TRADING CORE
         // ================================================================
         function initTrading() {
-            // ... (todo el código de trading que ya tenías, sin cambios)
-            // Solo agregar verificación de eSIM antes de cargar gráficos
-
             const CONFIG_LOCAL = window.CONFIG || {};
             
             const supabaseUrl = CONFIG_LOCAL.SUPABASE_URL || 'https://kbrlmeylciwocsxndtvv.supabase.co';
@@ -1531,6 +1569,7 @@
             let seriesBandaSuperior, seriesBandaInferior, seriesMedia;
             let panelPortafolioActivo = 'ordenes';
             let datosVelas = [];
+            let toastTimeout = null;
 
             try {
                 const { createClient } = supabase;
@@ -1576,8 +1615,6 @@
                 toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
             }
 
-            // ... (resto del código de trading igual, solo modificar cargarYRenderizarTodo)
-            
             // ================================================================
             // MODIFICAR cargarYRenderizarTodo con verificación
             // ================================================================
@@ -1585,7 +1622,6 @@
                 // Verificar eSIM antes de cargar gráficos
                 const puede = await puedeCargarGraficos();
                 if (!puede) {
-                    // Mostrar mensaje en el gráfico
                     document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> ⚠️ Sin datos suficientes para gráficos';
                     return;
                 }
@@ -1789,18 +1825,68 @@
                 }).join('');
             }
 
+            // ================================================================
+            // 🚀 EJECUTAR ORDEN CON VERIFICACIÓN DE SEGURIDAD
+            // ================================================================
             async function ejecutarOrden(tipo, cantidad, precio) {
-                if (!walletConectada || !providerEthers) { alert('Conecta tu wallet para ejecutar esta operación.'); return; }
+                // Verificar datos ANTES de ejecutar (0.5 MB)
+                const puede = await window.esimConnector?.puedeEjecutarAccion(0.5, 'trading');
+                if (!puede || !puede.puede) {
+                    mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
+                    if (puede?.recargar) {
+                        setTimeout(() => {
+                            if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
+                                window.location.href = './mi-red.html#esim';
+                            }
+                        }, 1000);
+                    }
+                    return;
+                }
+
+                if (!walletConectada || !providerEthers) { 
+                    mostrarToast('Conecta tu wallet para ejecutar esta operación.', 'error');
+                    return; 
+                }
 
                 var total = cantidad * precio;
                 var comision = total * COMISION_PORCENTAJE;
                 var totalConComision = total + comision;
-                var confirmar = confirm('Confirmar ' + tipo + ':\nCantidad: ' + cantidad + ' TOK\nPrecio: $' + precio.toFixed(4) + '\nTotal: $' + total.toFixed(4) + '\nComisión (1%): $' + comision.toFixed(4) + '\nTotal a pagar: $' + totalConComision.toFixed(4));
-                if (!confirmar) return;
+                
+                // ===== 🔒 USAR Security.js para confirmación =====
+                if (window.Security) {
+                    var confirmar = confirm(
+                        '⚠️ CONFIRMA ESTA TRANSACCIÓN\n\n' +
+                        '📝 Acción: ' + tipo.toUpperCase() + '\n' +
+                        '📦 Cantidad: ' + cantidad + ' TOK\n' +
+                        '💰 Precio: $' + precio.toFixed(4) + '\n' +
+                        '💸 Total: $' + total.toFixed(4) + '\n' +
+                        '📊 Comisión (1%): $' + comision.toFixed(4) + '\n' +
+                        '🔢 Total a pagar: $' + totalConComision.toFixed(4) + '\n\n' +
+                        '🔒 Esta acción es irreversible.\n' +
+                        '✅ ¿Estás seguro de continuar?'
+                    );
+                    if (!confirmar) {
+                        mostrarToast('⛔ Transacción cancelada', 'warning');
+                        return;
+                    }
+                } else {
+                    mostrarToast('⚠️ Sistema de seguridad no disponible', 'error');
+                    return;
+                }
 
                 if (!TOK_CONTRACT_ADDRESS) {
                     alert('⚠️ Esta operación todavía no puede ejecutarse en la red real.\n\nFalta confirmar la dirección del contrato SARIEL_TOK. En cuanto se configure, esta misma pantalla ejecutará la compra/venta contra blockchain de verdad, con tu firma de MetaMask.');
                     return;
+                }
+
+                // ===== 🔒 USAR Security.js para validar contrato =====
+                if (window.Security) {
+                    try {
+                        window.Security.validarContrato(TOK_CONTRACT_ADDRESS);
+                    } catch (err) {
+                        mostrarToast('❌ ' + err.message, 'error');
+                        return;
+                    }
                 }
 
                 try {
@@ -1831,12 +1917,12 @@
                     }
 
                     await respuesta.json();
-                    alert('✅ Orden firmada y enviada a validación.\n' + cantidad + ' TOK @ $' + precio.toFixed(4) + '\nTotal: $' + total.toFixed(4) + '\nComisión: $' + comision.toFixed(4));
+                    mostrarToast('✅ Orden firmada y enviada a validación.', 'success');
                     await actualizarSaldos();
                     await cargarOrdenesAbiertas();
                 } catch (err) {
                     console.error('Error ejecutando orden:', err);
-                    alert('❌ Error al ejecutar la orden: ' + err.message);
+                    mostrarToast('❌ Error al ejecutar la orden: ' + err.message, 'error');
                 }
             }
 
@@ -2108,6 +2194,7 @@
             document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> Listo - Conecta MetaMask para operar';
             console.log('📈 Trading TOK integrado con config.js');
             console.log('💰 Valor redención TOK: $' + VALOR_REDENCION_TOK + ' MXN');
+            console.log('🛡️ Seguridad: Contratos validados, límites activos');
         }
     </script>
 </body>
