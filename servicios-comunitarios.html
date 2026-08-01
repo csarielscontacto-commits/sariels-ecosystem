@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="./js/servicios-connector.js"></script>
     <script src="./js/perfil-connector.js"></script>
+    <script src="./js/esim-connector.js"></script>
     <script src="./js/config.js"></script>
     
     <style>
@@ -1121,7 +1122,7 @@
 
     <script>
         // ================================================================
-        // SERVICIOS COMUNITARIOS - CONECTADO A SUPABASE
+        // SERVICIOS COMUNITARIOS - CONECTADO A SUPABASE + eSIM
         // ================================================================
 
         let currentUserId = localStorage.getItem('csariels_user_id') || 'user_test';
@@ -1137,6 +1138,34 @@
         let userLocation = null;
         let categoriaActual = 'all';
         let toastTimeout = null;
+
+        // ================================================================
+        // 🔴 NUEVA FUNCIÓN: VERIFICAR DATOS PARA IA Y SERVICIOS
+        // ================================================================
+        async function puedeUsarServicio(consumo_mb = 0.5, modulo = 'servicios') {
+            try {
+                const puede = await window.esimConnector?.puedeEjecutarAccion(consumo_mb, modulo);
+                
+                if (!puede || !puede.puede) {
+                    mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
+                    
+                    if (puede?.recargar) {
+                        setTimeout(() => {
+                            if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
+                                window.location.href = './mi-red.html#esim';
+                            }
+                        }, 1000);
+                    }
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Error verificando datos:', error);
+                mostrarToast('⚠️ Error al verificar conexión', 'error');
+                return false;
+            }
+        }
 
         // ================================================================
         // ESTRELLAS
@@ -1230,9 +1259,25 @@
         }
 
         // ================================================================
-        // 🚀 SUPABASE - CARGAR SERVICIOS
+        // 🚀 SUPABASE - CARGAR SERVICIOS CON VERIFICACIÓN
         // ================================================================
         async function cargarServicios() {
+            // Verificar datos antes de cargar servicios (1 MB estimado)
+            const puede = await puedeUsarServicio(1, 'servicios');
+            if (!puede) {
+                document.getElementById('servicesGrid').innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-muted);">
+                        <div style="font-size:2.5rem;opacity:0.3;margin-bottom:8px;">📶</div>
+                        <h3 style="font-family:'Orbitron',monospace;color:var(--text-secondary);">Sin conexión a internet</h3>
+                        <p style="font-size:0.8rem;">Activa tu eSIM o conecta WiFi para ver servicios comunitarios.</p>
+                        <button class="btn btn-gold" style="margin-top:8px;" onclick="window.location.href='./mi-red.html#esim'">
+                            <i class="fas fa-sim-card"></i> Ir a Mi Red
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
             try {
                 const resultado = await serviciosConnector.obtenerServicios();
                 if (resultado.error) {
@@ -1329,9 +1374,13 @@
         }
 
         // ================================================================
-        // 🚀 SUPABASE - REGISTRAR SERVICIO
+        // 🚀 SUPABASE - REGISTRAR SERVICIO CON VERIFICACIÓN
         // ================================================================
         async function registrarServicio() {
+            // Verificar datos antes de registrar (0.5 MB)
+            const puede = await puedeUsarServicio(0.5, 'servicios');
+            if (!puede) return;
+
             const nombre = document.getElementById('offerName').value.trim();
             const categoria = document.getElementById('offerCategory').value;
             const descripcion = document.getElementById('offerDescription').value.trim();
@@ -1379,10 +1428,14 @@
         }
 
         // ================================================================
-        // 🚀 SUPABASE - CALIFICAR
+        // 🚀 SUPABASE - CALIFICAR CON VERIFICACIÓN
         // ================================================================
         async function enviarCalificacion() {
             if (!currentServiceForRating || selectedRating < 1) return;
+
+            // Verificar datos antes de calificar (0.3 MB)
+            const puede = await puedeUsarServicio(0.3, 'servicios');
+            if (!puede) return;
 
             const comment = document.getElementById('ratingComment').value.trim();
 
@@ -1420,7 +1473,7 @@
         }
 
         // ================================================================
-        // BUSCADOR INTELIGENTE
+        // BUSCADOR INTELIGENTE CON VERIFICACIÓN
         // ================================================================
         function buscarInteligente() {
             const input = document.getElementById('smartSearchInput');
@@ -1431,67 +1484,72 @@
                 return;
             }
 
-            const resultado = serviciosConnector.buscarServiciosConIA(texto, servicios);
+            // Verificar datos ANTES de buscar con IA (0.3 MB)
+            puedeUsarServicio(0.3, 'servicios').then(puede => {
+                if (!puede) return;
 
-            const container = document.getElementById('smartResults');
-            const listContainer = document.getElementById('resultList');
-            const icono = document.getElementById('resultIcono');
-            const categoria = document.getElementById('resultCategoria');
-            const confianza = document.getElementById('resultConfianza');
-            const sugerencias = document.getElementById('sugerenciasContainer');
+                const resultado = serviciosConnector.buscarServiciosConIA(texto, servicios);
 
-            container.classList.add('visible');
+                const container = document.getElementById('smartResults');
+                const listContainer = document.getElementById('resultList');
+                const icono = document.getElementById('resultIcono');
+                const categoria = document.getElementById('resultCategoria');
+                const confianza = document.getElementById('resultConfianza');
+                const sugerencias = document.getElementById('sugerenciasContainer');
 
-            if (!resultado.encontrado) {
-                icono.textContent = '🔍';
-                categoria.textContent = 'No se encontraron servicios';
-                confianza.textContent = '';
-                listContainer.innerHTML = `
-                    <div class="no-resultados">
-                        <div class="icon">🔍</div>
-                        <p>${resultado.mensaje}</p>
-                    </div>
-                `;
+                container.classList.add('visible');
+
+                if (!resultado.encontrado) {
+                    icono.textContent = '🔍';
+                    categoria.textContent = 'No se encontraron servicios';
+                    confianza.textContent = '';
+                    listContainer.innerHTML = `
+                        <div class="no-resultados">
+                            <div class="icon">🔍</div>
+                            <p>${resultado.mensaje}</p>
+                        </div>
+                    `;
+                    sugerencias.innerHTML = `
+                        <span class="sugerencia" onclick="buscarSugerencia('mecánico')">🔧 Mecánico</span>
+                        <span class="sugerencia" onclick="buscarSugerencia('plomero')">🚰 Plomero</span>
+                        <span class="sugerencia" onclick="buscarSugerencia('electricista')">⚡ Electricista</span>
+                    `;
+                    return;
+                }
+
+                icono.textContent = resultado.categoriaIcono;
+                categoria.textContent = `🔍 ${resultado.categoriaNombre}`;
+                confianza.textContent = `Confianza: ${resultado.confianza}% · ${resultado.servicios.length} servicios`;
+
+                if (resultado.servicios.length === 0) {
+                    listContainer.innerHTML = `
+                        <div class="no-resultados">
+                            <div class="icon">😅</div>
+                            <p>No hay ${resultado.categoriaNombre} registrados aún.</p>
+                        </div>
+                    `;
+                } else {
+                    listContainer.innerHTML = resultado.servicios.map(s => `
+                        <div class="result-item" onclick="abrirDetalleServicio(${s.id})">
+                            <div>
+                                <div class="nombre">${s.nombre} ${s.palomita_dorada ? '🌟' : ''}</div>
+                                <div style="font-size:0.65rem;color:var(--text-secondary);">${s.descripcion}</div>
+                            </div>
+                            <div class="detalle">
+                                ${s.urgencia === 'urgente' ? '<span class="urgente">🚨</span>' : ''}
+                                <span class="calificacion">⭐ ${s.calificacion?.toFixed(1) || 'N/A'}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
                 sugerencias.innerHTML = `
-                    <span class="sugerencia" onclick="buscarSugerencia('mecánico')">🔧 Mecánico</span>
-                    <span class="sugerencia" onclick="buscarSugerencia('plomero')">🚰 Plomero</span>
-                    <span class="sugerencia" onclick="buscarSugerencia('electricista')">⚡ Electricista</span>
+                    <span style="font-size:0.65rem;color:var(--text-muted);">Búsquedas relacionadas:</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} económico')">💰 Económico</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} 24h')">🕐 24h</span>
+                    <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} urgente')">🚨 Urgente</span>
                 `;
-                return;
-            }
-
-            icono.textContent = resultado.categoriaIcono;
-            categoria.textContent = `🔍 ${resultado.categoriaNombre}`;
-            confianza.textContent = `Confianza: ${resultado.confianza}% · ${resultado.servicios.length} servicios`;
-
-            if (resultado.servicios.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="no-resultados">
-                        <div class="icon">😅</div>
-                        <p>No hay ${resultado.categoriaNombre} registrados aún.</p>
-                    </div>
-                `;
-            } else {
-                listContainer.innerHTML = resultado.servicios.map(s => `
-                    <div class="result-item" onclick="abrirDetalleServicio(${s.id})">
-                        <div>
-                            <div class="nombre">${s.nombre} ${s.palomita_dorada ? '🌟' : ''}</div>
-                            <div style="font-size:0.65rem;color:var(--text-secondary);">${s.descripcion}</div>
-                        </div>
-                        <div class="detalle">
-                            ${s.urgencia === 'urgente' ? '<span class="urgente">🚨</span>' : ''}
-                            <span class="calificacion">⭐ ${s.calificacion?.toFixed(1) || 'N/A'}</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            sugerencias.innerHTML = `
-                <span style="font-size:0.65rem;color:var(--text-muted);">Búsquedas relacionadas:</span>
-                <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} económico')">💰 Económico</span>
-                <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} 24h')">🕐 24h</span>
-                <span class="sugerencia" onclick="buscarSugerencia('${resultado.categoriaNombre} urgente')">🚨 Urgente</span>
-            `;
+            });
         }
 
         function buscarSugerencia(texto) {
@@ -1747,7 +1805,8 @@
         // INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('◈ Csariel\'s - Servicios Comunitarios (Conectado a Supabase)');
+            console.log('◈ Csariel\'s - Servicios Comunitarios (Conectado a Supabase + eSIM)');
+            console.log('📶 Verificación de datos eSIM activada');
             initStars();
             initMap();
             await cargarServicios();
@@ -1759,7 +1818,7 @@
                 document.getElementById('extremeCharCount').style.color = count >= 20 ? 'var(--success)' : 'var(--danger)';
             });
 
-            console.log('✅ Servicios Comunitarios conectado a Supabase');
+            console.log('✅ Servicios Comunitarios conectado a Supabase y eSIM');
         });
 
         // Exponer funciones globales
