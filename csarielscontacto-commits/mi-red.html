@@ -936,6 +936,54 @@
         }
         .esim-section .esim-footer strong { color: var(--gold-cosmic); font-weight: 400; }
 
+        /* ===== AVISO COMMIT (UNA VEZ) ===== */
+        .cmt-aviso {
+            background: rgba(247,212,74,0.05);
+            border: 1px solid rgba(247,212,74,0.25);
+            border-left: 3px solid #f7d44a;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 12px 0 16px;
+            font-family: 'Inter', sans-serif;
+            display: none;
+            position: relative;
+        }
+        .cmt-aviso .cerrar-aviso {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 0 4px;
+        }
+        .cmt-aviso .cerrar-aviso:hover {
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+        .cmt-aviso p {
+            color: #d4c8b8;
+            font-size: 0.82rem;
+            margin: 0 0 4px;
+        }
+        .cmt-aviso p:last-child {
+            margin-bottom: 0;
+        }
+        .cmt-aviso .aviso-titulo {
+            color: #f7d44a;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin: 0 0 6px;
+        }
+        .cmt-aviso a {
+            color: #c9a876;
+            font-size: 0.75rem;
+            text-decoration: underline;
+        }
+
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
@@ -1090,6 +1138,9 @@
             .modal-content { padding: 16px; }
             .esim-dashboard { padding: 12px 14px; }
             .esim-dashboard .esim-actions .btn { font-size: 0.4rem; padding: 4px 8px; }
+            .cmt-aviso { padding: 10px 12px; }
+            .cmt-aviso .aviso-titulo { font-size: 0.8rem; }
+            .cmt-aviso p { font-size: 0.7rem; }
         }
     </style>
 </head>
@@ -1248,6 +1299,15 @@
             </div>
         </div>
 
+        <!-- ===== AVISO: COMMIT / ECONOMÍA SOCIAL (UNA VEZ) ===== -->
+        <div class="cmt-aviso" id="cmtAviso">
+            <button class="cerrar-aviso" onclick="cerrarCmtAviso()">✕</button>
+            <p class="aviso-titulo">📋 TRANSACCIÓN DE CMT</p>
+            <p>Sujeta a una comisión del <strong>50%</strong>.</p>
+            <p>CMT no tiene valor de curso legal ni es convertible a moneda fiduciaria. Es un mecanismo interno de fidelización social.</p>
+            <a href="./terminos-completos.html">Ver términos completos →</a>
+        </div>
+
         <!-- ===== WALLET ===== -->
         <div class="wallet-section" id="walletSection">
             <button class="btn btn-sm btn-primary" id="btnConnectWallet">
@@ -1386,7 +1446,20 @@
             console.log('◈ Csariel\'s - Mi Red v' + CONFIG.VERSION);
             console.log('📱 Red Csariel\'s - Internet de alta velocidad');
             console.log('📶 eSIM integrada con esim-connector.js');
+
+            // ===== AVISO DE COMMIT - UNA VEZ =====
+            if (!localStorage.getItem('cmt_aviso_visto')) {
+                document.getElementById('cmtAviso').style.display = 'block';
+            }
         });
+
+        // ================================================================
+        // CERRAR AVISO DE COMMIT (GUARDA EN LOCALSTORAGE)
+        // ================================================================
+        function cerrarCmtAviso() {
+            document.getElementById('cmtAviso').style.display = 'none';
+            localStorage.setItem('cmt_aviso_visto', 'true');
+        }
 
         // ================================================================
         // ESTADO GLOBAL
@@ -2317,6 +2390,9 @@
         window.seleccionarConexionHandler = seleccionarConexionHandler;
         window.actualizarEsimUI = actualizarEsimUI;
         window.actualizarConexionUI = actualizarConexionUI;
+
+        // Aviso COMMIT - cerrar
+        window.cerrarCmtAviso = cerrarCmtAviso;
     </script>
 
 </body>
