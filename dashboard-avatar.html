@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌌 Avatar Hub | Csariel's</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ================================================================
+           ESTILO AVATAR - PANDORA HOLOGRÁFICO
+           ================================================================ */
+        :root {
+            --avatar-blue: #00d4ff;
+            --avatar-teal: #00e5a0;
+            --avatar-purple: #7b2ffc;
+            --avatar-glow: rgba(0, 212, 255, 0.3);
+            --avatar-bg: #0a0e1a;
+            --avatar-card: rgba(0, 40, 80, 0.3);
+            --gold-cosmic: #D4AF37;
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00e5a0;
+            --danger: #ff6b6b;
+            --warning: #ffd93d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--avatar-bg);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== FONDO ESTILO AVATAR ===== */
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .avatar-aura {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(150px);
+            pointer-events: none;
+            z-index: 0;
+            animation: aura-pulse 8s ease-in-out infinite alternate;
+        }
+
+        .avatar-aura-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--avatar-blue);
+            top: -20%;
+            right: -10%;
+            opacity: 0.08;
+        }
+
+        .avatar-aura-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--avatar-purple);
+            bottom: -20%;
+            left: -10%;
+            opacity: 0.06;
+            animation-delay: -4s;
+        }
+
+        .avatar-aura-3 {
+            width: 400px;
+            height: 400px;
+            background: var(--avatar-teal);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            animation-delay: -2s;
+        }
+
+        @keyframes aura-pulse {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.05; }
+            100% { transform: scale(1.3) translate(-30px, 20px); opacity: 0.12; }
+        }
+
+        /* ===== PARTÍCULAS FLOTANTES (CSS) ===== */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--avatar-blue);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle linear infinite;
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-duration: 15s; animation-delay: 2s; width: 4px; height: 4px; }
+        .particle:nth-child(3) { left: 30%; animation-duration: 10s; animation-delay: 4s; }
+        .particle:nth-child(4) { left: 40%; animation-duration: 18s; animation-delay: 1s; width: 2px; height: 2px; }
+        .particle:nth-child(5) { left: 50%; animation-duration: 14s; animation-delay: 3s; }
+        .particle:nth-child(6) { left: 60%; animation-duration: 11s; animation-delay: 5s; width: 4px; height: 4px; }
+        .particle:nth-child(7) { left: 70%; animation-duration: 16s; animation-delay: 0.5s; }
+        .particle:nth-child(8) { left: 80%; animation-duration: 13s; animation-delay: 2.5s; }
+        .particle:nth-child(9) { left: 90%; animation-duration: 19s; animation-delay: 4.5s; width: 5px; height: 5px; }
+        .particle:nth-child(10) { left: 95%; animation-duration: 17s; animation-delay: 1.5s; }
+
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) scale(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-10vh) scale(1) rotate(720deg); opacity: 0; }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--avatar-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--avatar-blue); border-radius: 3px; }
+
+        /* ===== APP ===== */
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+        }
+
+        /* ================================================================
+           HEADER - HOLOGRÁFICO
+           ================================================================ */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--avatar-blue), var(--avatar-teal), var(--avatar-blue), transparent);
+            opacity: 0.3;
+            animation: header-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes header-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2.4rem;
+            filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.3));
+            animation: logo-pulse 3s ease-in-out infinite;
+        }
+
+        .logo-icon .hex {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--avatar-blue), var(--avatar-purple));
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border: 2px solid var(--avatar-blue);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @keyframes logo-pulse {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 60px rgba(0, 212, 255, 0.6)); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--avatar-blue), var(--avatar-teal), var(--avatar-blue));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: text-shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes text-shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            background: linear-gradient(135deg, var(--avatar-blue), var(--avatar-purple));
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); }
+            50% { box-shadow: 0 0 50px rgba(0, 212, 255, 0.4); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--avatar-blue);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: dot-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0, 229, 160, 0.5); }
+
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 30px;
+            background: rgba(0, 212, 255, 0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            border-color: var(--avatar-blue);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--avatar-blue), var(--avatar-purple));
+            border-color: transparent;
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-gold:hover {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-sm { padding: 5px 12px; font-size: 0.55rem; }
+
+        /* ================================================================
+           GRID DE ESTADÍSTICAS - ESTILO AVATAR
+           ================================================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--avatar-card);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 212, 255, 0.05), transparent 70%);
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.05);
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            color: var(--avatar-blue);
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2));
+        }
+
+        .stat-card .number {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+        }
+
+        .stat-card .number .blue { color: var(--avatar-blue); }
+        .stat-card .number .teal { color: var(--avatar-teal); }
+        .stat-card .number .gold { color: var(--gold-cosmic); }
+        .stat-card .number .pulse { animation: number-pulse 2s ease-in-out infinite; }
+
+        @keyframes number-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .stat-card .label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-family: 'Orbitron', monospace;
+            margin-top: 2px;
+        }
+
+        /* ================================================================
+           USUARIOS EN VIVO - ESTILO HOLOGRÁFICO
+           ================================================================ */
+        .live-section {
+            background: var(--avatar-card);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .live-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.03), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: live-glow 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes live-glow {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+            100% { transform: translate(100px, 50px) scale(1.5); opacity: 1; }
+        }
+
+        .live-section .live-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .live-section .live-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--avatar-blue);
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .live-section .live-title .live-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: live-dot-pulse 1s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0, 229, 160, 0.5);
+        }
+
+        @keyframes live-dot-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.6); }
+        }
+
+        .live-section .live-count {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--avatar-teal);
+            text-shadow: 0 0 30px rgba(0, 229, 160, 0.2);
+        }
+
+        .live-users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .live-user {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            transition: var(--transition);
+            animation: user-appear 0.5s ease-out forwards;
+        }
+
+        .live-user:hover {
+            border-color: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes user-appear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .live-user .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--avatar-blue), var(--avatar-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 1rem;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            position: relative;
+        }
+
+        .live-user .avatar .online-ring {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 2px solid var(--avatar-bg);
+            animation: live-dot-pulse 1.5s ease-in-out infinite;
+        }
+
+        .live-user .name {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .live-user .status-text {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ================================================================
+           COMPRA DE INTERNET - ESTILO AVATAR
+           ================================================================ */
+        .buy-section {
+            background: var(--avatar-card);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .buy-section::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 229, 160, 0.03), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .buy-section .buy-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--avatar-teal);
+            margin-bottom: 4px;
+            text-shadow: 0 0 30px rgba(0, 229, 160, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .buy-section .buy-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .buy-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .buy-plan {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px 20px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .buy-plan:hover {
+            border-color: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.05);
+        }
+
+        .buy-plan .plan-size {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--avatar-blue);
+        }
+
+        .buy-plan .plan-price {
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
+            font-weight: 600;
+            margin: 4px 0;
+        }
+
+        .buy-plan .plan-detail {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .buy-plan .plan-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.45rem;
+            background: rgba(0, 229, 160, 0.15);
+            color: var(--avatar-teal);
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 229, 160, 0.2);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .buy-plan .btn-comprar {
+            margin-top: 10px;
+            padding: 6px 16px;
+            background: linear-gradient(135deg, var(--avatar-blue), var(--avatar-purple));
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .buy-plan .btn-comprar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        /* ================================================================
+           INFORMACIÓN DE PAGO
+           ================================================================ */
+        .payment-info {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 12px;
+        }
+
+        .payment-info .payment-title {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 6px;
+        }
+
+        .payment-info .account-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .payment-info .account-details .label {
+            color: var(--text-muted);
+        }
+
+        .payment-info .account-details .value {
+            color: var(--avatar-blue);
+            font-family: monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .payment-info .account-details .copy-btn {
+            background: none;
+            border: none;
+            color: var(--avatar-blue);
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: var(--transition);
+        }
+
+        .payment-info .account-details .copy-btn:hover {
+            color: var(--avatar-teal);
+        }
+
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 212, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand { color: var(--avatar-blue); }
+
+        .footer-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.55rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-links a:hover { color: var(--avatar-blue); }
+
+        .footer-hex {
+            display: inline-block;
+            background: var(--avatar-blue);
+            color: var(--avatar-bg);
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.5rem;
+            font-weight: 700;
+            border: 1px solid var(--avatar-blue);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ================================================================
+           TOAST
+           ================================================================ */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(0, 40, 80, 0.95);
+            color: var(--avatar-blue);
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.1);
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { border-color: var(--danger); color: var(--danger); }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 768px) {
+            .app { padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .logo-text { font-size: 1.1rem; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .live-users-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+            .buy-plans { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .buy-plans { grid-template-columns: 1fr; }
+            .live-users-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+            .live-user .avatar { width: 36px; height: 36px; font-size: 0.8rem; }
+            .live-user .name { font-size: 0.5rem; }
+            .btn { font-size: 0.5rem; padding: 4px 10px; }
+            .stat-card .number { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== FONDO ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="avatar-aura avatar-aura-1"></div>
+    <div class="avatar-aura avatar-aura-2"></div>
+    <div class="avatar-aura avatar-aura-3"></div>
+
+    <!-- ===== PARTÍCULAS ===== -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="app">
+
+        <!-- HEADER -->
+        <header class="header">
+            <a href="#" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Avatar Hub</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>Conectado</span>
+                </div>
+                <a href="./mi-red.html" class="btn btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="./muro-live.html" class="btn btn-sm"><i class="fas fa-rss"></i> Muro</a>
+                <button class="btn btn-primary btn-sm" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt"></i> Sincronizar
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== ESTADÍSTICAS ===== -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">🌐</div>
+                <div class="number"><span class="blue" id="onlineUsers">0</span></div>
+                <div class="label">Usuarios en línea</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">📱</div>
+                <div class="number"><span class="teal" id="activeSessions">0</span></div>
+                <div class="label">Sesiones activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">📊</div>
+                <div class="number"><span class="gold" id="totalPosts">0</span></div>
+                <div class="label">Publicaciones hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">💬</div>
+                <div class="number"><span class="blue pulse" id="liveMessages">0</span></div>
+                <div class="label">Mensajes en vivo</div>
+            </div>
+        </div>
+
+        <!-- ===== USUARIOS EN VIVO ===== -->
+        <div class="live-section">
+            <div class="live-header">
+                <div class="live-title">
+                    <span class="live-dot"></span>
+                    <span>COMUNIDAD ACTIVA</span>
+                </div>
+                <div class="live-count">
+                    <span id="liveUserCount">0</span> conectados
+                </div>
+            </div>
+            <div class="live-users-grid" id="liveUsersGrid">
+                <!-- Generado por JS -->
+            </div>
+        </div>
+
+        <!-- ===== COMPRA DE INTERNET ===== -->
+        <div class="buy-section">
+            <div class="buy-title">
+                <i class="fas fa-satellite-dish"></i>
+                COMPRAR INTERNET Csariel's
+            </div>
+            <div class="buy-subtitle">
+                Activa tu eSIM con datos para navegar en toda la red Csariel's
+            </div>
+
+            <div class="buy-plans">
+                <div class="buy-plan" onclick="comprarPlan(500, 49)">
+                    <span class="plan-badge">💎 Popular</span>
+                    <div class="plan-size">500 MB</div>
+                    <div class="plan-price">$49 MXN</div>
+                    <div class="plan-detail">~2 horas de video</div>
+                    <button class="btn-comprar" onclick="event.stopPropagation(); comprarPlan(500, 49)">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </button>
+                </div>
+
+                <div class="buy-plan" onclick="comprarPlan(1024, 89)">
+                    <span class="plan-badge">🔥 Más vendido</span>
+                    <div class="plan-size">1 GB</div>
+                    <div class="plan-price">$89 MXN</div>
+                    <div class="plan-detail">~4 horas de video</div>
+                    <button class="btn-comprar" onclick="event.stopPropagation(); comprarPlan(1024, 89)">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </button>
+                </div>
+
+                <div class="buy-plan" onclick="comprarPlan(2048, 149)">
+                    <span class="plan-badge">🚀 Pro</span>
+                    <div class="plan-size">2 GB</div>
+                    <div class="plan-price">$149 MXN</div>
+                    <div class="plan-detail">~8 horas de video</div>
+                    <button class="btn-comprar" onclick="event.stopPropagation(); comprarPlan(2048, 149)">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </button>
+                </div>
+
+                <div class="buy-plan" onclick="comprarPlan(5120, 299)">
+                    <span class="plan-badge">👑 Premium</span>
+                    <div class="plan-size">5 GB</div>
+                    <div class="plan-price">$299 MXN</div>
+                    <div class="plan-detail">~20 horas de video</div>
+                    <button class="btn-comprar" onclick="event.stopPropagation(); comprarPlan(5120, 299)">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Información de pago -->
+            <div class="payment-info">
+                <div class="payment-title">
+                    <i class="fas fa-credit-card"></i> Datos para pago
+                </div>
+                <div class="account-details">
+                    <div>
+                        <span class="label">🏦 Banco:</span>
+                        <span class="value">BBVA México</span>
+                    </div>
+                    <div>
+                        <span class="label">📋 Cuenta:</span>
+                        <span class="value" id="accountNumber">1234 5678 9012 3456</span>
+                        <button class="copy-btn" onclick="copiarCuenta()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <span class="label">👤 Titular:</span>
+                        <span class="value">Csariel's Ecosystem</span>
+                    </div>
+                    <div>
+                        <span class="label">📱 CLABE:</span>
+                        <span class="value" id="clabeNumber">012 3456 7890 1234 5678 90</span>
+                        <button class="copy-btn" onclick="copiarCLABE()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div style="font-size:0.5rem;color:var(--text-muted);margin-top:6px;font-family:'Orbitron',monospace;">
+                    ⚡ Transfiere el monto exacto y envía comprobante a <span style="color:var(--avatar-blue);">soporte@csariels.com</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Avatar Hub · Comunidad en Vivo
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./muro-live.html">📱 Muro Live</a>
+                <a href="#" style="color:var(--avatar-blue);">📜 Términos</a>
+                <a href="#" style="color:var(--avatar-blue);">🔐 Privacidad</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ================================================================
+        // ESTRELLAS - ESTILO AVATAR
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 250;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.8 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 200, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // DATOS MOCK - USUARIOS EN VIVO
+        // ================================================================
+        const nombresUsuarios = [
+            'María', 'Carlos', 'Ana', 'Luis', 'Sofía', 'Jorge', 'Lupita',
+            'Pedro', 'Elena', 'Miguel', 'Laura', 'David', 'Carmen', 'José',
+            'Isabel', 'Raúl', 'Patricia', 'Ramón', 'Teresa', 'Fernando',
+            'Aura', 'Kiri', 'Neytiri', 'Jake', 'Tsu\'tey', 'Mo\'at', 'Eytukan'
+        ];
+
+        const estados = [
+            '🌐 En línea', '📱 En Mi Red', '🎮 Jugando', '📹 En vivo',
+            '💬 Chateando', '📝 Publicando', '🎵 Escuchando', '🧘‍♂️ Meditando'
+        ];
+
+        let usuariosLive = [];
+        let onlineCount = 0;
+        let intervalId = null;
+
+        // ================================================================
+        // GENERAR USUARIOS EN VIVO
+        // ================================================================
+        function generarUsuarios(cantidad = 12) {
+            const nuevos = [];
+            const shuffled = [...nombresUsuarios].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < Math.min(cantidad, shuffled.length); i++) {
+                nuevos.push({
+                    id: i + 1,
+                    nombre: shuffled[i],
+                    inicial: shuffled[i].charAt(0),
+                    estado: estados[Math.floor(Math.random() * estados.length)],
+                    activo: true
+                });
+            }
+            return nuevos;
+        }
+
+        // ================================================================
+        // RENDERIZAR USUARIOS
+        // ================================================================
+        function renderizarUsuarios() {
+            const grid = document.getElementById('liveUsersGrid');
+            const count = document.getElementById('liveUserCount');
+            const onlineUsersEl = document.getElementById('onlineUsers');
+            const activeSessionsEl = document.getElementById('activeSessions');
+            const totalPostsEl = document.getElementById('totalPosts');
+            const liveMessagesEl = document.getElementById('liveMessages');
+
+            // Actualizar usuarios
+            const activos = usuariosLive.filter(u => u.activo);
+            count.textContent = activos.length;
+            onlineUsersEl.textContent = activos.length;
+
+            // Simular estadísticas adicionales
+            activeSessionsEl.textContent = Math.floor(activos.length * 1.3) + Math.floor(Math.random() * 5);
+            totalPostsEl.textContent = Math.floor(Math.random() * 20) + 5;
+            liveMessagesEl.textContent = Math.floor(Math.random() * 50) + 10;
+
+            if (activos.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text-muted);">
+                        <div style="font-size:2rem;opacity:0.3;">👤</div>
+                        <p style="font-size:0.7rem;">No hay usuarios conectados. ¡Sé el primero!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = activos.map(user => `
+                <div class="live-user">
+                    <div class="avatar">
+                        ${user.inicial}
+                        <span class="online-ring"></span>
+                    </div>
+                    <div class="name">${user.nombre}</div>
+                    <div class="status-text">${user.estado}</div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // SIMULAR ACTIVIDAD EN VIVO
+        // ================================================================
+        function simularActividad() {
+            // Cambiar estados aleatoriamente
+            usuariosLive.forEach(user => {
+                if (Math.random() > 0.7) {
+                    user.estado = estados[Math.floor(Math.random() * estados.length)];
+                }
+            });
+
+            // Añadir o eliminar usuarios (simular entradas/salidas)
+            if (Math.random() > 0.6 && usuariosLive.length < 20) {
+                const nuevos = generarUsuarios(1);
+                if (nuevos.length > 0) {
+                    const nuevo = nuevos[0];
+                    // Evitar duplicados
+                    if (!usuariosLive.some(u => u.nombre === nuevo.nombre)) {
+                        usuariosLive.push(nuevo);
+                    }
+                }
+            }
+
+            if (Math.random() > 0.7 && usuariosLive.length > 5) {
+                const idx = Math.floor(Math.random() * usuariosLive.length);
+                usuariosLive.splice(idx, 1);
+            }
+
+            renderizarUsuarios();
+        }
+
+        // ================================================================
+        // COMPRAR PLAN
+        // ================================================================
+        function comprarPlan(mb, precio) {
+            const toast = document.getElementById('toast');
+            const mensaje = `📦 Plan de ${mb} MB por $${precio} MXN seleccionado.\n\n` +
+                           `🏦 TRANSFIERE A:\n` +
+                           `📋 Cuenta: 1234 5678 9012 3456\n` +
+                           `📱 CLABE: 012 3456 7890 1234 5678 90\n` +
+                           `👤 Titular: Csariel's Ecosystem\n\n` +
+                           `📤 Envía comprobante a: soporte@csariels.com`;
+
+            toast.textContent = `📦 Plan de ${mb} MB seleccionado. Revisa los datos de pago.`;
+            toast.className = 'toast active';
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 5000);
+
+            alert(mensaje);
+        }
+
+        let toastTimeout = null;
+
+        // ================================================================
+        // COPIAR DATOS DE PAGO
+        // ================================================================
+        function copiarCuenta() {
+            const cuenta = document.getElementById('accountNumber').textContent;
+            navigator.clipboard?.writeText(cuenta);
+            mostrarToast('📋 Cuenta copiada al portapapeles');
+        }
+
+        function copiarCLABE() {
+            const clabe = document.getElementById('clabeNumber').textContent;
+            navigator.clipboard?.writeText(clabe);
+            mostrarToast('📋 CLABE copiada al portapapeles');
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🌌 Avatar Hub - Csariel\'s');
+            console.log('👥 Comunidad en tiempo real');
+
+            initStars();
+
+            // Inicializar usuarios
+            usuariosLive = generarUsuarios(10);
+            renderizarUsuarios();
+
+            // Simular actividad cada 4 segundos
+            intervalId = setInterval(simularActividad, 4000);
+
+            // Actualizar contadores de estadísticas cada 10 segundos
+            setInterval(() => {
+                const onlineUsersEl = document.getElementById('onlineUsers');
+                const activeSessionsEl = document.getElementById('activeSessions');
+                const totalPostsEl = document.getElementById('totalPosts');
+                const liveMessagesEl = document.getElementById('liveMessages');
+
+                const activos = usuariosLive.filter(u => u.activo).length;
+                onlineUsersEl.textContent = activos;
+                activeSessionsEl.textContent = Math.floor(activos * 1.3) + Math.floor(Math.random() * 5);
+                totalPostsEl.textContent = Math.floor(Math.random() * 20) + 5;
+                liveMessagesEl.textContent = Math.floor(Math.random() * 50) + 10;
+            }, 5000);
+        });
+
+        // ================================================================
+        // FUNCIONES GLOBALES PARA ONCLICK
+        // ================================================================
+        window.comprarPlan = comprarPlan;
+        window.copiarCuenta = copiarCuenta;
+        window.copiarCLABE = copiarCLABE;
+        window.mostrarToast = mostrarToast;
+    </script>
+
+</body>
+</html>
