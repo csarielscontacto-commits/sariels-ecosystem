@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌿 Mi Internet | Csariel's</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- ===== SUPABASE ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <style>
+        /* ================================================================
+           PALETA VERDE ESMERALDA - BAJO CONSUMO
+           ================================================================ */
+        :root {
+            --emerald-dark: #0a1a12;
+            --emerald-mid: #0d2a1a;
+            --emerald-card: rgba(13, 42, 26, 0.5);
+            --emerald-green: #00d68f;
+            --emerald-glow: rgba(0, 214, 143, 0.12);
+            --emerald-light: #33e0a8;
+            --gold-cosmic: #D4AF37;
+            --text-primary: #d4e8e0;
+            --text-secondary: #80b8a0;
+            --text-muted: #4a8a70;
+            --border: rgba(0, 214, 143, 0.08);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+            --success: #00d68f;
+            --danger: #ff6b6b;
+            --warning: #ffd93d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--emerald-dark);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0.1;
+        }
+
+        .bg-particles span {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--emerald-green);
+            border-radius: 50%;
+            animation: float-up linear infinite;
+        }
+
+        .bg-particles span:nth-child(1) { left: 10%; animation-duration: 20s; animation-delay: 0s; }
+        .bg-particles span:nth-child(2) { left: 25%; animation-duration: 25s; animation-delay: 3s; }
+        .bg-particles span:nth-child(3) { left: 40%; animation-duration: 18s; animation-delay: 6s; }
+        .bg-particles span:nth-child(4) { left: 55%; animation-duration: 22s; animation-delay: 2s; }
+        .bg-particles span:nth-child(5) { left: 70%; animation-duration: 28s; animation-delay: 8s; }
+        .bg-particles span:nth-child(6) { left: 85%; animation-duration: 16s; animation-delay: 4s; }
+        .bg-particles span:nth-child(7) { left: 50%; animation-duration: 30s; animation-delay: 5s; }
+        .bg-particles span:nth-child(8) { left: 15%; animation-duration: 24s; animation-delay: 7s; }
+
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--emerald-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--emerald-green); border-radius: 2px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ================================================================
+           HEADER
+           ================================================================ */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 1.6rem;
+        }
+
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--emerald-mid);
+            color: var(--emerald-green);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            border: 2px solid var(--emerald-green);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--emerald-green);
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.4rem;
+            background: var(--emerald-mid);
+            color: var(--emerald-green);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: var(--emerald-card);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn:hover {
+            border-color: var(--emerald-green);
+            box-shadow: 0 0 30px var(--emerald-glow);
+        }
+
+        .btn-primary {
+            background: var(--emerald-green);
+            border-color: var(--emerald-green);
+            color: var(--emerald-dark);
+            -webkit-text-fill-color: var(--emerald-dark);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 40px var(--emerald-glow);
+        }
+
+        .btn-gold {
+            background: var(--gold-cosmic);
+            border-color: var(--gold-cosmic);
+            color: var(--emerald-dark);
+            -webkit-text-fill-color: var(--emerald-dark);
+        }
+
+        .btn-sm { padding: 3px 10px; font-size: 0.45rem; }
+
+        /* ================================================================
+           MI CONSUMO
+           ================================================================ */
+        .consumo-section {
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .consumo-section .consumo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .consumo-section .consumo-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: var(--emerald-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .consumo-section .consumo-status {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .consumo-section .consumo-status .activa {
+            color: var(--success);
+        }
+
+        .consumo-section .consumo-status .inactiva {
+            color: var(--danger);
+        }
+
+        .consumo-barras {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .consumo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .consumo-item .label {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            min-width: 80px;
+        }
+
+        .consumo-item .barra {
+            flex: 1;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .consumo-item .barra .fill {
+            height: 100%;
+            background: var(--emerald-green);
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+        .consumo-item .barra .fill.warning {
+            background: var(--warning);
+        }
+
+        .consumo-item .barra .fill.danger {
+            background: var(--danger);
+        }
+
+        .consumo-item .valor {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            min-width: 70px;
+            text-align: right;
+        }
+
+        /* ================================================================
+           PLANES DE INTERNET (cargados desde localStorage)
+           ================================================================ */
+        .planes-section {
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .planes-section .planes-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            color: var(--emerald-green);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .planes-section .planes-subtitle {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .planes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .plan-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card:hover {
+            border-color: var(--emerald-green);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 214, 143, 0.05);
+        }
+
+        .plan-card .plan-badge {
+            font-size: 0.4rem;
+            background: var(--emerald-glow);
+            color: var(--emerald-green);
+            padding: 2px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-family: 'Orbitron', monospace;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .plan-card .plan-mb {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--emerald-green);
+        }
+
+        .plan-card .plan-precio {
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
+            font-weight: 600;
+            margin: 2px 0;
+        }
+
+        .plan-card .plan-detalle {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .plan-card .btn-comprar-plan {
+            margin-top: 8px;
+            padding: 5px 16px;
+            background: var(--emerald-green);
+            border: none;
+            border-radius: 20px;
+            color: var(--emerald-dark);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .plan-card .btn-comprar-plan:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 30px var(--emerald-glow);
+        }
+
+        /* ================================================================
+           DATOS DE PAGO
+           ================================================================ */
+        .payment-section {
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+            display: none;
+        }
+
+        .payment-section.visible {
+            display: block;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .payment-section .payment-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: var(--emerald-green);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .payment-section .payment-info {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+
+        .payment-section .payment-info .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.6rem;
+        }
+
+        .payment-section .payment-info .row:last-child {
+            border-bottom: none;
+        }
+
+        .payment-section .payment-info .row .label {
+            color: var(--text-muted);
+        }
+
+        .payment-section .payment-info .row .value {
+            color: var(--emerald-green);
+            font-family: monospace;
+            font-size: 0.65rem;
+        }
+
+        .payment-section .payment-info .row .copy-btn {
+            background: none;
+            border: none;
+            color: var(--emerald-green);
+            cursor: pointer;
+            font-size: 0.55rem;
+            transition: var(--transition);
+        }
+
+        .payment-section .payment-info .row .copy-btn:hover {
+            color: var(--emerald-light);
+        }
+
+        .payment-section .payment-note {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-family: 'Orbitron', monospace;
+            text-align: center;
+        }
+
+        .payment-section .payment-note span {
+            color: var(--emerald-green);
+        }
+
+        .payment-section .btn-cerrar-pago {
+            margin-top: 10px;
+            padding: 5px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .payment-section .btn-cerrar-pago:hover {
+            border-color: var(--emerald-green);
+            color: var(--emerald-green);
+        }
+
+        /* ================================================================
+           TOAST
+           ================================================================ */
+        .toast {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--emerald-mid);
+            color: var(--emerald-green);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid var(--border);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .footer {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.45rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand { color: var(--emerald-green); }
+
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.45rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-links a:hover { color: var(--emerald-green); }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 768px) {
+            .app { padding: 12px 14px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .logo-text { font-size: 1rem; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .planes-grid { grid-template-columns: 1fr 1fr; }
+            .consumo-item { flex-wrap: wrap; gap: 4px; }
+            .consumo-item .label { min-width: 60px; font-size: 0.5rem; }
+            .consumo-item .valor { min-width: 50px; font-size: 0.5rem; }
+            .payment-section .payment-info .row { flex-wrap: wrap; gap: 4px; }
+        }
+
+        @media (max-width: 480px) {
+            .planes-grid { grid-template-columns: 1fr; }
+            .consumo-item .barra { width: 100%; }
+            .plan-card .plan-mb { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== FONDO ===== -->
+    <div class="bg-particles">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="app">
+
+        <!-- HEADER -->
+        <header class="header">
+            <a href="#" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Mi Internet</span>
+            </a>
+            <div class="header-actions">
+                <div class="btn btn-sm" onclick="window.location.href='./mi-red.html'">
+                    <i class="fas fa-arrow-left"></i> Mi Red
+                </div>
+                <div class="btn btn-sm" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== MI CONSUMO ===== -->
+        <div class="consumo-section">
+            <div class="consumo-header">
+                <div class="consumo-title">
+                    <i class="fas fa-chart-simple"></i>
+                    MI CONSUMO
+                </div>
+                <div class="consumo-status">
+                    eSIM: <span class="activa" id="esimStatus">● Activa</span>
+                </div>
+            </div>
+            <div class="consumo-barras">
+                <div class="consumo-item">
+                    <span class="label">📊 Consumido</span>
+                    <div class="barra">
+                        <div class="fill" id="consumoFill" style="width: 35%;"></div>
+                    </div>
+                    <span class="valor" id="consumoTexto">350 MB / 1024 MB</span>
+                </div>
+                <div class="consumo-item">
+                    <span class="label">📅 Renovación</span>
+                    <div class="barra">
+                        <div class="fill" id="renovacionFill" style="width: 70%; background: var(--gold-cosmic);"></div>
+                    </div>
+                    <span class="valor" id="renovacionTexto">10 días</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PLANES DE INTERNET ===== -->
+        <div class="planes-section">
+            <div class="planes-title">
+                <i class="fas fa-satellite-dish"></i>
+                COMPRAR INTERNET
+            </div>
+            <div class="planes-subtitle">
+                Elige tu plan y activa tus datos para navegar en Csariel's
+            </div>
+            <div class="planes-grid" id="planesGrid">
+                <!-- Generado por JS -->
+            </div>
+        </div>
+
+        <!-- ===== DATOS DE PAGO ===== -->
+        <div class="payment-section" id="paymentSection">
+            <div class="payment-title">
+                <i class="fas fa-credit-card"></i>
+                DATOS PARA PAGO
+                <span style="font-size:0.5rem;color:var(--text-muted);font-weight:400;margin-left:auto;">
+                    Plan: <span id="planSeleccionado">--</span>
+                </span>
+            </div>
+            <div class="payment-info" id="paymentInfo">
+                <div class="row">
+                    <span class="label">🏦 Banco</span>
+                    <span class="value" id="pagoBanco">BBVA México</span>
+                </div>
+                <div class="row">
+                    <span class="label">📋 Cuenta</span>
+                    <span class="value" id="pagoCuenta">1234 5678 9012 3456</span>
+                    <button class="copy-btn" onclick="copiarTexto('pagoCuenta')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="row">
+                    <span class="label">👤 Titular</span>
+                    <span class="value" id="pagoTitular">Csariel's Ecosystem</span>
+                </div>
+                <div class="row">
+                    <span class="label">📱 CLABE</span>
+                    <span class="value" id="pagoClabe">012 3456 7890 1234 5678 90</span>
+                    <button class="copy-btn" onclick="copiarTexto('pagoClabe')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="row">
+                    <span class="label">📤 Comprobante</span>
+                    <span class="value" id="pagoEmail">soporte@csariels.com</span>
+                    <button class="copy-btn" onclick="copiarTexto('pagoEmail')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="payment-note">
+                ⚡ Transfiere el <strong id="montoPago">$89 MXN</strong> exactos y envía comprobante a <span>soporte@csariels.com</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                <button class="btn-cerrar-pago" onclick="cerrarPago()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button class="btn-cerrar-pago" style="border-color:var(--emerald-green);color:var(--emerald-green);" onclick="confirmarPago()">
+                    <i class="fas fa-check"></i> Ya pagué
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Internet para tu comunidad
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./muro-live.html">📱 Muro</a>
+                <a href="#" style="color:var(--emerald-green);">📜 Términos</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ================================================================
+        // SUPABASE CONFIG
+        // ================================================================
+        const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2MTU2ODEsImV4cCI6MjA1NjE5MTY4MX0.c1Zk6QpI7m7tQnY4k8w9Tg5dDw2pXgFh1y3JkLmNpQo';
+
+        let supabaseClient = null;
+
+        function initSupabase() {
+            if (typeof supabase === 'undefined') {
+                console.warn('⚠️ Supabase no está cargado.');
+                return null;
+            }
+            if (!supabaseClient) {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('🔗 Supabase conectado (Mi Internet)');
+            }
+            return supabaseClient;
+        }
+
+        // ================================================================
+        // CARGAR PLANES DESDE LOCALSTORAGE
+        // ================================================================
+        function cargarPlanes() {
+            try {
+                const guardado = localStorage.getItem('emerald_planes_config');
+                if (guardado) {
+                    const planes = JSON.parse(guardado);
+                    if (planes && planes.length > 0) {
+                        return planes;
+                    }
+                }
+            } catch (e) {
+                console.warn('Error cargando configuración:', e);
+            }
+            // Planes por defecto
+            return [
+                { mb: 500, precio: 49, badge: '💎 Popular', detalle: '~2h de video' },
+                { mb: 1024, precio: 89, badge: '🔥 Más vendido', detalle: '~4h de video' },
+                { mb: 2048, precio: 149, badge: '🚀 Pro', detalle: '~8h de video' },
+                { mb: 5120, precio: 299, badge: '👑 Premium', detalle: '~20h de video' }
+            ];
+        }
+
+        // ================================================================
+        // CARGAR DATOS DE PAGO DESDE LOCALSTORAGE
+        // ================================================================
+        function cargarDatosPago() {
+            const banco = localStorage.getItem('emerald_pago_banco') || 'BBVA México';
+            const cuenta = localStorage.getItem('emerald_pago_cuenta') || '1234 5678 9012 3456';
+            const titular = localStorage.getItem('emerald_pago_titular') || 'Csariel\'s Ecosystem';
+            const clabe = localStorage.getItem('emerald_pago_clabe') || '012 3456 7890 1234 5678 90';
+            const email = localStorage.getItem('emerald_pago_email') || 'soporte@csariels.com';
+
+            document.getElementById('pagoBanco').textContent = banco;
+            document.getElementById('pagoCuenta').textContent = cuenta;
+            document.getElementById('pagoTitular').textContent = titular;
+            document.getElementById('pagoClabe').textContent = clabe;
+            document.getElementById('pagoEmail').textContent = email;
+        }
+
+        // ================================================================
+        // RENDERIZAR PLANES
+        // ================================================================
+        function renderizarPlanes() {
+            const grid = document.getElementById('planesGrid');
+            const planes = cargarPlanes();
+
+            grid.innerHTML = planes.map(plan => `
+                <div class="plan-card" onclick="mostrarPago(${plan.mb}, ${plan.precio}, '${plan.badge || 'Plan'}')">
+                    <div class="plan-badge">${plan.badge || '📦 Plan'}</div>
+                    <div class="plan-mb">${plan.mb} MB</div>
+                    <div class="plan-precio">$${plan.precio} MXN</div>
+                    <div class="plan-detalle">${plan.detalle || `~${Math.round(plan.mb / 250)}h de video`}</div>
+                    <button class="btn-comprar-plan" onclick="event.stopPropagation(); mostrarPago(${plan.mb}, ${plan.precio}, '${plan.badge || 'Plan'}')">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // MOSTRAR PAGO
+        // ================================================================
+        let planSeleccionado = null;
+
+        function mostrarPago(mb, precio, badge) {
+            planSeleccionado = { mb, precio, badge };
+
+            document.getElementById('planSeleccionado').textContent = `${mb} MB - $${precio} MXN`;
+            document.getElementById('montoPago').textContent = `$${precio} MXN`;
+
+            // Cargar datos de pago desde localStorage
+            cargarDatosPago();
+
+            const section = document.getElementById('paymentSection');
+            section.classList.add('visible');
+            section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            mostrarToast(`📦 Plan ${mb} MB seleccionado. Revisa los datos de pago.`);
+        }
+
+        function cerrarPago() {
+            document.getElementById('paymentSection').classList.remove('visible');
+            planSeleccionado = null;
+        }
+
+        function confirmarPago() {
+            if (!planSeleccionado) return;
+            
+            // Guardar en localStorage para el admin
+            const historial = JSON.parse(localStorage.getItem('emerald_pagos_historial') || '[]');
+            historial.push({
+                fecha: new Date().toISOString(),
+                plan: planSeleccionado,
+                usuario: localStorage.getItem('csariels_user_name') || 'Usuario'
+            });
+            localStorage.setItem('emerald_pagos_historial', JSON.stringify(historial));
+
+            mostrarToast(`✅ ¡Pago de $${planSeleccionado.precio} MXN registrado! En breve recibirás tus datos.`);
+            cerrarPago();
+            actualizarConsumo();
+        }
+
+        // ================================================================
+        // COPIAR TEXTO
+        // ================================================================
+        function copiarTexto(id) {
+            const el = document.getElementById(id);
+            const texto = el.textContent || el.value;
+            navigator.clipboard?.writeText(texto);
+            mostrarToast('📋 Copiado al portapapeles');
+        }
+
+        // ================================================================
+        // SIMULAR CONSUMO
+        // ================================================================
+        function actualizarConsumo() {
+            const total = 1024;
+            const consumido = Math.floor(Math.random() * 800) + 100;
+            const porcentaje = (consumido / total) * 100;
+            const restante = total - consumido;
+
+            document.getElementById('consumoFill').style.width = Math.min(porcentaje, 100) + '%';
+            document.getElementById('consumoFill').className = 'fill' + (porcentaje > 80 ? ' danger' : porcentaje > 60 ? ' warning' : '');
+            document.getElementById('consumoTexto').textContent = `${consumido} MB / ${total} MB`;
+
+            const dias = Math.floor(Math.random() * 20) + 5;
+            const pctDias = ((30 - dias) / 30) * 100;
+            document.getElementById('renovacionFill').style.width = pctDias + '%';
+            document.getElementById('renovacionTexto').textContent = `${dias} días`;
+        }
+
+        // ================================================================
+        // TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🌿 Mi Internet - Csariel\'s');
+            console.log('📦 Planes cargados desde localStorage');
+
+            initSupabase();
+            renderizarPlanes();
+            cargarDatosPago();
+            actualizarConsumo();
+
+            // Actualizar consumo cada 30 segundos
+            setInterval(actualizarConsumo, 30000);
+        });
+
+        // ================================================================
+        // FUNCIONES GLOBALES
+        // ================================================================
+        window.mostrarPago = mostrarPago;
+        window.cerrarPago = cerrarPago;
+        window.confirmarPago = confirmarPago;
+        window.copiarTexto = copiarTexto;
+        window.mostrarToast = mostrarToast;
+        window.actualizarConsumo = actualizarConsumo;
+        window.cargarDatosPago = cargarDatosPago;
+    </script>
+
+</body>
+</html>
