@@ -6,6 +6,23 @@
     <title>Mi Red | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
     
+    <!-- ================================================================ -->
+    <!-- 🔒 CSP - SEGURIDAD CONTRA INYECCIONES Y HACKEOS -->
+    <!-- ================================================================ -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     
@@ -16,8 +33,15 @@
     <script src="./js/esim-connector.js"></script>
     <script src="./js/config.js"></script>
     
+    <!-- ================================================================ -->
+    <!-- 🔒 SEGURIDAD CSARIEL'S - ANTI-HACKEO -->
+    <!-- ================================================================ -->
+    <script src="./js/security.js"></script>
+    
     <style>
-        /* ===== TODOS LOS ESTILOS EXISTENTES ===== */
+        /* ================================================================
+           TODOS LOS ESTILOS EXISTENTES (MANTENIDOS)
+           ================================================================ */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -240,17 +264,23 @@
         }
         .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
 
-        /* ===== NUEVO BOTÓN COMPRAR INTERNET ===== */
+        /* ===== BOTÓN COMPRAR INTERNET ===== */
         .btn-internet {
             background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
             border-color: transparent;
             color: #0a0c10;
             -webkit-text-fill-color: #0a0c10;
             box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
         }
         .btn-internet:hover {
             box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
             transform: scale(1.03);
+        }
+
+        @keyframes pulse-internet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
         }
 
         /* ===== CONNECTION STATUS BAR ===== */
@@ -1089,7 +1119,6 @@
                 <a href="./muro-live.html" class="btn btn-outline btn-sm">
                     <i class="fas fa-rss"></i> Muro Live
                 </a>
-                <!-- ===== NUEVO BOTÓN COMPRAR INTERNET ===== -->
                 <a href="./mi-internet.html" class="btn btn-internet btn-sm">
                     <i class="fas fa-satellite-dish"></i> 🌐 Comprar Internet
                 </a>
@@ -1322,14 +1351,16 @@
             <div class="footer-links">
                 <a href="./index.html">🏠 Inicio</a>
                 <a href="./muro-live.html">📱 Muro Live</a>
-                <a href="./mi-internet.html" style="color:var(--success);">🌐 Comprar Internet</a>
+                <a href="./mi-internet.html" style="color:#00d68f;">🌐 Comprar Internet</a>
                 <a href="#" style="color:var(--gold-cosmic);">📜 Términos</a>
                 <span class="footer-hex" style="display:inline-block;background:var(--verde-bosque);color:var(--gold-cosmic);padding:2px 8px;border-radius:4px;font-size:0.45rem;font-weight:700;border:1px solid var(--gold-cosmic);font-family:'Orbitron',monospace;">◈</span>
             </div>
         </footer>
     </div>
 
-    <!-- ===== SCRIPTS ===== -->
+    <!-- ================================================================ -->
+    <!-- 🔒 INICIALIZAR SEGURIDAD Y SCRIPTS -->
+    <!-- ================================================================ -->
     <script>
         // ================================================================
         // CONFIG
@@ -1339,6 +1370,23 @@
             METODOS_REGISTRO: ['email', 'metamask', 'telefono'],
             REGISTRO_MIN_EDAD: 18
         };
+
+        // ================================================================
+        // INICIALIZAR SEGURIDAD (ANTI-HACKEO)
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar seguridad del sistema
+            if (window.Security) {
+                window.Security.initSeguridad();
+                console.log('🛡️ Seguridad activada para Mi Red');
+            } else {
+                console.warn('⚠️ Security.js no cargado - verifica la ruta');
+            }
+            
+            console.log('◈ Csariel\'s - Mi Red v' + CONFIG.VERSION);
+            console.log('📱 Red Csariel\'s - Internet de alta velocidad');
+            console.log('📶 eSIM integrada con esim-connector.js');
+        });
 
         // ================================================================
         // ESTADO GLOBAL
@@ -1563,7 +1611,6 @@
         // 🚀 eSIM - CONECTADO CON esim-connector.js
         // ================================================================
         
-        // Estado de eSIM
         let esimStatus = {
             activa: false,
             asignados: 0,
@@ -1575,7 +1622,6 @@
 
         async function actualizarEsimUI() {
             try {
-                // Usar el conector de eSIM
                 const status = await window.esimConnector?.consultarEsim();
                 
                 if (status && status.activa) {
@@ -2223,13 +2269,6 @@
         // ================================================================
         
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('◈ Csariel\'s - Mi Red v' + CONFIG.VERSION);
-            console.log('📱 Red Csariel\'s - Internet de alta velocidad');
-            console.log('🌐 Red Social Integral - Para personas de todo el mundo');
-            console.log('📝 Registro: Nombre, Fecha, Email, MetaMask o Teléfono');
-            console.log('📶 eSIM integrada con esim-connector.js');
-            console.log('🌐 Botón "Comprar Internet" agregado');
-            
             initStars();
             cargarPerfil();
             cargarDatosLocales();
@@ -2279,5 +2318,6 @@
         window.actualizarEsimUI = actualizarEsimUI;
         window.actualizarConexionUI = actualizarConexionUI;
     </script>
+
 </body>
 </html>
