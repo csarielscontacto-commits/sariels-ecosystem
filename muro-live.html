@@ -16,6 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="./js/muro-connector.js"></script>
     <script src="./js/perfil-connector.js"></script>
+    <script src="./js/esim-connector.js"></script>
     <script src="./js/config.js"></script>
     
     <style>
@@ -2181,7 +2182,37 @@
         }
 
         // ================================================================
-        // RENDER FEED - SIN GAMIFICACIÓN NI REFERENCIAS A ESTUDIANTES
+        // ===== 🔴 NUEVA FUNCIÓN: VERIFICAR DATOS ANTES DE VIDEO =====
+        // ================================================================
+        async function puedeReproducirVideo(postId, consumo_mb = 5) {
+            try {
+                const puede = await window.esimConnector?.puedeEjecutarAccion(consumo_mb, 'muro_live');
+                
+                if (!puede || !puede.puede) {
+                    // Mostrar mensaje claro
+                    mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
+                    
+                    // Si necesita recargar, redirigir a Mi Red
+                    if (puede?.recargar) {
+                        setTimeout(() => {
+                            if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
+                                window.location.href = './mi-red.html#esim';
+                            }
+                        }, 1000);
+                    }
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Error verificando datos:', error);
+                mostrarToast('⚠️ Error al verificar conexión', 'error');
+                return false;
+            }
+        }
+
+        // ================================================================
+        // RENDER FEED - CON VERIFICACIÓN DE DATOS
         // ================================================================
         function renderFeed() {
             const container = document.getElementById('feedContainer');
@@ -2301,6 +2332,58 @@
         }
 
         // ================================================================
+        // VIDEO PLAYER - CON VERIFICACIÓN DE DATOS
+        // ================================================================
+        function initVideos() {
+            document.querySelectorAll('.post-media video').forEach(video => {
+                const postId = video.id.replace('video-', '');
+                const playBtn = document.getElementById(`playBtn-${postId}`);
+                let videoConsumo = 5; // 5 MB por video (estimado)
+
+                // Si es live, consume más
+                const post = posts.find(p => p.id == postId);
+                if (post && post.is_live) {
+                    videoConsumo = 10; // 10 MB para live
+                }
+
+                setTimeout(() => {
+                    if (playBtn) playBtn.classList.add('hidden');
+                }, 1500);
+
+                // ===== 🔴 VERIFICAR DATOS ANTES DE REPRODUCIR =====
+                video.addEventListener('play', async function(e) {
+                    // Si ya se verificó antes, no repetir
+                    if (this.dataset.verified === 'true') return;
+                    
+                    const puede = await puedeReproducirVideo(postId, videoConsumo);
+                    
+                    if (!puede) {
+                        this.pause();
+                        e.preventDefault();
+                        return;
+                    }
+                    
+                    this.dataset.verified = 'true';
+                    
+                    if (playBtn) playBtn.classList.add('hidden');
+                });
+
+                video.addEventListener('pause', function() {
+                    if (playBtn) playBtn.classList.remove('hidden');
+                });
+
+                // Intentar reproducir automáticamente con verificación
+                video.play().catch(async (err) => {
+                    // Si falla por autoplay, intentamos con verificación manual
+                    const puede = await puedeReproducirVideo(postId, videoConsumo);
+                    if (puede) {
+                        video.play().catch(() => {});
+                    }
+                });
+            });
+        }
+
+        // ================================================================
         // 🚀 SUPABASE - PUBLICAR POST
         // ================================================================
         async function publicarPost() {
@@ -2382,34 +2465,8 @@
         }
 
         // ================================================================
-        // VIDEO PLAYER - CONTROL
+        // VIDEO PLAYER - CONTROL (funciones existentes)
         // ================================================================
-        function initVideos() {
-            document.querySelectorAll('.post-media video').forEach(video => {
-                const postId = video.id.replace('video-', '');
-                const playBtn = document.getElementById(`playBtn-${postId}`);
-
-                setTimeout(() => {
-                    if (playBtn) playBtn.classList.add('hidden');
-                }, 1500);
-
-                video.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    toggleVideoPlay(parseInt(postId));
-                });
-
-                video.addEventListener('pause', function() {
-                    if (playBtn) playBtn.classList.remove('hidden');
-                });
-
-                video.addEventListener('play', function() {
-                    if (playBtn) playBtn.classList.add('hidden');
-                });
-
-                video.play().catch(() => {});
-            });
-        }
-
         function toggleVideoPlay(postId) {
             const video = document.getElementById(`video-${postId}`);
             const playBtn = document.getElementById(`playBtn-${postId}`);
@@ -2513,7 +2570,7 @@
         }
 
         // ================================================================
-        // FLOATING PLAYER - DRAGGABLE
+        // FLOATING PLAYER - DRAGGABLE (funciones existentes)
         // ================================================================
         function initFloatingDraggable() {
             const player = document.getElementById('floatingPlayer');
@@ -3166,6 +3223,7 @@
             console.log('◈ Csariel\'s - Muro Live (Conectado a Supabase)');
             console.log('🤖 Asistente IA cargado en Muro Live');
             console.log('👥 Red Social para el Público en General - Sin Gamificación');
+            console.log('📶 Verificación de datos eSIM activada');
             initStars();
             initFloatingDraggable();
 
@@ -3211,7 +3269,7 @@
 
             document.getElementById('donacionMontoInput').addEventListener('input', actualizarResumenDonacion);
 
-            console.log('✅ Muro Live conectado a Supabase');
+            console.log('✅ Muro Live conectado a Supabase y eSIM');
         });
     </script>
 </body>
