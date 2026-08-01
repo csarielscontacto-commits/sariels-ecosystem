@@ -6,6 +6,28 @@
     <title>Muro Live | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
     
+    <!-- ================================================================ -->
+    <!-- 🔒 CSP - SEGURIDAD CONTRA INYECCIONES Y HACKEOS -->
+    <!-- ================================================================ -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology https://cdn.tailwindcss.com;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
+    <!-- ================================================================ -->
+    <!-- 🔒 SEGURIDAD CSARIEL'S - ANTI-HACKEO -->
+    <!-- ================================================================ -->
+    <script src="./js/security.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     
@@ -2189,10 +2211,8 @@
                 const puede = await window.esimConnector?.puedeEjecutarAccion(consumo_mb, 'muro_live');
                 
                 if (!puede || !puede.puede) {
-                    // Mostrar mensaje claro
                     mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
                     
-                    // Si necesita recargar, redirigir a Mi Red
                     if (puede?.recargar) {
                         setTimeout(() => {
                             if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
@@ -2338,21 +2358,18 @@
             document.querySelectorAll('.post-media video').forEach(video => {
                 const postId = video.id.replace('video-', '');
                 const playBtn = document.getElementById(`playBtn-${postId}`);
-                let videoConsumo = 5; // 5 MB por video (estimado)
+                let videoConsumo = 5;
 
-                // Si es live, consume más
                 const post = posts.find(p => p.id == postId);
                 if (post && post.is_live) {
-                    videoConsumo = 10; // 10 MB para live
+                    videoConsumo = 10;
                 }
 
                 setTimeout(() => {
                     if (playBtn) playBtn.classList.add('hidden');
                 }, 1500);
 
-                // ===== 🔴 VERIFICAR DATOS ANTES DE REPRODUCIR =====
                 video.addEventListener('play', async function(e) {
-                    // Si ya se verificó antes, no repetir
                     if (this.dataset.verified === 'true') return;
                     
                     const puede = await puedeReproducirVideo(postId, videoConsumo);
@@ -2372,9 +2389,7 @@
                     if (playBtn) playBtn.classList.remove('hidden');
                 });
 
-                // Intentar reproducir automáticamente con verificación
                 video.play().catch(async (err) => {
-                    // Si falla por autoplay, intentamos con verificación manual
                     const puede = await puedeReproducirVideo(postId, videoConsumo);
                     if (puede) {
                         video.play().catch(() => {});
@@ -2465,7 +2480,7 @@
         }
 
         // ================================================================
-        // VIDEO PLAYER - CONTROL (funciones existentes)
+        // VIDEO PLAYER - CONTROL
         // ================================================================
         function toggleVideoPlay(postId) {
             const video = document.getElementById(`video-${postId}`);
@@ -2570,7 +2585,7 @@
         }
 
         // ================================================================
-        // FLOATING PLAYER - DRAGGABLE (funciones existentes)
+        // FLOATING PLAYER - DRAGGABLE
         // ================================================================
         function initFloatingDraggable() {
             const player = document.getElementById('floatingPlayer');
@@ -3220,10 +3235,19 @@
         // INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', async () => {
+            // 🔒 Inicializar seguridad
+            if (window.Security) {
+                window.Security.initSeguridad();
+                console.log('🛡️ Seguridad activada para Muro Live');
+            } else {
+                console.warn('⚠️ Security.js no cargado - verifica la ruta');
+            }
+            
             console.log('◈ Csariel\'s - Muro Live (Conectado a Supabase)');
             console.log('🤖 Asistente IA cargado en Muro Live');
             console.log('👥 Red Social para el Público en General - Sin Gamificación');
             console.log('📶 Verificación de datos eSIM activada');
+            
             initStars();
             initFloatingDraggable();
 
