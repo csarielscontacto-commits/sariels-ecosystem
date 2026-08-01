@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading TOK | Csariel's</title>
+    <meta name="theme-color" content="#0B3D2E" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Csariel's - Trading TOK" />
+    <meta property="og:description" content="Plataforma de trading para TOK con gráficos en tiempo real" />
+    <meta property="og:type" content="website" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <!-- ===== CONECTORES ===== -->
+    <script src="./js/config.js"></script>
+    <script src="./js/esim-connector.js"></script>
+
+    <style>
+        /* ================================================================
+           PALETA CSARIEL'S - IGUAL QUE MI RED
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --space-light: #101f3a;
+            --verde-bosque: #0B3D2E;
+            --verde-bosque-light: #1a5a44;
+            --verde-bosque-glass: rgba(11,61,46,0.85);
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --nebula-1: #6c2bd9;
+            --nebula-2: #ff6b9d;
+            --nebula-3: #00d4ff;
+            --plasma: #ff3366;
+            --quantum: #00e5ff;
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --shadow-neon: 0 0 40px rgba(212,175,55,0.08);
+            --shadow-glow: 0 0 60px rgba(11,61,46,0.3);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --warning: #D4AF37;
+            --danger: #ff3366;
+            --verde: #2ecc71;
+            --verde-brillante: #00f5a0;
+            --rojo: #e74c3c;
+            --rojo-brillante: #ff6b6b;
+            --panel: #1a1512;
+            --fondo-grafico: #0f0c0a;
+            --masa: #0d0b0a;
+            --trigo: #d4af7a;
+            --university-bg: rgba(212,175,55,0.05);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 16px 20px 30px; }
+
+        /* ================================================================
+           HEADER - IGUAL QUE MI RED (logo fijo con mundo 🌍)
+           ================================================================ */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212,175,55,0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* 🌍 MUNDO FIJO - IGUAL QUE MI RED */
+        .world-icon-fixed {
+            display: inline-block;
+            font-size: 1.6rem;
+            color: var(--verde-bosque);
+            text-shadow: 0 0 6px #1a5a44;
+            filter: drop-shadow(0 0 6px rgba(26,74,42,0.6));
+            line-height: 1;
+            user-select: none;
+            margin-left: -4px;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); }
+            50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(11,61,46,0.3); }
+            50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+        .status-dot.offline { background: var(--text-muted); box-shadow: 0 0 20px rgba(74,106,138,0.3); }
+
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(11,61,46,0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #00897b, #00695c);
+            box-shadow: 0 0 40px rgba(0,184,148,0.3);
+        }
+
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(212,175,55,0.05);
+            border-color: var(--gold-cosmic);
+        }
+
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-block { width: 100%; justify-content: center; }
+
+        .btn-volver {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            border-radius: 8px;
+            color: var(--gold-cosmic);
+            font-size: 0.6rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn-volver:hover {
+            background: rgba(212,175,55,0.12);
+            transform: translateY(-1px);
+        }
+
+        .estado-conexion {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            padding: 4px 14px;
+            background: rgba(11,61,46,0.15);
+            border-bottom: 1px solid var(--gold-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .estado-conexion .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            display: inline-block;
+        }
+
+        .estado-conexion.conectado .dot { background: var(--verde-brillante); box-shadow: 0 0 8px rgba(0,245,160,0.3); }
+        .estado-conexion.conectado { color: var(--verde-brillante); }
+
+        /* ================================================================
+           eSIM STATUS BAR - IGUAL QUE MI RED
+           ================================================================ */
+        .connection-bar {
+            background: rgba(11,61,46,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            padding: 6px 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            min-height: 36px;
+        }
+
+        .connection-bar .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-bar .status-left .icono {
+            font-size: 1rem;
+        }
+
+        .connection-bar .status-left .info {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+
+        .connection-bar .status-left .info strong {
+            color: var(--text-primary);
+        }
+
+        .connection-bar .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .connection-bar .status-right .datos {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .connection-bar .status-right .mini-progress {
+            width: 50px;
+            height: 4px;
+            background: var(--gold-dim);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .connection-bar .status-right .mini-progress .fill {
+            height: 100%;
+            background: var(--gold-cosmic);
+            border-radius: 2px;
+            transition: width 0.5s;
+        }
+
+        .connection-bar .status-right .badge-wifi {
+            font-size: 0.45rem;
+            color: var(--success);
+            background: rgba(0,184,148,0.1);
+            padding: 1px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,184,148,0.2);
+        }
+
+        .connection-bar .status-right .badge-esim {
+            font-size: 0.45rem;
+            color: var(--gold-cosmic);
+            background: rgba(212,175,55,0.1);
+            padding: 1px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .connection-bar .status-right .badge-offline {
+            font-size: 0.45rem;
+            color: var(--danger);
+            background: rgba(255,51,102,0.1);
+            padding: 1px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,51,102,0.2);
+        }
+
+        .connection-bar .btn-cambiar {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            padding: 2px 6px;
+            border-radius: 12px;
+        }
+
+        .connection-bar .btn-cambiar:hover {
+            color: var(--gold-cosmic);
+            background: rgba(212,175,55,0.05);
+        }
+
+        /* ================================================================
+           GRÁFICOS Y TRADING
+           ================================================================ */
+        #chart-container { width: 100%; height: 300px; background: var(--fondo-grafico); position: relative; border-radius: 12px 12px 0 0; border: 1px solid var(--gold-dim); border-bottom: none; }
+        #indicador-container { width: 100%; height: 80px; background: var(--fondo-grafico); border-radius: 0 0 12px 12px; border: 1px solid var(--gold-dim); border-top: none; }
+
+        .indicadores-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            padding: 4px 12px;
+            background: rgba(11,61,46,0.15);
+            border: 1px solid var(--gold-dim);
+            border-top: none;
+            border-bottom: none;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            font-family: 'Inter', monospace;
+            letter-spacing: 0.2px;
+        }
+
+        .indicadores-info .bb, .indicadores-info .vol, .indicadores-info .macd {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .indicadores-info .valor { color: var(--text-secondary); font-weight: 500; }
+        .indicadores-info .valor.verde { color: var(--verde-brillante); }
+        .indicadores-info .valor.rojo { color: var(--rojo-brillante); }
+        .indicadores-info .valor.trigo { color: var(--gold-cosmic); }
+
+        .timeframes {
+            display: flex;
+            gap: 3px;
+            padding: 6px 12px;
+            background: rgba(11,61,46,0.1);
+            border: 1px solid var(--gold-dim);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .timeframes button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.55rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .timeframes button:hover { color: var(--text-primary); }
+        .timeframes button.activo {
+            color: var(--gold-cosmic);
+            background: rgba(212,175,55,0.12);
+            border: 1px solid rgba(212,175,55,0.15);
+        }
+
+        .slogan-wrapper {
+            padding: 4px 12px;
+            background: rgba(11,61,46,0.08);
+            border: 1px solid var(--gold-dim);
+            border-bottom: none;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .slogan-icono { flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; }
+        .slogan-texto {
+            font-size: 0.55rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .slogan-texto strong { color: var(--gold-cosmic); font-style: normal; }
+
+        .aceptacion-check-wrapper {
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(11,61,46,0.08);
+            border: 1px solid var(--gold-dim);
+            border-top: none;
+            border-bottom: none;
+        }
+
+        .aceptacion-check-wrapper input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--space-deep);
+            border: 2px solid rgba(212,175,55,0.2);
+            border-radius: 3px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .aceptacion-check-wrapper input[type="checkbox"]:checked {
+            background: var(--gold-cosmic);
+            border-color: var(--gold-cosmic);
+        }
+
+        .aceptacion-check-wrapper input[type="checkbox"]:checked::after {
+            content: "✓";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--space-deep);
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .aceptacion-check-wrapper label {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .aceptacion-check-wrapper label strong {
+            color: var(--gold-cosmic);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .conexion-check-wrapper {
+            padding: 4px 12px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(11,61,46,0.08);
+            border: 1px solid var(--gold-dim);
+            border-top: none;
+            border-bottom: none;
+        }
+
+        .conexion-check-wrapper.visible { display: flex; }
+
+        .conexion-check-wrapper input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--space-deep);
+            border: 2px solid rgba(212,175,55,0.2);
+            border-radius: 3px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .conexion-check-wrapper input[type="checkbox"]:checked {
+            background: var(--gold-cosmic);
+            border-color: var(--gold-cosmic);
+        }
+
+        .conexion-check-wrapper input[type="checkbox"]:checked::after {
+            content: "✓";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--space-deep);
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .conexion-check-wrapper label {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .conexion-check-wrapper label strong { color: var(--gold-cosmic); }
+
+        /* ================================================================
+           PANELES
+           ================================================================ */
+        .panel-wallet {
+            padding: 12px 14px;
+            background: rgba(11,61,46,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            margin: 10px 0;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .panel-wallet::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .panel-wallet:hover::before { opacity: 0.15; }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .panel-wallet .btn-wallet {
+            width: 100%;
+            padding: 8px;
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border: none;
+            border-radius: 8px;
+            color: var(--space-deep);
+            font-weight: 700;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .panel-wallet .btn-wallet:hover { transform: scale(1.01); box-shadow: 0 4px 20px rgba(212,175,55,0.2); }
+
+        .panel-wallet .wallet-direccion {
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            word-break: break-all;
+            margin-top: 4px;
+            font-family: monospace;
+        }
+
+        .saldos-grid {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .saldo-item {
+            flex: 1;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            padding: 4px 6px;
+            text-align: center;
+            border: 1px solid var(--gold-dim);
+        }
+
+        .saldo-item .label { font-size: 0.45rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .saldo-item .valor { font-size: 0.7rem; font-weight: 600; color: var(--gold-cosmic); }
+
+        .panel-operar {
+            padding: 12px 14px;
+            background: rgba(11,61,46,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            margin: 10px 0;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .panel-operar::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .panel-operar:hover::before { opacity: 0.15; }
+
+        .tabs-operar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 6px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .tab-btn.comprar.activo { background: var(--verde); color: #fff; }
+        .tab-btn.vender.activo { background: var(--rojo); color: #fff; }
+        .tab-btn:hover:not(.activo) { color: var(--text-primary); }
+
+        .campo { margin-bottom: 6px; }
+        .campo label { display: block; font-size: 0.55rem; color: var(--text-muted); margin-bottom: 2px; letter-spacing: 0.3px; font-family: 'Orbitron', monospace; }
+
+        .campo input {
+            width: 100%;
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            outline: none;
+            transition: border 0.2s;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .campo input:focus { border-color: var(--gold-cosmic); }
+        .campo input:disabled { opacity: 0.6; }
+
+        .gas-estimado {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            margin: -2px 0 6px;
+            padding: 4px 6px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .gas-estimado span:last-child { color: var(--gold-cosmic); font-weight: 500; }
+
+        .btn-ejecutar {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .btn-ejecutar.comprar { background: linear-gradient(135deg, var(--verde), #1a9c5a); }
+        .btn-ejecutar.vender { background: linear-gradient(135deg, var(--rojo), #c0392b); }
+        .btn-ejecutar:hover { transform: scale(1.01); }
+        .btn-ejecutar:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .panel-portafolio {
+            padding: 12px 14px;
+            background: rgba(11,61,46,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            margin: 10px 0;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .panel-portafolio::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .panel-portafolio:hover::before { opacity: 0.15; }
+
+        .tabs-portafolio { display: flex; background: rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+        .tab-portafolio {
+            flex: 1;
+            padding: 6px 4px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .tab-portafolio.activo { color: var(--gold-cosmic); border-bottom: 2px solid var(--gold-cosmic); }
+
+        .contenido-portafolio { min-height: 40px; }
+
+        .orden-item, .tx-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid var(--gold-dim);
+            font-size: 0.65rem;
+        }
+
+        .orden-item:last-child, .tx-item:last-child { border-bottom: none; }
+        .orden-tipo.compra, .tx-tipo.compra { color: var(--verde-brillante); }
+        .orden-tipo.venta, .tx-tipo.venta { color: var(--rojo-brillante); }
+
+        .btn-cancelar {
+            background: none;
+            border: 1px solid var(--rojo);
+            color: var(--rojo);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancelar:hover { background: var(--rojo); color: #fff; }
+
+        .tx-link {
+            color: var(--gold-cosmic);
+            font-size: 0.55rem;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .vacio-portafolio { color: var(--text-muted); font-size: 0.65rem; text-align: center; padding: 4px 0; }
+
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .footer {
+            margin-top: 30px;
+            padding-top: 16px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand { color: var(--gold-cosmic); }
+
+        .footer-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.55rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links a:hover { color: var(--gold-cosmic); }
+
+        .link-legal {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .link-legal:hover { color: var(--gold-cosmic); }
+
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.5rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ================================================================
+           MODALES
+           ================================================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-caja {
+            background: rgba(11,61,46,0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px 16px;
+            box-shadow: var(--shadow-glow);
+            position: relative;
+        }
+
+        .modal-caja::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.12;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        .modal-cerrar {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            color: var(--text-muted);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-cerrar:hover { color: var(--gold-cosmic); border-color: var(--gold-cosmic); }
+
+        .modal-titulo {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            padding-right: 30px;
+        }
+
+        .modal-punto {
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .modal-punto strong { color: var(--text-primary); }
+
+        /* ================================================================
+           TOAST
+           ================================================================ */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 768px) {
+            .app { padding: 12px 14px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .logo-text { font-size: 1rem; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .saldos-grid { flex-wrap: wrap; }
+            .saldo-item { min-width: 60px; }
+            .timeframes { flex-wrap: wrap; }
+            .connection-bar { flex-direction: column; align-items: flex-start; }
+            .connection-bar .status-right { width: 100%; justify-content: flex-start; }
+            #chart-container { height: 220px; }
+            #indicador-container { height: 60px; }
+        }
+
+        @media (max-width: 480px) {
+            .btn { font-size: 0.5rem; padding: 4px 10px; }
+            .panel-wallet, .panel-operar, .panel-portafolio { padding: 10px 12px; }
+            .timeframes button { font-size: 0.45rem; padding: 2px 8px; }
+            .logo-icon { font-size: 1.6rem; }
+            .logo-icon .hex { font-size: 0.8rem; padding: 2px 8px; }
+            .logo-text { font-size: 0.85rem; }
+            .logo-badge { font-size: 0.35rem; padding: 2px 8px; }
+            .status-badge { font-size: 0.45rem; padding: 4px 10px; }
+            #chart-container { height: 180px; }
+            #indicador-container { height: 50px; }
+            .world-icon-fixed { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <!-- ===== CONTENIDO ===== -->
+    <div class="app">
+
+        <!-- ===== HEADER CON MUNDO FIJO 🌍 ===== -->
+        <header class="header">
+            <a href="#" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="world-icon-fixed">🌍</span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Trading</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online" id="statusDot"></span>
+                    <span id="statusLabel">En línea</span>
+                </div>
+                <a href="./dashboard-central.html" class="btn btn-sm"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="./mi-red.html" class="btn btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="./panel-web3.html" class="btn btn-sm"><i class="fas fa-wallet"></i> Web3</a>
+            </div>
+        </header>
+
+        <!-- ===== eSIM STATUS BAR ===== -->
+        <div class="connection-bar" id="connectionBar">
+            <div class="status-left">
+                <span class="icono" id="connIcon">📶</span>
+                <div class="info" id="connInfo">
+                    <strong>Detectando...</strong>
+                    <span id="connDetail">Cargando estado de conexión...</span>
+                </div>
+            </div>
+            <div class="status-right" id="connStatusRight">
+                <span class="datos" id="connDatos">--</span>
+                <div class="mini-progress" id="connProgress">
+                    <div class="fill" id="connProgressFill" style="width:0%"></div>
+                </div>
+                <span class="badge-wifi" id="connBadge">● WiFi</span>
+            </div>
+        </div>
+
+        <!-- VOLVER A MI RED -->
+        <a href="./mi-red.html" class="btn-volver">
+            <i class="fas fa-arrow-left"></i> Volver a Mi Red
+        </a>
+
+        <!-- ESTADO CONEXIÓN -->
+        <div class="estado-conexion" id="estado-conexion">
+            <span class="dot"></span> Conectando a datos...
+        </div>
+
+        <!-- SLOGAN -->
+        <div class="slogan-wrapper">
+            <svg class="slogan-icono" viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="16" stroke="var(--gold-cosmic)" stroke-width="1.5"/>
+                <path d="M10 18 L14 22 L26 12" stroke="var(--gold-cosmic)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="slogan-texto">
+                <strong>Un estratega conoce el valor de sus activos.</strong> En Csariel's, no te obligamos al consumo: te damos el control. El valor es tuyo, tú decides cómo ejecutarlo.
+            </p>
+        </div>
+
+        <!-- ACEPTAR TÉRMINOS -->
+        <div class="aceptacion-check-wrapper">
+            <input type="checkbox" id="check-aceptar">
+            <label for="check-aceptar">
+                He leído y acepto los <strong id="abrir-legal-desde-check">Términos y Condiciones</strong> de Csariel's Ecosystem
+            </label>
+        </div>
+
+        <!-- CONECTAR METAMASK -->
+        <div class="conexion-check-wrapper" id="conexion-check-wrapper">
+            <input type="checkbox" id="check-conectar">
+            <label for="check-conectar"><strong>Conectar MetaMask</strong></label>
+        </div>
+
+        <!-- TIMEFRAMES -->
+        <div class="timeframes">
+            <button data-tf="1m">1m</button>
+            <button data-tf="5m">5m</button>
+            <button data-tf="15m">15m</button>
+            <button data-tf="1h">1h</button>
+            <button data-tf="1d" class="activo">1d</button>
+        </div>
+
+        <!-- INDICADORES INFO -->
+        <div class="indicadores-info" id="indicadores-info">
+            <span class="bb">📊 BB(20,2) <span class="valor trigo" id="bb-info">U:-- M:-- L:--</span></span>
+            <span class="vol">📈 Vol: <span class="valor" id="vol-info">--</span></span>
+            <span class="macd">📉 MACD(12,26) <span class="valor" id="macd-info">--</span></span>
+        </div>
+
+        <!-- GRÁFICO -->
+        <div id="chart-container"></div>
+        <div id="indicador-container"></div>
+
+        <!-- PANEL WALLET -->
+        <div class="panel-wallet" id="panel-wallet">
+            <button id="btn-conectar-wallet" class="btn-wallet">🦊 Conectar MetaMask</button>
+            <div id="wallet-info" style="display:none;">
+                <p class="wallet-direccion" id="wallet-direccion"></p>
+                <div class="saldos-grid">
+                    <div class="saldo-item">
+                        <div class="label">TOK</div>
+                        <div class="valor" id="saldo-tok">--</div>
+                    </div>
+                    <div class="saldo-item">
+                        <div class="label">USDT</div>
+                        <div class="valor" id="saldo-usdt">--</div>
+                    </div>
+                    <div class="saldo-item">
+                        <div class="label">MATIC</div>
+                        <div class="valor" id="saldo-matic">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL OPERAR -->
+        <div class="panel-operar">
+            <div class="tabs-operar">
+                <button class="tab-btn comprar activo" id="tab-comprar">Comprar</button>
+                <button class="tab-btn vender" id="tab-vender">Vender</button>
+            </div>
+
+            <div class="campo">
+                <label>Cantidad de TOK</label>
+                <input type="number" id="input-cantidad" placeholder="0.00" min="0" step="0.01">
+            </div>
+            <div class="campo">
+                <label>Precio unitario (referencia)</label>
+                <input type="number" id="input-precio" placeholder="0.00" min="0" step="0.0001">
+            </div>
+            <div class="campo">
+                <label>Total estimado</label>
+                <input type="text" id="input-total" placeholder="0.00" disabled>
+            </div>
+
+            <div class="gas-estimado">
+                <span>⛽ Costo de gas estimado:</span>
+                <span id="gas-estimado-valor">-- MATIC</span>
+            </div>
+
+            <button class="btn-ejecutar comprar" id="btn-ejecutar">Ejecutar compra</button>
+        </div>
+
+        <!-- PANEL PORTAFOLIO -->
+        <div class="panel-portafolio">
+            <div class="tabs-portafolio">
+                <button class="tab-portafolio activo" data-panel="ordenes">Órdenes Abiertas</button>
+                <button class="tab-portafolio" data-panel="historial">Historial</button>
+            </div>
+            <div class="contenido-portafolio" id="contenido-portafolio">
+                <p class="vacio-portafolio">Conecta tu wallet para ver tus órdenes.</p>
+            </div>
+        </div>
+
+        <!-- FOOTER LEGAL -->
+        <div style="text-align:center;padding:8px 12px;margin-top:4px;display:flex;justify-content:center;align-items:center;gap:4px;flex-wrap:wrap;border-top:1px solid var(--gold-dim);">
+            <button class="link-legal" id="btn-abrir-legal">Aviso Legal y Términos (resumen)</button>
+            <span style="color:var(--text-muted);">·</span>
+            <a class="link-legal" href="terminos-completos.html" target="_blank">📜 Términos completos (81 artículos)</a>
+        </div>
+
+        <!-- MODAL DE TÉRMINOS -->
+        <div class="modal-overlay" id="modal-legal-overlay">
+            <div class="modal-caja">
+                <button class="modal-cerrar" id="modal-cerrar-btn">✕</button>
+                <h2 class="modal-titulo">Términos de Redención del Ecosistema Csariel's</h2>
+                <p class="modal-punto"><strong>Naturaleza del Token (TOK):</strong> El TOK es un activo de intercambio dentro del ecosistema. Su valor de mercado es determinado exclusivamente por la oferta y la demanda entre usuarios.</p>
+                <p class="modal-punto"><strong>Tarifa de Transacción:</strong> Toda transacción está sujeta a una comisión del 1% a favor de la marca.</p>
+                <p class="modal-punto"><strong>Valor de Redención:</strong> Cada TOK tiene un valor de redención de $6.25 MXN (12 TOK = 1 NFT = 1 domo gratis).</p>
+            </div>
+        </div>
+
+        <!-- FOOTER PRINCIPAL -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">📈 Csariel's</span> Digital Assets — Trading TOK en tiempo real
+            </span>
+            <div class="footer-links">
+                <a href="./dashboard-central.html">📊 Dashboard</a>
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./panel-web3.html">🔗 Web3</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📈 Csariel\'s Digital Assets - Trading TOK');
+            console.log('📶 Verificación de datos eSIM activada');
+            initStars();
+            initTrading();
+            initEsimUI();
+        });
+
+        // ================================================================
+        // ESTRELLAS (simplificado para mantener rendimiento)
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // eSIM UI
+        // ================================================================
+        async function initEsimUI() {
+            // Esperar a que esim-connector esté cargado
+            if (typeof window.esimConnector === 'undefined') {
+                setTimeout(initEsimUI, 500);
+                return;
+            }
+
+            await actualizarConexionUI();
+            setInterval(actualizarConexionUI, 30000);
+        }
+
+        async function actualizarConexionUI() {
+            try {
+                const estado = await window.esimConnector?.obtenerInternetDisponible();
+                if (!estado) return;
+
+                const icono = document.getElementById('connIcon');
+                const info = document.getElementById('connInfo');
+                const detail = document.getElementById('connDetail');
+                const datos = document.getElementById('connDatos');
+                const progress = document.getElementById('connProgressFill');
+                const badge = document.getElementById('connBadge');
+
+                if (estado.tipo === 'wifi') {
+                    icono.textContent = '📶';
+                    info.innerHTML = '<strong>WiFi</strong>';
+                    detail.textContent = 'Conectado (gratis)';
+                    datos.textContent = '∞';
+                    progress.style.width = '100%';
+                    badge.className = 'badge-wifi';
+                    badge.textContent = '● WiFi';
+                    document.getElementById('connectionBar').style.borderColor = 'var(--success)';
+                } else if (estado.tipo === 'esim') {
+                    icono.textContent = '🌐';
+                    info.innerHTML = '<strong>eSIM Csariel\'s</strong>';
+                    detail.textContent = estado.restantes.toFixed(0) + ' MB restantes';
+                    datos.textContent = estado.restantes.toFixed(0) + ' MB';
+                    progress.style.width = (100 - estado.porcentaje) + '%';
+                    badge.className = 'badge-esim';
+                    badge.textContent = '● eSIM';
+                    document.getElementById('connectionBar').style.borderColor = 'var(--gold-cosmic)';
+                } else {
+                    icono.textContent = '⚠️';
+                    info.innerHTML = '<strong>Sin conexión</strong>';
+                    detail.textContent = 'Activa tu eSIM o conecta WiFi';
+                    datos.textContent = '0 MB';
+                    progress.style.width = '0%';
+                    badge.className = 'badge-offline';
+                    badge.textContent = '● Sin conexión';
+                    document.getElementById('connectionBar').style.borderColor = 'var(--danger)';
+                }
+            } catch (error) {
+                console.error('Error actualizando conexión UI:', error);
+            }
+        }
+
+        // ================================================================
+        // TRADING (funciones existentes)
+        // ================================================================
+        function initTrading() {
+            // ... (todo el código de trading que ya tenías, sin cambios)
+            // Solo agregar verificación de eSIM antes de cargar gráficos
+
+            const CONFIG_LOCAL = window.CONFIG || {};
+            
+            const supabaseUrl = CONFIG_LOCAL.SUPABASE_URL || 'https://kbrlmeylciwocsxndtvv.supabase.co';
+            const supabaseKey = CONFIG_LOCAL.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImticmxtZXlsY2l3b2NzeG5kdHZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MzUzNTMsImV4cCI6MjA5OTIxMTM1M30.OwWk3okFUtUAmidKfcJ4Ldf7qRXr201dkwLkWpIzMFU';
+            
+            const COMISION_PORCENTAJE = CONFIG_LOCAL.TOK?.COMISION_PORCENTAJE || 0.01;
+            const TOK_POR_NFT = CONFIG_LOCAL.TOK?.POR_NFT || 12;
+            const PRECIO_DOMO_MXN = CONFIG_LOCAL.PRECIO_UNITARIO || 75.00;
+            const VALOR_REDENCION_TOK = PRECIO_DOMO_MXN / TOK_POR_NFT;
+            
+            const CHAIN_HEX = CONFIG_LOCAL.WEB3_REWARDS?.CHAIN?.HEX_ID || '0x13882';
+            const CHAIN_NAME = CONFIG_LOCAL.WEB3_REWARDS?.CHAIN?.NAME || 'Polygon Amoy';
+            const RPC_URL = CONFIG_LOCAL.WEB3_REWARDS?.CHAIN?.RPC_URL || 'https://rpc-amoy.polygon.technology';
+            const EXPLORADOR_BASE = CONFIG_LOCAL.WEB3_REWARDS?.CHAIN?.EXPLORER || 'https://amoy.polygonscan.com/tx/';
+
+            const WALLET_ADDRESS_KEY = 'sariels_wallet_address';
+            const WALLET_NETWORK_KEY = 'sariels_wallet_network';
+            const CHAIN_NAMES = {
+                '0x1': 'Ethereum',
+                '0x89': 'Polygon',
+                '0x13882': 'Polygon Amoy',
+                '0x38': 'BSC',
+                '0xaa36a7': 'Sepolia'
+            };
+
+            const TOK_CONTRACT_ADDRESS = null;
+            const TOK_CONTRACT_ABI = null;
+            const EDGE_FUNCTION_VALIDAR_TX = supabaseUrl + '/functions/v1/validar-transaccion';
+
+            let supabaseClient = null;
+            let walletConectada = null;
+            let providerEthers = null;
+            let modoActual = 'compra';
+            let timeframeActual = '1d';
+            let chart, seriesVelas, chartIndicador, seriesIndicador;
+            let seriesBandaSuperior, seriesBandaInferior, seriesMedia;
+            let panelPortafolioActivo = 'ordenes';
+            let datosVelas = [];
+
+            try {
+                const { createClient } = supabase;
+                supabaseClient = createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase inicializado para Trading');
+            } catch (err) {
+                console.warn('⚠️ Error inicializando Supabase:', err);
+            }
+
+            // ================================================================
+            // 🔴 NUEVO: Verificar eSIM antes de cargar gráficos
+            // ================================================================
+            async function puedeCargarGraficos() {
+                try {
+                    const puede = await window.esimConnector?.puedeEjecutarAccion(2, 'trading');
+                    if (!puede || !puede.puede) {
+                        mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
+                        if (puede?.recargar) {
+                            setTimeout(() => {
+                                if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
+                                    window.location.href = './mi-red.html#esim';
+                                }
+                            }, 1000);
+                        }
+                        return false;
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('❌ Error verificando datos:', error);
+                    return false;
+                }
+            }
+
+            // ================================================================
+            // TOAST
+            // ================================================================
+            function mostrarToast(mensaje, tipo = '') {
+                const toast = document.getElementById('toast');
+                toast.textContent = mensaje;
+                toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+                toast.classList.add('active');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+            }
+
+            // ... (resto del código de trading igual, solo modificar cargarYRenderizarTodo)
+            
+            // ================================================================
+            // MODIFICAR cargarYRenderizarTodo con verificación
+            // ================================================================
+            async function cargarYRenderizarTodo(timeframe) {
+                // Verificar eSIM antes de cargar gráficos
+                const puede = await puedeCargarGraficos();
+                if (!puede) {
+                    // Mostrar mensaje en el gráfico
+                    document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> ⚠️ Sin datos suficientes para gráficos';
+                    return;
+                }
+
+                var velas = await cargarVelasDesdeSupabase(timeframe);
+                datosVelas = velas;
+                seriesVelas.setData(velas);
+                var bb = calcularBB(velas);
+                if (bb.superior.length > 0) {
+                    seriesBandaSuperior.setData(bb.superior);
+                    seriesMedia.setData(bb.media);
+                    seriesBandaInferior.setData(bb.inferior);
+                }
+                var macd = calcularMACD(velas);
+                if (macd.macd.length > 0) {
+                    seriesIndicador.setData(macd.macd);
+                    window.seriesSignal.setData(macd.signal);
+                    window.seriesHist.setData(macd.histogram);
+                }
+                var ultima = velas[velas.length - 1];
+                var anterior = velas[velas.length - 2] || ultima;
+                var cambio = ((ultima.close - anterior.close) / anterior.close) * 100;
+                document.getElementById('input-precio').value = ultima.close.toFixed(4);
+                if (bb.superior.length > 0) {
+                    var idx = bb.superior.length - 1;
+                    document.getElementById('bb-info').textContent = 'U:' + bb.superior[idx].value.toFixed(2) + ' M:' + bb.media[idx].value.toFixed(2) + ' L:' + bb.inferior[idx].value.toFixed(2);
+                }
+                var vol = Math.floor(100000 + Math.random() * 2000000);
+                document.getElementById('vol-info').textContent = (vol / 1000000).toFixed(2) + 'M';
+                if (macd.macd.length > 0) {
+                    var idx2 = macd.macd.length - 1;
+                    document.getElementById('macd-info').textContent = macd.macd[idx2].value.toFixed(4) + ' | Signal:' + macd.signal[idx2].value.toFixed(4) + ' | Hist:' + macd.histogram[idx2].value.toFixed(4);
+                }
+                chart.timeScale().fitContent();
+            }
+
+            // ================================================================
+            // FUNCIONES EXISTENTES (calcularBB, calcularMACD, etc.)
+            // ================================================================
+            function calcularBB(velas, periodo, desviaciones) {
+                periodo = periodo || 20;
+                desviaciones = desviaciones || 2;
+                if (velas.length < periodo) return { superior: [], media: [], inferior: [] };
+                var resultado = { superior: [], media: [], inferior: [] };
+                for (var i = periodo - 1; i < velas.length; i++) {
+                    var segmento = velas.slice(i - periodo + 1, i + 1);
+                    var precios = segmento.map(function(v) { return v.close; });
+                    var media = precios.reduce(function(a, b) { return a + b; }, 0) / precios.length;
+                    var varianza = precios.reduce(function(a, b) { return a + Math.pow(b - media, 2); }, 0) / precios.length;
+                    var desv = Math.sqrt(varianza);
+                    resultado.superior.push({ time: velas[i].time, value: media + desviaciones * desv });
+                    resultado.media.push({ time: velas[i].time, value: media });
+                    resultado.inferior.push({ time: velas[i].time, value: media - desviaciones * desv });
+                }
+                return resultado;
+            }
+
+            function calcularMACD(velas, fast, slow, signal) {
+                fast = fast || 12;
+                slow = slow || 26;
+                signal = signal || 9;
+                if (velas.length < slow + signal) return { macd: [], signal: [], histogram: [] };
+                var precios = velas.map(function(v) { return v.close; });
+                var emaFast = calcularEMA(precios, fast);
+                var emaSlow = calcularEMA(precios, slow);
+                var macdLine = [];
+                for (var i = 0; i < emaFast.length && i < emaSlow.length; i++) {
+                    macdLine.push(emaFast[i] - emaSlow[i]);
+                }
+                var signalLine = calcularEMA(macdLine, signal);
+                var histogram = [];
+                for (var j = 0; j < macdLine.length && j < signalLine.length; j++) {
+                    histogram.push(macdLine[j] - signalLine[j]);
+                }
+                return {
+                    macd: macdLine.slice(signal - 1).map(function(v, idx) { return { time: velas[idx + signal - 1].time, value: v }; }),
+                    signal: signalLine.slice(signal - 1).map(function(v, idx) { return { time: velas[idx + signal - 1].time, value: v }; }),
+                    histogram: histogram.slice(signal - 1).map(function(v, idx) { return { time: velas[idx + signal - 1].time, value: v }; })
+                };
+            }
+
+            function calcularEMA(datos, periodo) {
+                var k = 2 / (periodo + 1);
+                var ema = [datos[0]];
+                for (var i = 1; i < datos.length; i++) {
+                    ema.push(datos[i] * k + ema[i - 1] * (1 - k));
+                }
+                return ema;
+            }
+
+            function generarVelasMock(n) {
+                var velas = [];
+                var precio = VALOR_REDENCION_TOK || 6.25;
+                var ahora = Math.floor(Date.now() / 1000);
+                var intervalo = 86400;
+                for (var i = n; i > 0; i--) {
+                    var open = precio;
+                    var cambio = (Math.random() - 0.48) * 0.25;
+                    var close = open + cambio;
+                    var high = Math.max(open, close) + Math.random() * 0.08;
+                    var low = Math.min(open, close) - Math.random() * 0.08;
+                    velas.push({ time: ahora - i * intervalo, open: open, high: high, low: low, close: close });
+                    precio = close;
+                }
+                return velas;
+            }
+
+            async function cargarVelasDesdeSupabase(timeframe) {
+                if (supabaseClient) {
+                    try {
+                        var { data, error } = await supabaseClient
+                            .from('tok_velas')
+                            .select('*')
+                            .eq('timeframe', timeframe)
+                            .order('timestamp_apertura', { ascending: true })
+                            .limit(100);
+                        if (!error && data && data.length >= 5) {
+                            document.getElementById('estado-conexion').className = 'estado-conexion conectado';
+                            document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> Datos reales del mercado';
+                            return data.map(function(v) {
+                                return {
+                                    time: Math.floor(new Date(v.timestamp_apertura).getTime() / 1000),
+                                    open: parseFloat(v.open),
+                                    high: parseFloat(v.high),
+                                    low: parseFloat(v.low),
+                                    close: parseFloat(v.close)
+                                };
+                            });
+                        }
+                    } catch (err) { console.warn('Error Supabase, usando demo:', err); }
+                }
+                document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> Mercado en fase inicial — aún sin suficiente volumen para generar velas reales';
+                return generarVelasMock(80);
+            }
+
+            async function cargarOrdenesAbiertas() {
+                if (!walletConectada) {
+                    document.getElementById('contenido-portafolio').innerHTML = '<p class="vacio-portafolio">Conecta tu wallet para ver tus órdenes.</p>';
+                    return;
+                }
+                if (supabaseClient) {
+                    try {
+                        var { data, error } = await supabaseClient
+                            .from('tok_ordenes')
+                            .select('*')
+                            .eq('wallet', walletConectada.toLowerCase())
+                            .eq('estado', 'pendiente')
+                            .order('created_at', { ascending: false });
+                        if (!error && data && data.length > 0) { renderizarOrdenesAbiertas(data); return; }
+                    } catch (err) { console.warn('Error obteniendo órdenes:', err); }
+                }
+                renderizarOrdenesAbiertas([]);
+            }
+
+            function renderizarOrdenesAbiertas(ordenes) {
+                var contenedor = document.getElementById('contenido-portafolio');
+                if (panelPortafolioActivo !== 'ordenes') return;
+                if (!ordenes || ordenes.length === 0) {
+                    contenedor.innerHTML = '<p class="vacio-portafolio">No tienes órdenes abiertas.</p>';
+                    return;
+                }
+                contenedor.innerHTML = ordenes.map(function(o) {
+                    return '<div class="orden-item"><span class="orden-tipo ' + o.tipo + '">' + (o.tipo === 'compra' ? '↑ Compra' : '↓ Venta') + ' ' + o.cantidad_tok + ' TOK @ $' + (o.precio_unitario || '--') + '</span><button class="btn-cancelar" onclick="cancelarOrden(\'' + o.id + '\')">Cancelar</button></div>';
+                }).join('');
+            }
+
+            window.cancelarOrden = async function(ordenId) {
+                if (!walletConectada) { alert('Conecta tu wallet primero.'); return; }
+                if (supabaseClient) {
+                    try {
+                        var { error } = await supabaseClient.from('tok_ordenes').update({ estado: 'cancelada' }).eq('id', ordenId).eq('wallet', walletConectada.toLowerCase());
+                        if (!error) { alert('Orden cancelada exitosamente.'); await cargarOrdenesAbiertas(); return; }
+                    } catch (err) { console.warn('Error cancelando orden:', err); }
+                }
+                await cargarOrdenesAbiertas();
+            };
+
+            async function cargarHistorialTransacciones() {
+                if (!walletConectada) {
+                    document.getElementById('contenido-portafolio').innerHTML = '<p class="vacio-portafolio">Conecta tu wallet para ver tu historial.</p>';
+                    return;
+                }
+                if (supabaseClient) {
+                    try {
+                        var { data, error } = await supabaseClient.from('tok_transacciones').select('*').eq('wallet', walletConectada.toLowerCase()).order('created_at', { ascending: false }).limit(50);
+                        if (!error && data && data.length > 0) { renderizarHistorial(data); return; }
+                    } catch (err) { console.warn('Error obteniendo historial:', err); }
+                }
+                renderizarHistorial([]);
+            }
+
+            function renderizarHistorial(historial) {
+                var contenedor = document.getElementById('contenido-portafolio');
+                if (panelPortafolioActivo !== 'historial') return;
+                if (!historial || historial.length === 0) {
+                    contenedor.innerHTML = '<p class="vacio-portafolio">Sin transacciones registradas.</p>';
+                    return;
+                }
+                contenedor.innerHTML = historial.map(function(tx) {
+                    return '<div class="tx-item"><span class="tx-tipo ' + tx.tipo + '">' + (tx.tipo === 'compra' ? '↑' : '↓') + ' ' + tx.cantidad_tok + ' TOK @ $' + (tx.precio || '--') + '</span>' + (tx.tx_hash ? '<a class="tx-link" href="' + EXPLORADOR_BASE + tx.tx_hash + '" target="_blank">Ver en explorador</a>' : '') + '</div>';
+                }).join('');
+            }
+
+            async function ejecutarOrden(tipo, cantidad, precio) {
+                if (!walletConectada || !providerEthers) { alert('Conecta tu wallet para ejecutar esta operación.'); return; }
+
+                var total = cantidad * precio;
+                var comision = total * COMISION_PORCENTAJE;
+                var totalConComision = total + comision;
+                var confirmar = confirm('Confirmar ' + tipo + ':\nCantidad: ' + cantidad + ' TOK\nPrecio: $' + precio.toFixed(4) + '\nTotal: $' + total.toFixed(4) + '\nComisión (1%): $' + comision.toFixed(4) + '\nTotal a pagar: $' + totalConComision.toFixed(4));
+                if (!confirmar) return;
+
+                if (!TOK_CONTRACT_ADDRESS) {
+                    alert('⚠️ Esta operación todavía no puede ejecutarse en la red real.\n\nFalta confirmar la dirección del contrato SARIEL_TOK. En cuanto se configure, esta misma pantalla ejecutará la compra/venta contra blockchain de verdad, con tu firma de MetaMask.');
+                    return;
+                }
+
+                try {
+                    var orden = {
+                        wallet: walletConectada.toLowerCase(),
+                        tipo: tipo,
+                        cantidad_tok: cantidad,
+                        precio: precio,
+                        total: total,
+                        comision: comision,
+                        timestamp: Date.now()
+                    };
+                    var mensaje = JSON.stringify(orden);
+                    var firma = await providerEthers.getSigner().signMessage(mensaje);
+
+                    var respuesta = await fetch(EDGE_FUNCTION_VALIDAR_TX, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + supabaseKey
+                        },
+                        body: JSON.stringify({ orden: orden, mensaje: mensaje, firma: firma })
+                    });
+
+                    if (!respuesta.ok) {
+                        var errorTexto = await respuesta.text();
+                        throw new Error('La validación de la transacción fue rechazada: ' + errorTexto);
+                    }
+
+                    await respuesta.json();
+                    alert('✅ Orden firmada y enviada a validación.\n' + cantidad + ' TOK @ $' + precio.toFixed(4) + '\nTotal: $' + total.toFixed(4) + '\nComisión: $' + comision.toFixed(4));
+                    await actualizarSaldos();
+                    await cargarOrdenesAbiertas();
+                } catch (err) {
+                    console.error('Error ejecutando orden:', err);
+                    alert('❌ Error al ejecutar la orden: ' + err.message);
+                }
+            }
+
+            document.getElementById('tab-comprar').addEventListener('click', function() {
+                modoActual = 'compra';
+                document.getElementById('tab-comprar').classList.add('activo');
+                document.getElementById('tab-vender').classList.remove('activo');
+                var btn = document.getElementById('btn-ejecutar');
+                btn.textContent = 'Ejecutar compra';
+                btn.className = 'btn-ejecutar comprar';
+            });
+
+            document.getElementById('tab-vender').addEventListener('click', function() {
+                modoActual = 'venta';
+                document.getElementById('tab-vender').classList.add('activo');
+                document.getElementById('tab-comprar').classList.remove('activo');
+                var btn = document.getElementById('btn-ejecutar');
+                btn.textContent = 'Ejecutar venta';
+                btn.className = 'btn-ejecutar vender';
+            });
+
+            function actualizarTotal() {
+                var cantidad = parseFloat(document.getElementById('input-cantidad').value) || 0;
+                var precio = parseFloat(document.getElementById('input-precio').value) || 0;
+                var total = cantidad * precio;
+                var comision = total * COMISION_PORCENTAJE;
+                document.getElementById('input-total').value = (total + comision).toFixed(4);
+                estimarGas();
+            }
+
+            document.getElementById('input-cantidad').addEventListener('input', actualizarTotal);
+            document.getElementById('input-precio').addEventListener('input', actualizarTotal);
+
+            document.getElementById('btn-ejecutar').addEventListener('click', function() {
+                var cantidad = parseFloat(document.getElementById('input-cantidad').value);
+                var precio = parseFloat(document.getElementById('input-precio').value);
+                if (!cantidad || cantidad <= 0) { alert('Ingresa una cantidad válida'); return; }
+                if (!precio || precio <= 0) { alert('Precio inválido'); return; }
+                ejecutarOrden(modoActual, cantidad, precio);
+            });
+
+            document.querySelectorAll('.timeframes button').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.timeframes button').forEach(function(b) { b.classList.remove('activo'); });
+                    btn.classList.add('activo');
+                    timeframeActual = btn.dataset.tf;
+                    cargarYRenderizarTodo(timeframeActual);
+                });
+            });
+
+            document.querySelectorAll('.tab-portafolio').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-portafolio').forEach(function(b) { b.classList.remove('activo'); });
+                    btn.classList.add('activo');
+                    panelPortafolioActivo = btn.dataset.panel;
+                    if (panelPortafolioActivo === 'ordenes') cargarOrdenesAbiertas();
+                    else cargarHistorialTransacciones();
+                });
+            });
+
+            document.getElementById('btn-conectar-wallet').addEventListener('click', conectarMetaMask);
+
+            async function conectarMetaMask() {
+                if (typeof window.ethereum === 'undefined') {
+                    alert('No se detectó MetaMask. Instálalo desde metamask.io');
+                    document.getElementById('check-conectar').checked = false;
+                    return;
+                }
+                try {
+                    const cuentas = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    walletConectada = cuentas[0];
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: CHAIN_HEX }]
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: CHAIN_HEX,
+                                    chainName: CHAIN_NAME,
+                                    nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+                                    rpcUrls: [RPC_URL],
+                                    blockExplorerUrls: [EXPLORADOR_BASE]
+                                }]
+                            });
+                        } else throw switchError;
+                    }
+                    providerEthers = new ethers.providers.Web3Provider(window.ethereum);
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+                    localStorage.setItem(WALLET_ADDRESS_KEY, walletConectada);
+                    localStorage.setItem(WALLET_NETWORK_KEY, chainId);
+
+                    document.getElementById('btn-conectar-wallet').style.display = 'none';
+                    document.getElementById('wallet-info').style.display = 'block';
+                    document.getElementById('wallet-direccion').textContent = walletConectada.slice(0, 6) + '...' + walletConectada.slice(-4);
+                    await actualizarSaldos();
+                    await cargarOrdenesAbiertas();
+                    document.getElementById('check-conectar').checked = true;
+
+                    const nombreRed = CHAIN_NAMES[chainId] || CHAIN_NAME;
+                    document.getElementById('estado-conexion').className = 'estado-conexion conectado';
+                    document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> Conectado a ' + nombreRed;
+
+                    window.ethereum.on('accountsChanged', function(cuentas) {
+                        if (cuentas.length > 0) {
+                            walletConectada = cuentas[0];
+                            localStorage.setItem(WALLET_ADDRESS_KEY, walletConectada);
+                            document.getElementById('wallet-direccion').textContent = walletConectada.slice(0, 6) + '...' + walletConectada.slice(-4);
+                            actualizarSaldos();
+                        } else {
+                            desconectarWallet();
+                        }
+                    });
+                    window.ethereum.on('chainChanged', function(chainId) {
+                        localStorage.setItem(WALLET_NETWORK_KEY, chainId);
+                        window.location.reload();
+                    });
+
+                } catch (err) {
+                    console.error(err);
+                    alert('No se pudo conectar la wallet.');
+                    document.getElementById('check-conectar').checked = false;
+                }
+            }
+
+            function desconectarWallet() {
+                walletConectada = null;
+                providerEthers = null;
+                localStorage.removeItem(WALLET_ADDRESS_KEY);
+                localStorage.removeItem(WALLET_NETWORK_KEY);
+                document.getElementById('btn-conectar-wallet').style.display = 'block';
+                document.getElementById('wallet-info').style.display = 'none';
+                document.getElementById('estado-conexion').className = 'estado-conexion';
+                document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> Desconectado';
+                document.getElementById('contenido-portafolio').innerHTML = '<p class="vacio-portafolio">Conecta tu wallet para ver tus órdenes.</p>';
+                document.getElementById('check-conectar').checked = false;
+            }
+
+            async function actualizarSaldos() {
+                if (!providerEthers) return;
+                try {
+                    const balanceNativo = await providerEthers.getBalance(walletConectada);
+                    document.getElementById('saldo-matic').textContent = parseFloat(ethers.utils.formatEther(balanceNativo)).toFixed(4);
+                } catch (err) { document.getElementById('saldo-matic').textContent = 'Error'; }
+
+                if (TOK_CONTRACT_ADDRESS && TOK_CONTRACT_ABI) {
+                    // TODO: una vez confirmado el contrato, leer con:
+                    // const contrato = new ethers.Contract(TOK_CONTRACT_ADDRESS, TOK_CONTRACT_ABI, providerEthers);
+                    // const saldo = await contrato.balanceOf(walletConectada);
+                } else {
+                    document.getElementById('saldo-tok').textContent = 'Pendiente contrato';
+                    document.getElementById('saldo-usdt').textContent = 'Pendiente contrato';
+                }
+            }
+
+            async function estimarGas() {
+                if (!providerEthers) { document.getElementById('gas-estimado-valor').textContent = 'Conecta tu wallet'; return; }
+                try {
+                    const gasPrice = await providerEthers.getGasPrice();
+                    const gasLimite = ethers.BigNumber.from("65000");
+                    const costo = gasPrice.mul(gasLimite);
+                    document.getElementById('gas-estimado-valor').textContent = parseFloat(ethers.utils.formatEther(costo)).toFixed(6) + ' MATIC';
+                } catch (err) { document.getElementById('gas-estimado-valor').textContent = 'Error'; }
+            }
+
+            function inicializarGrafico() {
+                chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
+                    layout: { background: { color: '#0f0c0a' }, textColor: '#8a7a6a' },
+                    grid: { vertLines: { color: '#1a1512' }, horzLines: { color: '#1a1512' } },
+                    timeScale: { borderColor: 'var(--gold-dim)' },
+                    rightPriceScale: { borderColor: 'var(--gold-dim)' },
+                });
+                seriesVelas = chart.addCandlestickSeries({
+                    upColor: '#2ecc71', downColor: '#e74c3c',
+                    borderUpColor: '#2ecc71', borderDownColor: '#e74c3c',
+                    wickUpColor: '#2ecc71', wickDownColor: '#e74c3c',
+                    borderVisible: true
+                });
+                seriesBandaSuperior = chart.addLineSeries({ color: 'rgba(46, 204, 113, 0.3)', lineWidth: 1, lineStyle: 2, priceLineVisible: false });
+                seriesBandaInferior = chart.addLineSeries({ color: 'rgba(231, 76, 60, 0.3)', lineWidth: 1, lineStyle: 2, priceLineVisible: false });
+                seriesMedia = chart.addLineSeries({ color: 'rgba(212, 175, 122, 0.4)', lineWidth: 1, lineStyle: 1, priceLineVisible: false });
+                chartIndicador = LightweightCharts.createChart(document.getElementById('indicador-container'), {
+                    layout: { background: { color: '#0f0c0a' }, textColor: '#8a7a6a' },
+                    grid: { vertLines: { color: '#1a1512' }, horzLines: { color: '#1a1512' } },
+                    timeScale: { visible: false },
+                    rightPriceScale: { visible: false },
+                });
+                seriesIndicador = chartIndicador.addLineSeries({ color: 'var(--gold-cosmic)', lineWidth: 2, crosshairMarkerVisible: false });
+                const seriesSignal = chartIndicador.addLineSeries({ color: '#ff6b6b', lineWidth: 1, lineStyle: 2, crosshairMarkerVisible: false });
+                const seriesHist = chartIndicador.addHistogramSeries({ color: '#2ecc71', priceFormat: { type: 'volume' } });
+                window.seriesSignal = seriesSignal;
+                window.seriesHist = seriesHist;
+                chart.timeScale().subscribeVisibleLogicalRangeChange(function(range) {
+                    chartIndicador.timeScale().setVisibleLogicalRange(range);
+                });
+            }
+
+            // ================================================================
+            // CHECK EXISTING WALLET
+            // ================================================================
+            async function checkExistingWallet() {
+                if (typeof window.ethereum === 'undefined') return;
+                try {
+                    const cuentas = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (cuentas && cuentas.length > 0) {
+                        walletConectada = cuentas[0];
+                        providerEthers = new ethers.providers.Web3Provider(window.ethereum);
+                        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                        localStorage.setItem(WALLET_ADDRESS_KEY, walletConectada);
+                        localStorage.setItem(WALLET_NETWORK_KEY, chainId);
+
+                        document.getElementById('btn-conectar-wallet').style.display = 'none';
+                        document.getElementById('wallet-info').style.display = 'block';
+                        document.getElementById('wallet-direccion').textContent = walletConectada.slice(0, 6) + '...' + walletConectada.slice(-4);
+                        document.getElementById('check-conectar').checked = true;
+                        document.getElementById('check-aceptar').checked = true;
+                        document.getElementById('conexion-check-wrapper').classList.add('visible');
+
+                        const nombreRed = CHAIN_NAMES[chainId] || 'Red desconocida';
+                        document.getElementById('estado-conexion').className = 'estado-conexion conectado';
+                        document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> Conectado a ' + nombreRed + ' (detectado automáticamente)';
+
+                        await actualizarSaldos();
+                        await cargarOrdenesAbiertas();
+                    }
+                } catch (err) {
+                    console.warn('No se pudo verificar wallet existente:', err);
+                }
+            }
+
+            // ================================================================
+            // EVENT LISTENERS
+            // ================================================================
+            document.getElementById('check-aceptar').addEventListener('change', function() {
+                document.getElementById('conexion-check-wrapper').classList.toggle('visible', this.checked);
+                if (!this.checked) document.getElementById('check-conectar').checked = false;
+            });
+
+            document.getElementById('abrir-legal-desde-check').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('modal-legal-overlay').classList.add('active');
+            });
+
+            document.getElementById('modal-cerrar-btn').addEventListener('click', function() {
+                document.getElementById('modal-legal-overlay').classList.remove('active');
+            });
+            document.getElementById('modal-legal-overlay').addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('active');
+            });
+            document.getElementById('btn-abrir-legal').addEventListener('click', function() {
+                document.getElementById('modal-legal-overlay').classList.add('active');
+            });
+
+            document.getElementById('check-conectar').addEventListener('change', function() {
+                if (this.checked) conectarMetaMask();
+                else desconectarWallet();
+            });
+
+            // ================================================================
+            // INICIALIZAR TRADING
+            // ================================================================
+            inicializarGrafico();
+            cargarYRenderizarTodo(timeframeActual);
+            checkExistingWallet();
+            document.getElementById('estado-conexion').innerHTML = '<span class="dot"></span> Listo - Conecta MetaMask para operar';
+            console.log('📈 Trading TOK integrado con config.js');
+            console.log('💰 Valor redención TOK: $' + VALOR_REDENCION_TOK + ' MXN');
+        }
+    </script>
+</body>
+</html>
