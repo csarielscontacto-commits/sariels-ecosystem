@@ -284,6 +284,54 @@
             -webkit-text-fill-color: white;
         }
 
+        /* ===== AVISO DONACIONES (UNA VEZ) ===== */
+        .donacion-aviso {
+            background: rgba(11,61,46,0.15);
+            border: 1px solid rgba(201,168,118,0.3);
+            border-left: 3px solid #c9a876;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 12px 0 16px;
+            font-family: 'Inter', sans-serif;
+            display: none;
+            position: relative;
+        }
+        .donacion-aviso .cerrar-aviso {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 0 4px;
+        }
+        .donacion-aviso .cerrar-aviso:hover {
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+        .donacion-aviso p {
+            color: #d4c8b8;
+            font-size: 0.82rem;
+            margin: 0 0 4px;
+        }
+        .donacion-aviso p:last-child {
+            margin-bottom: 0;
+        }
+        .donacion-aviso .aviso-titulo {
+            color: #c9a876;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin: 0 0 6px;
+        }
+        .donacion-aviso a {
+            color: #c9a876;
+            font-size: 0.75rem;
+            text-decoration: underline;
+        }
+
         /* ===== STORIES ===== */
         .stories-bar {
             display: flex;
@@ -1595,6 +1643,9 @@
                 height: 92px;
             }
             .mini-audio-player .audio-controls .progress { width: 80px; }
+            .donacion-aviso { padding: 10px 12px; }
+            .donacion-aviso .aviso-titulo { font-size: 0.8rem; }
+            .donacion-aviso p { font-size: 0.7rem; }
         }
 
         @media (max-width: 480px) {
@@ -1621,6 +1672,9 @@
                 width: 20px;
                 right: 28px;
             }
+            .donacion-aviso { padding: 8px 10px; }
+            .donacion-aviso .aviso-titulo { font-size: 0.7rem; }
+            .donacion-aviso p { font-size: 0.65rem; }
         }
 
         /* ===== EMPTY STATE ===== */
@@ -1763,6 +1817,16 @@
                     <i class="fas fa-gift"></i> Donar
                 </button>
             </div>
+        </div>
+
+        <!-- ===== AVISO DONACIONES (UNA VEZ) ===== -->
+        <div class="donacion-aviso" id="donacionAviso">
+            <button class="cerrar-aviso" onclick="cerrarDonacionAviso()">✕</button>
+            <p class="aviso-titulo">💡 AVISO DE DONACIÓN</p>
+            <p>Las donaciones son <strong>voluntarias</strong> y no constituyen pago por bien o servicio.</p>
+            <p>50% streamer / 50% Csariel's &nbsp;·&nbsp; Acepta USDT, USDC, TOK (1:1)</p>
+            <p>El streamer es responsable del uso y declaración fiscal de lo recibido.</p>
+            <a href="./terminos-completos.html">Ver términos completos →</a>
         </div>
 
         <!-- ===== TABS ===== -->
@@ -3183,6 +3247,14 @@
         }
 
         // ================================================================
+        // CERRAR AVISO DE DONACIONES (GUARDA EN LOCALSTORAGE)
+        // ================================================================
+        function cerrarDonacionAviso() {
+            document.getElementById('donacionAviso').style.display = 'none';
+            localStorage.setItem('donacion_aviso_visto', 'true');
+        }
+
+        // ================================================================
         // CERRAR MODALES CON ESC
         // ================================================================
         document.addEventListener('keydown', (e) => {
@@ -3250,6 +3322,11 @@
             
             initStars();
             initFloatingDraggable();
+
+            // ===== AVISO DE DONACIONES - UNA VEZ =====
+            if (!localStorage.getItem('donacion_aviso_visto')) {
+                document.getElementById('donacionAviso').style.display = 'block';
+            }
 
             // Cargar scripts del asistente
             cargarScriptsAsistente();
