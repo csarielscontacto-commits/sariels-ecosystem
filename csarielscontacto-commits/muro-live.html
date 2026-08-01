@@ -1,0 +1,3276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muro Live | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- ===== ASISTENTE IA - CSS ===== -->
+    <link rel="stylesheet" href="/assets/css/asistente-styles.css" />
+    
+    <!-- ===== CONECTORES Y SUPABASE ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="./js/muro-connector.js"></script>
+    <script src="./js/perfil-connector.js"></script>
+    <script src="./js/esim-connector.js"></script>
+    <script src="./js/config.js"></script>
+    
+    <style>
+        /* ================================================================
+           MURO LIVE - ESTILOS (TODOS LOS EXISTENTES)
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --turquesa: #1a6a6a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            user-select: none;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: #00d4ff; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212,175,55,0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); }
+            50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); }
+            50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
+        .status-dot.live { background: var(--danger); box-shadow: 0 0 30px rgba(255,51,102,0.5); animation: live-pulse 1s infinite; }
+
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        @keyframes live-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.8); }
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        /* ===== STORIES ===== */
+        .stories-bar {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px 12px;
+            margin-bottom: 8px;
+            scrollbar-width: none;
+        }
+        .stories-bar::-webkit-scrollbar { display: none; }
+
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            min-width: 72px;
+            transition: var(--transition);
+        }
+        .story-item:hover { transform: scale(1.05); }
+
+        .story-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid var(--gold-cosmic);
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a0c10;
+            position: relative;
+        }
+
+        .story-avatar.add { border-style: dashed; }
+        .story-avatar .live-badge {
+            position: absolute;
+            bottom: -4px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.45rem;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            animation: live-pulse-badge 1.5s infinite;
+        }
+
+        @keyframes live-pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .story-name {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            text-align: center;
+            max-width: 70px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ===== QUICK POST ===== */
+        .quick-post {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 16px;
+        }
+
+        .quick-post:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+
+        .quick-post .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0a0c10;
+            flex-shrink: 0;
+        }
+
+        .quick-post .placeholder {
+            flex: 1;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .quick-post .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .quick-post .actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .quick-post .actions button:hover {
+            background: rgba(212,175,55,0.1);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== DONACION BANNER ===== */
+        .donacion-banner {
+            background: linear-gradient(135deg, rgba(15,45,26,0.4), rgba(212,175,55,0.08));
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .donacion-banner:hover { border-color: var(--border-glow); }
+
+        .donacion-banner .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .donacion-banner .banner-icon { font-size: 1.5rem; }
+        .donacion-banner .banner-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
+        }
+        .donacion-banner .banner-sub { font-size: 0.7rem; color: var(--text-secondary); }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--gold-dim);
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--gold-cosmic);
+            border-bottom-color: var(--gold-cosmic);
+        }
+
+        .tab-btn:hover { color: var(--text-secondary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ===== FEED ===== */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* ===== POST CARD ===== */
+        .post-card {
+            background: #123722;
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-card.pinned {
+            border-color: var(--gold-cosmic);
+            border-width: 2px;
+        }
+
+        .post-card.pinned::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.2;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .post-card:hover { transform: translateY(-2px); border-color: var(--border-glow); }
+
+        .post-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a0c10;
+            flex-shrink: 0;
+        }
+
+        .post-author-info { flex: 1; min-width: 0; }
+
+        .post-author {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            flex-shrink: 0;
+        }
+
+        .live-tag {
+            font-size: 0.55rem;
+            color: var(--danger);
+            font-family: 'Orbitron', monospace;
+            animation: live-pulse 1s infinite;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        .post-date {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+        }
+
+        .pinned-badge { font-size: 1rem; flex-shrink: 0; margin-left: auto; }
+
+        .post-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        .live-tag-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.5rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: rgba(255,51,102,0.1);
+            color: var(--danger);
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(255,51,102,0.2);
+        }
+
+        /* ===== VIDEO / MEDIA ===== */
+        .post-media {
+            position: relative;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(212,175,55,0.2);
+            background: #0a0a0a;
+            aspect-ratio: 16/9;
+            max-height: 400px;
+        }
+
+        .post-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            background: #0a0a0a;
+        }
+
+        .post-media .media-overlay {
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            padding: 4px 12px 4px 6px;
+            border-radius: 20px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .post-media .media-overlay .mini-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #0a0c10;
+        }
+
+        .post-media .media-overlay .mini-live {
+            font-size: 0.55rem;
+            color: var(--danger);
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            animation: live-pulse 1s infinite;
+        }
+
+        .post-media .media-overlay .viewers-count {
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            background: rgba(212,175,55,0.2);
+            border: 2px solid rgba(212,175,55,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+            opacity: 0.7;
+        }
+
+        .play-button.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .play-button:hover {
+            background: rgba(212,175,55,0.3);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .play-button .triangle {
+            width: 0;
+            height: 0;
+            border-left: 14px solid var(--gold-cosmic);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            margin-left: 4px;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 3;
+        }
+
+        .video-controls .ctrl-btn {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            border: none;
+            color: rgba(255,255,255,0.7);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .video-controls .ctrl-btn:hover {
+            background: rgba(212,175,55,0.3);
+            color: white;
+        }
+
+        .post-media.image-media {
+            aspect-ratio: auto;
+            max-height: 300px;
+            border: 1px solid rgba(212,175,55,0.15);
+        }
+
+        .post-media.image-media img {
+            width: 100%;
+            height: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            display: block;
+            border-radius: 12px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            padding-top: 10px;
+            border-top: 1px solid var(--gold-dim);
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .action-btn:hover { color: var(--gold-cosmic); background: rgba(212,175,55,0.05); }
+        .action-btn.liked { color: var(--gold-cosmic); }
+
+        .action-btn.ia-btn {
+            color: var(--gold-cosmic);
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .action-btn.live-btn {
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 0.7rem;
+            animation: live-pulse 1s infinite;
+        }
+
+        .mini-player-tag {
+            font-size: 0.5rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            background: rgba(212,175,55,0.1);
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(212,175,55,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== CABINA - PODCAST ===== */
+        .cabina-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .cabina-card {
+            background: var(--turquesa);
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid rgba(212,175,55,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .cabina-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold-dim);
+        }
+
+        .cabina-card .cover {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1a8a8a, #0a4a4a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .cabina-card .title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .cabina-card .author {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        .cabina-card .duration {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .cabina-card .play-btn {
+            background: var(--gold-cosmic);
+            color: var(--verde-bosque);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cabina-card .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(212,175,55,0.3);
+        }
+
+        .cabina-card .waveform {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 30px;
+            margin-top: 8px;
+        }
+
+        .cabina-card .waveform .bar {
+            width: 4px;
+            border-radius: 2px;
+            background: var(--gold-dim);
+            transition: all 0.3s;
+        }
+
+        .cabina-card .waveform .bar.active {
+            background: var(--gold-cosmic);
+        }
+
+        .cabina-upload {
+            background: rgba(15,45,26,0.3);
+            border: 1px dashed var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        /* ===== FLOATING LIVE PLAYER - DRAGGABLE ===== */
+        .floating-live-player {
+            position: fixed;
+            width: 200px;
+            height: 115px;
+            border-radius: 12px;
+            border: 2px solid var(--gold-cosmic);
+            overflow: hidden;
+            z-index: 50;
+            background: #0a0a0a;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        .floating-live-player.dragging {
+            opacity: 0.85;
+            transform: scale(1.05);
+            cursor: grabbing;
+            transition: none;
+        }
+
+        .floating-live-player.show {
+            display: block;
+        }
+
+        .floating-live-player.snap {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .floating-live-player video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .floating-live-player .floating-controls {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            display: flex;
+            gap: 4px;
+            z-index: 2;
+        }
+
+        .floating-live-player .floating-controls button {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            pointer-events: auto;
+        }
+
+        .floating-live-player .floating-controls button:hover {
+            background: rgba(212,175,55,0.3);
+        }
+
+        .floating-live-player .floating-close {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.3s;
+            pointer-events: auto;
+        }
+
+        .floating-live-player .floating-close:hover {
+            background: rgba(255,51,102,0.5);
+        }
+
+        .floating-live-player .floating-label {
+            position: absolute;
+            bottom: 4px;
+            left: 6px;
+            font-size: 0.45rem;
+            color: var(--danger);
+            font-family: 'Orbitron', monospace;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 8px;
+            border-radius: 8px;
+            z-index: 2;
+            animation: live-pulse 1s infinite;
+            pointer-events: none;
+        }
+
+        .floating-live-player .floating-header {
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            font-size: 0.5rem;
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 8px;
+            border-radius: 8px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .floating-live-player .floating-header .dot {
+            color: var(--danger);
+            animation: live-pulse 1s infinite;
+        }
+
+        /* ===== VOLUMEN SLIDER ===== */
+        .floating-live-player .volume-container {
+            position: absolute;
+            right: 32px;
+            bottom: 4px;
+            height: 80px;
+            width: 24px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 8px 4px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .floating-live-player .volume-container.show {
+            display: flex;
+        }
+
+        .floating-live-player .volume-container input[type="range"] {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            appearance: slider-vertical;
+            width: 80px;
+            height: 6px;
+            background: var(--gold-dim);
+            border-radius: 3px;
+            outline: none;
+            transform: rotate(-90deg);
+            cursor: pointer;
+        }
+
+        .floating-live-player .volume-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gold-cosmic);
+            cursor: pointer;
+        }
+
+        .floating-live-player .volume-container input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gold-cosmic);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* ===== MINI AUDIO PLAYER ===== */
+        .mini-audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--verde-bosque);
+            border-top: 2px solid var(--gold-cosmic);
+            padding: 10px 20px;
+            z-index: 40;
+            display: none;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .mini-audio-player.show {
+            display: flex;
+        }
+
+        .mini-audio-player .audio-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mini-audio-player .audio-info .title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .mini-audio-player .audio-info .author {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+
+        .mini-audio-player .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mini-audio-player .audio-controls button {
+            background: none;
+            border: none;
+            color: var(--gold-cosmic);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .mini-audio-player .audio-controls button:hover {
+            transform: scale(1.1);
+        }
+
+        .mini-audio-player .audio-controls .progress {
+            width: 120px;
+            height: 4px;
+            background: var(--gold-dim);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .mini-audio-player .audio-controls .progress .fill {
+            height: 100%;
+            background: var(--gold-cosmic);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .mini-audio-player .audio-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .mini-audio-player .audio-close:hover {
+            color: var(--danger);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand { color: var(--gold-cosmic); }
+
+        .footer-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.6rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+        }
+
+        .footer-links a:hover { color: var(--gold-cosmic); }
+
+        /* ===== MODALES ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: rgba(15,45,26,0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
+
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+
+        .modal-sub {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .modal-textarea:focus { border-color: var(--gold-cosmic); }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .modal-actions .btn { flex: 1; justify-content: center; }
+
+        .video-preview-container {
+            margin: 12px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--gold-dim);
+            background: #000;
+            display: none;
+        }
+
+        .video-preview-container.active {
+            display: block;
+        }
+
+        .video-preview-container video {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        .video-preview-container .preview-remove {
+            display: flex;
+            justify-content: flex-end;
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .video-preview-container .preview-remove button {
+            background: rgba(255,51,102,0.2);
+            border: 1px solid rgba(255,51,102,0.3);
+            color: var(--danger);
+            padding: 2px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            transition: var(--transition);
+        }
+
+        .video-preview-container .preview-remove button:hover {
+            background: rgba(255,51,102,0.3);
+        }
+
+        .file-input-hidden {
+            display: none;
+        }
+
+        .live-preview {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,51,102,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,51,102,0.2);
+            margin-bottom: 12px;
+        }
+
+        .live-info {
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(212,175,55,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+
+        .streamer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid var(--gold-dim);
+            margin-bottom: 12px;
+        }
+
+        .streamer-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #0a0c10;
+            font-size: 1rem;
+        }
+
+        .streamer-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .streamer-status {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .token-selector, .monto-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .monto-input, .mensaje-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .monto-input:focus, .mensaje-input:focus { border-color: var(--gold-cosmic); }
+
+        .resumen-donacion {
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid var(--gold-dim);
+            margin-bottom: 12px;
+        }
+
+        .resumen-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            padding: 2px 0;
+        }
+
+        .donacion-footer {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255,51,102,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255,51,102,0.1);
+        }
+
+        .terminos-resumen {
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border-left: 3px solid var(--gold-cosmic);
+            margin-bottom: 12px;
+        }
+
+        .terminos-resumen ul {
+            padding-left: 18px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        .terminos-resumen ul li { margin-bottom: 4px; }
+        .terminos-resumen strong { color: var(--text-primary); }
+
+        .terminos-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .terminos-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .terminos-checklist label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 2px 0;
+        }
+
+        .terminos-checklist label:hover { color: var(--text-primary); }
+
+        .terminos-checklist input[type="checkbox"] {
+            margin-top: 2px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--gold-cosmic);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .terminos-checklist .highlight {
+            color: var(--gold-cosmic);
+            font-weight: 600;
+        }
+
+        .terminos-warning {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        .fullscreen-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+
+        .fullscreen-overlay video {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 12px;
+            border: 1px solid var(--gold-dim);
+        }
+
+        .fullscreen-overlay .fs-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .fullscreen-overlay .fs-close:hover {
+            transform: scale(1.2);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .app { padding: 12px 14px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .logo-text { font-size: 1rem; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .story-avatar { width: 52px; height: 52px; font-size: 1.2rem; }
+            .modal-content { padding: 18px; margin: 10px; }
+            .post-card { padding: 12px 14px; }
+            .post-avatar { width: 34px; height: 34px; font-size: 0.85rem; }
+            .post-media { max-height: 300px; }
+            .post-media.image-media { max-height: 220px; }
+            .fullscreen-overlay video { max-height: 80vh; }
+            .cabina-grid { grid-template-columns: 1fr; }
+            .floating-live-player {
+                width: 160px;
+                height: 92px;
+            }
+            .mini-audio-player .audio-controls .progress { width: 80px; }
+        }
+
+        @media (max-width: 480px) {
+            .btn { font-size: 0.5rem; padding: 4px 10px; }
+            .story-avatar { width: 44px; height: 44px; font-size: 1rem; }
+            .story-name { font-size: 0.5rem; }
+            .post-content { font-size: 0.8rem; }
+            .post-meta { font-size: 0.55rem; }
+            .action-btn { font-size: 0.7rem; padding: 2px 6px; }
+            .donacion-banner .banner-content { flex-direction: column; text-align: center; }
+            .post-media { max-height: 220px; }
+            .post-media.image-media { max-height: 180px; }
+            .play-button { width: 36px; height: 36px; }
+            .play-button .triangle { border-left-width: 11px; border-top-width: 6px; border-bottom-width: 6px; }
+            .floating-live-player {
+                width: 140px;
+                height: 80px;
+            }
+            .mini-audio-player .audio-controls .progress { width: 60px; }
+            .cabina-card .cover { font-size: 2rem; }
+            .cabina-card .title { font-size: 0.75rem; }
+            .floating-live-player .volume-container {
+                height: 60px;
+                width: 20px;
+                right: 28px;
+            }
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 3rem; opacity: 0.3; margin-bottom: 12px; }
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .empty-state p { font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+    <canvas id="starsCanvas" class="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <!-- ===== FLOATING LIVE PLAYER - DRAGGABLE ===== -->
+    <div class="floating-live-player" id="floatingPlayer">
+        <div class="floating-header">
+            <span class="dot">●</span> <span id="floatingTitle">Carlos</span> · <span id="floatingViewers">12</span> viendo
+        </div>
+        <button class="floating-close" onclick="cerrarFloating()">✕</button>
+        <video id="floatingVideo" autoplay muted loop playsInline></video>
+        <div class="floating-label">🔴 LIVE</div>
+        <div class="floating-controls">
+            <button onclick="toggleVolumeSlider()" id="floatingMuteBtn"><i class="fas fa-volume-up"></i></button>
+            <button onclick="expandFloating()"><i class="fas fa-expand"></i></button>
+        </div>
+        <div class="volume-container" id="volumeContainer">
+            <input type="range" min="0" max="100" value="100" id="volumeSlider" orient="vertical" oninput="updateVolume(this.value)" />
+        </div>
+    </div>
+
+    <!-- ===== MINI AUDIO PLAYER ===== -->
+    <div class="mini-audio-player" id="miniAudioPlayer">
+        <div class="audio-info">
+            <div class="title" id="audioTitle">Chisme contado</div>
+            <div class="author" id="audioAuthor">@anonimo · 🎙️ La Cabina</div>
+        </div>
+        <div class="audio-controls">
+            <button onclick="toggleAudioPlay()" id="audioPlayBtn"><i class="fas fa-play"></i></button>
+            <div class="progress" onclick="seekAudio(event)">
+                <div class="fill" id="audioProgress"></div>
+            </div>
+            <span style="font-size:0.6rem;color:var(--text-muted);font-family:'Orbitron',monospace;" id="audioTime">0:00</span>
+        </div>
+        <button class="audio-close" onclick="cerrarAudio()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="#" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">MURO LIVE</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online" id="statusDot"></span>
+                    <span id="statusLabel">En vivo</span>
+                </div>
+                <button class="btn" onclick="window.location.href='./mi-red.html'">
+                    <i class="fas fa-arrow-left"></i> Mi Red
+                </button>
+                <button class="btn btn-gold btn-sm" onclick="window.location.href='./servicios-comunitarios.html'">
+                    <i class="fas fa-tools"></i> Servicios
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="abrirModal('postModal')">
+                    <i class="fas fa-plus"></i> Publicar
+                </button>
+                <button class="btn btn-danger btn-sm" id="btnLive" onclick="toggleLive()">
+                    <i class="fas fa-broadcast"></i> Live
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="abrirModal('terminosModal')">
+                    <i class="fas fa-file-contract"></i> 📜 Términos
+                </button>
+            </div>
+        </header>
+
+        <!-- STORIES -->
+        <div class="stories-bar" id="storiesBar">
+            <div class="story-item" onclick="abrirModal('postModal')">
+                <div class="story-avatar add">
+                    <i class="fas fa-plus" style="font-size:1.2rem;color:#D4AF37;"></i>
+                </div>
+                <span class="story-name">Tu estado</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">M<span class="live-badge">● LIVE</span></div>
+                <span class="story-name">María · 2h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">C</div>
+                <span class="story-name">Carlos · 4h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">A</div>
+                <span class="story-name">Ana · 6h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">L</div>
+                <span class="story-name">Luis · 12h</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar">S</div>
+                <span class="story-name">Sofía · 1d</span>
+            </div>
+        </div>
+
+        <!-- QUICK POST -->
+        <div class="quick-post" onclick="abrirModal('postModal')">
+            <div class="avatar">U</div>
+            <span class="placeholder">¿Qué está pasando? Comparte algo...</span>
+            <div class="actions">
+                <button onclick="event.stopPropagation(); abrirModal('postModal')"><i class="fas fa-image"></i></button>
+                <button onclick="event.stopPropagation(); abrirVideoPicker()" id="btnVideoPicker">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button onclick="event.stopPropagation();"><i class="fas fa-smile"></i></button>
+            </div>
+        </div>
+
+        <!-- DONACION BANNER -->
+        <div class="donacion-banner" id="donacionBanner" style="display:none;" onclick="abrirModal('donacionModal')">
+            <div class="banner-content">
+                <span class="banner-icon">🎁</span>
+                <div class="banner-text">
+                    <div class="banner-title">🔴 Apoya esta transmisión</div>
+                    <div class="banner-sub">Envía donaciones en USDT, USDC o TOK</div>
+                </div>
+                <button class="btn btn-gold" onclick="event.stopPropagation(); abrirModal('donacionModal')">
+                    <i class="fas fa-gift"></i> Donar
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== TABS ===== -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">
+                <i class="fas fa-broadcast"></i> LIVE
+            </button>
+            <button class="tab-btn" data-tab="cabina" onclick="switchTab('cabina')">
+                <i class="fas fa-microphone"></i> 🎙️ La Cabina
+            </button>
+        </div>
+
+        <!-- ===== TAB LIVE ===== -->
+        <div class="tab-content active" id="tab-live">
+            <!-- FEED -->
+            <div class="feed-container" id="feedContainer"></div>
+        </div>
+
+        <!-- ===== TAB CABINA ===== -->
+        <div class="tab-content" id="tab-cabina">
+            <div style="margin-bottom:16px;">
+                <p style="color:var(--text-secondary);font-size:0.8rem;">
+                    <i class="fas fa-microphone" style="color:var(--gold-cosmic);"></i>
+                    Podcasts y audios originales de la comunidad. Sube tu contenido original.
+                </p>
+            </div>
+
+            <div class="cabina-grid" id="cabinaGrid">
+                <!-- Mock cards - se renderizan con JS -->
+            </div>
+
+            <!-- Subida de audio -->
+            <div class="cabina-upload">
+                <p style="color:var(--text-secondary);font-size:0.75rem;margin-bottom:8px;">
+                    <i class="fas fa-upload" style="color:var(--gold-cosmic);"></i>
+                    Sube tu audio (máx 5 min)
+                </p>
+                <input type="file" accept="audio/*" style="display:none;" id="audioFileInput" onchange="handleAudioUpload(event)">
+                <button class="btn btn-gold btn-sm" onclick="document.getElementById('audioFileInput').click()">
+                    <i class="fas fa-microphone"></i> Grabar / Subir audio
+                </button>
+                <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.55rem;color:var(--text-muted);cursor:pointer;">
+                    <input type="checkbox" id="dmcaCheck"> Es mi contenido original sin copyright - DMCA
+                </label>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Muro Live · Moderación IA · Donaciones en Directo
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <a href="./servicios-comunitarios.html">🔧 Servicios</a>
+                <a href="./panel-web3.html">🔗 Web3</a>
+                <a href="#" style="color:#D4AF37;" onclick="abrirModal('terminosModal')">📜 Términos</a>
+                <a href="#" style="color:#D4AF37;">🔐 Privacidad</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== CONTENEDOR DEL ASISTENTE IA ===== -->
+    <div id="asistenteContainer"></div>
+
+    <!-- ===== FULLSCREEN OVERLAY ===== -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay" onclick="cerrarFullscreen()">
+        <button class="fs-close" onclick="cerrarFullscreen()">✕</button>
+        <video id="fullscreenVideo" controls autoplay></video>
+    </div>
+
+    <!-- ===== MODALES ===== -->
+    <!-- MODAL PUBLICAR -->
+    <div class="modal-overlay" id="postModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModal('postModal')">✕</button>
+            <h3 class="modal-title">📝 Crear Publicación</h3>
+            <p class="modal-sub">Tu contenido será moderado por IA antes de publicarse</p>
+            
+            <textarea class="modal-textarea" id="postTextInput" placeholder="¿Qué quieres compartir?..."></textarea>
+            
+            <div class="video-preview-container" id="videoPreviewContainer">
+                <div class="preview-remove">
+                    <button onclick="removerVideoPreview()">
+                        <i class="fas fa-times"></i> Quitar video
+                    </button>
+                </div>
+                <video id="videoPreviewElement" muted playsInline></video>
+            </div>
+            
+            <input type="file" id="videoFileInput" class="file-input-hidden" accept="video/*" onchange="handleVideoSelect(event)">
+            
+            <div class="modal-actions">
+                <button class="btn btn-gold" onclick="publicarPost()"><i class="fas fa-rocket"></i> Publicar</button>
+                <button class="btn btn-outline" onclick="cerrarModal('postModal')"><i class="fas fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LIVE -->
+    <div class="modal-overlay" id="liveModal">
+        <div class="modal-content" style="max-width:400px;">
+            <button class="modal-close" onclick="cerrarModal('liveModal')">✕</button>
+            <h3 class="modal-title">📡 Iniciar Transmisión</h3>
+            <p class="modal-sub">Comparte en vivo con tu comunidad</p>
+            <div class="live-preview">
+                <i class="fas fa-broadcast" style="font-size:3rem;color:#ff3366;"></i>
+                <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:8px;">
+                    <strong style="color:#ff3366;">● EN VIVO</strong><br>
+                    Recibe donaciones en tiempo real desde tu comunidad.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="iniciarLive()" style="flex:1;justify-content:center;">
+                    <i class="fas fa-play"></i> Iniciar Live
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModal('liveModal')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+            <div class="live-info">
+                <p style="font-size:0.6rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                    💰 <strong style="color:#D4AF37;">Donaciones activas:</strong> 50% para el streamer · 50% para Csariel's<br>
+                    🪙 Tokens aceptados: USDT · USDC · TOK (1:1)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DONACIÓN -->
+    <div class="modal-overlay" id="donacionModal">
+        <div class="modal-content" style="max-width:480px;">
+            <button class="modal-close" onclick="cerrarModal('donacionModal')">✕</button>
+            <h3 class="modal-title">🎁 Donar en Directo</h3>
+            <p class="modal-sub">
+                Apoya al streamer en su transmisión. <span style="color:#D4AF37;">50% para el streamer · 50% para Csariel's</span>
+            </p>
+
+            <div class="streamer-info">
+                <div class="streamer-avatar" id="donacionAvatar">S</div>
+                <div>
+                    <div class="streamer-name" id="donacionNombre">Streamer</div>
+                    <div class="streamer-status"><span style="color:#ff3366;">● EN VIVO</span></div>
+                </div>
+            </div>
+
+            <div class="token-selector">
+                <button class="btn btn-sm btn-gold" onclick="seleccionarToken('USDT')" style="flex:1;justify-content:center;">💵 USDT</button>
+                <button class="btn btn-sm btn-outline" onclick="seleccionarToken('USDC')" style="flex:1;justify-content:center;">💳 USDC</button>
+                <button class="btn btn-sm btn-outline" onclick="seleccionarToken('TOK')" style="flex:1;justify-content:center;">🪙 TOK (Próximo)</button>
+            </div>
+
+            <div class="monto-selector">
+                <button class="btn btn-sm btn-outline" onclick="setMonto(1)" style="flex:1;justify-content:center;">$1</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(5)" style="flex:1;justify-content:center;">$5</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(10)" style="flex:1;justify-content:center;">$10</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(25)" style="flex:1;justify-content:center;">$25</button>
+                <button class="btn btn-sm btn-outline" onclick="setMonto(50)" style="flex:1;justify-content:center;">$50</button>
+            </div>
+
+            <input type="number" class="monto-input" id="donacionMontoInput" placeholder="Monto personalizado (mín 1)" min="1">
+            <input type="text" class="mensaje-input" id="donacionMensajeInput" placeholder="Mensaje para el streamer (opcional)">
+
+            <div class="resumen-donacion">
+                <div class="resumen-row">
+                    <span>💰 Donación</span>
+                    <span style="color:var(--text-primary);font-weight:600;" id="resumenMonto">$0.00 USDT</span>
+                </div>
+                <div class="resumen-row">
+                    <span>🎁 Para el streamer (50%)</span>
+                    <span style="color:#00b894;" id="resumenStreamer">$0.00 USDT</span>
+                </div>
+                <div class="resumen-row">
+                    <span>🏢 Csariel's (50%)</span>
+                    <span style="color:#D4AF37;" id="resumenCsariels">$0.00 USDT</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-gold" onclick="procesarDonacion()" style="flex:1;justify-content:center;">
+                    <i class="fas fa-rocket"></i> Enviar Donación
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModal('donacionModal')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+
+            <div class="donacion-footer">
+                <p style="font-size:0.55rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+                    ⚡ Las donaciones se procesan en la red Polygon.<br>
+                    Comisión del 50% para mantener la plataforma y los directos.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TÉRMINOS -->
+    <div class="modal-overlay" id="terminosModal">
+        <div class="modal-content" style="max-width:540px;">
+            <button class="modal-close" onclick="cerrarModal('terminosModal')">✕</button>
+            <h3 class="modal-title">📜 Términos y Condiciones</h3>
+            <p class="modal-sub">Csariel's — Muro Live · Pasarela de Pagos</p>
+
+            <div class="terminos-resumen">
+                <p><strong>📋 Resumen del Acuerdo:</strong></p>
+                <ul>
+                    <li>🔒 <strong>Modelo No Custodial:</strong> Tú controlas tus activos.</li>
+                    <li>⚡ <strong>Irreversibilidad:</strong> Las transacciones en blockchain son finales.</li>
+                    <li>📊 <strong>Declaración Fiscal:</strong> Eres responsable ante el SAT.</li>
+                    <li>🛡️ <strong>Prevención de Lavado:</strong> Cumplimos con la LFPIORPI.</li>
+                    <li>📜 <strong>Jurisdicción:</strong> Puebla, México.</li>
+                    <li>🔐 <strong>Datos Personales:</strong> Conforme a la LFPDPPP.</li>
+                </ul>
+            </div>
+
+            <div class="terminos-buttons">
+                <a href="#" class="btn btn-primary" style="flex:1;justify-content:center;">
+                    <i class="fas fa-file-pdf"></i> 📖 Leer Términos Completos (81 arts.)
+                </a>
+                <a href="#" class="btn btn-outline" style="flex:1;justify-content:center;">
+                    <i class="fas fa-shield-alt"></i> 🔐 Aviso de Privacidad
+                </a>
+            </div>
+
+            <div class="terminos-checklist">
+                <label>
+                    <input type="checkbox" id="termCheck1" onchange="verificarTerminos()">
+                    <span>He leído y acepto los <span class="highlight">Términos y Condiciones Generales</span> de Csariel's.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck2" onchange="verificarTerminos()">
+                    <span>Comprendo que las transacciones son <span class="highlight">irreversibles</span> y operan bajo modelo <span class="highlight">no custodial</span>.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck3" onchange="verificarTerminos()">
+                    <span>Declaro que cumplo con mis <span class="highlight">obligaciones fiscales</span> ante el SAT.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck4" onchange="verificarTerminos()">
+                    <span>He leído y acepto el <span class="highlight">Aviso de Privacidad</span> conforme a la LFPDPPP.</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="termCheck5" onchange="verificarTerminos()">
+                    <span>Acepto la <span class="highlight">jurisdicción de Puebla, México</span> para cualquier controversia.</span>
+                </label>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-success" id="btnAceptarTerminos" onclick="aceptarTerminos()" disabled style="flex:1;justify-content:center;">
+                    <i class="fas fa-check"></i> Aceptar y Continuar
+                </button>
+                <button class="btn btn-outline" onclick="cerrarModal('terminosModal')">
+                    <i class="fas fa-times"></i> Rechazar
+                </button>
+            </div>
+            <p class="terminos-warning">
+                ⚠️ Debes aceptar <strong style="color:#ff3366;">TODOS</strong> los puntos para continuar usando el Muro Live.
+            </p>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ================================================================
+        // CONFIGURACIÓN DE USUARIO
+        // ================================================================
+        let usuarioActual = {
+            id: localStorage.getItem('csariels_user_id') || 'user_test',
+            nombre: localStorage.getItem('csariels_user_name') || 'Usuario'
+        };
+
+        // ================================================================
+        // DATOS MOCK (CABINA - SIN CAMBIOS)
+        // ================================================================
+        const MOCK_AUDIOS = [{
+            id: 1,
+            title: 'Chisme contado',
+            author: '@anonimo',
+            duration: '3:45',
+            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            cover: '🎙️'
+        }, {
+            id: 2,
+            title: 'Rola original',
+            author: '@musico_anonimo',
+            duration: '4:20',
+            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+            cover: '🎸'
+        }];
+
+        let audios = [...MOCK_AUDIOS];
+        let posts = [];
+        let isLive = false;
+        let streamerInfo = null;
+        let tokenSeleccionado = 'USDT';
+        let toastTimeout = null;
+        let videoFile = null;
+        let videoPreviewURL = null;
+        let currentTab = 'live';
+
+        // ===== AUDIO PLAYER STATE =====
+        let audioElement = null;
+        let currentAudio = null;
+        let isAudioPlaying = false;
+
+        // ===== FLOATING PLAYER STATE =====
+        let floatingVideoSrc = null;
+        let floatingPostId = null;
+        let isFloatingMuted = false;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragStartPlayerX = 0;
+        let dragStartPlayerY = 0;
+        let hasMoved = false;
+        let playerX = 0;
+        let playerY = 0;
+        let currentVolume = 100;
+        let isVolumeSliderOpen = false;
+
+        // ================================================================
+        // CONFLICTO DE AUDIO
+        // ================================================================
+        function pausarOtrosPlayers(tipo) {
+            if (tipo === 'audio' && floatingPostId !== null) {
+                const video = document.getElementById('floatingVideo');
+                if (video && !video.paused) {
+                    video.pause();
+                    mostrarToast('🔇 Video pausado por reproducción de podcast');
+                }
+            }
+            if (tipo === 'video' && isAudioPlaying) {
+                if (audioElement) {
+                    audioElement.pause();
+                    isAudioPlaying = false;
+                    updateAudioUI();
+                    mostrarToast('🔇 Podcast pausado por reproducción de video');
+                }
+            }
+        }
+
+        // ================================================================
+        // ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('starsCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize();
+                createStars(); });
+        }
+
+        // ================================================================
+        // FORMATO DE FECHA
+        // ================================================================
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'Ahora mismo';
+            if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+            if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+            if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} d`;
+            return date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // ================================================================
+        // 🚀 SUPABASE - CARGAR POSTS
+        // ================================================================
+        async function cargarPosts() {
+            try {
+                const resultado = await muroConnector.obtenerPosts('live', 20);
+                if (resultado.error) {
+                    console.error('❌ Error al cargar posts:', resultado.error);
+                    mostrarToast('❌ Error al cargar publicaciones', 'error');
+                    return;
+                }
+                posts = resultado.data || [];
+                renderFeed();
+                console.log(`✅ ${posts.length} posts cargados de Supabase`);
+            } catch (error) {
+                console.error('❌ Error en cargarPosts:', error);
+                mostrarToast('❌ Error de conexión con Supabase', 'error');
+            }
+        }
+
+        // ================================================================
+        // ===== 🔴 NUEVA FUNCIÓN: VERIFICAR DATOS ANTES DE VIDEO =====
+        // ================================================================
+        async function puedeReproducirVideo(postId, consumo_mb = 5) {
+            try {
+                const puede = await window.esimConnector?.puedeEjecutarAccion(consumo_mb, 'muro_live');
+                
+                if (!puede || !puede.puede) {
+                    // Mostrar mensaje claro
+                    mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
+                    
+                    // Si necesita recargar, redirigir a Mi Red
+                    if (puede?.recargar) {
+                        setTimeout(() => {
+                            if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
+                                window.location.href = './mi-red.html#esim';
+                            }
+                        }, 1000);
+                    }
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Error verificando datos:', error);
+                mostrarToast('⚠️ Error al verificar conexión', 'error');
+                return false;
+            }
+        }
+
+        // ================================================================
+        // RENDER FEED - CON VERIFICACIÓN DE DATOS
+        // ================================================================
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin publicaciones</h3>
+                        <p>Sé el primero en compartir algo en el muro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = posts.map(post => {
+                const autor = post.usuario?.nombre || 'Usuario';
+                const avatar = post.usuario?.foto_perfil || autor.charAt(0);
+                const isLiveVideo = post.is_live || false;
+                const viewers = post.viewers || Math.floor(Math.random() * 20) + 1;
+
+                let mediaHTML = '';
+                let floatingTag = '';
+
+                if (post.media_url) {
+                    const isImage = post.media_type === 'image';
+                    const isVideo = post.media_type === 'video' || post.media_url.endsWith('.mp4');
+
+                    if (isImage) {
+                        mediaHTML = `
+                            <div class="post-media image-media">
+                                <img src="${post.media_url}" alt="Imagen" loading="lazy" />
+                            </div>
+                        `;
+                    } else if (isVideo) {
+                        const categoryTag = post.liveCategory ?
+                            `<span class="live-tag-category">${post.liveCategory}</span>` : '';
+
+                        floatingTag = isLiveVideo ?
+                            `<span class="mini-player-tag" onclick="event.stopPropagation(); activarFloating(${post.id})">
+                                <i class="fas fa-external-link-alt"></i> 🔴 Viendo en mini
+                            </span>` : '';
+
+                        mediaHTML = `
+                            <div class="post-media">
+                                <div class="media-overlay">
+                                    <div class="mini-avatar">${avatar}</div>
+                                    ${isLiveVideo ? '<span class="mini-live">● LIVE</span>' : ''}
+                                    ${isLiveVideo ? `<span class="viewers-count">${viewers} viendo</span>` : ''}
+                                    ${categoryTag}
+                                </div>
+                                <video 
+                                    src="${post.media_url}"
+                                    autoplay
+                                    muted
+                                    loop
+                                    playsInline
+                                    preload="metadata"
+                                    id="video-${post.id}"
+                                ></video>
+                                <div class="play-button hidden" id="playBtn-${post.id}" onclick="event.stopPropagation(); toggleVideoPlay(${post.id})">
+                                    <div class="triangle"></div>
+                                </div>
+                                <div class="video-controls">
+                                    <button class="ctrl-btn" onclick="event.stopPropagation(); toggleVideoMute(${post.id})" id="muteBtn-${post.id}">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <button class="ctrl-btn" onclick="event.stopPropagation(); abrirFullscreenVideo(${post.id})">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                    ${isLiveVideo ? `<button class="ctrl-btn" onclick="event.stopPropagation(); activarFloating(${post.id})" style="color:var(--gold-cosmic);">
+                                        <i class="fas fa-window-restore"></i>
+                                    </button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                const userLiked = post.usuario_liked || false;
+
+                return `
+                    <div class="post-card ${post.is_pinned ? 'pinned' : ''}">
+                        <div class="post-header">
+                            <div class="post-avatar">${avatar}</div>
+                            <div class="post-author-info">
+                                <div class="post-author">
+                                    ${autor}
+                                    ${isLiveVideo ? '<span class="live-tag">● LIVE</span>' : ''}
+                                    ${floatingTag}
+                                </div>
+                                <div class="post-meta">
+                                    <span class="post-date">${formatDate(post.created_at)}</span>
+                                </div>
+                            </div>
+                            ${post.is_pinned ? '<span class="pinned-badge">📌</span>' : ''}
+                        </div>
+                        <div class="post-content">${post.contenido || ''}</div>
+                        ${mediaHTML}
+                        <div class="post-actions">
+                            <button class="action-btn ${userLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                                <i class="fas fa-heart"></i> <span id="likes-${post.id}">${post.likes_count || 0}</span>
+                            </button>
+                            <button class="action-btn" onclick="mostrarToast('💬 Comentarios pronto')">
+                                <i class="fas fa-comment"></i> <span>${post.comments_count || 0}</span>
+                            </button>
+                            <button class="action-btn" onclick="mostrarToast('📋 Enlace copiado')">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            ${post.is_live ? `<button class="action-btn live-btn" onclick="abrirModal('donacionModal')"><i class="fas fa-broadcast"></i> Live</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            initVideos();
+        }
+
+        // ================================================================
+        // VIDEO PLAYER - CON VERIFICACIÓN DE DATOS
+        // ================================================================
+        function initVideos() {
+            document.querySelectorAll('.post-media video').forEach(video => {
+                const postId = video.id.replace('video-', '');
+                const playBtn = document.getElementById(`playBtn-${postId}`);
+                let videoConsumo = 5; // 5 MB por video (estimado)
+
+                // Si es live, consume más
+                const post = posts.find(p => p.id == postId);
+                if (post && post.is_live) {
+                    videoConsumo = 10; // 10 MB para live
+                }
+
+                setTimeout(() => {
+                    if (playBtn) playBtn.classList.add('hidden');
+                }, 1500);
+
+                // ===== 🔴 VERIFICAR DATOS ANTES DE REPRODUCIR =====
+                video.addEventListener('play', async function(e) {
+                    // Si ya se verificó antes, no repetir
+                    if (this.dataset.verified === 'true') return;
+                    
+                    const puede = await puedeReproducirVideo(postId, videoConsumo);
+                    
+                    if (!puede) {
+                        this.pause();
+                        e.preventDefault();
+                        return;
+                    }
+                    
+                    this.dataset.verified = 'true';
+                    
+                    if (playBtn) playBtn.classList.add('hidden');
+                });
+
+                video.addEventListener('pause', function() {
+                    if (playBtn) playBtn.classList.remove('hidden');
+                });
+
+                // Intentar reproducir automáticamente con verificación
+                video.play().catch(async (err) => {
+                    // Si falla por autoplay, intentamos con verificación manual
+                    const puede = await puedeReproducirVideo(postId, videoConsumo);
+                    if (puede) {
+                        video.play().catch(() => {});
+                    }
+                });
+            });
+        }
+
+        // ================================================================
+        // 🚀 SUPABASE - PUBLICAR POST
+        // ================================================================
+        async function publicarPost() {
+            const textarea = document.getElementById('postTextInput');
+            const texto = textarea.value.trim();
+
+            if (!texto && !videoFile) {
+                mostrarToast('⚠️ Escribe algo o sube un video', 'error');
+                return;
+            }
+
+            let mediaUrl = null;
+            let mediaType = null;
+
+            if (videoFile) {
+                mediaUrl = videoPreviewURL;
+                mediaType = 'video';
+            }
+
+            const nuevoPost = {
+                usuario_id: usuarioActual.id,
+                contenido: texto || '📹 Video compartido',
+                media_url: mediaUrl,
+                media_type: mediaType,
+                tipo: 'publicacion',
+                is_live: false,
+                is_18: false
+            };
+
+            try {
+                const resultado = await muroConnector.crearPost(nuevoPost);
+                if (resultado.error) {
+                    console.error('❌ Error al publicar:', resultado.error);
+                    mostrarToast('❌ Error al publicar', 'error');
+                    return;
+                }
+
+                mostrarToast('✅ Publicación creada');
+                cerrarModal('postModal');
+                document.getElementById('postTextInput').value = '';
+                removerVideoPreview();
+                await cargarPosts();
+            } catch (error) {
+                console.error('❌ Error en publicarPost:', error);
+                mostrarToast('❌ Error de conexión', 'error');
+            }
+        }
+
+        // ================================================================
+        // 🚀 SUPABASE - LIKE
+        // ================================================================
+        async function toggleLike(postId) {
+            try {
+                const resultado = await muroConnector.darLike(postId, usuarioActual.id);
+                if (resultado.error) {
+                    console.error('❌ Error al dar like:', resultado.error);
+                    mostrarToast('❌ Error al dar like', 'error');
+                    return;
+                }
+
+                const likeSpan = document.getElementById(`likes-${postId}`);
+                if (likeSpan) {
+                    const current = parseInt(likeSpan.textContent) || 0;
+                    likeSpan.textContent = resultado.liked ? current + 1 : current - 1;
+                }
+
+                const postCard = document.querySelector(`.post-card:has(#likes-${postId})`);
+                if (postCard) {
+                    const likeBtn = postCard.querySelector('.action-btn i.fa-heart')?.closest('.action-btn');
+                    if (likeBtn) {
+                        likeBtn.classList.toggle('liked', resultado.liked);
+                    }
+                }
+
+            } catch (error) {
+                console.error('❌ Error en toggleLike:', error);
+                mostrarToast('❌ Error de conexión', 'error');
+            }
+        }
+
+        // ================================================================
+        // VIDEO PLAYER - CONTROL (funciones existentes)
+        // ================================================================
+        function toggleVideoPlay(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            const playBtn = document.getElementById(`playBtn-${postId}`);
+            if (!video) return;
+
+            if (video.paused) {
+                pausarOtrosPlayers('video');
+                video.play();
+                if (playBtn) playBtn.classList.add('hidden');
+            } else {
+                video.pause();
+                if (playBtn) playBtn.classList.remove('hidden');
+            }
+        }
+
+        function toggleVideoMute(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            const muteBtn = document.getElementById(`muteBtn-${postId}`);
+            if (!video || !muteBtn) return;
+
+            video.muted = !video.muted;
+            muteBtn.innerHTML = video.muted ?
+                '<i class="fas fa-volume-mute"></i>' :
+                '<i class="fas fa-volume-up"></i>';
+        }
+
+        function abrirFullscreenVideo(postId) {
+            const video = document.getElementById(`video-${postId}`);
+            if (!video) return;
+
+            const overlay = document.getElementById('fullscreenOverlay');
+            const fsVideo = document.getElementById('fullscreenVideo');
+
+            fsVideo.src = video.src;
+            fsVideo.poster = video.poster || '';
+            fsVideo.muted = video.muted;
+            fsVideo.volume = video.volume || 1;
+            fsVideo.load();
+            fsVideo.play().catch(() => {});
+
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarFullscreen() {
+            const overlay = document.getElementById('fullscreenOverlay');
+            const video = document.getElementById('fullscreenVideo');
+            video.pause();
+            video.src = '';
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ================================================================
+        // FLOATING PLAYER
+        // ================================================================
+        function activarFloating(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post || !post.media_url) return;
+
+            pausarOtrosPlayers('video');
+
+            const player = document.getElementById('floatingPlayer');
+            const video = document.getElementById('floatingVideo');
+
+            floatingVideoSrc = post.media_url;
+            floatingPostId = postId;
+
+            video.volume = currentVolume / 100;
+            video.muted = currentVolume === 0;
+
+            video.src = floatingVideoSrc;
+            video.load();
+            video.play().catch(() => {});
+
+            document.getElementById('floatingTitle').textContent = post.usuario?.nombre || 'Usuario';
+            document.getElementById('floatingViewers').textContent = post.viewers || 12;
+
+            player.classList.add('show');
+            mostrarToast('📹 Video flotante activado');
+        }
+
+        function cerrarFloating() {
+            const player = document.getElementById('floatingPlayer');
+            const video = document.getElementById('floatingVideo');
+
+            video.pause();
+            video.src = '';
+            player.classList.remove('show');
+
+            floatingPostId = null;
+            floatingVideoSrc = null;
+            closeVolumeSlider();
+        }
+
+        function expandFloating() {
+            const video = document.getElementById('floatingVideo');
+            if (video.src) {
+                abrirFullscreenVideo(floatingPostId || 3);
+            }
+        }
+
+        // ================================================================
+        // FLOATING PLAYER - DRAGGABLE (funciones existentes)
+        // ================================================================
+        function initFloatingDraggable() {
+            const player = document.getElementById('floatingPlayer');
+            if (!player) return;
+
+            try {
+                const saved = localStorage.getItem('csariels_float_pos');
+                if (saved) {
+                    const pos = JSON.parse(saved);
+                    if (pos.x !== undefined && pos.y !== undefined) {
+                        playerX = pos.x;
+                        playerY = pos.y;
+                        player.style.left = playerX + 'px';
+                        player.style.top = playerY + 'px';
+                        player.style.right = 'auto';
+                        player.style.bottom = 'auto';
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const vol = localStorage.getItem('csariels_volume');
+                if (vol !== null) {
+                    currentVolume = parseInt(vol);
+                    document.getElementById('volumeSlider').value = currentVolume;
+                    updateVolumeUI(currentVolume);
+                }
+            } catch (e) {}
+
+            player.addEventListener('mousedown', onDragStart);
+            document.addEventListener('mousemove', onDragMove);
+            document.addEventListener('mouseup', onDragEnd);
+
+            player.addEventListener('touchstart', onTouchStart, { passive: false });
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd, { passive: false });
+        }
+
+        function getPlayerRect() {
+            const player = document.getElementById('floatingPlayer');
+            if (!player) return { left: 0, top: 0, width: 200, height: 115 };
+            const rect = player.getBoundingClientRect();
+            return {
+                left: rect.left,
+                top: rect.top,
+                width: rect.width || 200,
+                height: rect.height || 115
+            };
+        }
+
+        function onDragStart(e) {
+            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls') || e.target.closest(
+                    '.volume-container')) return;
+            const player = document.getElementById('floatingPlayer');
+            if (!player.classList.contains('show')) return;
+
+            closeVolumeSlider();
+
+            isDragging = true;
+            hasMoved = false;
+            const rect = getPlayerRect();
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            dragStartPlayerX = rect.left;
+            dragStartPlayerY = rect.top;
+            player.classList.add('dragging');
+            player.classList.remove('snap');
+            e.preventDefault();
+        }
+
+        function onDragMove(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 5) hasMoved = true;
+
+            const player = document.getElementById('floatingPlayer');
+            const width = player.offsetWidth || 200;
+            const height = player.offsetHeight || 115;
+            const maxX = window.innerWidth - width - 12;
+            const maxY = window.innerHeight - height - 80;
+
+            let newX = Math.max(12, Math.min(maxX, dragStartPlayerX + dx));
+            let newY = Math.max(12, Math.min(maxY, dragStartPlayerY + dy));
+
+            player.style.left = newX + 'px';
+            player.style.top = newY + 'px';
+            player.style.right = 'auto';
+            player.style.bottom = 'auto';
+            e.preventDefault();
+        }
+
+        function onDragEnd(e) {
+            if (!isDragging) return;
+            const player = document.getElementById('floatingPlayer');
+            isDragging = false;
+            player.classList.remove('dragging');
+
+            if (!hasMoved && floatingPostId !== null) {
+                abrirFullscreenVideo(floatingPostId);
+                return;
+            }
+
+            snapToCorner();
+            player.classList.add('snap');
+
+            try {
+                const rect = player.getBoundingClientRect();
+                localStorage.setItem('csariels_float_pos', JSON.stringify({
+                    x: rect.left,
+                    y: rect.top
+                }));
+            } catch (e) {}
+
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function snapToCorner() {
+            const player = document.getElementById('floatingPlayer');
+            const rect = player.getBoundingClientRect();
+            const width = rect.width || 200;
+            const height = rect.height || 115;
+            const margin = 12;
+            const bottomMargin = 80;
+
+            const centerX = rect.left + width / 2;
+            const centerY = rect.top + height / 2;
+
+            const corners = [
+                { x: margin, y: margin },
+                { x: window.innerWidth - width - margin, y: margin },
+                { x: margin, y: window.innerHeight - height - bottomMargin },
+                { x: window.innerWidth - width - margin, y: window.innerHeight - height - bottomMargin }
+            ];
+
+            let closest = corners[0];
+            let minDist = Infinity;
+
+            corners.forEach(corner => {
+                const dist = Math.sqrt(
+                    Math.pow(corner.x + width / 2 - centerX, 2) +
+                    Math.pow(corner.y + height / 2 - centerY, 2)
+                );
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = corner;
+                }
+            });
+
+            player.style.left = closest.x + 'px';
+            player.style.top = closest.y + 'px';
+            player.style.right = 'auto';
+            player.style.bottom = 'auto';
+        }
+
+        function onTouchStart(e) {
+            if (e.target.closest('.floating-close') || e.target.closest('.floating-controls') || e.target.closest(
+                    '.volume-container')) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+            });
+            onDragStart(mouseEvent);
+        }
+
+        function onTouchMove(e) {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+            });
+            onDragMove(mouseEvent);
+            e.preventDefault();
+        }
+
+        function onTouchEnd(e) {
+            if (!isDragging) return;
+            const mouseEvent = new MouseEvent('mouseup', {});
+            onDragEnd(mouseEvent);
+        }
+
+        // ================================================================
+        // VOLUMEN CONTROL
+        // ================================================================
+        function toggleVolumeSlider() {
+            const container = document.getElementById('volumeContainer');
+            isVolumeSliderOpen = !isVolumeSliderOpen;
+            container.classList.toggle('show', isVolumeSliderOpen);
+        }
+
+        function closeVolumeSlider() {
+            document.getElementById('volumeContainer').classList.remove('show');
+            isVolumeSliderOpen = false;
+        }
+
+        function updateVolume(value) {
+            currentVolume = parseInt(value);
+            const video = document.getElementById('floatingVideo');
+            if (video) {
+                video.volume = currentVolume / 100;
+                if (currentVolume === 0) {
+                    video.muted = true;
+                    isFloatingMuted = true;
+                } else {
+                    video.muted = false;
+                    isFloatingMuted = false;
+                }
+            }
+            updateVolumeUI(currentVolume);
+            localStorage.setItem('csariels_volume', String(currentVolume));
+        }
+
+        function updateVolumeUI(volume) {
+            const btn = document.getElementById('floatingMuteBtn');
+            if (volume === 0) {
+                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            } else if (volume < 50) {
+                btn.innerHTML = '<i class="fas fa-volume-down"></i>';
+            } else {
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            }
+            document.getElementById('volumeSlider').value = volume;
+        }
+
+        function toggleFloatingMute() {
+            const video = document.getElementById('floatingVideo');
+            if (currentVolume === 0) {
+                currentVolume = 50;
+                video.volume = 0.5;
+                video.muted = false;
+                isFloatingMuted = false;
+            } else {
+                currentVolume = 0;
+                video.volume = 0;
+                video.muted = true;
+                isFloatingMuted = true;
+            }
+            updateVolumeUI(currentVolume);
+            localStorage.setItem('csariels_volume', String(currentVolume));
+            document.getElementById('volumeSlider').value = currentVolume;
+        }
+
+        // ================================================================
+        // TABS
+        // ================================================================
+        function switchTab(tab) {
+            currentTab = tab;
+
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tab);
+            });
+
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            if (tab === 'cabina') {
+                renderCabina();
+            }
+        }
+
+        // ================================================================
+        // RENDER CABINA
+        // ================================================================
+        function renderCabina() {
+            const container = document.getElementById('cabinaGrid');
+
+            container.innerHTML = audios.map(audio => `
+                <div class="cabina-card" onclick="playAudio(${audio.id})">
+                    <div class="cover">${audio.cover}</div>
+                    <div class="title">${audio.title}</div>
+                    <div class="author">${audio.author}</div>
+                    <div class="duration">${audio.duration}</div>
+                    <div class="waveform" id="waveform-${audio.id}">
+                        ${Array.from({length: 20}, (_, i) => 
+                            `<div class="bar ${i < 4 ? 'active' : ''}" style="height:${Math.random() * 20 + 10}px;"></div>`
+                        ).join('')}
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                        <span style="font-size:0.55rem;color:var(--text-muted);font-family:'Orbitron',monospace;">
+                            <i class="fas fa-headphones"></i> ${Math.floor(Math.random() * 50) + 1} escuchando
+                        </span>
+                        <button class="play-btn" onclick="event.stopPropagation(); playAudio(${audio.id})">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // AUDIO PLAYER
+        // ================================================================
+        function playAudio(id) {
+            const audio = audios.find(a => a.id === id);
+            if (!audio) return;
+
+            pausarOtrosPlayers('audio');
+
+            if (currentAudio && currentAudio.id === id && audioElement && isAudioPlaying) {
+                audioElement.pause();
+                isAudioPlaying = false;
+                updateAudioUI();
+                return;
+            }
+
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.src = '';
+            }
+
+            audioElement = new Audio(audio.url);
+            audioElement.loop = false;
+
+            currentAudio = audio;
+            isAudioPlaying = true;
+
+            document.getElementById('audioTitle').textContent = audio.title;
+            document.getElementById('audioAuthor').textContent = audio.author + ' · 🎙️ La Cabina';
+            document.getElementById('miniAudioPlayer').classList.add('show');
+
+            audioElement.play().catch(() => {});
+
+            audioElement.addEventListener('timeupdate', () => {
+                const progress = (audioElement.currentTime / audioElement.duration) * 100;
+                document.getElementById('audioProgress').style.width = progress + '%';
+                document.getElementById('audioTime').textContent = formatTime(audioElement.currentTime);
+            });
+
+            audioElement.addEventListener('ended', () => {
+                isAudioPlaying = false;
+                updateAudioUI();
+            });
+
+            updateAudioUI();
+
+            document.querySelectorAll('.cabina-card .waveform .bar').forEach(bar => {
+                bar.style.background = 'var(--gold-cosmic)';
+                bar.style.opacity = Math.random() * 0.5 + 0.5;
+            });
+        }
+
+        function toggleAudioPlay() {
+            if (!audioElement) return;
+
+            if (isAudioPlaying) {
+                audioElement.pause();
+                isAudioPlaying = false;
+            } else {
+                pausarOtrosPlayers('audio');
+                audioElement.play().catch(() => {});
+                isAudioPlaying = true;
+            }
+            updateAudioUI();
+        }
+
+        function updateAudioUI() {
+            const btn = document.getElementById('audioPlayBtn');
+            if (isAudioPlaying) {
+                btn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        function seekAudio(e) {
+            if (!audioElement) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            audioElement.currentTime = x * audioElement.duration;
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function cerrarAudio() {
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.src = '';
+            }
+            isAudioPlaying = false;
+            currentAudio = null;
+            document.getElementById('miniAudioPlayer').classList.remove('show');
+            document.getElementById('audioProgress').style.width = '0%';
+            document.getElementById('audioTime').textContent = '0:00';
+            updateAudioUI();
+        }
+
+        // ================================================================
+        // VIDEO PICKER
+        // ================================================================
+        function abrirVideoPicker() {
+            document.getElementById('videoFileInput').click();
+        }
+
+        function handleVideoSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            videoFile = file;
+            const url = URL.createObjectURL(file);
+            videoPreviewURL = url;
+
+            const container = document.getElementById('videoPreviewContainer');
+            const video = document.getElementById('videoPreviewElement');
+            video.src = url;
+            video.load();
+            container.classList.add('active');
+
+            mostrarToast('🎬 Video cargado para previsualización');
+            event.target.value = '';
+        }
+
+        function removerVideoPreview() {
+            videoFile = null;
+            if (videoPreviewURL) {
+                URL.revokeObjectURL(videoPreviewURL);
+                videoPreviewURL = null;
+            }
+            document.getElementById('videoPreviewContainer').classList.remove('active');
+            document.getElementById('videoPreviewElement').src = '';
+        }
+
+        // ================================================================
+        // LIVE
+        // ================================================================
+        function toggleLive() {
+            if (isLive) {
+                terminarLive();
+            } else {
+                abrirModal('liveModal');
+            }
+        }
+
+        async function iniciarLive() {
+            streamerInfo = {
+                nombre: usuarioActual.nombre || 'Usuario',
+                wallet: '0x' + Array.from({ length: 40 }, () =>
+                    Math.floor(Math.random() * 16).toString(16)).join(''),
+                inicio: Date.now()
+            };
+            isLive = true;
+
+            document.getElementById('statusDot').className = 'status-dot live';
+            document.getElementById('statusLabel').textContent = '🔴 EN VIVO';
+            document.getElementById('btnLive').innerHTML = '<i class="fas fa-broadcast"></i> 🔴 Terminar';
+            document.getElementById('donacionBanner').style.display = 'block';
+            document.getElementById('donacionAvatar').textContent = streamerInfo.nombre.charAt(0);
+            document.getElementById('donacionNombre').textContent = streamerInfo.nombre;
+
+            localStorage.setItem('streamer_activo', JSON.stringify(streamerInfo));
+            cerrarModal('liveModal');
+            mostrarToast('📹 Transmisión iniciada');
+        }
+
+        function terminarLive() {
+            isLive = false;
+            streamerInfo = null;
+
+            document.getElementById('statusDot').className = 'status-dot online';
+            document.getElementById('statusLabel').textContent = 'En vivo';
+            document.getElementById('btnLive').innerHTML = '<i class="fas fa-broadcast"></i> Live';
+            document.getElementById('donacionBanner').style.display = 'none';
+
+            localStorage.removeItem('streamer_activo');
+            mostrarToast('📹 Transmisión finalizada');
+        }
+
+        // ================================================================
+        // DONACIONES
+        // ================================================================
+        function seleccionarToken(token) {
+            tokenSeleccionado = token;
+            document.querySelectorAll('.token-selector .btn').forEach(b => {
+                b.className = 'btn btn-sm ' + (b.textContent.includes(token) ? 'btn-gold' : 'btn-outline');
+            });
+            actualizarResumenDonacion();
+        }
+
+        function setMonto(monto) {
+            document.getElementById('donacionMontoInput').value = monto;
+            actualizarResumenDonacion();
+        }
+
+        function actualizarResumenDonacion() {
+            const monto = parseFloat(document.getElementById('donacionMontoInput').value) || 0;
+            const token = tokenSeleccionado;
+
+            document.getElementById('resumenMonto').textContent = `$${monto.toFixed(2)} ${token}`;
+            document.getElementById('resumenStreamer').textContent = `$${(monto * 0.50).toFixed(2)} ${token}`;
+            document.getElementById('resumenCsariels').textContent = `$${(monto * 0.50).toFixed(2)} ${token}`;
+        }
+
+        function procesarDonacion() {
+            const monto = parseFloat(document.getElementById('donacionMontoInput').value) || 0;
+            const mensaje = document.getElementById('donacionMensajeInput').value.trim();
+
+            if (!monto || monto <= 0) {
+                mostrarToast('⚠️ Ingresa un monto válido', 'error');
+                return;
+            }
+
+            if (!streamerInfo) {
+                mostrarToast('⚠️ No hay transmisión activa', 'error');
+                return;
+            }
+
+            mostrarToast(`🎁 Donación de $${monto} ${tokenSeleccionado} enviada!`);
+            cerrarModal('donacionModal');
+            document.getElementById('donacionMontoInput').value = '';
+            document.getElementById('donacionMensajeInput').value = '';
+            actualizarResumenDonacion();
+        }
+
+        // ================================================================
+        // VIDEO PICKER - CABINA
+        // ================================================================
+        function handleAudioUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const dmcaCheck = document.getElementById('dmcaCheck');
+            if (!dmcaCheck.checked) {
+                mostrarToast('⚠️ Debes confirmar que es contenido original', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                mostrarToast('⚠️ El audio excede 5 MB', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(file);
+            const newAudio = {
+                id: Date.now(),
+                title: file.name.replace(/\.[^/.]+$/, ''),
+                author: '@anonimo',
+                duration: '0:00',
+                url: url,
+                cover: '🎵'
+            };
+
+            audios.unshift(newAudio);
+            renderCabina();
+            mostrarToast('✅ Audio subido exitosamente');
+            event.target.value = '';
+        }
+
+        // ================================================================
+        // TÉRMINOS
+        // ================================================================
+        function verificarTerminos() {
+            const checks = document.querySelectorAll('.terminos-checklist input[type="checkbox"]');
+            const todos = Array.from(checks).every(c => c.checked);
+            document.getElementById('btnAceptarTerminos').disabled = !todos;
+        }
+
+        function aceptarTerminos() {
+            localStorage.setItem('terminos_muro_live_aceptado', 'true');
+            cerrarModal('terminosModal');
+            mostrarToast('✅ Términos aceptados');
+        }
+
+        // ================================================================
+        // MODALES
+        // ================================================================
+        function abrirModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ================================================================
+        // TOAST
+        // ================================================================
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // CERRAR MODALES CON ESC
+        // ================================================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                    m.classList.remove('active');
+                });
+                cerrarFullscreen();
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // ================================================================
+        // CARGAR SCRIPTS DEL ASISTENTE
+        // ================================================================
+        function cargarScriptsAsistente() {
+            const scripts = [
+                '/assets/js/asistente-config.js',
+                '/assets/js/asistente-ia.js'
+            ];
+            
+            let loaded = 0;
+            scripts.forEach(src => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    loaded++;
+                    if (loaded === scripts.length && typeof window.CsarielsAsistente !== 'undefined') {
+                        window.CsarielsAsistente.iniciar('muro-live');
+                        console.log('✅ Asistente IA inicializado en Muro Live');
+                    }
+                };
+                script.onerror = () => {
+                    console.warn('⚠️ No se pudo cargar:', src);
+                };
+                document.body.appendChild(script);
+            });
+        }
+
+        // ================================================================
+        // INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('◈ Csariel\'s - Muro Live (Conectado a Supabase)');
+            console.log('🤖 Asistente IA cargado en Muro Live');
+            console.log('👥 Red Social para el Público en General - Sin Gamificación');
+            console.log('📶 Verificación de datos eSIM activada');
+            initStars();
+            initFloatingDraggable();
+
+            // Cargar scripts del asistente
+            cargarScriptsAsistente();
+
+            // Cargar el widget HTML del asistente
+            fetch('/assets/components/asistente-widget.html')
+                .then(res => {
+                    if (!res.ok) throw new Error('No se pudo cargar el widget');
+                    return res.text();
+                })
+                .then(html => {
+                    document.getElementById('asistenteContainer').innerHTML = html;
+                    console.log('✅ Widget Asistente IA cargado en Muro Live');
+                })
+                .catch(err => {
+                    console.warn('⚠️ Error cargando widget asistente:', err);
+                });
+
+            if (localStorage.getItem('terminos_muro_live_aceptado') !== 'true') {
+                setTimeout(() => abrirModal('terminosModal'), 800);
+            }
+
+            await cargarPosts();
+
+            const streamerData = localStorage.getItem('streamer_activo');
+            if (streamerData) {
+                try {
+                    const data = JSON.parse(streamerData);
+                    if (data && data.wallet) {
+                        streamerInfo = data;
+                        isLive = true;
+                        document.getElementById('statusDot').className = 'status-dot live';
+                        document.getElementById('statusLabel').textContent = '🔴 EN VIVO';
+                        document.getElementById('btnLive').innerHTML = '<i class="fas fa-broadcast"></i> 🔴 Terminar';
+                        document.getElementById('donacionBanner').style.display = 'block';
+                        document.getElementById('donacionAvatar').textContent = streamerInfo.nombre.charAt(0);
+                        document.getElementById('donacionNombre').textContent = streamerInfo.nombre;
+                    }
+                } catch (e) {}
+            }
+
+            document.getElementById('donacionMontoInput').addEventListener('input', actualizarResumenDonacion);
+
+            console.log('✅ Muro Live conectado a Supabase y eSIM');
+        });
+    </script>
+</body>
+</html>
