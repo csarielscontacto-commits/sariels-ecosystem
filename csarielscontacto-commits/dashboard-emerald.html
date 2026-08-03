@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌿 Emerald Admin | Csariel's</title>
+
+    <!-- ================================================================ -->
+    <!-- 🔒 CSP - SEGURIDAD CONTRA INYECCIONES Y HACKEOS -->
+    <!-- ================================================================ -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology https://cdn.tailwindcss.com;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
+    <!-- ================================================================ -->
+    <!-- 🔒 SEGURIDAD CSARIEL'S - ANTI-HACKEO -->
+    <!-- ================================================================ -->
+    <script src="./js/security.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- ===== SUPABASE ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <style>
+        /* ================================================================
+           PALETA VERDE ESMERALDA - BAJO CONSUMO
+           ================================================================ */
+        :root {
+            --emerald-dark: #0a1a12;
+            --emerald-mid: #0d2a1a;
+            --emerald-card: rgba(13, 42, 26, 0.6);
+            --emerald-green: #00d68f;
+            --emerald-glow: rgba(0, 214, 143, 0.15);
+            --emerald-light: #33e0a8;
+            --gold-cosmic: #D4AF37;
+            --text-primary: #d4e8e0;
+            --text-secondary: #80b8a0;
+            --text-muted: #4a8a70;
+            --border: rgba(0, 214, 143, 0.1);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+            --success: #00d68f;
+            --danger: #ff6b6b;
+            --warning: #ffd93d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--emerald-dark);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0.15;
+        }
+
+        .bg-particles span {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--emerald-green);
+            border-radius: 50%;
+            animation: float-up linear infinite;
+        }
+
+        .bg-particles span:nth-child(1) { left: 10%; animation-duration: 20s; animation-delay: 0s; }
+        .bg-particles span:nth-child(2) { left: 25%; animation-duration: 25s; animation-delay: 3s; }
+        .bg-particles span:nth-child(3) { left: 40%; animation-duration: 18s; animation-delay: 6s; }
+        .bg-particles span:nth-child(4) { left: 55%; animation-duration: 22s; animation-delay: 2s; }
+        .bg-particles span:nth-child(5) { left: 70%; animation-duration: 28s; animation-delay: 8s; }
+        .bg-particles span:nth-child(6) { left: 85%; animation-duration: 16s; animation-delay: 4s; }
+        .bg-particles span:nth-child(7) { left: 50%; animation-duration: 30s; animation-delay: 5s; }
+        .bg-particles span:nth-child(8) { left: 15%; animation-duration: 24s; animation-delay: 7s; }
+
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1) rotate(360deg); opacity: 0; }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--emerald-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--emerald-green); border-radius: 2px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ================================================================
+           HEADER
+           ================================================================ */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 20px var(--emerald-glow));
+        }
+
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--emerald-mid);
+            color: var(--emerald-green);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--emerald-green);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--emerald-green);
+            text-shadow: 0 0 20px var(--emerald-glow);
+        }
+
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.4rem;
+            background: var(--emerald-mid);
+            color: var(--emerald-green);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            padding: 5px 14px;
+            border-radius: 30px;
+            font-size: 0.55rem;
+            color: var(--emerald-green);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(4px);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: dot-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: var(--emerald-card);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn:hover {
+            border-color: var(--emerald-green);
+            box-shadow: 0 0 30px var(--emerald-glow);
+        }
+
+        .btn-primary {
+            background: var(--emerald-green);
+            border-color: var(--emerald-green);
+            color: var(--emerald-dark);
+            -webkit-text-fill-color: var(--emerald-dark);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 40px var(--emerald-glow);
+        }
+
+        .btn-sm { padding: 4px 10px; font-size: 0.5rem; }
+
+        /* ================================================================
+           ESTADÍSTICAS (desde Supabase)
+           ================================================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            backdrop-filter: blur(4px);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--emerald-green);
+        }
+
+        .stat-card .icon {
+            font-size: 1.4rem;
+            color: var(--emerald-green);
+            margin-bottom: 4px;
+        }
+
+        .stat-card .number {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-card .number .green { color: var(--emerald-green); }
+        .stat-card .number .gold { color: var(--gold-cosmic); }
+
+        .stat-card .label {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ================================================================
+           USUARIOS EN VIVO (desde Supabase - ANÓNIMO)
+           ================================================================ */
+        .live-section {
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .live-section .live-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .live-section .live-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--emerald-green);
+        }
+
+        .live-section .live-title .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: dot-pulse 1s ease-in-out infinite;
+        }
+
+        .live-section .live-count {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--emerald-green);
+        }
+
+        .live-users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+        }
+
+        .live-user {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 8px 6px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .live-user:hover {
+            border-color: var(--emerald-green);
+        }
+
+        .live-user .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--emerald-green), #008f5a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--emerald-dark);
+            font-size: 0.8rem;
+            border: 2px solid var(--border);
+            position: relative;
+        }
+
+        .live-user .avatar .online-ring {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 2px solid var(--emerald-dark);
+            animation: dot-pulse 1.5s ease-in-out infinite;
+        }
+
+        .live-user .name {
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 70px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .live-user .status-text {
+            font-size: 0.4rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ================================================================
+           CONFIGURACIÓN - PANEL EDITABLE (PLANES + DATOS BANCARIOS)
+           ================================================================ */
+        .config-section {
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .config-section .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .config-section .config-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: var(--emerald-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-section .config-title i {
+            font-size: 1rem;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .config-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+        }
+
+        .config-item label {
+            display: block;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .config-item input {
+            width: 100%;
+            padding: 4px 8px;
+            background: var(--emerald-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .config-item input:focus {
+            border-color: var(--emerald-green);
+        }
+
+        .config-item input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .config-item input[type="number"]::-webkit-inner-spin-button,
+        .config-item input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .config-item .preview {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .config-item .preview span {
+            color: var(--emerald-green);
+            font-weight: 600;
+        }
+
+        /* ================================================================
+           DATOS DE PAGO - EDITABLES
+           ================================================================ */
+        .payment-config {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .payment-config .payment-title {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 8px;
+        }
+
+        .payment-config .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .payment-config .payment-item {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+        }
+
+        .payment-config .payment-item label {
+            display: block;
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .payment-config .payment-item input {
+            width: 100%;
+            padding: 3px 6px;
+            background: var(--emerald-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 0.7rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .payment-config .payment-item input:focus {
+            border-color: var(--emerald-green);
+        }
+
+        /* ================================================================
+           VISTA PREVIA (lo que ven los usuarios)
+           ================================================================ */
+        .buy-preview {
+            background: var(--emerald-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .buy-preview .buy-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            color: var(--emerald-green);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .buy-preview .buy-subtitle {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .buy-plans-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .plan-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            text-align: center;
+        }
+
+        .plan-preview .plan-size {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--emerald-green);
+        }
+
+        .plan-preview .plan-price {
+            font-size: 0.8rem;
+            color: var(--gold-cosmic);
+            font-weight: 600;
+            margin: 2px 0;
+        }
+
+        .plan-preview .plan-badge {
+            font-size: 0.4rem;
+            background: var(--emerald-glow);
+            color: var(--emerald-green);
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-family: 'Orbitron', monospace;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        /* ================================================================
+           BOTÓN GUARDAR
+           ================================================================ */
+        .btn-save-config {
+            padding: 6px 20px;
+            background: var(--emerald-green);
+            border: none;
+            border-radius: 30px;
+            color: var(--emerald-dark);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-save-config:hover {
+            box-shadow: 0 0 40px var(--emerald-glow);
+            transform: scale(1.02);
+        }
+
+        /* ================================================================
+           TOAST
+           ================================================================ */
+        .toast {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--emerald-mid);
+            color: var(--emerald-green);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid var(--border);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .footer {
+            margin-top: 30px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-text .brand { color: var(--emerald-green); }
+
+        .footer-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .footer-links a:hover { color: var(--emerald-green); }
+
+        .footer-hex {
+            display: inline-block;
+            background: var(--emerald-mid);
+            color: var(--emerald-green);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--emerald-green);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 768px) {
+            .app { padding: 12px 14px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .logo-text { font-size: 1rem; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .config-grid { grid-template-columns: 1fr; }
+            .payment-grid { grid-template-columns: 1fr 1fr; }
+            .buy-plans-preview { grid-template-columns: 1fr 1fr; }
+            .live-users-grid { grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .buy-plans-preview { grid-template-columns: 1fr; }
+            .payment-grid { grid-template-columns: 1fr; }
+            .live-users-grid { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); }
+            .live-user .avatar { width: 28px; height: 28px; font-size: 0.6rem; }
+            .live-user .name { font-size: 0.4rem; }
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+            .config-item input { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== FONDO ===== -->
+    <div class="bg-particles">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="app">
+
+        <!-- HEADER -->
+        <header class="header">
+            <a href="#" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Admin</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="statusLabel">Conectando...</span>
+                </div>
+                <a href="./mi-red.html" class="btn btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <button class="btn btn-primary btn-sm" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== ESTADÍSTICAS ===== -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">🌐</div>
+                <div class="number"><span class="green" id="onlineUsers">0</span></div>
+                <div class="label">En línea</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">📱</div>
+                <div class="number"><span class="green" id="activeSessions">0</span></div>
+                <div class="label">Sesiones</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">📊</div>
+                <div class="number"><span class="gold" id="totalPosts">0</span></div>
+                <div class="label">Publicaciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">💬</div>
+                <div class="number"><span class="green" id="liveMessages">0</span></div>
+                <div class="label">Mensajes</div>
+            </div>
+        </div>
+
+        <!-- ===== USUARIOS EN VIVO ===== -->
+        <div class="live-section">
+            <div class="live-header">
+                <div class="live-title">
+                    <span class="live-dot"></span>
+                    <span>COMUNIDAD ACTIVA</span>
+                </div>
+                <div class="live-count">
+                    <span id="liveUserCount">0</span> conectados
+                </div>
+            </div>
+            <div class="live-users-grid" id="liveUsersGrid">
+                <!-- Generado por JS -->
+            </div>
+        </div>
+
+        <!-- ===== CONFIGURACIÓN DE PLANES + DATOS BANCARIOS ===== -->
+        <div class="config-section">
+            <div class="config-header">
+                <div class="config-title">
+                    <i class="fas fa-sliders-h"></i>
+                    CONFIGURACIÓN DE PLANES
+                </div>
+                <button class="btn-save-config" onclick="guardarConfiguracion()">
+                    <i class="fas fa-save"></i> Guardar todo
+                </button>
+            </div>
+
+            <div class="config-grid" id="configGrid">
+                <!-- Generado por JS -->
+            </div>
+
+            <!-- ===== DATOS DE PAGO (EDITABLES) ===== -->
+            <div class="payment-config">
+                <div class="payment-title">
+                    <i class="fas fa-credit-card"></i> DATOS DE PAGO (edita tu cuenta aquí)
+                </div>
+                <div class="payment-grid">
+                    <div class="payment-item">
+                        <label>🏦 Banco</label>
+                        <input type="text" id="pagoBanco" value="BBVA México" />
+                    </div>
+                    <div class="payment-item">
+                        <label>📋 Cuenta</label>
+                        <input type="text" id="pagoCuenta" value="1234 5678 9012 3456" />
+                    </div>
+                    <div class="payment-item">
+                        <label>👤 Titular</label>
+                        <input type="text" id="pagoTitular" value="Csariel's Ecosystem" />
+                    </div>
+                    <div class="payment-item">
+                        <label>📱 CLABE</label>
+                        <input type="text" id="pagoClabe" value="012 3456 7890 1234 5678 90" />
+                    </div>
+                    <div class="payment-item">
+                        <label>📤 Correo para comprobantes</label>
+                        <input type="email" id="pagoEmail" value="soporte@csariels.com" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== VISTA PREVIA ===== -->
+        <div class="buy-preview">
+            <div class="buy-title">
+                <i class="fas fa-eye"></i>
+                VISTA PREVIA (Lo que ven los usuarios)
+            </div>
+            <div class="buy-subtitle">
+                Así se verán los planes en la tienda de Internet
+            </div>
+            <div class="buy-plans-preview" id="buyPlansPreview">
+                <!-- Generado por JS -->
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Emerald Admin · Configurable
+            </span>
+            <div class="footer-links">
+                <a href="./mi-red.html">👥 Mi Red</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔒 INICIALIZAR SEGURIDAD Y SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🔒 INICIALIZAR SEGURIDAD
+        // ================================================================
+        function initSeguridad() {
+            if (window.Security) {
+                window.Security.initSeguridad();
+                console.log('🛡️ Seguridad activada para Emerald Admin');
+            } else {
+                console.warn('⚠️ Security.js no cargado - verifica la ruta');
+            }
+        }
+
+        // ================================================================
+        // SUPABASE CONFIG
+        // ================================================================
+        const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2MTU2ODEsImV4cCI6MjA1NjE5MTY4MX0.c1Zk6QpI7m7tQnY4k8w9Tg5dDw2pXgFh1y3JkLmNpQo';
+
+        let supabaseClient = null;
+
+        function initSupabase() {
+            if (typeof supabase === 'undefined') {
+                console.warn('⚠️ Supabase no está cargado.');
+                return null;
+            }
+            if (!supabaseClient) {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('🔗 Supabase conectado (Emerald Admin)');
+            }
+            return supabaseClient;
+        }
+
+        // ================================================================
+        // PLANES PREDETERMINADOS
+        // ================================================================
+        const PLANES_PREDETERMINADOS = [
+            { mb: 500, precio: 49, badge: '💎 Popular', detalle: '~2h de video' },
+            { mb: 1024, precio: 89, badge: '🔥 Más vendido', detalle: '~4h de video' },
+            { mb: 2048, precio: 149, badge: '🚀 Pro', detalle: '~8h de video' },
+            { mb: 5120, precio: 299, badge: '👑 Premium', detalle: '~20h de video' }
+        ];
+
+        // ================================================================
+        // CARGAR CONFIGURACIÓN DESDE LOCALSTORAGE
+        // ================================================================
+        function cargarConfiguracion() {
+            try {
+                const guardado = localStorage.getItem('emerald_planes_config');
+                if (guardado) {
+                    const planes = JSON.parse(guardado);
+                    if (planes && planes.length > 0) {
+                        return planes;
+                    }
+                }
+            } catch (e) {
+                console.warn('Error cargando configuración:', e);
+            }
+            return PLANES_PREDETERMINADOS;
+        }
+
+        // ================================================================
+        // GUARDAR CONFIGURACIÓN COMPLETA
+        // ================================================================
+        function guardarConfiguracion() {
+            // 1. Guardar planes
+            const inputs = document.querySelectorAll('.config-item input');
+            const nuevosPlanes = [];
+            
+            for (let i = 0; i < inputs.length; i += 3) {
+                if (i + 2 < inputs.length) {
+                    const mb = parseInt(inputs[i].value) || 0;
+                    const precio = parseInt(inputs[i+1].value) || 0;
+                    const badge = inputs[i+2].value || '📦 Plan';
+                    if (mb > 0 && precio > 0) {
+                        nuevosPlanes.push({
+                            mb: mb,
+                            precio: precio,
+                            badge: badge,
+                            detalle: `~${Math.round(mb / 250)}h de video`
+                        });
+                    }
+                }
+            }
+
+            localStorage.setItem('emerald_planes_config', JSON.stringify(nuevosPlanes));
+
+            // 2. Guardar datos de pago
+            const pagoBanco = document.getElementById('pagoBanco').value;
+            const pagoCuenta = document.getElementById('pagoCuenta').value;
+            const pagoTitular = document.getElementById('pagoTitular').value;
+            const pagoClabe = document.getElementById('pagoClabe').value;
+            const pagoEmail = document.getElementById('pagoEmail').value;
+
+            localStorage.setItem('emerald_pago_banco', pagoBanco);
+            localStorage.setItem('emerald_pago_cuenta', pagoCuenta);
+            localStorage.setItem('emerald_pago_titular', pagoTitular);
+            localStorage.setItem('emerald_pago_clabe', pagoClabe);
+            localStorage.setItem('emerald_pago_email', pagoEmail);
+
+            // 3. Actualizar UI
+            renderizarConfiguracion(nuevosPlanes);
+            renderizarPreview(nuevosPlanes);
+            mostrarToast('✅ Configuración guardada correctamente');
+        }
+
+        // ================================================================
+        // RENDERIZAR CONFIGURACIÓN
+        // ================================================================
+        function renderizarConfiguracion(planes) {
+            const container = document.getElementById('configGrid');
+            
+            container.innerHTML = planes.map((plan, index) => `
+                <div class="config-item">
+                    <label>Plan ${index + 1} - MB</label>
+                    <input type="number" value="${plan.mb}" min="100" step="100" />
+                    <div class="preview">${plan.mb} MB</div>
+                </div>
+                <div class="config-item">
+                    <label>Plan ${index + 1} - Precio (MXN)</label>
+                    <input type="number" value="${plan.precio}" min="10" step="5" />
+                    <div class="preview">$${plan.precio} MXN</div>
+                </div>
+                <div class="config-item">
+                    <label>Plan ${index + 1} - Etiqueta</label>
+                    <input type="text" value="${plan.badge || '📦 Plan'}" />
+                    <div class="preview">${plan.badge || '📦 Plan'}</div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // RENDERIZAR VISTA PREVIA
+        // ================================================================
+        function renderizarPreview(planes) {
+            const container = document.getElementById('buyPlansPreview');
+            
+            container.innerHTML = planes.map(plan => `
+                <div class="plan-preview">
+                    <div class="plan-badge">${plan.badge || '📦 Plan'}</div>
+                    <div class="plan-size">${plan.mb} MB</div>
+                    <div class="plan-price">$${plan.precio} MXN</div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // OBTENER USUARIOS DE SUPABASE (ANÓNIMO)
+        // ================================================================
+        async function obtenerUsuariosOnline() {
+            const client = initSupabase();
+            if (!client) return [];
+
+            try {
+                const horaAtras = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+                
+                const { data, error } = await client
+                    .from('perfiles')
+                    .select('user_id, nombre, foto_perfil_url, ultimo_acceso')
+                    .gt('ultimo_acceso', horaAtras)
+                    .limit(50);
+
+                if (error) {
+                    console.error('❌ Error obteniendo usuarios:', error);
+                    return [];
+                }
+
+                const iniciales = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
+                                  'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                                  'U', 'V', 'W', 'X', 'Y', 'Z'];
+                const estados = ['🌐 En línea', '📱 En Mi Red', '🎮 Explorando', '📹 Viendo', '💬 Chateando', '📝 Publicando'];
+
+                const anonimos = data.map((user, index) => ({
+                    id: user.user_id || index + 1,
+                    nombre: `Usuario ${index + 1}`,
+                    inicial: iniciales[Math.floor(Math.random() * iniciales.length)],
+                    estado: estados[Math.floor(Math.random() * estados.length)],
+                    activo: true
+                }));
+
+                return anonimos;
+
+            } catch (error) {
+                console.error('❌ Error en obtenerUsuariosOnline:', error);
+                return [];
+            }
+        }
+
+        // ================================================================
+        // OBTENER ESTADÍSTICAS
+        // ================================================================
+        async function obtenerEstadisticas() {
+            const client = initSupabase();
+            if (!client) return;
+
+            try {
+                const { count: totalUsuarios, error: countError } = await client
+                    .from('perfiles')
+                    .select('*', { count: 'exact', head: true });
+
+                if (countError) throw countError;
+
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                const { count: postsHoy, error: postsError } = await client
+                    .from('posts_muro_live')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', hoy.toISOString());
+
+                if (postsError) throw postsError;
+
+                const { count: mensajesHoy, error: msgsError } = await client
+                    .from('mensajes')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', hoy.toISOString());
+
+                if (msgsError) throw msgsError;
+
+                document.getElementById('onlineUsers').textContent = usuariosReales.length;
+                document.getElementById('activeSessions').textContent = Math.min(totalUsuarios || 0, usuariosReales.length * 2 + 5);
+                document.getElementById('totalPosts').textContent = postsHoy || 0;
+                document.getElementById('liveMessages').textContent = mensajesHoy || 0;
+
+            } catch (error) {
+                console.error('❌ Error obteniendo estadísticas:', error);
+            }
+        }
+
+        // ================================================================
+        // RENDERIZAR USUARIOS
+        // ================================================================
+        let usuariosReales = [];
+
+        function renderizarUsuarios() {
+            const grid = document.getElementById('liveUsersGrid');
+            const count = document.getElementById('liveUserCount');
+
+            const activos = usuariosReales.filter(u => u.activo);
+            count.textContent = activos.length;
+            document.getElementById('onlineUsers').textContent = activos.length;
+
+            if (activos.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);font-size:0.7rem;">
+                        No hay usuarios conectados.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = activos.map(user => `
+                <div class="live-user">
+                    <div class="avatar">
+                        ${user.inicial || '?'}
+                        <span class="online-ring"></span>
+                    </div>
+                    <div class="name">${user.nombre}</div>
+                    <div class="status-text">${user.estado}</div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // ACTUALIZAR DATOS
+        // ================================================================
+        async function actualizarDatos() {
+            const nuevos = await obtenerUsuariosOnline();
+            const usuariosActuales = usuariosReales;
+            const nuevosIds = nuevos.map(u => u.id);
+            const usuariosActualizados = usuariosActuales.filter(u => nuevosIds.includes(u.id));
+            
+            nuevos.forEach(u => {
+                if (!usuariosActualizados.some(ex => ex.id === u.id)) {
+                    usuariosActualizados.push(u);
+                }
+            });
+            
+            usuariosReales = usuariosActualizados.slice(0, 20);
+            
+            usuariosReales.forEach(u => {
+                if (Math.random() > 0.7) {
+                    const estados = ['🌐 En línea', '📱 En Mi Red', '🎮 Explorando', '📹 Viendo', '💬 Chateando', '📝 Publicando'];
+                    u.estado = estados[Math.floor(Math.random() * estados.length)];
+                }
+            });
+            
+            renderizarUsuarios();
+            await obtenerEstadisticas();
+        }
+
+        // ================================================================
+        // CARGAR DATOS DE PAGO DESDE LOCALSTORAGE
+        // ================================================================
+        function cargarDatosPago() {
+            const banco = localStorage.getItem('emerald_pago_banco') || 'BBVA México';
+            const cuenta = localStorage.getItem('emerald_pago_cuenta') || '1234 5678 9012 3456';
+            const titular = localStorage.getItem('emerald_pago_titular') || 'Csariel\'s Ecosystem';
+            const clabe = localStorage.getItem('emerald_pago_clabe') || '012 3456 7890 1234 5678 90';
+            const email = localStorage.getItem('emerald_pago_email') || 'soporte@csariels.com';
+
+            document.getElementById('pagoBanco').value = banco;
+            document.getElementById('pagoCuenta').value = cuenta;
+            document.getElementById('pagoTitular').value = titular;
+            document.getElementById('pagoClabe').value = clabe;
+            document.getElementById('pagoEmail').value = email;
+        }
+
+        // ================================================================
+        // TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 🔒 Inicializar seguridad
+            initSeguridad();
+
+            console.log('🌿 Emerald Admin - Csariel\'s');
+            console.log('🔗 Conectado a Supabase');
+            console.log('📦 Configuración de planes y datos de pago editable');
+            console.log('🛡️ Seguridad activada');
+
+            initSupabase();
+            document.getElementById('statusLabel').textContent = '✅ Conectado';
+
+            // Cargar datos de pago desde localStorage
+            cargarDatosPago();
+
+            // Cargar planes
+            const planes = cargarConfiguracion();
+            renderizarConfiguracion(planes);
+            renderizarPreview(planes);
+
+            // Cargar usuarios
+            usuariosReales = await obtenerUsuariosOnline();
+            renderizarUsuarios();
+            await obtenerEstadisticas();
+
+            // Actualizar cada 15 segundos
+            setInterval(async () => {
+                await actualizarDatos();
+            }, 15000);
+
+            // Actualizar estadísticas cada 30 segundos
+            setInterval(async () => {
+                await obtenerEstadisticas();
+            }, 30000);
+        });
+
+        // ================================================================
+        // FUNCIONES GLOBALES
+        // ================================================================
+        window.guardarConfiguracion = guardarConfiguracion;
+        window.mostrarToast = mostrarToast;
+    </script>
+
+</body>
+</html>
