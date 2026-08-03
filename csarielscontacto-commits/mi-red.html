@@ -1142,6 +1142,43 @@
             .cmt-aviso .aviso-titulo { font-size: 0.8rem; }
             .cmt-aviso p { font-size: 0.7rem; }
         }
+
+        /* ===== MODAL EDITAR PERFIL ===== */
+        .modal-overlay.edit-profile-modal .modal-content {
+            max-width: 420px;
+        }
+        .modal-overlay.edit-profile-modal .modal-content .form-group {
+            margin-bottom: 12px;
+        }
+        .modal-overlay.edit-profile-modal .modal-content .form-group label {
+            display: block;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-overlay.edit-profile-modal .modal-content .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .modal-overlay.edit-profile-modal .modal-content .form-group input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .modal-overlay.edit-profile-modal .modal-content hr {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin: 16px 0;
+        }
     </style>
 </head>
 <body>
@@ -1202,13 +1239,13 @@
             <div class="banner-text">
                 <span class="icon">🌐</span>
                 <div>
-                    <span id="bannerTitle">Únete a <span class="highlight">Mironova</span> · Red Social Integral</span>
+                    <span id="bannerTitle">Únete a <span class="highlight">Csariel's</span> · Red Social Integral</span>
                     <span class="sub" id="bannerSub">Regístrate con tu correo, MetaMask o teléfono</span>
                 </div>
             </div>
             <div class="banner-actions">
-                <button class="btn btn-gold btn-sm" id="btnRegistrarse" onclick="abrirRegistro()">
-                    <i class="fas fa-user-plus"></i> Registrarse
+                <button class="btn btn-gold btn-sm" id="btnRegistrarse" onclick="abrirEditorPerfil()">
+                    <i class="fas fa-user-plus"></i> Crear Perfil
                 </button>
                 <button class="btn btn-primary btn-sm" onclick="mostrarToast('🔑 Iniciar sesión con MetaMask, email o teléfono')">
                     <i class="fas fa-sign-in-alt"></i> Iniciar
@@ -1237,7 +1274,7 @@
                     </button>
                 </div>
                 <div class="profile-details">
-                    <span class="detail-item"><i class="fas fa-calendar-alt"></i> <span id="profileBirthday">---</span></span>
+                    <span class="detail-item"><i class="fas fa-calendar-alt"></i> 🎂 <span id="profileBirthday">---</span></span>
                     <span class="detail-item"><i class="fas fa-map-marker-alt"></i> <span id="profileLocation">---</span></span>
                     <span class="detail-item"><i class="fas fa-music"></i> <span id="profileMusic">🎸 ---</span></span>
                     <span class="detail-item"><i class="fas fa-heart" style="color:var(--gold-cosmic);"></i> <span id="profileStatus">💔 ---</span></span>
@@ -1400,6 +1437,47 @@
             </div>
         </div>
 
+        <!-- ===== MODAL EDITAR PERFIL ===== -->
+        <div class="modal-overlay edit-profile-modal" id="editProfileModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="cerrarEditorPerfil()">✕</button>
+                <h3 class="modal-title">✏️ Editar Perfil</h3>
+                <p class="modal-sub">Actualiza tu información en Csariel's</p>
+
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="editNombre" placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label>Edad</label>
+                    <input type="number" id="editEdad" placeholder="Ej. 25" min="1" max="120">
+                </div>
+                <div class="form-group">
+                    <label>Correo electrónico</label>
+                    <input type="email" id="editEmail" placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="tel" id="editWhatsapp" placeholder="55 1234 5678">
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+                    <button class="btn btn-gold" onclick="guardarEdicionPerfil()" style="flex:1;justify-content:center;">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button class="btn btn-outline" onclick="cerrarEditorPerfil()" style="flex:1;justify-content:center;">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+
+                <hr>
+
+                <button class="btn btn-outline" onclick="conectarWallet().then(actualizarUIPerfil)" style="width:100%;justify-content:center;">
+                    <i class="fas fa-wallet"></i> Conectar MetaMask
+                </button>
+            </div>
+        </div>
+
         <!-- ===== TOAST ===== -->
         <div class="toast" id="toast"></div>
 
@@ -1412,7 +1490,7 @@
                 <a href="./index.html">🏠 Inicio</a>
                 <a href="./muro-live.html">📱 Muro Live</a>
                 <a href="./mi-internet.html" style="color:#00d68f;">🌐 Comprar Internet</a>
-                <a href="#" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="./terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
                 <span class="footer-hex" style="display:inline-block;background:var(--verde-bosque);color:var(--gold-cosmic);padding:2px 8px;border-radius:4px;font-size:0.45rem;font-weight:700;border:1px solid var(--gold-cosmic);font-family:'Orbitron',monospace;">◈</span>
             </div>
         </footer>
@@ -1432,10 +1510,187 @@
         };
 
         // ================================================================
+        // 👤 PERFIL — DEVICE-ID (sin Supabase Auth)
+        // ================================================================
+
+        // Obtiene o crea el device-ID único del usuario
+        function obtenerDeviceId() {
+            let deviceId = localStorage.getItem('csariels_user_id');
+            if (!deviceId) {
+                deviceId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+                localStorage.setItem('csariels_user_id', deviceId);
+            }
+            return deviceId;
+        }
+
+        // 1. REGISTRAR / ACTUALIZAR PERFIL
+        async function registrarPerfil(nombre, edad, email, whatsapp) {
+            const deviceId = obtenerDeviceId();
+
+            if (!nombre || !nombre.trim()) {
+                mostrarToast('⚠️ El nombre es obligatorio', 'error');
+                return null;
+            }
+
+            const payload = {
+                user_id: deviceId,
+                nombre: nombre.trim(),
+                ultimo_acceso: new Date().toISOString()
+            };
+
+            if (edad !== undefined && edad !== null && edad !== '') payload.edad = parseInt(edad, 10);
+            if (email) payload.email = email.trim();
+            if (whatsapp) payload.whatsapp = whatsapp.trim();
+
+            try {
+                const { data, error } = await supabase
+                    .from('perfiles')
+                    .upsert(payload, { onConflict: 'user_id' })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                localStorage.setItem('csariels_user_name', data.nombre);
+                mostrarToast('✅ Perfil guardado');
+                return data;
+            } catch (error) {
+                console.error('Error registrarPerfil:', error);
+                mostrarToast('❌ ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        // 2. CONECTAR WALLET (MetaMask)
+        async function conectarWallet() {
+            if (!window.ethereum) {
+                mostrarToast('⚠️ Instala MetaMask', 'error');
+                return null;
+            }
+
+            const deviceId = obtenerDeviceId();
+
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const wallet = accounts[0];
+
+                const { data, error } = await supabase
+                    .from('perfiles')
+                    .update({ wallet_address: wallet, ultimo_acceso: new Date().toISOString() })
+                    .eq('user_id', deviceId)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                mostrarToast('🦊 Wallet conectada: ' + wallet.slice(0, 6) + '...' + wallet.slice(-4));
+                return data;
+            } catch (error) {
+                console.error('Error conectarWallet:', error);
+                mostrarToast('❌ Error al conectar MetaMask', 'error');
+                return null;
+            }
+        }
+
+        // 3. CARGAR PERFIL
+        async function cargarPerfil() {
+            const deviceId = obtenerDeviceId();
+
+            try {
+                const { data, error } = await supabase
+                    .from('perfiles')
+                    .select('*')
+                    .eq('user_id', deviceId)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (!data) {
+                    return null;
+                }
+
+                // Actualiza último acceso en segundo plano
+                supabase
+                    .from('perfiles')
+                    .update({ ultimo_acceso: new Date().toISOString() })
+                    .eq('user_id', deviceId)
+                    .then(() => {});
+
+                return data;
+            } catch (error) {
+                console.error('Error cargarPerfil:', error);
+                mostrarToast('❌ No se pudo cargar el perfil', 'error');
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 🖼️ UI DEL PERFIL
+        // ================================================================
+
+        function abrirEditorPerfil() {
+            const perfil = window._perfilActual || {};
+            document.getElementById('editNombre').value = perfil.nombre || '';
+            document.getElementById('editEdad').value = perfil.edad || '';
+            document.getElementById('editEmail').value = perfil.email || '';
+            document.getElementById('editWhatsapp').value = perfil.whatsapp || '';
+
+            document.getElementById('editProfileModal').classList.add('active');
+        }
+
+        function cerrarEditorPerfil() {
+            document.getElementById('editProfileModal').classList.remove('active');
+        }
+
+        async function guardarEdicionPerfil() {
+            const nombre = document.getElementById('editNombre').value.trim();
+            const edad = document.getElementById('editEdad').value;
+            const email = document.getElementById('editEmail').value.trim();
+            const whatsapp = document.getElementById('editWhatsapp').value.trim();
+
+            const data = await registrarPerfil(nombre, edad, email, whatsapp);
+
+            if (data) {
+                cerrarEditorPerfil();
+                actualizarUIPerfil(data);
+            }
+        }
+
+        function actualizarUIPerfil(perfil) {
+            if (!perfil) return;
+            window._perfilActual = perfil;
+
+            document.getElementById('profileName').textContent = perfil.nombre || 'Usuario';
+
+            const edadEl = document.getElementById('profileBirthday');
+            if (edadEl) edadEl.textContent = perfil.edad ? perfil.edad + ' años' : '---';
+
+            const musicaEl = document.getElementById('profileMusic');
+            if (musicaEl) musicaEl.textContent = perfil.musica ? '🎸 ' + perfil.musica : '🎸 ---';
+
+            const statusEl = document.getElementById('profileStatus');
+            if (statusEl) statusEl.textContent = perfil.status_sentimental ? '💔 ' + perfil.status_sentimental : '💔 ---';
+
+            const avatarEl = document.getElementById('avatarText');
+            if (avatarEl && perfil.foto_perfil_url) {
+                const avatarContainer = document.getElementById('profileAvatar');
+                avatarContainer.style.backgroundImage = `url(${perfil.foto_perfil_url})`;
+                avatarContainer.style.backgroundSize = 'cover';
+                avatarEl.style.display = 'none';
+            }
+        }
+
+        async function inicializarPerfil() {
+            const perfil = await cargarPerfil();
+            if (perfil) {
+                actualizarUIPerfil(perfil);
+            }
+        }
+
+        // ================================================================
         // INICIALIZAR SEGURIDAD (ANTI-HACKEO)
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar seguridad del sistema
             if (window.Security) {
                 window.Security.initSeguridad();
                 console.log('🛡️ Seguridad activada para Mi Red');
@@ -1447,10 +1702,11 @@
             console.log('📱 Red Csariel\'s - Internet de alta velocidad');
             console.log('📶 eSIM integrada con esim-connector.js');
 
-            // ===== AVISO DE COMMIT - UNA VEZ =====
             if (!localStorage.getItem('cmt_aviso_visto')) {
                 document.getElementById('cmtAviso').style.display = 'block';
             }
+
+            inicializarPerfil();
         });
 
         // ================================================================
@@ -1592,9 +1848,9 @@
         }
 
         // ================================================================
-        // PERFIL
+        // PERFIL (local)
         // ================================================================
-        function cargarPerfil() {
+        function cargarPerfilLocal() {
             try {
                 const guardado = localStorage.getItem('miPerfil_csariels');
                 if (guardado) {
@@ -1658,10 +1914,6 @@
             } else {
                 badge.classList.add('hidden');
             }
-        }
-
-        function abrirEditorPerfil() {
-            mostrarToast('✏️ Editor de perfil (demo)');
         }
 
         function abrirEditorFoto() {
@@ -2315,26 +2567,24 @@
         // WALLET
         // ================================================================
         
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('btnConnectWallet')?.addEventListener('click', function() {
-                const mockAddress = '0x' + Array.from({length: 40}, () => 
-                    Math.floor(Math.random() * 16).toString(16)).join('');
-                document.getElementById('walletAddressDisplay').textContent = mockAddress.slice(0, 6) + '...' + mockAddress.slice(-4);
-                document.getElementById('walletStatusBadge').className = 'wallet-badge connected';
-                document.getElementById('walletStatusBadge').innerHTML = '● Conectado';
-                this.style.display = 'none';
-                document.getElementById('btnDisconnectWallet').style.display = 'inline-flex';
-                mostrarToast('🔗 Wallet conectada');
-            });
+        document.getElementById('btnConnectWallet')?.addEventListener('click', function() {
+            const mockAddress = '0x' + Array.from({length: 40}, () => 
+                Math.floor(Math.random() * 16).toString(16)).join('');
+            document.getElementById('walletAddressDisplay').textContent = mockAddress.slice(0, 6) + '...' + mockAddress.slice(-4);
+            document.getElementById('walletStatusBadge').className = 'wallet-badge connected';
+            document.getElementById('walletStatusBadge').innerHTML = '● Conectado';
+            this.style.display = 'none';
+            document.getElementById('btnDisconnectWallet').style.display = 'inline-flex';
+            mostrarToast('🔗 Wallet conectada');
+        });
 
-            document.getElementById('btnDisconnectWallet')?.addEventListener('click', function() {
-                document.getElementById('walletAddressDisplay').textContent = '--';
-                document.getElementById('walletStatusBadge').className = 'wallet-badge disconnected';
-                document.getElementById('walletStatusBadge').innerHTML = '● Desconectado';
-                document.getElementById('btnConnectWallet').style.display = 'inline-flex';
-                this.style.display = 'none';
-                mostrarToast('🔌 Wallet desconectada');
-            });
+        document.getElementById('btnDisconnectWallet')?.addEventListener('click', function() {
+            document.getElementById('walletAddressDisplay').textContent = '--';
+            document.getElementById('walletStatusBadge').className = 'wallet-badge disconnected';
+            document.getElementById('walletStatusBadge').innerHTML = '● Desconectado';
+            document.getElementById('btnConnectWallet').style.display = 'inline-flex';
+            this.style.display = 'none';
+            mostrarToast('🔌 Wallet desconectada');
         });
 
         // ================================================================
@@ -2343,7 +2593,7 @@
         
         document.addEventListener('DOMContentLoaded', async function() {
             initStars();
-            cargarPerfil();
+            cargarPerfilLocal();
             cargarDatosLocales();
             renderAll();
             actualizarContadores();
@@ -2377,6 +2627,13 @@
         window.toggleSilenciado = toggleSilenciado;
         window.eliminarContacto = eliminarContacto;
         window.abrirEditorPerfil = abrirEditorPerfil;
+        window.cerrarEditorPerfil = cerrarEditorPerfil;
+        window.guardarEdicionPerfil = guardarEdicionPerfil;
+        window.actualizarUIPerfil = actualizarUIPerfil;
+        window.registrarPerfil = registrarPerfil;
+        window.conectarWallet = conectarWallet;
+        window.cargarPerfil = cargarPerfil;
+        window.obtenerDeviceId = obtenerDeviceId;
         window.abrirEditorFoto = abrirEditorFoto;
         window.abrirVerificacion = abrirVerificacion;
         window.abrirRegistro = abrirRegistro;
