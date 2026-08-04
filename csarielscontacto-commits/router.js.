@@ -1,0 +1,55 @@
+const CsarielRouter = {
+    currentPage: 'home',
+    pages: {
+        home: { title: 'Inicio', file: 'index.html' },
+        network: { title: 'Mi Red', file: 'features/mi-red.html' },
+        livestream: { title: 'Muro Live', file: 'features/muro-live.html' },
+        memes: { title: 'Muro Memes', file: 'features/muro-memes.html' },
+        services: { title: 'Servicios', file: 'features/servicios-comunitarios.html' },
+        trading: { title: 'Trading', file: 'features/trading.html' },
+        web3: { title: 'Panel Web3', file: 'features/panel-web3.html' },
+        internet: { title: 'Internet', file: 'features/mi-internet.html' },
+        admin: { title: 'Admin', file: 'features/dashboard-emerald.html' },
+        terms: { title: 'Términos', file: 'legal/terminos-completos.html' },
+    },
+    async navigateTo(pageKey) {
+        const page = this.pages[pageKey];
+        if (!page) return;
+        document.title = `◈ Csariel's | ${page.title}`;
+        const mainContainer = document.getElementById('app-container');
+        mainContainer.style.opacity = '0.5';
+        try {
+            const response = await fetch(page.file);
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContent = doc.querySelector('main') || doc.body;
+            mainContainer.innerHTML = newContent.innerHTML;
+            mainContainer.style.opacity = '1';
+            window.history.pushState({ page: pageKey }, '', `#${pageKey}`);
+        } catch (error) {
+            console.error('Error cargando la página:', error);
+            mainContainer.innerHTML = `<h2 style="color:red; text-align:center;">Error al cargar ${page.title}</h2>`;
+            mainContainer.style.opacity = '1';
+        }
+    },
+    init() {
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[data-csariel-page]');
+            if (link) {
+                e.preventDefault();
+                this.navigateTo(link.dataset.csarielPage);
+            }
+        });
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.page) {
+                this.navigateTo(e.state.page);
+            }
+        });
+        const hash = window.location.hash.replace('#', '');
+        if (this.pages[hash]) {
+            this.navigateTo(hash);
+        }
+    }
+};
+document.addEventListener('DOMContentLoaded', () => CsarielRouter.init());
