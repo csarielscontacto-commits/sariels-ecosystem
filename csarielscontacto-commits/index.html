@@ -12,7 +12,7 @@
   <!-- ================================================================ -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology https://cdn.tailwindcss.com;
+    script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology https://cdn.tailwindcss.com https://unpkg.com;
     style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com 'unsafe-inline';
     font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
     img-src 'self' data: https://*;
@@ -34,6 +34,12 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
   
+  <!-- ================================================================ -->
+  <!-- 🌍 MOTOR DE IDIOMAS (NUEVO) -->
+  <!-- ================================================================ -->
+  <script src="https://unpkg.com/i18next@21.8.13/dist/umd/i18next.min.js"></script>
+  <script src="https://unpkg.com/react-i18next@12.2.0/dist/umd/react-i18next.min.js"></script>
+
   <!-- ================================================================ -->
   <!-- 🔒 SEGURIDAD CSARIEL'S - ANTI-HACKEO -->
   <!-- ================================================================ -->
@@ -71,6 +77,37 @@
       --warning: #f7d44a;
       --danger: #ff3366;
       --emerald-green: #00d68f;
+    }
+
+    /* ===== ESTILO PARA EL ENGRANAJE DE IDIOMAS ===== */
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--gold-dim);
+      border-radius: 20px;
+      padding: 4px 10px;
+    }
+    .lang-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 2px 4px;
+      font-family: 'Space Grotesk', sans-serif;
+      border-radius: 4px;
+    }
+    .lang-btn:hover {
+      color: var(--gold-cosmic);
+      transform: scale(1.1);
+    }
+    .lang-btn.active {
+      color: var(--gold-cosmic);
+      background: rgba(247,212,74,0.1);
+      border: 1px solid rgba(247,212,74,0.2);
     }
 
     /* ===== WALLET STATUS ===== */
@@ -781,6 +818,16 @@
         <a href="./panel-web3.html" class="btn btn-primary btn-sm">
           <i class="fas fa-wallet"></i> Web3
         </a>
+        
+        <!-- ================================================ -->
+        <!-- 🌍 EL ENGRANAJE DE IDIOMAS ESTÁ AQUÍ -->
+        <!-- ================================================ -->
+        <div class="lang-selector" id="languageSelector">
+          <button class="lang-btn active" onclick="setLanguage('es')" id="btn-es">🇪🇸</button>
+          <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">🇺🇸</button>
+          <button class="lang-btn" onclick="setLanguage('fr')" id="btn-fr">🇫🇷</button>
+        </div>
+
         <!-- ===== WALLET STATUS CON METAMASK ===== -->
         <div class="wallet-status" id="walletStatus">
           <span class="wallet-dot loading" id="walletDot"></span>
@@ -795,28 +842,28 @@
     <!-- HERO -->
     <section class="hero">
       <div class="hero-content">
-        <h1 class="hero-title">
+        <h1 class="hero-title" id="heroTitle">
           Bienvenido a <span class="highlight">Csariel's</span>
         </h1>
-        <p class="hero-sub">
+        <p class="hero-sub" id="heroSub">
           Red Social Integral · IA · eSIM · Web3
         </p>
         <div class="hero-metrics">
           <div class="metric">
             <span class="number">🌐</span>
-            <span class="label">Red Social</span>
+            <span class="label" id="metricSocial">Red Social</span>
           </div>
           <div class="metric">
             <span class="number">📶</span>
-            <span class="label">eSIM</span>
+            <span class="label" id="metricEsim">eSIM</span>
           </div>
           <div class="metric">
             <span class="number">🧠</span>
-            <span class="label">Marquinhos IA</span>
+            <span class="label" id="metricIa">Marquinhos IA</span>
           </div>
           <div class="metric">
             <span class="number">🔗</span>
-            <span class="label">Web3</span>
+            <span class="label" id="metricWeb3">Web3</span>
           </div>
         </div>
       </div>
@@ -828,8 +875,8 @@
       <!-- 1. Admin (dashboard-emerald.html) -->
       <div class="card" style="border-color:rgba(0,214,143,0.2);background:rgba(0,214,143,0.03);">
         <div class="icon">⚙️</div>
-        <h2>Panel de Control</h2>
-        <p>Configura los planes de Internet y tus datos bancarios para la tienda.</p>
+        <h2 id="card1Title">Panel de Control</h2>
+        <p id="card1Desc">Configura los planes de Internet y tus datos bancarios para la tienda.</p>
         <div class="tags">
           <span>Admin</span>
           <span>Configuración</span>
@@ -837,7 +884,7 @@
         </div>
         <div class="actions">
           <a href="./dashboard-emerald.html" class="btn btn-primary" style="background:linear-gradient(135deg, #00d68f, #008f5a);border-color:transparent;color:white;">
-            <i class="fas fa-cog"></i> Abrir
+            <i class="fas fa-cog"></i> <span id="card1Btn">Abrir</span>
           </a>
         </div>
       </div>
@@ -845,8 +892,8 @@
       <!-- 2. Comprar Internet (mi-internet.html) -->
       <div class="card" style="border-color:rgba(0,214,143,0.25);background:rgba(0,214,143,0.05);">
         <div class="icon">🌐</div>
-        <h2>Comprar Internet</h2>
-        <p>Activa tu eSIM y compra paquetes de datos para navegar en Csariel's.</p>
+        <h2 id="card2Title">Comprar Internet</h2>
+        <p id="card2Desc">Activa tu eSIM y compra paquetes de datos para navegar en Csariel's.</p>
         <div class="tags">
           <span>eSIM</span>
           <span>Internet</span>
@@ -854,7 +901,7 @@
         </div>
         <div class="actions">
           <a href="./mi-internet.html" class="btn btn-internet">
-            <i class="fas fa-satellite-dish"></i> Comprar
+            <i class="fas fa-satellite-dish"></i> <span id="card2Btn">Comprar</span>
           </a>
         </div>
       </div>
@@ -862,8 +909,8 @@
       <!-- 3. Mi Red (mi-red.html) -->
       <div class="card">
         <div class="icon">👥</div>
-        <h2>Mi Red</h2>
-        <p>Contactos, solicitudes, descubre personas y perfiles para conectar en tu comunidad.</p>
+        <h2 id="card3Title">Mi Red</h2>
+        <p id="card3Desc">Contactos, solicitudes, descubre personas y perfiles para conectar en tu comunidad.</p>
         <div class="tags">
           <span>Social</span>
           <span>Contactos</span>
@@ -871,7 +918,7 @@
         </div>
         <div class="actions">
           <a href="./mi-red.html" class="btn btn-primary">
-            <i class="fas fa-users"></i> Abrir
+            <i class="fas fa-users"></i> <span id="card3Btn">Abrir</span>
           </a>
         </div>
       </div>
@@ -879,8 +926,8 @@
       <!-- 4. Muro Live (muro-live.html) -->
       <div class="card">
         <div class="icon">📱</div>
-        <h2>Muro Live</h2>
-        <p>Publica fotos, videos y enlaces. Transmite en vivo con moderación IA y donaciones.</p>
+        <h2 id="card4Title">Muro Live</h2>
+        <p id="card4Desc">Publica fotos, videos y enlaces. Transmite en vivo con moderación IA y donaciones.</p>
         <div class="tags">
           <span>Social</span>
           <span>Multimedia</span>
@@ -888,7 +935,7 @@
         </div>
         <div class="actions">
           <a href="./muro-live.html" class="btn btn-gold">
-            <i class="fas fa-rss"></i> Abrir
+            <i class="fas fa-rss"></i> <span id="card4Btn">Abrir</span>
           </a>
           <a href="./muro-live.html#live" class="btn btn-danger btn-sm">
             <i class="fas fa-broadcast"></i> Live
@@ -899,8 +946,8 @@
       <!-- 5. Muro Memes (muro-memes.html) CORREGIDO -->
       <div class="card" style="border-color:rgba(255,51,102,0.2);background:rgba(255,51,102,0.03);">
         <div class="icon">😂</div>
-        <h2>Muro Memes</h2>
-        <p>Memes y confesiones. Zona +18 con moderación IA. ¡Anónimo y divertido!</p>
+        <h2 id="card5Title">Muro Memes</h2>
+        <p id="card5Desc">Memes y confesiones. Zona +18 con moderación IA. ¡Anónimo y divertido!</p>
         <div class="tags">
           <span>Memes</span>
           <span>Confesiones</span>
@@ -908,7 +955,7 @@
         </div>
         <div class="actions">
           <a href="./muro-memes.html" class="btn btn-danger">
-            <i class="fas fa-mask"></i> Abrir
+            <i class="fas fa-mask"></i> <span id="card5Btn">Abrir</span>
           </a>
         </div>
       </div>
@@ -916,8 +963,8 @@
       <!-- 6. Servicios Comunitarios (servicios-comunitarios.html) -->
       <div class="card card-servicios">
         <div class="icon">🔧</div>
-        <h2>Servicios Comunitarios</h2>
-        <p>Encuentra mecánicos, plomeros, electricistas y más cerca de ti con mapa y geolocalización.</p>
+        <h2 id="card6Title">Servicios Comunitarios</h2>
+        <p id="card6Desc">Encuentra mecánicos, plomeros, electricistas y más cerca de ti con mapa y geolocalización.</p>
         <div class="tags">
           <span>Servicios</span>
           <span>Mapa</span>
@@ -925,7 +972,7 @@
         </div>
         <div class="actions">
           <a href="./servicios-comunitarios.html" class="btn btn-gold">
-            <i class="fas fa-tools"></i> Abrir
+            <i class="fas fa-tools"></i> <span id="card6Btn">Abrir</span>
           </a>
         </div>
       </div>
@@ -933,8 +980,8 @@
       <!-- 7. Trading TOK (trading.html) -->
       <div class="card" style="border-color:rgba(247,212,74,0.2);background:rgba(247,212,74,0.03);">
         <div class="icon">📈</div>
-        <h2>Trading TOK</h2>
-        <p>Compra y vende TOK en tiempo real. Gráficos, órdenes y portafolio.</p>
+        <h2 id="card7Title">Trading TOK</h2>
+        <p id="card7Desc">Compra y vende TOK en tiempo real. Gráficos, órdenes y portafolio.</p>
         <div class="tags">
           <span>Trading</span>
           <span>TOK</span>
@@ -942,7 +989,7 @@
         </div>
         <div class="actions">
           <a href="./trading.html" class="btn btn-gold">
-            <i class="fas fa-chart-line"></i> Abrir
+            <i class="fas fa-chart-line"></i> <span id="card7Btn">Abrir</span>
           </a>
         </div>
       </div>
@@ -950,8 +997,8 @@
       <!-- 8. Marquinhos Asistente -->
       <div class="card" style="border-color:rgba(247,212,74,0.2);background:rgba(247,212,74,0.03);">
         <div class="icon">🧠</div>
-        <h2>Marquinhos Asistente</h2>
-        <p>Asistente inteligente con chat, emojis, stickers, archivos, llamadas de voz/video y transmisiones en vivo.</p>
+        <h2 id="card8Title">Marquinhos Asistente</h2>
+        <p id="card8Desc">Asistente inteligente con chat, emojis, stickers, archivos, llamadas de voz/video y transmisiones en vivo.</p>
         <div class="tags">
           <span>Chat</span>
           <span>Llamadas</span>
@@ -959,7 +1006,7 @@
         </div>
         <div class="actions">
           <button class="btn btn-gold" onclick="window.marquinhosUI?.toggleVentana()">
-            <i class="fas fa-comment-dots"></i> Abrir Chat
+            <i class="fas fa-comment-dots"></i> <span id="card8Btn">Abrir Chat</span>
           </button>
           <button class="btn btn-primary btn-sm" onclick="window.marquinhosUI?.toggleVentana(); setTimeout(() => document.querySelector('.m-btn-llamada')?.click(), 500);">
             <i class="fas fa-phone"></i> Llamar
@@ -972,14 +1019,14 @@
     <!-- FOOTER -->
     <footer class="footer">
       <span class="footer-text">
-        <span class="brand">◈ Csariel's</span> — Red Social Integral · eSIM · IA · Web3
+        <span class="brand">◈ Csariel's</span> — <span id="footerTag">Red Social Integral · eSIM · IA · Web3</span>
       </span>
       <div class="footer-links">
-        <a href="./mi-red.html">👥 Mi Red</a>
-        <a href="./muro-live.html">📱 Muro Live</a>
-        <a href="./mi-internet.html" class="internet-link">🌐 Comprar Internet</a>
-        <a href="./dashboard-emerald.html" style="color:var(--text-muted);">⚙️ Admin</a>
-        <a href="./panel-web3.html" style="color:var(--text-muted);">🔗 Web3</a>
+        <a href="./mi-red.html" id="footerRed">👥 Mi Red</a>
+        <a href="./muro-live.html" id="footerLive">📱 Muro Live</a>
+        <a href="./mi-internet.html" class="internet-link" id="footerInternet">🌐 Comprar Internet</a>
+        <a href="./dashboard-emerald.html" style="color:var(--text-muted);" id="footerAdmin">⚙️ Admin</a>
+        <a href="./panel-web3.html" style="color:var(--text-muted);" id="footerWeb3">🔗 Web3</a>
         <span class="footer-hex">◈</span>
       </div>
     </footer>
@@ -1007,11 +1054,168 @@
       console.log('🌐 Comprar Internet disponible');
       console.log('🦊 MetaMask integrado');
 
-      // ================================================================
-      // 🦊 INICIAR METAMASK + WALLET INVISIBLE
-      // ================================================================
       iniciarWallet();
     });
+
+    // ================================================================
+    // 🌍 LÓGICA DEL ENGRANAJE DE IDIOMAS (TRADUCCIONES)
+    // ================================================================
+    const translations = {
+      es: {
+        heroTitle: 'Bienvenido a <span class="highlight">Csariel\'s</span>',
+        heroSub: 'Red Social Integral · IA · eSIM · Web3',
+        metricSocial: 'Red Social',
+        metricEsim: 'eSIM',
+        metricIa: 'Marquinhos IA',
+        metricWeb3: 'Web3',
+        card1Title: 'Panel de Control',
+        card1Desc: 'Configura los planes de Internet y tus datos bancarios para la tienda.',
+        card1Btn: 'Abrir',
+        card2Title: 'Comprar Internet',
+        card2Desc: 'Activa tu eSIM y compra paquetes de datos para navegar en Csariel\'s.',
+        card2Btn: 'Comprar',
+        card3Title: 'Mi Red',
+        card3Desc: 'Contactos, solicitudes, descubre personas y perfiles para conectar en tu comunidad.',
+        card3Btn: 'Abrir',
+        card4Title: 'Muro Live',
+        card4Desc: 'Publica fotos, videos y enlaces. Transmite en vivo con moderación IA y donaciones.',
+        card4Btn: 'Abrir',
+        card5Title: 'Muro Memes',
+        card5Desc: 'Memes y confesiones. Zona +18 con moderación IA. ¡Anónimo y divertido!',
+        card5Btn: 'Abrir',
+        card6Title: 'Servicios Comunitarios',
+        card6Desc: 'Encuentra mecánicos, plomeros, electricistas y más cerca de ti con mapa y geolocalización.',
+        card6Btn: 'Abrir',
+        card7Title: 'Trading TOK',
+        card7Desc: 'Compra y vende TOK en tiempo real. Gráficos, órdenes y portafolio.',
+        card7Btn: 'Abrir',
+        card8Title: 'Marquinhos Asistente',
+        card8Desc: 'Asistente inteligente con chat, emojis, stickers, archivos, llamadas de voz/video y transmisiones en vivo.',
+        card8Btn: 'Abrir Chat',
+        footerTag: 'Red Social Integral · eSIM · IA · Web3',
+        footerRed: '👥 Mi Red',
+        footerLive: '📱 Muro Live',
+        footerInternet: '🌐 Comprar Internet',
+        footerAdmin: '⚙️ Admin',
+        footerWeb3: '🔗 Web3'
+      },
+      en: {
+        heroTitle: 'Welcome to <span class="highlight">Csariel\'s</span>',
+        heroSub: 'Integral Social Network · AI · eSIM · Web3',
+        metricSocial: 'Social Network',
+        metricEsim: 'eSIM',
+        metricIa: 'Marquinhos AI',
+        metricWeb3: 'Web3',
+        card1Title: 'Dashboard',
+        card1Desc: 'Configure Internet plans and your bank data for the store.',
+        card1Btn: 'Open',
+        card2Title: 'Buy Internet',
+        card2Desc: 'Activate your eSIM and buy data packages to browse in Csariel\'s.',
+        card2Btn: 'Buy',
+        card3Title: 'My Network',
+        card3Desc: 'Contacts, requests, discover people and profiles to connect in your community.',
+        card3Btn: 'Open',
+        card4Title: 'Live Wall',
+        card4Desc: 'Post photos, videos and links. Broadcast live with AI moderation and donations.',
+        card4Btn: 'Open',
+        card5Title: 'Meme Wall',
+        card5Desc: 'Memes and confessions. +18 zone with AI moderation. Anonymous and fun!',
+        card5Btn: 'Open',
+        card6Title: 'Community Services',
+        card6Desc: 'Find mechanics, plumbers, electricians and more near you with map and geolocation.',
+        card6Btn: 'Open',
+        card7Title: 'TOK Trading',
+        card7Desc: 'Buy and sell TOK in real-time. Charts, orders and portfolio.',
+        card7Btn: 'Open',
+        card8Title: 'Marquinhos Assistant',
+        card8Desc: 'Smart assistant with chat, emojis, stickers, files, voice/video calls and live streams.',
+        card8Btn: 'Open Chat',
+        footerTag: 'Integral Social Network · eSIM · AI · Web3',
+        footerRed: '👥 My Network',
+        footerLive: '📱 Live Wall',
+        footerInternet: '🌐 Buy Internet',
+        footerAdmin: '⚙️ Admin',
+        footerWeb3: '🔗 Web3'
+      },
+      fr: {
+        heroTitle: 'Bienvenue à <span class="highlight">Csariel\'s</span>',
+        heroSub: 'Réseau Social Intégral · IA · eSIM · Web3',
+        metricSocial: 'Réseau Social',
+        metricEsim: 'eSIM',
+        metricIa: 'Marquinhos IA',
+        metricWeb3: 'Web3',
+        card1Title: 'Tableau de Bord',
+        card1Desc: 'Configurez les forfaits Internet et vos données bancaires pour la boutique.',
+        card1Btn: 'Ouvrir',
+        card2Title: 'Acheter Internet',
+        card2Desc: 'Activez votre eSIM et achetez des forfaits de données pour naviguer sur Csariel\'s.',
+        card2Btn: 'Acheter',
+        card3Title: 'Mon Réseau',
+        card3Desc: 'Contacts, demandes, découvrez des personnes et des profils pour vous connecter dans votre communauté.',
+        card3Btn: 'Ouvrir',
+        card4Title: 'Mur Live',
+        card4Desc: 'Publiez des photos, vidéos et liens. Diffusez en direct avec modération IA et dons.',
+        card4Btn: 'Ouvrir',
+        card5Title: 'Mur de Mèmes',
+        card5Desc: 'Mèmes et confessions. Zone +18 avec modération IA. Anonyme et amusant !',
+        card5Btn: 'Ouvrir',
+        card6Title: 'Services Communautaires',
+        card6Desc: 'Trouvez des mécaniciens, plombiers, électriciens et plus près de chez vous avec carte et géolocalisation.',
+        card6Btn: 'Ouvrir',
+        card7Title: 'Trading TOK',
+        card7Desc: 'Achetez et vendez TOK en temps réel. Graphiques, ordres et portefeuille.',
+        card7Btn: 'Ouvrir',
+        card8Title: 'Assistant Marquinhos',
+        card8Desc: 'Assistant intelligent avec chat, emojis, autocollants, fichiers, appels vocaux/vidéo et diffusions en direct.',
+        card8Btn: 'Ouvrir le Chat',
+        footerTag: 'Réseau Social Intégral · eSIM · IA · Web3',
+        footerRed: '👥 Mon Réseau',
+        footerLive: '📱 Mur Live',
+        footerInternet: '🌐 Acheter Internet',
+        footerAdmin: '⚙️ Admin',
+        footerWeb3: '🔗 Web3'
+      }
+    };
+
+    function setLanguage(lang) {
+      const t = translations[lang];
+      
+      // Actualizar textos del Hero
+      document.getElementById('heroTitle').innerHTML = t.heroTitle;
+      document.getElementById('heroSub').innerText = t.heroSub;
+      document.getElementById('metricSocial').innerText = t.metricSocial;
+      document.getElementById('metricEsim').innerText = t.metricEsim;
+      document.getElementById('metricIa').innerText = t.metricIa;
+      document.getElementById('metricWeb3').innerText = t.metricWeb3;
+
+      // Actualizar textos de las tarjetas
+      for(let i=1; i<=8; i++) {
+        document.getElementById(`card${i}Title`).innerText = t[`card${i}Title`];
+        document.getElementById(`card${i}Desc`).innerText = t[`card${i}Desc`];
+        document.getElementById(`card${i}Btn`).innerText = t[`card${i}Btn`];
+      }
+
+      // Actualizar Footer
+      document.getElementById('footerTag').innerText = t.footerTag;
+      document.getElementById('footerRed').innerText = t.footerRed;
+      document.getElementById('footerLive').innerText = t.footerLive;
+      document.getElementById('footerInternet').innerText = t.footerInternet;
+      document.getElementById('footerAdmin').innerText = t.footerAdmin;
+      document.getElementById('footerWeb3').innerText = t.footerWeb3;
+
+      // Actualizar estado activo de los botones
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${lang}`).classList.add('active');
+
+      // Guardar preferencia
+      localStorage.setItem('csariels_lang', lang);
+    }
+
+    // Cargar idioma guardado
+    const savedLang = localStorage.getItem('csariels_lang');
+    if(savedLang && translations[savedLang]) {
+      setLanguage(savedLang);
+    }
 
     // ================================================================
     // 🦊 METAMASK + WALLET INVISIBLE (FALLBACK)
@@ -1058,12 +1262,9 @@
             btn.textContent = '🦊 MetaMask';
             btn.style.display = 'none';
             
-            // Guardar en localStorage
             localStorage.setItem('csariels_wallet', walletAddress);
-            
             console.log('🦊 MetaMask conectado:', walletAddress);
 
-            // Escuchar cambios de cuenta
             window.ethereum.on('accountsChanged', (accounts) => {
               if (accounts.length > 0) {
                 walletAddress = accounts[0];
@@ -1078,7 +1279,6 @@
                 btn.textContent = 'Conectar MetaMask';
               }
             });
-
             return;
           }
         } catch (e) {
@@ -1130,13 +1330,10 @@
         text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
         btn.style.display = 'none';
         
-        // Guardar en localStorage
         localStorage.setItem('csariels_wallet', walletAddress);
-        
         console.log('🦊 MetaMask conectado:', walletAddress);
         mostrarToast('🦊 MetaMask conectado correctamente');
 
-        // Escuchar cambios de cuenta
         window.ethereum.on('accountsChanged', (accounts) => {
           if (accounts.length > 0) {
             walletAddress = accounts[0];
