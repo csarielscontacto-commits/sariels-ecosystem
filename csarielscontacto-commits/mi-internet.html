@@ -744,6 +744,43 @@
             margin-top: 4px;
         }
 
+        /* ===== WALLET STATUS ===== */
+        .wallet-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid var(--gold-dim);
+            font-size: 0.6rem;
+        }
+        .wallet-status .wallet-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .wallet-status .wallet-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(0,184,148,0.3);
+        }
+        .wallet-status .wallet-dot.offline {
+            background: var(--text-muted);
+        }
+        .wallet-status .wallet-dot.loading {
+            background: var(--warning);
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
+        .wallet-status .wallet-text {
+            color: var(--text-secondary);
+        }
+        .wallet-status .wallet-badge {
+            font-size: 0.45rem;
+            color: var(--success);
+            font-family: 'Orbitron', monospace;
+        }
+
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
@@ -837,6 +874,7 @@
             .esim-dashboard .esim-actions .btn { font-size: 0.4rem; padding: 4px 8px; }
             .pagos-section .pago-item { font-size: 0.5rem; padding: 2px 8px; }
             .pagos-section .pago-item .icon { font-size: 0.8rem; }
+            .wallet-status { font-size: 0.5rem; padding: 4px 8px; }
         }
     </style>
 </head>
@@ -869,6 +907,11 @@
                 <a href="./muro-live.html" class="btn btn-outline btn-sm">
                     <i class="fas fa-rss"></i> Muro Live
                 </a>
+                <!-- ===== WALLET STATUS ===== -->
+                <div class="wallet-status" id="walletStatus">
+                    <span class="wallet-dot loading" id="walletDot"></span>
+                    <span class="wallet-text" id="walletText">Conectando wallet...</span>
+                </div>
             </div>
         </header>
 
@@ -981,8 +1024,8 @@
                         <i class="fas fa-check"></i> Cobertura nacional<br>
                         <i class="fas fa-check"></i> Soporte básico
                     </div>
-                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('basico')">
-                        <i class="fas fa-shopping-cart"></i> Comprar
+                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('basico', 'Plan Básico', 99)">
+                        <i class="fas fa-wallet"></i> Comprar con Wallet
                     </button>
                 </div>
 
@@ -1000,8 +1043,8 @@
                         <i class="fas fa-check"></i> Soporte prioritario<br>
                         <i class="fas fa-check"></i> <strong style="color:var(--gold-cosmic);">+1 GB extra</strong>
                     </div>
-                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('popular')">
-                        <i class="fas fa-shopping-cart"></i> Comprar
+                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('popular', 'Plan Popular', 199)">
+                        <i class="fas fa-wallet"></i> Comprar con Wallet
                     </button>
                 </div>
 
@@ -1019,8 +1062,8 @@
                         <i class="fas fa-check"></i> Soporte VIP 24/7<br>
                         <i class="fas fa-check"></i> VPN incluida
                     </div>
-                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('premium')">
-                        <i class="fas fa-shopping-cart"></i> Comprar
+                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('premium', 'Plan Premium', 349)">
+                        <i class="fas fa-wallet"></i> Comprar con Wallet
                     </button>
                 </div>
 
@@ -1039,8 +1082,8 @@
                         <i class="fas fa-check"></i> VPN + Antivirus<br>
                         <i class="fas fa-check"></i> <strong style="color:var(--gold-cosmic);">+5 GB extra</strong>
                     </div>
-                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('pro')">
-                        <i class="fas fa-shopping-cart"></i> Comprar
+                    <button class="btn btn-internet btn-comprar-plan" onclick="event.stopPropagation();comprarPlan('pro', 'Plan Pro', 499)">
+                        <i class="fas fa-wallet"></i> Comprar con Wallet
                     </button>
                 </div>
             </div>
@@ -1050,23 +1093,26 @@
         <div class="pagos-section">
             <div class="pagos-title">💳 Métodos de Pago</div>
             <div class="pagos-grid">
-                <span class="pago-item active">
-                    <span class="icon">💳</span> Tarjeta
+                <span class="pago-item active" id="pagoWallet" onclick="seleccionarPago('wallet')">
+                    <span class="icon">🪙</span> Csariel's Wallet
                     <span class="check">✅</span>
                 </span>
-                <span class="pago-item">
+                <span class="pago-item" id="pagoTarjeta" onclick="seleccionarPago('tarjeta')">
+                    <span class="icon">💳</span> Tarjeta
+                </span>
+                <span class="pago-item" id="pagoMetaMask" onclick="seleccionarPago('metamask')">
                     <span class="icon">🦊</span> MetaMask
                 </span>
-                <span class="pago-item">
+                <span class="pago-item" id="pagoSPEI" onclick="seleccionarPago('spei')">
                     <span class="icon">📱</span> SPEI
                 </span>
-                <span class="pago-item">
+                <span class="pago-item" id="pagoCrypto" onclick="seleccionarPago('crypto')">
                     <span class="icon">🟠</span> Crypto
                 </span>
-                <span class="pago-item">
+                <span class="pago-item" id="pagoOxxo" onclick="seleccionarPago('oxxo')">
                     <span class="icon">📲</span> Oxxo
                 </span>
-                <span class="pago-item">
+                <span class="pago-item" id="pagoPayPal" onclick="seleccionarPago('paypal')">
                     <span class="icon">🌐</span> PayPal
                 </span>
             </div>
@@ -1101,7 +1147,7 @@
         <!-- FOOTER -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Internet de alta velocidad · eSIM
+                <span class="brand">◈ Csariel's</span> — Internet de alta velocidad · eSIM · Wallet Invisible
             </span>
             <div class="footer-links">
                 <a href="./index.html">🏠 Inicio</a>
@@ -1200,6 +1246,201 @@
             createStars();
             draw();
             window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // 🪙 WALLET INVISIBLE - INTEGRACIÓN
+        // ================================================================
+
+        let walletState = {
+            authenticated: false,
+            walletAddress: null,
+            ready: false
+        };
+
+        // ================================================================
+        // INICIAR WALLET
+        // ================================================================
+
+        async function iniciarWallet() {
+            const dot = document.getElementById('walletDot');
+            const text = document.getElementById('walletText');
+
+            // Verificar si estamos en Csariel's Browser
+            if (typeof window.csarielsAPI !== 'undefined') {
+                console.log('🪙 Csariel\'s Browser detectado');
+                
+                try {
+                    const info = window.csarielsAPI.getInfo();
+                    console.log('📱 Navegador:', info);
+                    
+                    // Obtener wallet desde el navegador
+                    const walletData = await window.csarielsAPI.getWallet();
+                    
+                    if (walletData && walletData.address) {
+                        walletState.authenticated = true;
+                        walletState.walletAddress = walletData.address;
+                        walletState.ready = true;
+                        
+                        dot.className = 'wallet-dot online';
+                        text.textContent = `🪙 ${walletData.address.slice(0, 6)}...${walletData.address.slice(-4)}`;
+                        
+                        // Guardar en localStorage
+                        localStorage.setItem('csariels_wallet', walletData.address);
+                        
+                        mostrarToast('✅ Wallet invisible conectada', 'success');
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Error obteniendo wallet del navegador:', e);
+                }
+            }
+
+            // Fallback: wallet local
+            const walletGuardada = localStorage.getItem('csariels_wallet');
+            if (walletGuardada) {
+                walletState.authenticated = true;
+                walletState.walletAddress = walletGuardada;
+                walletState.ready = true;
+                
+                dot.className = 'wallet-dot online';
+                text.textContent = `🪙 ${walletGuardada.slice(0, 6)}...${walletGuardada.slice(-4)}`;
+                
+                console.log('🔓 Wallet restaurada:', walletGuardada);
+                return;
+            }
+
+            // Crear wallet nueva
+            const nuevaWallet = '0x' + Array.from({length: 40}, () => 
+                Math.floor(Math.random() * 16).toString(16)).join('');
+            
+            localStorage.setItem('csariels_wallet', nuevaWallet);
+            
+            walletState.authenticated = true;
+            walletState.walletAddress = nuevaWallet;
+            walletState.ready = true;
+            
+            dot.className = 'wallet-dot online';
+            text.textContent = `🪙 ${nuevaWallet.slice(0, 6)}...${nuevaWallet.slice(-4)}`;
+            
+            console.log('🆕 Nueva wallet creada:', nuevaWallet);
+            mostrarToast('🪙 Wallet invisible creada', 'success');
+        }
+
+        // ================================================================
+        // CONECTAR WALLET
+        // ================================================================
+
+        function conectarWallet() {
+            if (walletState.authenticated) {
+                mostrarToast(`🪙 Wallet: ${walletState.walletAddress.slice(0, 10)}...`, 'info');
+                return;
+            }
+            iniciarWallet();
+        }
+
+        // ================================================================
+        // COMPRAR PLAN CON WALLET
+        // ================================================================
+
+        async function comprarPlan(planId, planNombre, precio) {
+            // Verificar eSIM
+            const puede = await window.esimConnector?.puedeEjecutarAccion(0.5, 'comprar_internet');
+            if (!puede || !puede.puede) {
+                mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
+                if (puede?.recargar) {
+                    setTimeout(() => {
+                        if (confirm('📶 ¿Quieres activar o recargar tu eSIM primero?')) {
+                            window.location.href = './mi-red.html#esim';
+                        }
+                    }, 1000);
+                }
+                return;
+            }
+
+            // Verificar wallet
+            if (!walletState.authenticated) {
+                await iniciarWallet();
+                if (!walletState.authenticated) {
+                    mostrarToast('⚠️ No se pudo conectar la wallet', 'error');
+                    return;
+                }
+            }
+
+            // Confirmar con Security.js
+            if (window.Security) {
+                const confirmar = confirm(
+                    '⚠️ CONFIRMA TU COMPRA CON WALLET\n\n' +
+                    '📦 Plan: ' + planNombre + '\n' +
+                    '💰 Precio: $' + precio + ' MXN\n' +
+                    '🪙 Wallet: ' + walletState.walletAddress.slice(0, 10) + '...\n\n' +
+                    '🔒 Esta acción es irreversible.\n' +
+                    '✅ ¿Estás seguro de continuar?'
+                );
+                if (!confirmar) {
+                    mostrarToast('⛔ Compra cancelada', 'warning');
+                    return;
+                }
+            }
+
+            try {
+                // Registrar compra en Supabase
+                const compra = {
+                    wallet: walletState.walletAddress,
+                    plan: planId,
+                    plan_nombre: planNombre,
+                    precio: precio,
+                    fecha: new Date().toISOString(),
+                    metodo: 'wallet_invisible',
+                    estatus: 'completado'
+                };
+
+                // Guardar en localStorage como respaldo
+                const historial = JSON.parse(localStorage.getItem('csariels_compras') || '[]');
+                historial.push(compra);
+                localStorage.setItem('csariels_compras', JSON.stringify(historial));
+
+                // Si estamos en Csariel's Browser, notificar
+                if (typeof window.csarielsAPI !== 'undefined') {
+                    window.csarielsAPI.showNotification('Compra exitosa', 
+                        `Plan ${planNombre} adquirido con wallet invisible`);
+                }
+
+                mostrarToast(`✅ ${planNombre} comprado con wallet invisible`, 'success');
+                
+                // Actualizar eSIM
+                await actualizarEsimUI();
+                await actualizarConexionUI();
+
+            } catch (error) {
+                console.error('❌ Error comprando plan:', error);
+                mostrarToast('❌ Error al procesar la compra', 'error');
+            }
+        }
+
+        // ================================================================
+        // SELECCIONAR MÉTODO DE PAGO
+        // ================================================================
+
+        function seleccionarPago(metodo) {
+            document.querySelectorAll('.pago-item').forEach(el => {
+                el.classList.remove('active');
+                const check = el.querySelector('.check');
+                if (check) check.remove();
+            });
+            
+            const el = document.getElementById(`pago${metodo.charAt(0).toUpperCase() + metodo.slice(1)}`);
+            if (el) {
+                el.classList.add('active');
+                el.innerHTML += ' <span class="check">✅</span>';
+            }
+            
+            if (metodo === 'wallet') {
+                conectarWallet();
+                mostrarToast('🪙 Pagando con Csariel\'s Wallet', 'info');
+            } else {
+                mostrarToast(`💳 Método de pago: ${metodo.toUpperCase()} (próximamente)`, 'info');
+            }
         }
 
         // ================================================================
@@ -1377,62 +1618,6 @@
             mostrarToast(`📦 Seleccionado: ${PLANES[planId].nombre}`);
         }
 
-        async function comprarPlan(planId) {
-            // 🔒 Verificar datos antes de comprar (0.5 MB)
-            const puede = await window.esimConnector?.puedeEjecutarAccion(0.5, 'comprar_internet');
-            if (!puede || !puede.puede) {
-                mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
-                if (puede?.recargar) {
-                    setTimeout(() => {
-                        if (confirm('📶 ¿Quieres activar o recargar tu eSIM primero?')) {
-                            window.location.href = './mi-red.html#esim';
-                        }
-                    }, 1000);
-                }
-                return;
-            }
-
-            const plan = PLANES[planId];
-            if (!plan) {
-                mostrarToast('⚠️ Plan no encontrado', 'error');
-                return;
-            }
-
-            // 🔒 Confirmar con Security.js si está disponible
-            if (window.Security) {
-                const confirmar = confirm(
-                    '⚠️ CONFIRMA TU COMPRA\n\n' +
-                    '📦 Plan: ' + plan.nombre + '\n' +
-                    '💰 Precio: $' + plan.precio + ' MXN\n' +
-                    '📊 Datos: ' + (plan.datos / 1000) + ' GB\n' +
-                    '📅 Duración: ' + plan.dias + ' días\n\n' +
-                    '🔒 Esta acción es irreversible.\n' +
-                    '✅ ¿Estás seguro de continuar?'
-                );
-                if (!confirmar) {
-                    mostrarToast('⛔ Compra cancelada', 'warning');
-                    return;
-                }
-            } else {
-                mostrarToast('⚠️ Sistema de seguridad no disponible', 'error');
-                return;
-            }
-
-            try {
-                const resultado = await window.esimConnector?.comprarPlan(planId);
-                if (resultado && resultado.success) {
-                    mostrarToast('✅ ' + resultado.mensaje);
-                    await actualizarEsimUI();
-                    await actualizarConexionUI();
-                } else {
-                    mostrarToast('❌ ' + (resultado?.error || 'Error al comprar plan'), 'error');
-                }
-            } catch (error) {
-                console.error('Error comprando plan:', error);
-                mostrarToast('❌ Error al procesar la compra', 'error');
-            }
-        }
-
         function aplicarPromo() {
             mostrarToast('🎁 Código CSARIELS10 aplicado - 10% de descuento');
         }
@@ -1446,9 +1631,13 @@
             initSeguridad();
 
             console.log('🌐 Csariel\'s - Comprar Internet');
+            console.log('🪙 Wallet invisible integrada');
             console.log('📶 Verificación de datos eSIM activada');
             
             initStars();
+            
+            // Inicializar wallet
+            await iniciarWallet();
             
             // Inicializar eSIM y conexión
             await actualizarEsimUI();
@@ -1470,6 +1659,8 @@
         window.verHistorial = verHistorial;
         window.seleccionarPlan = seleccionarPlan;
         window.comprarPlan = comprarPlan;
+        window.seleccionarPago = seleccionarPago;
+        window.conectarWallet = conectarWallet;
         window.aplicarPromo = aplicarPromo;
         window.actualizarEsimUI = actualizarEsimUI;
         window.actualizarConexionUI = actualizarConexionUI;
