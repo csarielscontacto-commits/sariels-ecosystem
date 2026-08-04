@@ -69,6 +69,51 @@
       --emerald-green: #00d68f;
     }
 
+    /* ===== WALLET STATUS ===== */
+    .wallet-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      border: 1px solid var(--gold-dim);
+      font-size: 0.55rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .wallet-status:hover {
+      border-color: var(--border-glow);
+    }
+    .wallet-status .wallet-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .wallet-status .wallet-dot.online {
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(0,184,148,0.3);
+    }
+    .wallet-status .wallet-dot.offline {
+      background: var(--text-muted);
+    }
+    .wallet-status .wallet-dot.loading {
+      background: var(--warning);
+      animation: pulse-glow 1s ease-in-out infinite;
+    }
+    .wallet-status .wallet-text {
+      color: var(--text-secondary);
+      font-family: 'Orbitron', monospace;
+      font-size: 0.5rem;
+    }
+    .wallet-status .wallet-badge {
+      font-size: 0.4rem;
+      color: var(--gold-cosmic);
+      font-family: 'Orbitron', monospace;
+    }
+
+    /* ===== RESTO DE ESTILOS ===== */
     * {
       margin: 0;
       padding: 0;
@@ -668,6 +713,7 @@
       .hero-metrics { gap: 20px; }
       .grid { grid-template-columns: 1fr 1fr; }
       .card { min-height: 280px; }
+      .wallet-status { font-size: 0.45rem; padding: 2px 8px; }
     }
 
     @media (max-width: 480px) {
@@ -675,6 +721,8 @@
       .btn { font-size: 0.6rem; padding: 8px 14px; }
       .grid { grid-template-columns: 1fr; }
       .card { padding: 18px; min-height: 250px; }
+      .wallet-status { font-size: 0.4rem; padding: 2px 6px; }
+      .wallet-status .wallet-text { font-size: 0.4rem; }
     }
   </style>
 </head>
@@ -708,10 +756,14 @@
         <a href="./dashboard-emerald.html" class="btn btn-outline btn-sm">
           <i class="fas fa-cog"></i> Admin
         </a>
-        <!-- 🆕 BOTÓN WEB3 -->
         <a href="./panel-web3.html" class="btn btn-primary btn-sm">
           <i class="fas fa-wallet"></i> Web3
         </a>
+        <!-- ===== WALLET STATUS ===== -->
+        <div class="wallet-status" id="walletStatus" onclick="mostrarWalletInfo()">
+          <span class="wallet-dot loading" id="walletDot"></span>
+          <span class="wallet-text" id="walletText">Conectando wallet...</span>
+        </div>
       </div>
     </header>
 
@@ -925,7 +977,75 @@
       console.log('🧠 Marquinhos Asistente integrado');
       console.log('📶 eSIM integrada');
       console.log('🌐 Comprar Internet disponible');
+      console.log('🪙 Wallet invisible integrada');
+
+      // ================================================================
+      // 🪙 INICIAR WALLET INVISIBLE
+      // ================================================================
+      iniciarWallet();
     });
+
+    // ================================================================
+    // 🪙 WALLET INVISIBLE
+    // ================================================================
+
+    function iniciarWallet() {
+      const dot = document.getElementById('walletDot');
+      const text = document.getElementById('walletText');
+
+      // Verificar si estamos en Csariel's Browser
+      if (typeof window.csarielsAPI !== 'undefined') {
+        console.log('🪙 Csariel\'s Browser detectado');
+        try {
+          const info = window.csarielsAPI.getInfo();
+          console.log('📱 Navegador:', info);
+          
+          // Obtener wallet desde el navegador
+          window.csarielsAPI.getWallet().then((walletData) => {
+            if (walletData && walletData.address) {
+              dot.className = 'wallet-dot online';
+              text.textContent = `🪙 ${walletData.address.slice(0, 6)}...${walletData.address.slice(-4)}`;
+              localStorage.setItem('csariels_wallet', walletData.address);
+              return;
+            }
+            usarWalletLocal();
+          }).catch(() => usarWalletLocal());
+        } catch (e) {
+          console.warn('⚠️ Error con Csariel\'s Browser:', e);
+          usarWalletLocal();
+        }
+        return;
+      }
+
+      usarWalletLocal();
+    }
+
+    function usarWalletLocal() {
+      const dot = document.getElementById('walletDot');
+      const text = document.getElementById('walletText');
+
+      const walletGuardada = localStorage.getItem('csariels_wallet');
+      if (walletGuardada) {
+        dot.className = 'wallet-dot online';
+        text.textContent = `🪙 ${walletGuardada.slice(0, 6)}...${walletGuardada.slice(-4)}`;
+        console.log('🔓 Wallet restaurada');
+        return;
+      }
+
+      // Crear wallet nueva
+      const nuevaWallet = '0x' + Array.from({length: 40}, () => 
+        Math.floor(Math.random() * 16).toString(16)).join('');
+      localStorage.setItem('csariels_wallet', nuevaWallet);
+      
+      dot.className = 'wallet-dot online';
+      text.textContent = `🪙 ${nuevaWallet.slice(0, 6)}...${nuevaWallet.slice(-4)}`;
+      console.log('🆕 Nueva wallet creada');
+    }
+
+    function mostrarWalletInfo() {
+      const wallet = localStorage.getItem('csariels_wallet') || 'No hay wallet';
+      alert(`🪙 Tu wallet invisible:\n\n${wallet}\n\nEsta wallet se crea automáticamente al entrar a Csariel's.`);
+    }
 
     window.openPrivacidadModal = function() {};
     window.closePrivacidadModal = function() {};
