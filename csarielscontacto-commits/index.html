@@ -24,6 +24,10 @@
     form-action 'self';
   ">
   
+  <!-- Ethers.js para MetaMask -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js">
+  </script>
+  
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   
@@ -102,6 +106,10 @@
       background: var(--warning);
       animation: pulse-glow 1s ease-in-out infinite;
     }
+    .wallet-status .wallet-dot.metamask {
+      background: #f6851b;
+      box-shadow: 0 0 15px rgba(246,133,27,0.4);
+    }
     .wallet-status .wallet-text {
       color: var(--text-secondary);
       font-family: 'Orbitron', monospace;
@@ -111,6 +119,20 @@
       font-size: 0.4rem;
       color: var(--gold-cosmic);
       font-family: 'Orbitron', monospace;
+    }
+    .wallet-status .btn-conectar-wallet {
+      background: none;
+      border: 1px solid var(--gold-cosmic);
+      color: var(--gold-cosmic);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.45rem;
+      cursor: pointer;
+      font-family: 'Orbitron', monospace;
+      transition: var(--transition);
+    }
+    .wallet-status .btn-conectar-wallet:hover {
+      background: rgba(247,212,74,0.1);
     }
 
     /* ===== RESTO DE ESTILOS ===== */
@@ -759,10 +781,13 @@
         <a href="./panel-web3.html" class="btn btn-primary btn-sm">
           <i class="fas fa-wallet"></i> Web3
         </a>
-        <!-- ===== WALLET STATUS ===== -->
-        <div class="wallet-status" id="walletStatus" onclick="mostrarWalletInfo()">
+        <!-- ===== WALLET STATUS CON METAMASK ===== -->
+        <div class="wallet-status" id="walletStatus">
           <span class="wallet-dot loading" id="walletDot"></span>
           <span class="wallet-text" id="walletText">Conectando wallet...</span>
+          <button class="btn-conectar-wallet" id="btnConectarWallet" style="display:none;" onclick="conectarMetaMask()">
+            <i class="fas fa-plug"></i> Conectar
+          </button>
         </div>
       </div>
     </header>
@@ -961,9 +986,12 @@
   </div>
 
   <!-- ================================================================ -->
-  <!-- 🔒 INICIALIZAR SEGURIDAD -->
+  <!-- 🔒 INICIALIZAR SEGURIDAD Y WALLET -->
   <!-- ================================================================ -->
   <script>
+    // ================================================================
+    // 🔒 INICIALIZAR SEGURIDAD
+    // ================================================================
     document.addEventListener('DOMContentLoaded', () => {
       if (window.Security) {
         window.Security.initSeguridad();
@@ -977,79 +1005,219 @@
       console.log('🧠 Marquinhos Asistente integrado');
       console.log('📶 eSIM integrada');
       console.log('🌐 Comprar Internet disponible');
-      console.log('🪙 Wallet invisible integrada');
+      console.log('🦊 MetaMask integrado');
 
       // ================================================================
-      // 🪙 INICIAR WALLET INVISIBLE
+      // 🦊 INICIAR METAMASK + WALLET INVISIBLE
       // ================================================================
       iniciarWallet();
     });
 
     // ================================================================
-    // 🪙 WALLET INVISIBLE
+    // 🦊 METAMASK + WALLET INVISIBLE (FALLBACK)
     // ================================================================
 
-    function iniciarWallet() {
+    let walletAddress = null;
+    let walletProvider = null;
+    let walletConnected = false;
+
+    async function iniciarWallet() {
       const dot = document.getElementById('walletDot');
       const text = document.getElementById('walletText');
+      const btn = document.getElementById('btnConectarWallet');
 
-      // Verificar si estamos en Csariel's Browser
+      // 1. Verificar Csariel's Browser
       if (typeof window.csarielsAPI !== 'undefined') {
-        console.log('🪙 Csariel\'s Browser detectado');
         try {
           const info = window.csarielsAPI.getInfo();
-          console.log('📱 Navegador:', info);
-          
-          // Obtener wallet desde el navegador
-          window.csarielsAPI.getWallet().then((walletData) => {
-            if (walletData && walletData.address) {
-              dot.className = 'wallet-dot online';
-              text.textContent = `🪙 ${walletData.address.slice(0, 6)}...${walletData.address.slice(-4)}`;
-              localStorage.setItem('csariels_wallet', walletData.address);
-              return;
-            }
-            usarWalletLocal();
-          }).catch(() => usarWalletLocal());
+          console.log('🪙 Csariel\'s Browser:', info);
+          const walletData = await window.csarielsAPI.getWallet();
+          if (walletData && walletData.address) {
+            walletAddress = walletData.address;
+            walletConnected = true;
+            dot.className = 'wallet-dot metamask';
+            text.textContent = `🪙 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+            btn.style.display = 'none';
+            return;
+          }
         } catch (e) {
           console.warn('⚠️ Error con Csariel\'s Browser:', e);
-          usarWalletLocal();
         }
-        return;
       }
 
-      usarWalletLocal();
-    }
+      // 2. Verificar MetaMask
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0) {
+            walletAddress = accounts[0];
+            walletProvider = new ethers.providers.Web3Provider(window.ethereum);
+            walletConnected = true;
+            dot.className = 'wallet-dot metamask';
+            text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+            btn.textContent = '🦊 MetaMask';
+            btn.style.display = 'none';
+            
+            // Guardar en localStorage
+            localStorage.setItem('csariels_wallet', walletAddress);
+            
+            console.log('🦊 MetaMask conectado:', walletAddress);
 
-    function usarWalletLocal() {
-      const dot = document.getElementById('walletDot');
-      const text = document.getElementById('walletText');
+            // Escuchar cambios de cuenta
+            window.ethereum.on('accountsChanged', (accounts) => {
+              if (accounts.length > 0) {
+                walletAddress = accounts[0];
+                text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+                localStorage.setItem('csariels_wallet', walletAddress);
+              } else {
+                walletAddress = null;
+                walletConnected = false;
+                dot.className = 'wallet-dot offline';
+                text.textContent = '🦊 Desconectado';
+                btn.style.display = 'inline-block';
+                btn.textContent = 'Conectar MetaMask';
+              }
+            });
 
+            return;
+          }
+        } catch (e) {
+          console.warn('⚠️ Error con MetaMask:', e);
+        }
+      }
+
+      // 3. Fallback: Wallet invisible (demo)
       const walletGuardada = localStorage.getItem('csariels_wallet');
       if (walletGuardada) {
+        walletAddress = walletGuardada;
+        walletConnected = true;
         dot.className = 'wallet-dot online';
-        text.textContent = `🪙 ${walletGuardada.slice(0, 6)}...${walletGuardada.slice(-4)}`;
-        console.log('🔓 Wallet restaurada');
+        text.textContent = `🪙 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+        btn.style.display = 'none';
+        console.log('🔓 Wallet invisible restaurada');
         return;
       }
 
-      // Crear wallet nueva
+      // 4. Crear wallet nueva (demo)
       const nuevaWallet = '0x' + Array.from({length: 40}, () => 
         Math.floor(Math.random() * 16).toString(16)).join('');
       localStorage.setItem('csariels_wallet', nuevaWallet);
-      
+      walletAddress = nuevaWallet;
+      walletConnected = true;
       dot.className = 'wallet-dot online';
       text.textContent = `🪙 ${nuevaWallet.slice(0, 6)}...${nuevaWallet.slice(-4)}`;
-      console.log('🆕 Nueva wallet creada');
+      btn.style.display = 'none';
+      console.log('🆕 Nueva wallet invisible creada');
+    }
+
+    async function conectarMetaMask() {
+      const dot = document.getElementById('walletDot');
+      const text = document.getElementById('walletText');
+      const btn = document.getElementById('btnConectarWallet');
+
+      if (typeof window.ethereum === 'undefined') {
+        alert('⚠️ MetaMask no está instalado.\n\nDescárgalo desde: https://metamask.io');
+        return;
+      }
+
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        walletAddress = accounts[0];
+        walletProvider = new ethers.providers.Web3Provider(window.ethereum);
+        walletConnected = true;
+        
+        dot.className = 'wallet-dot metamask';
+        text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+        btn.style.display = 'none';
+        
+        // Guardar en localStorage
+        localStorage.setItem('csariels_wallet', walletAddress);
+        
+        console.log('🦊 MetaMask conectado:', walletAddress);
+        mostrarToast('🦊 MetaMask conectado correctamente');
+
+        // Escuchar cambios de cuenta
+        window.ethereum.on('accountsChanged', (accounts) => {
+          if (accounts.length > 0) {
+            walletAddress = accounts[0];
+            text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+            localStorage.setItem('csariels_wallet', walletAddress);
+          } else {
+            walletAddress = null;
+            walletConnected = false;
+            dot.className = 'wallet-dot offline';
+            text.textContent = '🦊 Desconectado';
+            btn.style.display = 'inline-block';
+            btn.textContent = 'Conectar MetaMask';
+          }
+        });
+
+      } catch (error) {
+        console.error('❌ Error conectando MetaMask:', error);
+        alert('❌ No se pudo conectar MetaMask: ' + error.message);
+      }
     }
 
     function mostrarWalletInfo() {
-      const wallet = localStorage.getItem('csariels_wallet') || 'No hay wallet';
-      alert(`🪙 Tu wallet invisible:\n\n${wallet}\n\nEsta wallet se crea automáticamente al entrar a Csariel's.`);
+      if (walletAddress) {
+        const tipo = walletAddress.startsWith('0x') && walletAddress.length === 42 ? '🦊 MetaMask' : '🪙 Wallet invisible';
+        alert(`🔑 Tu wallet:\n\n${walletAddress}\n\nTipo: ${tipo}`);
+      } else {
+        alert('⚠️ No hay wallet conectada.');
+      }
     }
+
+    // ================================================================
+    // TOAST (para notificaciones)
+    // ================================================================
+    let toastTimeout = null;
+
+    function mostrarToast(mensaje, tipo = '') {
+      const toast = document.getElementById('toast');
+      if (!toast) {
+        console.log('📢', mensaje);
+        return;
+      }
+      toast.textContent = mensaje;
+      toast.className = `toast${tipo ? ' ' + tipo : ''}`;
+      toast.classList.add('active');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+    }
+
+    // ================================================================
+    // EXPONER FUNCIONES GLOBALES
+    // ================================================================
+    window.conectarMetaMask = conectarMetaMask;
+    window.mostrarWalletInfo = mostrarWalletInfo;
+    window.walletAddress = () => walletAddress;
+    window.getWalletProvider = () => walletProvider;
 
     window.openPrivacidadModal = function() {};
     window.closePrivacidadModal = function() {};
   </script>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast" style="
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--verde-bosque);
+    color: var(--gold-cosmic);
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.7rem;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 5000;
+    pointer-events: none;
+    font-family: 'Orbitron', monospace;
+    border: 1px solid rgba(247,212,74,0.15);
+    max-width: 90%;
+    text-align: center;
+  "></div>
 
   <!-- ===== SISTEMA ESTELAR CENTRALIZADO ===== -->
   <script src="./js/estrellas.js"></script>
