@@ -1,0 +1,83 @@
+/**
+ * 🚀 Router ultrarrápido para Csariel's
+ * Modo "Single Page App" ligero para móviles
+ */
+const CsarielRouter = {
+    currentPage: 'home',
+    
+    // Tu lista de páginas y dónde están
+    pages: {
+        home: { title: 'Inicio', file: 'index.html' },
+        network: { title: 'Mi Red', file: 'features/mi-red.html' },
+        livestream: { title: 'Muro Live', file: 'features/muro-live.html' },
+        memes: { title: 'Muro Memes', file: 'features/muro-memes.html' },
+        services: { title: 'Servicios', file: 'features/servicios-comunitarios.html' },
+        trading: { title: 'Trading', file: 'features/trading.html' },
+        web3: { title: 'Panel Web3', file: 'features/panel-web3.html' },
+        internet: { title: 'Internet', file: 'features/mi-internet.html' },
+        admin: { title: 'Admin', file: 'features/dashboard-emerald.html' },
+        terms: { title: 'Términos', file: 'legal/terminos-completos.html' },
+    },
+
+    async navigateTo(pageKey) {
+        const page = this.pages[pageKey];
+        if (!page) return;
+
+        // Cambiar el título del navegador
+        document.title = `◈ Csariel's | ${page.title}`;
+        
+        // Mostrar un pequeño "Cargando..." suave
+        const mainContainer = document.getElementById('app-container');
+        mainContainer.style.opacity = '0.5';
+
+        try {
+            // Cargar SOLO el HTML de esa página (no todo el sitio)
+            const response = await fetch(page.file);
+            const html = await response.text();
+            
+            // Extraer solo el contenido del <body> de ese archivo
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContent = doc.querySelector('main') || doc.body;
+
+            // Inyectarlo en el contenedor principal
+            mainContainer.innerHTML = newContent.innerHTML;
+            mainContainer.style.opacity = '1';
+
+            // Guardar en la URL sin recargar (para que funcione el botón atrás)
+            window.history.pushState({ page: pageKey }, '', `#${pageKey}`);
+
+        } catch (error) {
+            console.error('Error cargando la página:', error);
+            mainContainer.innerHTML = `<h2 style="color:red; text-align:center;">Error al cargar ${page.title}</h2>`;
+            mainContainer.style.opacity = '1';
+        }
+    },
+
+    init() {
+        // Escuchar cuando el usuario da click en un enlace interno
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[data-csariel-page]');
+            if (link) {
+                e.preventDefault();
+                this.navigateTo(link.dataset.csarielPage);
+            }
+        });
+
+        // Escuchar el botón "Atrás" del navegador
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.page) {
+                this.navigateTo(e.state.page);
+            }
+        });
+
+        // Cargar la página inicial si hay un hash en la URL
+        const hash = window.location.hash.replace('#', '');
+        if (this.pages[hash]) {
+            this.navigateTo(hash);
+        }
+    }
+};
+
+// Inicializar cuando cargue la página
+document.addEventListener('DOMContentLoaded', () => CsarielRouter.init());
