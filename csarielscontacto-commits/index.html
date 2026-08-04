@@ -25,6 +25,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
   
+  <!-- 🗺️ LEAFLET PARA EL MAPA -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <script src="https://unpkg.com/i18next@21.8.13/dist/umd/i18next.min.js"></script>
   <script src="https://unpkg.com/react-i18next@12.2.0/dist/umd/react-i18next.min.js"></script>
   <script src="./js/security.js"></script>
@@ -128,6 +132,12 @@
     .card .tags span { font-size: 0.55rem; background: rgba(247,212,74,0.06); border: 1px solid rgba(247,212,74,0.1); padding: 2px 10px; border-radius: 20px; color: var(--text-muted); text-transform: uppercase; font-family: 'Orbitron', monospace; letter-spacing: 0.5px; }
     .card .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: auto; width: 100%; }
 
+    /* 🗺️ MAPA EN PANTALLA */
+    .map-section { margin-top: 40px; padding: 20px; background: rgba(11,61,46,0.15); border: 1px solid var(--gold-dim); border-radius: var(--radius); backdrop-filter: blur(10px); position: relative; }
+    .map-section h2 { font-family: 'Orbitron', monospace; font-size: 1.8rem; margin-bottom: 15px; color: var(--gold-cosmic); text-align: center; text-shadow: 0 0 20px rgba(247,212,74,0.2); }
+    #community-map { height: 400px; width: 100%; border-radius: 12px; border: 2px solid var(--gold-dim); z-index: 1; }
+    .leaflet-control-attribution { font-size: 9px !important; color: #333 !important; }
+
     .footer { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--gold-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; position: relative; }
     .footer::before { content: ''; position: absolute; top: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent); opacity: 0.2; }
     .footer-text { color: var(--text-muted); font-size: 0.78rem; letter-spacing: 0.5px; font-family: 'Orbitron', monospace; }
@@ -149,8 +159,8 @@
     .card:nth-child(7) { animation-delay: 0.6s; }
     .card:nth-child(8) { animation-delay: 0.7s; }
 
-    @media (max-width: 768px) { .app { padding: 16px; } .header { flex-direction: column; align-items: flex-start; } .logo-text { font-size: 1.2rem; } .header-actions { width: 100%; justify-content: flex-start; } .hero-title { font-size: 1.8rem; } .hero-metrics { gap: 20px; } .grid { grid-template-columns: 1fr 1fr; } .card { min-height: 280px; } .wallet-status { font-size: 0.45rem; padding: 2px 8px; } }
-    @media (max-width: 480px) { .hero-title { font-size: 1.4rem; } .btn { font-size: 0.6rem; padding: 8px 14px; } .grid { grid-template-columns: 1fr; } .card { padding: 18px; min-height: 250px; } .wallet-status { font-size: 0.4rem; padding: 2px 6px; } .wallet-status .wallet-text { font-size: 0.4rem; } }
+    @media (max-width: 768px) { .app { padding: 16px; } .header { flex-direction: column; align-items: flex-start; } .logo-text { font-size: 1.2rem; } .header-actions { width: 100%; justify-content: flex-start; } .hero-title { font-size: 1.8rem; } .hero-metrics { gap: 20px; } .grid { grid-template-columns: 1fr 1fr; } .card { min-height: 280px; } .wallet-status { font-size: 0.45rem; padding: 2px 8px; } #community-map { height: 250px; } }
+    @media (max-width: 480px) { .hero-title { font-size: 1.4rem; } .btn { font-size: 0.6rem; padding: 8px 14px; } .grid { grid-template-columns: 1fr; } .card { padding: 18px; min-height: 250px; } .wallet-status { font-size: 0.4rem; padding: 2px 6px; } .wallet-status .wallet-text { font-size: 0.4rem; } #community-map { height: 200px; } }
   </style>
 </head>
 <body>
@@ -197,4 +207,168 @@
         <div class="hero-metrics">
           <div class="metric"><span class="number">🌐</span><span class="label" id="metricSocial">Red Social</span></div>
           <div class="metric"><span class="number">📶</span><span class="label" id="metricEsim">eSIM</span></div>
-          <div class="metric"><
+          <div class="metric"><span class="number">🧠</span><span class="label" id="metricIa">Marquinhos IA</span></div>
+          <div class="metric"><span class="number">🔗</span><span class="label" id="metricWeb3">Web3</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card" style="border-color:rgba(0,214,143,0.2);background:rgba(0,214,143,0.03);">
+        <div class="icon">⚙️</div>
+        <h2 id="card1Title">Panel de Control</h2>
+        <p id="card1Desc">Configura los planes de Internet y tus datos bancarios para la tienda.</p>
+        <div class="tags"><span>Admin</span><span>Configuración</span><span>Planes</span></div>
+        <div class="actions"><a href="#" data-csariel-page="admin" class="btn btn-primary" style="background:linear-gradient(135deg, #00d68f, #008f5a);border-color:transparent;color:white;"><i class="fas fa-cog"></i> <span id="card1Btn">Abrir</span></a></div>
+      </div>
+      <div class="card" style="border-color:rgba(0,214,143,0.25);background:rgba(0,214,143,0.05);">
+        <div class="icon">🌐</div>
+        <h2 id="card2Title">Comprar Internet</h2>
+        <p id="card2Desc">Activa tu eSIM y compra paquetes de datos para navegar en Csariel's.</p>
+        <div class="tags"><span>eSIM</span><span>Internet</span><span>Datos</span></div>
+        <div class="actions"><a href="#" data-csariel-page="internet" class="btn btn-internet"><i class="fas fa-satellite-dish"></i> <span id="card2Btn">Comprar</span></a></div>
+      </div>
+      <div class="card">
+        <div class="icon">👥</div>
+        <h2 id="card3Title">Mi Red</h2>
+        <p id="card3Desc">Contactos, solicitudes, descubre personas y perfiles para conectar en tu comunidad.</p>
+        <div class="tags"><span>Social</span><span>Contactos</span><span>Perfiles</span></div>
+        <div class="actions"><a href="#" data-csariel-page="network" class="btn btn-primary"><i class="fas fa-users"></i> <span id="card3Btn">Abrir</span></a></div>
+      </div>
+      <div class="card">
+        <div class="icon">📱</div>
+        <h2 id="card4Title">Muro Live</h2>
+        <p id="card4Desc">Publica fotos, videos y enlaces. Transmite en vivo con moderación IA y donaciones.</p>
+        <div class="tags"><span>Social</span><span>Multimedia</span><span>En Vivo</span></div>
+        <div class="actions"><a href="#" data-csariel-page="livestream" class="btn btn-gold"><i class="fas fa-rss"></i> <span id="card4Btn">Abrir</span></a> <a href="#" data-csariel-page="livestream" class="btn btn-danger btn-sm"><i class="fas fa-broadcast"></i> Live</a></div>
+      </div>
+      <div class="card" style="border-color:rgba(255,51,102,0.2);background:rgba(255,51,102,0.03);">
+        <div class="icon">😂</div>
+        <h2 id="card5Title">Muro Memes</h2>
+        <p id="card5Desc">Memes y confesiones. Zona +18 con moderación IA. ¡Anónimo y divertido!</p>
+        <div class="tags"><span>Memes</span><span>Confesiones</span><span>+18</span></div>
+        <div class="actions"><a href="#" data-csariel-page="memes" class="btn btn-danger"><i class="fas fa-mask"></i> <span id="card5Btn">Abrir</span></a></div>
+      </div>
+      <div class="card card-servicios">
+        <div class="icon">🔧</div>
+        <h2 id="card6Title">Servicios Comunitarios</h2>
+        <p id="card6Desc">Encuentra mecánicos, plomeros, electricistas y más cerca de ti con mapa y geolocalización.</p>
+        <div class="tags"><span>Servicios</span><span>Mapa</span><span>Comunidad</span></div>
+        <div class="actions"><a href="#" data-csariel-page="services" class="btn btn-gold"><i class="fas fa-tools"></i> <span id="card6Btn">Abrir</span></a></div>
+      </div>
+      <div class="card" style="border-color:rgba(247,212,74,0.2);background:rgba(247,212,74,0.03);">
+        <div class="icon">📈</div>
+        <h2 id="card7Title">Trading TOK</h2>
+        <p id="card7Desc">Compra y vende TOK en tiempo real. Gráficos, órdenes y portafolio.</p>
+        <div class="tags"><span>Trading</span><span>TOK</span><span>Web3</span></div>
+        <div class="actions"><a href="#" data-csariel-page="trading" class="btn btn-gold"><i class="fas fa-chart-line"></i> <span id="card7Btn">Abrir</span></a></div>
+      </div>
+      <div class="card" style="border-color:rgba(247,212,74,0.2);background:rgba(247,212,74,0.03);">
+        <div class="icon">🧠</div>
+        <h2 id="card8Title">Marquinhos Asistente</h2>
+        <p id="card8Desc">Asistente inteligente con chat, emojis, stickers, archivos, llamadas de voz/video y transmisiones en vivo.</p>
+        <div class="tags"><span>Chat</span><span>Llamadas</span><span>Transmisiones</span></div>
+        <div class="actions"><button class="btn btn-gold" onclick="window.marquinhosUI?.toggleVentana()"><i class="fas fa-comment-dots"></i> <span id="card8Btn">Abrir Chat</span></button> <button class="btn btn-primary btn-sm" onclick="window.marquinhosUI?.toggleVentana(); setTimeout(() => document.querySelector('.m-btn-llamada')?.click(), 500);"><i class="fas fa-phone"></i> Llamar</button></div>
+      </div>
+    </section>
+
+    <!-- 🗺️ MAPA -->
+    <section class="map-section">
+      <h2 id="mapTitle">📍 Mapa Comunitario</h2>
+      <div id="community-map"></div>
+      <p style="text-align:center; margin-top:10px; color:var(--text-secondary); font-size:0.8rem;" id="mapSub">Encuentra servicios, lugares y personas cerca de ti.</p>
+    </section>
+
+    <footer class="footer">
+      <span class="footer-text"><span class="brand">◈ Csariel's</span> — <span id="footerTag">Red Social Integral · eSIM · IA · Web3</span></span>
+      <div class="footer-links">
+        <a href="#" data-csariel-page="network" id="footerRed">👥 Mi Red</a>
+        <a href="#" data-csariel-page="livestream" id="footerLive">📱 Muro Live</a>
+        <a href="#" data-csariel-page="internet" class="internet-link" id="footerInternet">🌐 Comprar Internet</a>
+        <a href="#" data-csariel-page="admin" style="color:var(--text-muted);" id="footerAdmin">⚙️ Admin</a>
+        <a href="#" data-csariel-page="web3" style="color:var(--text-muted);" id="footerWeb3">🔗 Web3</a>
+        <span class="footer-hex">◈</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Security) window.Security.initSeguridad();
+      iniciarWallet();
+      
+      // 🗺️ INICIAR MAPA
+      const map = L.map('community-map').setView([19.4326, -99.1332], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+      const marker = L.marker([19.4326, -99.1332]).addTo(map);
+      marker.bindPopup("<b>📍 Csariel's HQ</b><br>Centro de la comunidad.").openPopup();
+    });
+
+    const translations = {
+      es: { heroTitle: 'Bienvenido a <span class="highlight">Csariel\'s</span>', heroSub: 'Red Social Integral · IA · eSIM · Web3', metricSocial: 'Red Social', metricEsim: 'eSIM', metricIa: 'Marquinhos IA', metricWeb3: 'Web3', card1Title: 'Panel de Control', card1Desc: 'Configura los planes de Internet y tus datos bancarios para la tienda.', card1Btn: 'Abrir', card2Title: 'Comprar Internet', card2Desc: 'Activa tu eSIM y compra paquetes de datos para navegar en Csariel\'s.', card2Btn: 'Comprar', card3Title: 'Mi Red', card3Desc: 'Contactos, solicitudes, descubre personas y perfiles para conectar en tu comunidad.', card3Btn: 'Abrir', card4Title: 'Muro Live', card4Desc: 'Publica fotos, videos y enlaces. Transmite en vivo con moderación IA y donaciones.', card4Btn: 'Abrir', card5Title: 'Muro Memes', card5Desc: 'Memes y confesiones. Zona +18 con moderación IA. ¡Anónimo y divertido!', card5Btn: 'Abrir', card6Title: 'Servicios Comunitarios', card6Desc: 'Encuentra mecánicos, plomeros, electricistas y más cerca de ti con mapa y geolocalización.', card6Btn: 'Abrir', card7Title: 'Trading TOK', card7Desc: 'Compra y vende TOK en tiempo real. Gráficos, órdenes y portafolio.', card7Btn: 'Abrir', card8Title: 'Marquinhos Asistente', card8Desc: 'Asistente inteligente con chat, emojis, stickers, archivos, llamadas de voz/video y transmisiones en vivo.', card8Btn: 'Abrir Chat', mapTitle: '📍 Mapa Comunitario', mapSub: 'Encuentra servicios, lugares y personas cerca de ti.', footerTag: 'Red Social Integral · eSIM · IA · Web3', footerRed: '👥 Mi Red', footerLive: '📱 Muro Live', footerInternet: '🌐 Comprar Internet', footerAdmin: '⚙️ Admin', footerWeb3: '🔗 Web3' },
+      en: { heroTitle: 'Welcome to <span class="highlight">Csariel\'s</span>', heroSub: 'Integral Social Network · AI · eSIM · Web3', metricSocial: 'Social Network', metricEsim: 'eSIM', metricIa: 'Marquinhos AI', metricWeb3: 'Web3', card1Title: 'Dashboard', card1Desc: 'Configure Internet plans and your bank data for the store.', card1Btn: 'Open', card2Title: 'Buy Internet', card2Desc: 'Activate your eSIM and buy data packages to browse in Csariel\'s.', card2Btn: 'Buy', card3Title: 'My Network', card3Desc: 'Contacts, requests, discover people and profiles to connect in your community.', card3Btn: 'Open', card4Title: 'Live Wall', card4Desc: 'Post photos, videos and links. Broadcast live with AI moderation and donations.', card4Btn: 'Open', card5Title: 'Meme Wall', card5Desc: 'Memes and confessions. +18 zone with AI moderation. Anonymous and fun!', card5Btn: 'Open', card6Title: 'Community Services', card6Desc: 'Find mechanics, plumbers, electricians and more near you with map and geolocation.', card6Btn: 'Open', card7Title: 'TOK Trading', card7Desc: 'Buy and sell TOK in real-time. Charts, orders and portfolio.', card7Btn: 'Open', card8Title: 'Marquinhos Assistant', card8Desc: 'Smart assistant with chat, emojis, stickers, files, voice/video calls and live streams.', card8Btn: 'Open Chat', mapTitle: '📍 Community Map', mapSub: 'Find services, places and people near you.', footerTag: 'Integral Social Network · eSIM · AI · Web3', footerRed: '👥 My Network', footerLive: '📱 Live Wall', footerInternet: '🌐 Buy Internet', footerAdmin: '⚙️ Admin', footerWeb3: '🔗 Web3' },
+      fr: { heroTitle: 'Bienvenue à <span class="highlight">Csariel\'s</span>', heroSub: 'Réseau Social Intégral · IA · eSIM · Web3', metricSocial: 'Réseau Social', metricEsim: 'eSIM', metricIa: 'Marquinhos IA', metricWeb3: 'Web3', card1Title: 'Tableau de Bord', card1Desc: 'Configurez les forfaits Internet et vos données bancaires pour la boutique.', card1Btn: 'Ouvrir', card2Title: 'Acheter Internet', card2Desc: 'Activez votre eSIM et achetez des forfaits de données pour naviguer sur Csariel\'s.', card2Btn: 'Acheter', card3Title: 'Mon Réseau', card3Desc: 'Contacts, demandes, découvrez des personnes et des profils pour vous connecter dans votre communauté.', card3Btn: 'Ouvrir', card4Title: 'Mur Live', card4Desc: 'Publiez des photos, vidéos et liens. Diffusez en direct avec modération IA et dons.', card4Btn: 'Ouvrir', card5Title: 'Mur de Mèmes', card5Desc: 'Mèmes et confessions. Zone +18 avec modération IA. Anonyme et amusant !', card5Btn: 'Ouvrir', card6Title: 'Services Communautaires', card6Desc: 'Trouvez des mécaniciens, plombiers, électriciens et plus près de chez vous avec carte et géolocalisation.', card6Btn: 'Ouvrir', card7Title: 'Trading TOK', card7Desc: 'Achetez et vendez TOK en temps réel. Graphiques, ordres et portefeuille.', card7Btn: 'Ouvrir', card8Title: 'Assistant Marquinhos', card8Desc: 'Assistant intelligent avec chat, emojis, autocollants, fichiers, appels vocaux/vidéo et diffusions en direct.', card8Btn: 'Ouvrir le Chat', mapTitle: '📍 Carte Communautaire', mapSub: 'Trouvez des services, des lieux et des personnes près de chez vous.', footerTag: 'Réseau Social Intégral · eSIM · IA · Web3', footerRed: '👥 Mon Réseau', footerLive: '📱 Mur Live', footerInternet: '🌐 Acheter Internet', footerAdmin: '⚙️ Admin', footerWeb3: '🔗 Web3' }
+    };
+
+    function setLanguage(lang) {
+      const t = translations[lang];
+      document.getElementById('heroTitle').innerHTML = t.heroTitle;
+      document.getElementById('heroSub').innerText = t.heroSub;
+      document.getElementById('metricSocial').innerText = t.metricSocial;
+      document.getElementById('metricEsim').innerText = t.metricEsim;
+      document.getElementById('metricIa').innerText = t.metricIa;
+      document.getElementById('metricWeb3').innerText = t.metricWeb3;
+      for(let i=1; i<=8; i++) {
+        document.getElementById(`card${i}Title`).innerText = t[`card${i}Title`];
+        document.getElementById(`card${i}Desc`).innerText = t[`card${i}Desc`];
+        document.getElementById(`card${i}Btn`).innerText = t[`card${i}Btn`];
+      }
+      document.getElementById('mapTitle').innerText = t.mapTitle;
+      document.getElementById('mapSub').innerText = t.mapSub;
+      document.getElementById('footerTag').innerText = t.footerTag;
+      document.getElementById('footerRed').innerText = t.footerRed;
+      document.getElementById('footerLive').innerText = t.footerLive;
+      document.getElementById('footerInternet').innerText = t.footerInternet;
+      document.getElementById('footerAdmin').innerText = t.footerAdmin;
+      document.getElementById('footerWeb3').innerText = t.footerWeb3;
+
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${lang}`).classList.add('active');
+      localStorage.setItem('csariels_lang', lang);
+    }
+
+    const savedLang = localStorage.getItem('csariels_lang');
+    if(savedLang && translations[savedLang]) setLanguage(savedLang);
+
+    let walletAddress = null, walletProvider = null, walletConnected = false;
+
+    async function iniciarWallet() {
+      const dot = document.getElementById('walletDot'), text = document.getElementById('walletText'), btn = document.getElementById('btnConectarWallet');
+      if (typeof window.csarielsAPI !== 'undefined') {
+        try { const walletData = await window.csarielsAPI.getWallet(); if (walletData && walletData.address) { walletAddress = walletData.address; walletConnected = true; dot.className = 'wallet-dot metamask'; text.textContent = `🪙 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.style.display = 'none'; return; } } catch (e) {}
+      }
+      if (typeof window.ethereum !== 'undefined') {
+        try { const accounts = await window.ethereum.request({ method: 'eth_accounts' }); if (accounts && accounts.length > 0) { walletAddress = accounts[0]; walletProvider = new ethers.providers.Web3Provider(window.ethereum); walletConnected = true; dot.className = 'wallet-dot metamask'; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.textContent = '🦊 MetaMask'; btn.style.display = 'none'; localStorage.setItem('csariels_wallet', walletAddress); window.ethereum.on('accountsChanged', (a) => { if (a.length > 0) { walletAddress = a[0]; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; localStorage.setItem('csariels_wallet', walletAddress); } else { walletAddress = null; walletConnected = false; dot.className = 'wallet-dot offline'; text.textContent = '🦊 Desconectado'; btn.style.display = 'inline-block'; btn.textContent = 'Conectar MetaMask'; } }); return; } } catch (e) {}
+      }
+      const walletGuardada = localStorage.getItem('csariels_wallet');
+      if (walletGuardada) { walletAddress = walletGuardada; walletConnected = true; dot.className = 'wallet-dot online'; text.textContent = `🪙 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.style.display = 'none'; return; }
+      const nuevaWallet = '0x' + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+      localStorage.setItem('csariels_wallet', nuevaWallet); walletAddress = nuevaWallet; walletConnected = true; dot.className = 'wallet-dot online'; text.textContent = `🪙 ${nuevaWallet.slice(0, 6)}...${nuevaWallet.slice(-4)}`; btn.style.display = 'none';
+    }
+
+    async function conectarMetaMask() {
+      const dot = document.getElementById('walletDot'), text = document.getElementById('walletText'), btn = document.getElementById('btnConectarWallet');
+      if (typeof window.ethereum === 'undefined') { alert('⚠️ MetaMask no está instalado.'); return; }
+      try { const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); walletAddress = accounts[0]; walletProvider = new ethers.providers.Web3Provider(window.ethereum); walletConnected = true; dot.className = 'wallet-dot metamask'; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.style.display = 'none'; localStorage.setItem('csariels_wallet', walletAddress); window.ethereum.on('accountsChanged', (a) => { if (a.length > 0) { walletAddress = a[0]; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; localStorage.setItem('csariels_wallet', walletAddress); } else { walletAddress = null; walletConnected = false; dot.className = 'wallet-dot offline'; text.textContent = '🦊 Desconectado'; btn.style.display = 'inline-block'; btn.textContent = 'Conectar MetaMask'; } }); } catch (error) { alert('❌ No se pudo conectar MetaMask: ' + error.message); }
+    }
+
+    window.conectarMetaMask = conectarMetaMask; window.walletAddress = () => walletAddress; window.getWalletProvider = () => walletProvider;
+  </script>
+  <script src="./js/estrellas.js"></script>
+  <script type="module">
+    import { MarquinhosUI } from './js/marquinhos-ui.js';
+    const marquinhosUI = new MarquinhosUI(); window.marquinhosUI = marquinhosUI;
+    setTimeout(() => { marquinhosUI.mostrarNotificacion?.('🧠 ¡Hola! Soy Marquinhos, tu asistente.'); }, 2000);
+  </script>
+</body>
+</html>
