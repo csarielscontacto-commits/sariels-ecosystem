@@ -1,19 +1,184 @@
-<main style="padding:20px; animation: fadeIn 0.5s ease;">
+<main style="padding:20px; animation: fadeIn 0.5s ease; max-width: 800px; margin: 0 auto;">
+    
     <div style="text-align:center; margin-bottom:20px;">
-        <h2 style="font-family:'Orbitron'; color: var(--gold-cosmic);">📈 Trading TOK</h2>
-        <p style="color:#8ba3c7;">Compra y vende TOK en tiempo real. Gráficos, órdenes y portafolio.</p>
+        <h2 style="font-family:'Orbitron'; color: var(--gold-cosmic);">📈 Trading TOK (COMMIT)</h2>
+        <p style="color:#8ba3c7;">Compra y vende TOK en tiempo real usando el sistema COMMIT.</p>
     </div>
-    
-    <div style="background: rgba(11,61,46,0.2); padding:15px; border-radius:10px; border:1px solid rgba(247,212,74,0.1);">
-        <p>Aquí va el gráfico de precios, las órdenes de compra/venta y tu portafolio.</p>
+
+    <!-- TARJETA DE SALDO REAL -->
+    <div style="background: rgba(0, 214, 143, 0.1); border: 2px solid #00d68f; border-radius: 15px; padding: 15px; margin-bottom: 20px; text-align: center;">
+        <p style="color: var(--text-muted); font-family: 'Orbitron', monospace; font-size: 0.8rem; margin-bottom: 5px;">💰 SALDO COMMIT (TOK)</p>
+        <h2 id="userBalance" style="font-family:'Orbitron'; color: var(--gold-cosmic); font-size: 2.5rem; margin: 0;">Cargando...</h2>
+        <p style="color: var(--text-muted); font-size: 0.7rem; margin-top: 5px;">Wallet ID: <span id="walletIdDisplay" style="color: #8ba3c7;">---</span></p>
     </div>
-    
+
+    <!-- GRÁFICO DE PRECIOS (Simulado) -->
+    <div style="background: rgba(11,61,46,0.2); border: 1px solid var(--gold-dim); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+        <h3 style="font-family:'Orbitron'; color: var(--gold-cosmic); font-size: 1rem; margin-bottom: 10px;">📊 Precio TOK / USD</h3>
+        <div id="priceChart" style="height: 150px; width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; display: flex; align-items: flex-end; justify-content: space-around; padding: 10px 0;">
+            <div style="width: 15px; height: 40%; background: #00d68f; border-radius: 3px;"></div>
+            <div style="width: 15px; height: 60%; background: #f7d44a; border-radius: 3px;"></div>
+            <div style="width: 15px; height: 30%; background: #00d68f; border-radius: 3px;"></div>
+            <div style="width: 15px; height: 80%; background: #ff3366; border-radius: 3px;"></div>
+            <div style="width: 15px; height: 50%; background: #f7d44a; border-radius: 3px;"></div>
+        </div>
+        <p style="text-align:center; color: var(--text-muted); font-size: 0.7rem; margin-top: 10px;">Precio actual: <span id="currentPrice" style="color: var(--gold-cosmic); font-weight: bold;">$0.50</span> USD</p>
+    </div>
+
+    <!-- PANEL DE COMPRA/VENTA -->
+    <div style="background: rgba(11,61,46,0.2); border: 1px solid var(--gold-dim); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <button id="tabBuy" onclick="switchTab('buy')" style="flex: 1; background: var(--gold-cosmic); border: none; color: #0a0c10; padding: 10px; border-radius: 10px; font-family: 'Orbitron', font-weight: bold; cursor: pointer;">COMPRAR</button>
+            <button id="tabSell" onclick="switchTab('sell')" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 10px; border-radius: 10px; font-family: 'Orbitron'; cursor: pointer;">VENDER</button>
+        </div>
+
+        <div id="buySection">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Cantidad de TOK a comprar:</p>
+            <input type="number" id="tradeAmount" value="1" min="0.01" step="0.01" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(247,212,74,0.1); color: var(--text-primary); padding: 12px; border-radius: 10px; font-family: 'Space Grotesk'; margin-bottom: 10px;">
+            <button onclick="ejecutarTrade('buy')" style="width: 100%; background: linear-gradient(135deg, #00d68f, #008f5a); border: none; color: white; padding: 12px; border-radius: 30px; font-family: 'Orbitron', font-weight: bold; cursor: pointer;">
+                ✅ CONFIRMAR COMPRA (COMMIT)
+            </button>
+        </div>
+
+        <div id="sellSection" style="display: none;">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Cantidad de TOK a vender:</p>
+            <input type="number" id="tradeAmountSell" value="1" min="0.01" step="0.01" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(247,212,74,0.1); color: var(--text-primary); padding: 12px; border-radius: 10px; font-family: 'Space Grotesk'; margin-bottom: 10px;">
+            <button onclick="ejecutarTrade('sell')" style="width: 100%; background: linear-gradient(135deg, #ff3366, #b3002d); border: none; color: white; padding: 12px; border-radius: 30px; font-family: 'Orbitron', font-weight: bold; cursor: pointer;">
+                🔴 CONFIRMAR VENTA (COMMIT)
+            </button>
+        </div>
+        
+        <div id="tradeStatus" style="margin-top: 10px; font-family: 'Space Grotesk'; font-size: 0.9rem; text-align: center;"></div>
+    </div>
+
     <div style="text-align:center; margin-top:20px;">
         <a href="#" data-csariel-page="home" style="color:var(--gold-cosmic); text-decoration:none;">
             <i class="fas fa-arrow-left"></i> Volver al Inicio
         </a>
     </div>
 </main>
+
 <style>
     @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    input, select { outline: none; transition: border 0.3s; }
+    input:focus, select:focus { border-color: var(--gold-cosmic) !important; }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // 🔑 CREDENCIALES DE SUPABASE (Las mismas de siempre)
+    const supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    let userId = null;
+    let currentBalance = 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener ID de la cartera invisible desde localStorage
+        userId = localStorage.getItem('csariels_wallet');
+        document.getElementById('walletIdDisplay').innerText = userId || 'No conectada';
+
+        if(userId) {
+            cargarSaldoReal();
+        } else {
+            document.getElementById('userBalance').innerText = "Conecta wallet";
+            document.getElementById('tradeStatus').innerText = "⚠️ No se encontró usuario.";
+        }
+    });
+
+    // 🟢 CARGAR SALDO REAL DESDE SUPABASE (usando la función de Antropic)
+    async function cargarSaldoReal() {
+        const { data, error } = await supabaseClient.rpc('obtener_saldo_commit', {
+            p_user_id: userId
+        });
+
+        if (error) {
+            console.error("Error leyendo saldo:", error);
+            document.getElementById('userBalance').innerText = "Error";
+            return;
+        }
+
+        if (data && data.length > 0) {
+            // Antropic dijo que devuelve balance, total_received, etc.
+            // El balance es la primera columna (balance)
+            currentBalance = parseFloat(data[0].balance || 0);
+            document.getElementById('userBalance').innerText = currentBalance.toFixed(2) + " TOK";
+        } else {
+            document.getElementById('userBalance').innerText = "0.00 TOK";
+        }
+    }
+
+    // 🟢 EJECUTAR COMPRA O VENTA (usando la función de Antropic)
+    window.ejecutarTrade = async function(tipo) {
+        if(!userId) {
+            document.getElementById('tradeStatus').innerHTML = "<span style='color: #ff3366;'>❌ Usuario no identificado.</span>";
+            return;
+        }
+
+        const amountInput = tipo === 'buy' ? document.getElementById('tradeAmount') : document.getElementById('tradeAmountSell');
+        const monto = parseFloat(amountInput.value);
+        const statusDiv = document.getElementById('tradeStatus');
+
+        if(!monto || monto <= 0) {
+            statusDiv.innerHTML = "<span style='color: #ff3366;'>❌ Ingresa un monto válido.</span>";
+            return;
+        }
+
+        // Determinar receptor y tipo de operación según lo que sugirió Antropic
+        const receiverId = 'sistema_trading'; // Cuenta del sistema
+        const assetType = tipo === 'buy' ? 'compra' : 'venta';
+        const desc = tipo === 'buy' ? 'Compra de TOK en Trading' : 'Venta de TOK en Trading';
+
+        statusDiv.innerHTML = "<span style='color: #f7d44a;'>⏳ Procesando transacción COMMIT...</span>";
+
+        // Llamar a la función segura de la base de datos
+        const { data, error } = await supabaseClient.rpc('procesar_transaccion_commit', {
+            p_sender_id: userId,
+            p_receiver_id: receiverId,
+            p_amount: monto,
+            p_asset_type: assetType,
+            p_description: desc
+        });
+
+        if (error) {
+            console.error("Error en la transacción:", error);
+            statusDiv.innerHTML = `<span style='color: #ff3366;'>❌ Error: ${error.message}</span>`;
+        } else {
+            // Antropic dijo que devuelve transaction_id, commission_amount, receiver_amount, success
+            if(data && data.success) {
+                statusDiv.innerHTML = `<span style='color: #00d68f;'>✅ Operación exitosa! ID: ${data.transaction_id}. Comisión: ${data.commission_amount}</span>`;
+                // Recargar el saldo
+                setTimeout(() => cargarSaldoReal(), 1500);
+                amountInput.value = '';
+            } else {
+                statusDiv.innerHTML = `<span style='color: #ff3366;'>❌ La operación no pudo completarse.</span>`;
+            }
+        }
+    }
+
+    // 🟢 CAMBIAR PESTAÑAS DE COMPRA/VENTA
+    window.switchTab = function(tab) {
+        const buyBtn = document.getElementById('tabBuy');
+        const sellBtn = document.getElementById('tabSell');
+        const buySec = document.getElementById('buySection');
+        const sellSec = document.getElementById('sellSection');
+
+        if(tab === 'buy') {
+            buyBtn.style.background = "var(--gold-cosmic)";
+            buyBtn.style.color = "#0a0c10";
+            sellBtn.style.background = "rgba(255,255,255,0.05)";
+            sellBtn.style.color = "var(--text-muted)";
+            buySec.style.display = "block";
+            sellSec.style.display = "none";
+        } else {
+            sellBtn.style.background = "var(--gold-cosmic)";
+            sellBtn.style.color = "#0a0c10";
+            buyBtn.style.background = "rgba(255,255,255,0.05)";
+            buyBtn.style.color = "var(--text-muted)";
+            buySec.style.display = "none";
+            sellSec.style.display = "block";
+        }
+    }
+</script>
