@@ -14,6 +14,9 @@
   <!-- 🗺️ LEAFLET PARA EL MAPA -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- 📦 CLIENTE DE SUPABASE PARA EL NAVEGADOR -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <script src="https://unpkg.com/i18next@21.8.13/dist/umd/i18next.min.js"></script>
   <script src="https://unpkg.com/react-i18next@12.2.0/dist/umd/react-i18next.min.js"></script>
@@ -283,11 +286,93 @@
       if (window.Security) window.Security.initSeguridad();
       iniciarWallet();
       
-      // 🗺️ INICIAR MAPA
+      // 🗺️ MAPA CON GPS Y CONEXIÓN A SUPABASE
       const map = L.map('community-map').setView([19.4326, -99.1332], 12);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
-      const marker = L.marker([19.4326, -99.1332]).addTo(map);
-      marker.bindPopup("<b>📍 Csariel's HQ</b><br>Centro de la comunidad.").openPopup();
+
+      // 1. Intentar obtener la ubicación real del usuario
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // Volar la cámara del mapa hacia donde está el usuario
+            map.flyTo([lat, lng], 15);
+            
+            // Poner un pin donde está el usuario
+            const userMarker = L.marker([lat, lng]).addTo(map);
+            userMarker.bindPopup("<b>📍 Estás aquí</b>").openPopup();
+
+            // 2. Preguntarle a la base de datos (Supabase) qué hay cerca
+            try {
+              // 🔑 CREDENCIALES DE SUPABASE (Ya puestas por el Maestro)
+              const supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+              const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+              
+              const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+              console.log(`Buscando servicios cerca de Lat: ${lat}, Lng: ${lng}`);
+              
+              const { data, error } = await supabaseClient.rpc('get_nearby_services', {
+                lat: lat,
+                lng: lng,
+                radius_meters: 2000
+              });
+
+              if (error) {
+                console.error("Error en la base de datos:", error);
+                return;
+              }
+
+              // 3. Dibujar los pines de los servicios en el mapa
+              if (data && data.length > 0) {
+                data.forEach(service => {
+                  // Extraer las coordenadas del objeto geográfico
+                  // Leaflet necesita [lat, lng]
+                  const coords = service.geom.coordinates; 
+                  const latService = coords[1];
+                  const lngService = coords[0];
+                  
+                  // Definir color según el tipo de servicio
+                  let color = 'blue';
+                  if(service.type === 'talacha') color = '#ff3366';
+                  if(service.type === 'recarga') color = '#f7d44a';
+                  if(service.type === 'oxxo') color = '#00d68f';
+
+                  // Crear el pin
+                  const marker = L.circleMarker([latService, lngService], {
+                    color: color,
+                    radius: 8
+                  }).addTo(map);
+
+                  // Mostrar información del negocio al hacer clic
+                  const meta = service.meta || { nombre: 'Servicio' };
+                  marker.bindPopup(`
+                    <b>${meta.nombre || 'Sin nombre'}</b><br>
+                    <small>A ${Math.round(service.distance_meters)} metros</small><br>
+                    <span style="color:${color}; font-weight:bold;">⭐ ${meta.rating || 'Nuevo'}</span>
+                  `);
+                });
+              } else {
+                console.log("No hay servicios cerca de ti todavía.");
+              }
+
+            } catch (error) {
+              console.error("Error conectando con Supabase:", error);
+            }
+
+          },
+          (error) => {
+            console.warn("GPS denegado. Usando CDMX.");
+            const fallbackMarker = L.marker([19.4326, -99.1332]).addTo(map);
+            fallbackMarker.bindPopup("<b>📍 Csariel's (Demo)</b><br>Activa tu GPS para ver servicios.").openPopup();
+          }
+        );
+      } else {
+        const fallbackMarker = L.marker([19.4326, -99.1332]).addTo(map);
+        fallbackMarker.bindPopup("<b>📍 Csariel's (Demo)</b>").openPopup();
+      }
     });
 
     const translations = {
