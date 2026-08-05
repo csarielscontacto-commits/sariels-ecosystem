@@ -16,7 +16,8 @@ const CsarielRouter = {
         web3: { title: 'Panel Web3', file: 'features/panel-web3.html' },
         internet: { title: 'Internet', file: 'features/mi-internet.html' },
         admin: { title: 'Admin', file: 'features/dashboard-emerald.html' },
-        terms: { title: 'Términos', file: 'legal/terminos-completos.html' },
+        privacy: { title: 'Aviso de Privacidad', file: 'aviso-privacidad.html' },
+        terms: { title: 'Términos', file: 'terminos-completos.html' },
     },
 
     async navigateTo(pageKey) {
