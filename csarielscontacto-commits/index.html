@@ -15,10 +15,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
-  <!-- 📦 CARGA SEGURA DE CONFIG Y ROUTER -->
-  <script src="/js/client-config-loader.js" defer></script>
-  <script src="/js/router.js" defer></script>
-
   <script src="https://unpkg.com/i18next@21.8.13/dist/umd/i18next.min.js"></script>
   <script src="https://unpkg.com/react-i18next@12.2.0/dist/umd/react-i18next.min.js"></script>
   <script src="./js/security.js"></script>
@@ -186,19 +182,16 @@
         <div class="status-badge"><span class="status-dot online"></span><span>En línea</span></div>
         <a href="#" data-csariel-page="store" class="btn btn-gold btn-sm"><i class="fas fa-store"></i> 🏪 Tienda CMT</a>
         <a href="#" data-csariel-page="terms" class="btn btn-outline btn-sm" target="_blank"><i class="fas fa-file-contract"></i> 📜 Términos</a>
-        <button class="btn btn-gold btn-sm" onclick="window.marquinhosUI?.toggleVentana()"><i class="fas fa-brain"></i> 🧠 Marquinhos</button>
+        
+        <!-- 🧠 BOTÓN DE MARQUINHOS (YA CONECTADO) -->
+        <button class="btn btn-gold btn-sm" onclick="window.marquinhosUI?.toggleVentana()">
+          <i class="fas fa-brain"></i> 🧠 Marquinhos
+        </button>
         
         <div class="lang-selector" id="languageSelector">
           <button class="lang-btn active" onclick="setLanguage('es')" id="btn-es">🇪🇸</button>
           <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">🇺🇸</button>
           <button class="lang-btn" onclick="setLanguage('fr')" id="btn-fr">🇫🇷</button>
-        </div>
-
-        <!-- 👇 ESTADO DE LA WALLET (Cartera Invisible) -->
-        <div class="wallet-status" id="walletStatus">
-          <span class="wallet-dot loading" id="walletDot"></span>
-          <span class="wallet-text" id="walletText">Conectando wallet...</span>
-          <button class="btn-conectar-wallet" id="btnConectarWallet" style="display:none;" onclick="conectarMetaMask()"><i class="fas fa-plug"></i> Conectar</button>
         </div>
       </div>
     </header>
@@ -314,7 +307,7 @@
         updateCarousel();
       });
 
-      // 🗺️ MAPA CON GPS Y SUPABASE (Ajustado para usar window.supabaseClient)
+      // 🗺️ MAPA CON GPS Y SUPABASE
       const map = L.map('community-map').setView([19.4326, -99.1332], 12);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
 
@@ -328,29 +321,28 @@
             userMarker.bindPopup("<b>📍 Estás aquí</b>").openPopup();
 
             try {
-              if (window.supabaseClient) {
-                const { data, error } = await window.supabaseClient.rpc('get_nearby_services', {
-                  lat: lat,
-                  lng: lng,
-                  radius_meters: 2000
+              const supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+              const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+              const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+              const { data, error } = await supabaseClient.rpc('get_nearby_services', {
+                lat: lat,
+                lng: lng,
+                radius_meters: 2000
+              });
+              if (error) { console.error("Error en la base de datos:", error); return; }
+              if (data && data.length > 0) {
+                data.forEach(service => {
+                  const coords = service.geom.coordinates; 
+                  const latService = coords[1];
+                  const lngService = coords[0];
+                  let color = 'blue';
+                  if(service.type === 'talacha') color = '#ff3366';
+                  if(service.type === 'recarga') color = '#f7d44a';
+                  if(service.type === 'oxxo') color = '#00d68f';
+                  const marker = L.circleMarker([latService, lngService], { color: color, radius: 8 }).addTo(map);
+                  const meta = service.meta || { nombre: 'Servicio' };
+                  marker.bindPopup(`<b>${meta.nombre || 'Sin nombre'}</b><br><small>A ${Math.round(service.distance_meters)} metros</small><br><span style="color:${color}; font-weight:bold;">⭐ ${meta.rating || 'Nuevo'}</span>`);
                 });
-                if (error) { console.error("Error en la base de datos:", error); return; }
-                if (data && data.length > 0) {
-                  data.forEach(service => {
-                    const coords = service.geom.coordinates; 
-                    const latService = coords[1];
-                    const lngService = coords[0];
-                    let color = 'blue';
-                    if(service.type === 'talacha') color = '#ff3366';
-                    if(service.type === 'recarga') color = '#f7d44a';
-                    if(service.type === 'oxxo') color = '#00d68f';
-                    const marker = L.circleMarker([latService, lngService], { color: color, radius: 8 }).addTo(map);
-                    const meta = service.meta || { nombre: 'Servicio' };
-                    marker.bindPopup(`<b>${meta.nombre || 'Sin nombre'}</b><br><small>A ${Math.round(service.distance_meters)} metros</small><br><span style="color:${color}; font-weight:bold;">⭐ ${meta.rating || 'Nuevo'}</span>`);
-                  });
-                }
-              } else {
-                console.warn("SupabaseClient no inicializado");
               }
             } catch (error) { console.error("Error conectando con Supabase:", error); }
           },
@@ -413,10 +405,16 @@
     window.conectarMetaMask = conectarMetaMask; window.walletAddress = () => walletAddress; window.getWalletProvider = () => walletProvider;
   </script>
   <script src="./js/estrellas.js"></script>
+  
+  <!-- 🧠 INICIALIZAR MARQUINHOS DESDE EL INDEX -->
   <script type="module">
     import { MarquinhosUI } from './js/marquinhos-ui.js';
-    const marquinhosUI = new MarquinhosUI(); window.marquinhosUI = marquinhosUI;
-    setTimeout(() => { marquinhosUI.mostrarNotificacion?.('🧠 ¡Hola! Soy Marquinhos, tu asistente.'); }, 2000);
+    const marquinhosUI = new MarquinhosUI();
+    window.marquinhosUI = marquinhosUI;
+    console.log('🧠 Marquinhos UI cargado correctamente');
+    setTimeout(() => {
+      marquinhosUI.mostrarNotificacion?.('🧠 ¡Hola! Soy Marquinhos, tu asistente.');
+    }, 2000);
   </script>
 </body>
 </html>
