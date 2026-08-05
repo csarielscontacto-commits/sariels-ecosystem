@@ -14,8 +14,11 @@
   <!-- 🗺️ MAPA Y SUPABASE -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
+  <!-- 📦 CARGA SEGURA DE CONFIG Y ROUTER -->
+  <script src="/js/client-config-loader.js" defer></script>
+  <script src="/js/router.js" defer></script>
+
   <script src="https://unpkg.com/i18next@21.8.13/dist/umd/i18next.min.js"></script>
   <script src="https://unpkg.com/react-i18next@12.2.0/dist/umd/react-i18next.min.js"></script>
   <script src="./js/security.js"></script>
@@ -311,7 +314,7 @@
         updateCarousel();
       });
 
-      // 🗺️ MAPA CON GPS Y SUPABASE
+      // 🗺️ MAPA CON GPS Y SUPABASE (Ajustado para usar window.supabaseClient)
       const map = L.map('community-map').setView([19.4326, -99.1332], 12);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
 
@@ -325,28 +328,29 @@
             userMarker.bindPopup("<b>📍 Estás aquí</b>").openPopup();
 
             try {
-              const supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-              const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
-              const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-              const { data, error } = await supabaseClient.rpc('get_nearby_services', {
-                lat: lat,
-                lng: lng,
-                radius_meters: 2000
-              });
-              if (error) { console.error("Error en la base de datos:", error); return; }
-              if (data && data.length > 0) {
-                data.forEach(service => {
-                  const coords = service.geom.coordinates; 
-                  const latService = coords[1];
-                  const lngService = coords[0];
-                  let color = 'blue';
-                  if(service.type === 'talacha') color = '#ff3366';
-                  if(service.type === 'recarga') color = '#f7d44a';
-                  if(service.type === 'oxxo') color = '#00d68f';
-                  const marker = L.circleMarker([latService, lngService], { color: color, radius: 8 }).addTo(map);
-                  const meta = service.meta || { nombre: 'Servicio' };
-                  marker.bindPopup(`<b>${meta.nombre || 'Sin nombre'}</b><br><small>A ${Math.round(service.distance_meters)} metros</small><br><span style="color:${color}; font-weight:bold;">⭐ ${meta.rating || 'Nuevo'}</span>`);
+              if (window.supabaseClient) {
+                const { data, error } = await window.supabaseClient.rpc('get_nearby_services', {
+                  lat: lat,
+                  lng: lng,
+                  radius_meters: 2000
                 });
+                if (error) { console.error("Error en la base de datos:", error); return; }
+                if (data && data.length > 0) {
+                  data.forEach(service => {
+                    const coords = service.geom.coordinates; 
+                    const latService = coords[1];
+                    const lngService = coords[0];
+                    let color = 'blue';
+                    if(service.type === 'talacha') color = '#ff3366';
+                    if(service.type === 'recarga') color = '#f7d44a';
+                    if(service.type === 'oxxo') color = '#00d68f';
+                    const marker = L.circleMarker([latService, lngService], { color: color, radius: 8 }).addTo(map);
+                    const meta = service.meta || { nombre: 'Servicio' };
+                    marker.bindPopup(`<b>${meta.nombre || 'Sin nombre'}</b><br><small>A ${Math.round(service.distance_meters)} metros</small><br><span style="color:${color}; font-weight:bold;">⭐ ${meta.rating || 'Nuevo'}</span>`);
+                  });
+                }
+              } else {
+                console.warn("SupabaseClient no inicializado");
               }
             } catch (error) { console.error("Error conectando con Supabase:", error); }
           },
