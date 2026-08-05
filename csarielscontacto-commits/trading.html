@@ -16,7 +16,7 @@
     <div style="background: rgba(11,61,46,0.2); border: 1px solid var(--gold-dim); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
         <h3 style="font-family:'Orbitron'; color: var(--gold-cosmic); font-size: 1rem; margin-bottom: 10px;">📊 Artículos / Inventario</h3>
         <div id="inventoryList" style="height: 150px; width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; overflow-y: auto; padding: 10px; color: var(--text-secondary); font-size: 0.8rem; border: 1px solid var(--gold-dim);">
-            <p style="text-align:center; color: var(--text-muted);">Cargando los 81 artículos...</p>
+            <p style="text-align:center; color: var(--text-muted);">Cargando inventario real...</p>
         </div>
         <p style="text-align:center; color: var(--text-muted); font-size: 0.7rem; margin-top: 10px;">Precio actual por artículo: <span id="currentPrice" style="color: var(--gold-cosmic); font-weight: bold;">$0.50</span> USD</p>
     </div>
@@ -60,13 +60,17 @@
     input:focus, select:focus { border-color: var(--gold-cosmic) !important; }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="importmap">
+{
+  "imports": {
+    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
+  }
+}
+</script>
 
-<script>
-    // 🔑 CREDENCIALES DE SUPABASE
-    const supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+<script type="module">
+    // 🔑 CONEXIÓN A SUPABASE desde config.js
+    import { supabase } from './js/utils/supabaseClient.js';
 
     let userId = null;
     let currentBalance = 0;
@@ -77,51 +81,59 @@
         document.getElementById('walletIdDisplay').innerText = userId || 'No conectada';
 
         if(userId) {
-            // Aquí es donde va la lógica real de los 81 artículos
-            cargarArticulosInventario();
-            cargarSaldoCartera();
+            cargarArticulosReales(); // Carga los 81 artículos
+            cargarSaldoReal();       // Carga el saldo de la cartera
         } else {
             document.getElementById('userBalance').innerText = "Conecta wallet";
             document.getElementById('tradeStatus').innerText = "⚠️ No se encontró cartera.";
         }
     });
 
-    // 🟢 CARGAR LOS 81 ARTÍCULOS (Simulado por ahora)
-    // 🔥 Aquí es donde tu lógica real debe conectarse a la tabla de inventario/artículos
-    async function cargarArticulosInventario() {
+    // 🟢 CARGAR LOS 81 ARTÍCULOS
+    async function cargarArticulosReales() {
         const invDiv = document.getElementById('inventoryList');
-        invDiv.innerHTML = "";
-        
-        // SIMULACIÓN DE 81 ARTÍCULOS. 
-        // SI TIENES UNA TABLA EN SUPABASE, CAMBIA ESTO POR UNA LLAMADA SELECT * FROM inventario
-        const articulosSimulados = [
-            "📦 Artículo #1 - Lote Premium", "📦 Artículo #2 - Lote Standard", "📦 Artículo #3 - Lote Básico", 
-            "📦 Artículo #4 - Especial", "📦 Artículo #5 - Limitado", "📦 Artículo #6 - Clásico", "📦 Artículo #7 - Vintage",
-            "📦 Artículo #8 - Edición Coleccionista", "📦 Artículo #9 - Pack Ahorro", "📦 Artículo #10 - Pack Familiar"
-        ]; // Y así hasta 81
+        invDiv.innerHTML = "<p style='text-align:center;'>Cargando inventario...</p>";
 
-        // Si no se ha conectado a la tabla real, mostramos el mensaje correcto.
-        // CAMBIA ESTO POR UNA CONSULTA A SUPABASE CUANDO TENGAS LA TABLA.
-        // const { data, error } = await supabaseClient.from('articulos_inventario').select('*');
-        // if(data) data.forEach(a => invDiv.innerHTML += `<p>${a.nombre}</p>`);
-        
-        // Por ahora, mostramos el listado simulado para que no se vea en blanco
-        articulosSimulados.forEach(art => {
-            invDiv.innerHTML += `<p style="margin: 2px 0;">🔹 ${art}</p>`;
-        });
-        invDiv.innerHTML += `<p style="text-align:center; margin-top:10px; color:var(--gold-cosmic);">... y 71 artículos más.</p>`;
+        // 🛑 IMPORTANTE: CAMBIA 'nombre_tabla_articulos' por el nombre real
+        const { data, error } = await supabase.from('nombre_tabla_articulos').select('*');
+
+        if (error) {
+            console.error("Error cargando inventario:", error);
+            invDiv.innerHTML = "<p style='color: #ff3366; text-align:center;'>Error al cargar el inventario.</p>";
+            return;
+        }
+
+        if (data && data.length > 0) {
+            invDiv.innerHTML = "";
+            data.forEach(art => {
+                invDiv.innerHTML += `<p style="margin: 2px 0; display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:4px 0;">
+                    <span>🔹 ${art.nombre || 'Sin nombre'}</span>
+                    <span style="color:var(--gold-cosmic);">$${art.precio || '0.00'}</span>
+                </p>`;
+            });
+        } else {
+            invDiv.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>No hay artículos en el inventario.</p>";
+        }
     }
 
-    // 🟢 CARGAR SALDO DE LA CARTERA INVISIBLE
-    async function cargarSaldoCartera() {
-        // AQUÍ DEBES CONECTAR CON LA FUNCIÓN REAL DE SALDO DE LA CARTERA
-        // Ejemplo: const { data } = await supabaseClient.rpc('obtener_saldo_commit', { p_user_id: userId });
-        // Como esto es un simulado para que se vea la conexión:
-        document.getElementById('userBalance').innerText = "500.00 TOK"; 
-        currentBalance = 500.00;
+    // 🟢 CARGAR SALDO (Usa la función exacta que me pasaste)
+    async function cargarSaldoReal() {
+        try {
+            const { data, error } = await supabase.rpc('obtener_saldo_commit', { p_user_id: userId });
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+                const saldo = parseFloat(data[0].balance_commit || 0);
+                currentBalance = saldo;
+                document.getElementById('userBalance').innerText = saldo.toFixed(2) + " TOK";
+            }
+        } catch (error) {
+            console.error("Error cargando saldo:", error);
+            document.getElementById('userBalance').innerText = "Error";
+        }
     }
 
-    // 🟢 EJECUTAR COMPRA O VENTA 
+    // 🟢 EJECUTAR COMPRA O VENTA (Usa la función exacta que me pasaste)
     window.ejecutarTrade = async function(tipo) {
         if(!userId) {
             document.getElementById('tradeStatus').innerHTML = "<span style='color: #ff3366;'>❌ Cartera no identificada.</span>";
@@ -136,19 +148,31 @@
             return;
         }
 
-        statusDiv.innerHTML = "<span style='color: #f7d44a;'>⏳ Procesando operación en la Cartera Invisible...</span>";
+        statusDiv.innerHTML = "<span style='color: #f7d44a;'>⏳ Procesando transacción real...</span>";
 
-        // SIMULACIÓN DE COMPRA/VENTA EXITOSA
-        // CAMBIAR ESTO POR LA LLAMADA REAL A LA FUNCIÓN DE TRANSACCIÓN DE LA CARTERA
-        setTimeout(() => {
-            if(tipo === 'buy') {
-                statusDiv.innerHTML = `<span style='color: #00d68f;'>✅ Compra de ${monto} artículos exitosa. (Simulación)</span>`;
+        try {
+            const { data, error } = await supabase.rpc('procesar_transaccion_commit', {
+                p_sender_id: userId,
+                p_receiver_id: 'sistema_trading',
+                p_amount: monto,
+                p_asset_type: tipo === 'buy' ? 'compra' : 'venta',
+                p_description: `Operación de ${tipo === 'buy' ? 'compra' : 'venta'} de ${monto} artículos`
+            });
+
+            if (error) throw error;
+
+            if(data && data.success) {
+                statusDiv.innerHTML = `<span style='color: #00d68f;'>✅ Transacción exitosa! ID: ${data.transaction_id}. Comisión: ${data.commission_amount}</span>`;
+                await cargarSaldoReal();
+                amountInput.value = '';
             } else {
-                statusDiv.innerHTML = `<span style='color: #00d68f;'>✅ Venta de ${monto} artículos exitosa. (Simulación)</span>`;
+                statusDiv.innerHTML = "<span style='color: #ff3366;'>❌ La operación no pudo completarse.</span>";
             }
-            document.getElementById('userBalance').innerText = `${(currentBalance - monto).toFixed(2)} TOK`;
-            amountInput.value = '';
-        }, 1500);
+
+        } catch (error) {
+            console.error("Error en transacción:", error);
+            statusDiv.innerHTML = `<span style='color: #ff3366;'>❌ Error: ${error.message}</span>`;
+        }
     }
 
     // 🟢 CAMBIAR PESTAÑAS
