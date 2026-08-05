@@ -16,8 +16,9 @@ const CsarielRouter = {
         web3: { title: 'Panel Web3', file: 'features/panel-web3.html' },
         internet: { title: 'Internet', file: 'features/mi-internet.html' },
         admin: { title: 'Admin', file: 'features/dashboard-emerald.html' },
-        privacy: { title: 'Aviso de Privacidad', file: 'aviso-privacidad.html' },
-        terms: { title: 'Términos', file: 'terminos-completos.html' },
+        privacy: { title: 'Aviso de Privacidad', file: 'terminos/privacidad.html' },
+        terms: { title: 'Términos', file: 'terminos/terminos-completos.html' },
+        store: { title: 'Tienda CMT', file: 'store/index.html' },
     },
 
     async navigateTo(pageKey) {
@@ -36,7 +37,7 @@ const CsarielRouter = {
             const response = await fetch(page.file);
             const html = await response.text();
             
-            // Extraer solo el contenido del <body> de ese archivo
+            // Extraer solo el contenido del <main> de ese archivo
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const newContent = doc.querySelector('main') || doc.body;
