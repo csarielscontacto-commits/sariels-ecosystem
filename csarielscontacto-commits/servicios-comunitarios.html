@@ -1,46 +1,17 @@
 <!-- ESTO ES UN FRAGMENTO HTML. NO PONGAS <html>, <head> NI <body> -->
-<main style="padding:20px; animation: fadeIn 0.5s ease; max-width: 1200px; margin: 0 auto;">
+<main style="padding:20px; animation: fadeIn 0.5s ease; max-width: 800px; margin: 0 auto;">
     
-    <!-- TÍTULO -->
     <div style="text-align:center; margin-bottom:20px;">
         <h2 style="font-family:'Orbitron'; color: var(--gold-cosmic);">🔧 Servicios Comunitarios</h2>
-        <p style="color:#8ba3c7;">Encuentra mecánicos, plomeros, electricistas y más cerca de ti. ¡Registra tu negocio gratis!</p>
+        <p style="color:#8ba3c7;">Encuentra mecánicos, plomeros, electricistas y más cerca de ti.</p>
     </div>
-
-    <!-- FORMULARIO PARA SUBIR SERVICIOS A LA BASE DE DATOS -->
-    <div style="background: rgba(11,61,46,0.3); border: 2px solid var(--gold-cosmic); border-radius: 20px; padding: 20px; margin-bottom: 20px;">
-        <h3 style="font-family:'Orbitron'; color: var(--gold-cosmic); margin-bottom: 15px;">📝 Registrar mi Servicio</h3>
-        
-        <input type="text" id="serviceName" placeholder="Nombre del negocio o persona (Ej: Mecánico El Chuy)" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(247,212,74,0.1); color: var(--text-primary); padding: 12px; border-radius: 12px; margin-bottom: 10px; font-family: 'Space Grotesk';">
-        
-        <select id="serviceType" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(247,212,74,0.1); color: var(--text-primary); padding: 12px; border-radius: 12px; margin-bottom: 10px; font-family: 'Space Grotesk';">
-            <option value="">Selecciona el tipo de servicio</option>
-            <option value="talacha">🔧 Mecánico / Talacha</option>
-            <option value="recarga">🔋 Recarga de batería</option>
-            <option value="llantera">🛞 Llantera</option>
-            <option value="grua">🚗 Grúa</option>
-            <option value="gasolina">⛽ Gasolina</option>
-            <option value="plomero">🔧 Plomero</option>
-            <option value="electricista">⚡ Electricista</option>
-            <option value="otro">📌 Otro servicio</option>
-        </select>
-        
-        <input type="text" id="serviceRating" placeholder="Calificación (Ej: 4.8)" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(247,212,74,0.1); color: var(--text-primary); padding: 12px; border-radius: 12px; margin-bottom: 15px; font-family: 'Space Grotesk';">
-        
-        <button onclick="registrarServicio()" style="width: 100%; background: linear-gradient(135deg, var(--gold-cosmic), #b8923a); border: none; color: #0a0c10; padding: 15px; border-radius: 30px; font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1rem; cursor: pointer;">
-            🌍 Subir mi negocio al mapa
-        </button>
-        <div id="statusMessage" style="margin-top: 10px; font-family: 'Space Grotesk'; font-size: 0.9rem; text-align: center;"></div>
+    
+    <div style="background: rgba(11,61,46,0.2); padding:15px; border-radius:10px; border:1px solid rgba(247,212,74,0.1);">
+        <p style="color: var(--text-secondary);">Aquí va el listado de servicios y el mapa de geolocalización.</p>
     </div>
-
-    <!-- MAPA DE SERVICIOS -->
-    <div style="margin-top: 20px; background: rgba(11,61,46,0.15); border: 1px solid var(--gold-dim); border-radius: 20px; padding: 15px;">
-        <h3 style="font-family:'Orbitron'; color: var(--gold-cosmic); text-align:center; margin-bottom:10px;">📍 Servicios Cerca de Ti</h3>
-        <div id="services-map" style="height: 300px; width: 100%; border-radius: 12px; border: 2px solid var(--gold-dim);"></div>
-    </div>
-
+    
     <div style="text-align:center; margin-top:20px;">
-        <a href="#" data-csariel-page="home" style="color:var(--gold-cosmic); text-decoration:none;">
+        <a href="#" data-csariel-page="home" style="color:var(--gold-cosmic); text-decoration:none; font-family:'Orbitron', monospace; font-size:0.9rem;">
             <i class="fas fa-arrow-left"></i> Volver al Inicio
         </a>
     </div>
@@ -48,141 +19,4 @@
 
 <style>
     @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-    input, select { outline: none; transition: border 0.3s; }
-    input:focus, select:focus { border-color: var(--gold-cosmic) !important; }
 </style>
-
-<!-- 🗺️ LIBRERÍAS Y SCRIPT -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-    // 🔑 CREDENCIALES DE SUPABASE (Las que Antropic ya te dio)
-    const supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-    let mapServices = null;
-    let userMarkerPlaced = false;
-    let currentLat = 19.4326;
-    let currentLng = -99.1332;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        iniciarMapaServicios();
-    });
-
-    // INICIAR MAPA
-    function iniciarMapaServicios() {
-        if(mapServices) return;
-        
-        // Intentar obtener la ubicación real del usuario para centrar el mapa
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    currentLat = position.coords.latitude;
-                    currentLng = position.coords.longitude;
-                    mapServices = L.map('services-map').setView([currentLat, currentLng], 15);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapServices);
-                    colocarPinUsuario();
-                    cargarServiciosReales();
-                },
-                (error) => {
-                    // Fallback si no da GPS (solo por si acaso)
-                    mapServices = L.map('services-map').setView([currentLat, currentLng], 12);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapServices);
-                    cargarServiciosReales();
-                }
-            );
-        } else {
-            // Fallback si el navegador no soporta GPS
-            mapServices = L.map('services-map').setView([currentLat, currentLng], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapServices);
-            cargarServiciosReales();
-        }
-    }
-
-    function colocarPinUsuario() {
-        if(!mapServices) return;
-        const userMarker = L.marker([currentLat, currentLng], {icon: L.divIcon({className: 'user-pin', html: '📍', iconSize: [20, 20]})}).addTo(mapServices);
-        userMarker.bindPopup("<b style='color:black;'>📍 Estás aquí</b>").openPopup();
-        userMarkerPlaced = true;
-    }
-
-    // 🟢 FUNCIÓN PARA CARGAR LOS SERVICIOS DE SUPABASE EN EL MAPA (REAL)
-    async function cargarServiciosReales() {
-        // Siempre cargar basado en el GPS real del usuario
-        const { data, error } = await supabaseClient.rpc('get_nearby_services', {
-            lat: currentLat,
-            lng: currentLng,
-            radius_meters: 5000 // 5 kilómetros a la redonda. ¡Nada de demo!
-        });
-
-        if (error) { console.error("Error cargando servicios:", error); return; }
-
-        if (data && data.length > 0) {
-            data.forEach(service => {
-                const coords = service.geom.coordinates;
-                let color = 'blue';
-                if(service.type === 'talacha' || service.type === 'plomero' || service.type === 'electricista') color = '#ff3366';
-                if(service.type === 'recarga' || service.type === 'gasolina') color = '#f7d44a';
-                if(service.type === 'llantera' || service.type === 'grua') color = '#00d68f';
-                if(service.type === 'otro') color = '#6c2bd9';
-
-                const marker = L.circleMarker([coords[1], coords[0]], { color: color, radius: 8 }).addTo(mapServices);
-                const meta = service.meta || { nombre: 'Servicio' };
-                marker.bindPopup(`<b>${meta.nombre || 'Sin nombre'}</b><br>⭐ ${meta.rating || 'Nuevo'}`);
-            });
-        }
-    }
-
-    // 🟢 FUNCIÓN PARA REGISTRAR UN SERVICIO DESDE EL FORMULARIO
-    window.registrarServicio = async function() {
-        const nombre = document.getElementById('serviceName').value;
-        const tipo = document.getElementById('serviceType').value;
-        const rating = document.getElementById('serviceRating').value;
-        const msgBox = document.getElementById('statusMessage');
-
-        if(!nombre || !tipo) {
-            msgBox.innerHTML = "<span style='color: #ff3366;'>❌ Por favor llena el nombre y el tipo de servicio.</span>";
-            return;
-        }
-
-        msgBox.innerHTML = "<span style='color: #f7d44a;'>⏳ Obteniendo tu ubicación GPS para registrar el servicio...</span>";
-
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-
-            // Datos a guardar en Supabase
-            const newService = {
-                type: tipo,
-                geom: `POINT(${lng} ${lat})`, // Formato PostGIS
-                user_id: localStorage.getItem('csariels_wallet') || 'usuario_anonimo', // Usa la cartera invisible o un ID
-                meta: { 
-                    nombre: nombre,
-                    rating: rating || 'Nuevo'
-                }
-            };
-
-            msgBox.innerHTML = "<span style='color: #f7d44a;'>⏳ Guardando en la base de datos...</span>";
-
-            const { data, error } = await supabaseClient.from('service_points').insert([newService]);
-
-            if (error) {
-                console.error(error);
-                msgBox.innerHTML = `<span style='color: #ff3366;'>❌ Error al guardar: ${error.message}</span>`;
-            } else {
-                msgBox.innerHTML = "<span style='color: #00d68f;'>✅ ¡Negocio registrado con éxito! Aparecerá en el mapa en segundos.</span>";
-                document.getElementById('serviceName').value = '';
-                document.getElementById('serviceType').value = '';
-                document.getElementById('serviceRating').value = '';
-                // Recargar pines reales basados en la nueva ubicación (o la actual)
-                cargarServiciosReales();
-            }
-
-        }, (error) => {
-            msgBox.innerHTML = "<span style='color: #ff3366;'>❌ Error: Necesitas activar el GPS en tu celular para registrar la ubicación exacta.</span>";
-        });
-    }
-</script>
