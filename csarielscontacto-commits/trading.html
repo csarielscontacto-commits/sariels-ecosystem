@@ -60,17 +60,16 @@
     input:focus, select:focus { border-color: var(--gold-cosmic) !important; }
 </style>
 
-<script type="importmap">
-{
-  "imports": {
-    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
-  }
-}
-</script>
+<!-- ========================================================== -->
+<!-- 🛠️ CORRECCIÓN DEL MOTOR DE SUPABASE (Solución definitiva) -->
+<!-- ========================================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script type="module">
-    // 🔑 CONEXIÓN A SUPABASE desde config.js
-    import { supabase } from './js/utils/supabaseClient.js';
+<script>
+    // 🔑 CONFIGURACIÓN DIRECTA (Usando las llaves de config.js)
+    const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let userId = null;
     let currentBalance = 0;
@@ -81,8 +80,8 @@
         document.getElementById('walletIdDisplay').innerText = userId || 'No conectada';
 
         if(userId) {
-            cargarArticulosReales(); // Carga los 81 artículos
-            cargarSaldoReal();       // Carga el saldo de la cartera
+            cargarArticulosReales();
+            cargarSaldoReal();
         } else {
             document.getElementById('userBalance').innerText = "Conecta wallet";
             document.getElementById('tradeStatus').innerText = "⚠️ No se encontró cartera.";
@@ -94,8 +93,8 @@
         const invDiv = document.getElementById('inventoryList');
         invDiv.innerHTML = "<p style='text-align:center;'>Cargando inventario...</p>";
 
-        // 🛑 IMPORTANTE: CAMBIA 'nombre_tabla_articulos' por el nombre real
-        const { data, error } = await supabase.from('nombre_tabla_articulos').select('*');
+        // 🛑 AQUÍ PONES EL NOMBRE DE TU TABLA
+        const { data, error } = await supabase.from('articulos').select('*');
 
         if (error) {
             console.error("Error cargando inventario:", error);
@@ -116,7 +115,7 @@
         }
     }
 
-    // 🟢 CARGAR SALDO (Usa la función exacta que me pasaste)
+    // 🟢 CARGAR SALDO
     async function cargarSaldoReal() {
         try {
             const { data, error } = await supabase.rpc('obtener_saldo_commit', { p_user_id: userId });
@@ -133,7 +132,7 @@
         }
     }
 
-    // 🟢 EJECUTAR COMPRA O VENTA (Usa la función exacta que me pasaste)
+    // 🟢 EJECUTAR COMPRA O VENTA
     window.ejecutarTrade = async function(tipo) {
         if(!userId) {
             document.getElementById('tradeStatus').innerHTML = "<span style='color: #ff3366;'>❌ Cartera no identificada.</span>";
