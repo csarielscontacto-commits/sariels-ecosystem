@@ -65,46 +65,57 @@
 
     let mapServices = null;
     let userMarkerPlaced = false;
+    let currentLat = 19.4326;
+    let currentLng = -99.1332;
 
     document.addEventListener('DOMContentLoaded', function() {
         iniciarMapaServicios();
-        cargarServiciosExistentes(); // Cargar los pines que ya hayan subido otros
     });
 
     // INICIAR MAPA
     function iniciarMapaServicios() {
         if(mapServices) return;
-        mapServices = L.map('services-map').setView([19.4326, -99.1332], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapServices);
-        activarGPSMapa();
-    }
-
-    // GPS DEL USUARIO
-    function activarGPSMapa() {
-        if (!mapServices) return;
+        
+        // Intentar obtener la ubicación real del usuario para centrar el mapa
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    mapServices.flyTo([lat, lng], 14);
-                    if(!userMarkerPlaced) {
-                        L.marker([lat, lng], {icon: L.divIcon({className: 'user-pin', html: '📍', iconSize: [20, 20]})}).addTo(mapServices)
-                         .bindPopup("<b style='color:black;'>📍 Estás aquí</b>").openPopup();
-                        userMarkerPlaced = true;
-                    }
+                    currentLat = position.coords.latitude;
+                    currentLng = position.coords.longitude;
+                    mapServices = L.map('services-map').setView([currentLat, currentLng], 15);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapServices);
+                    colocarPinUsuario();
+                    cargarServiciosReales();
                 },
-                (error) => { console.warn("GPS denegado."); }
+                (error) => {
+                    // Fallback si no da GPS (solo por si acaso)
+                    mapServices = L.map('services-map').setView([currentLat, currentLng], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapServices);
+                    cargarServiciosReales();
+                }
             );
+        } else {
+            // Fallback si el navegador no soporta GPS
+            mapServices = L.map('services-map').setView([currentLat, currentLng], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapServices);
+            cargarServiciosReales();
         }
     }
 
-    // 🟢 FUNCIÓN PARA CARGAR LOS SERVICIOS DE SUPABASE EN EL MAPA
-    async function cargarServiciosExistentes() {
+    function colocarPinUsuario() {
+        if(!mapServices) return;
+        const userMarker = L.marker([currentLat, currentLng], {icon: L.divIcon({className: 'user-pin', html: '📍', iconSize: [20, 20]})}).addTo(mapServices);
+        userMarker.bindPopup("<b style='color:black;'>📍 Estás aquí</b>").openPopup();
+        userMarkerPlaced = true;
+    }
+
+    // 🟢 FUNCIÓN PARA CARGAR LOS SERVICIOS DE SUPABASE EN EL MAPA (REAL)
+    async function cargarServiciosReales() {
+        // Siempre cargar basado en el GPS real del usuario
         const { data, error } = await supabaseClient.rpc('get_nearby_services', {
-            lat: 19.4326,
-            lng: -99.1332,
-            radius_meters: 50000 // Cargar un área grande si no tiene GPS
+            lat: currentLat,
+            lng: currentLng,
+            radius_meters: 5000 // 5 kilómetros a la redonda. ¡Nada de demo!
         });
 
         if (error) { console.error("Error cargando servicios:", error); return; }
@@ -166,8 +177,8 @@
                 document.getElementById('serviceName').value = '';
                 document.getElementById('serviceType').value = '';
                 document.getElementById('serviceRating').value = '';
-                // Recargar pines
-                cargarServiciosExistentes();
+                // Recargar pines reales basados en la nueva ubicación (o la actual)
+                cargarServiciosReales();
             }
 
         }, (error) => {
