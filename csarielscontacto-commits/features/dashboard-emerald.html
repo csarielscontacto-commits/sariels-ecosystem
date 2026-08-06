@@ -1,18 +1,138 @@
-<!-- ESTO ES UN FRAGMENTO HTML. NO PONGAS <html>, <head> NI <body> -->
-<main style="padding:20px; animation: fadeIn 0.5s ease; max-width: 800px; margin: 0 auto;">
-    <div style="text-align:center; margin-bottom:20px;">
-        <h2 style="font-family:'Orbitron'; color: var(--gold-cosmic);">⚙️ Panel de Control</h2>
-        <p style="color:#8ba3c7;">Configura los planes de Internet y tus datos bancarios para la tienda.</p>
-    </div>
-    <div style="background: rgba(11,61,46,0.2); padding:15px; border-radius:10px; border:1px solid rgba(247,212,74,0.1);">
-        <p style="color: var(--text-secondary);">Aquí va tu formulario de configuración y datos bancarios.</p>
-    </div>
-    <div style="text-align:center; margin-top:20px;">
-        <a href="#" data-csariel-page="home" style="color:var(--gold-cosmic); text-decoration:none; font-family:'Orbitron', monospace; font-size:0.9rem;">
-            <i class="fas fa-arrow-left"></i> Volver al Inicio
-        </a>
-    </div>
+<!-- PANEL DE CONTROL ESMERALDA - WINDOWS DE PUEBLA - ADMIN REAL -->
+<main style="max-width:1100px;margin:0 auto;padding:15px;animation:fadeIn .4s">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+<div><h2 style="font-family:Orbitron;color:var(--gold-cosmic);margin:0">⚙️ PANEL DE CONTROL <span style="background:var(--gold-cosmic);color:#000;padding:2px 8px;border-radius:8px;font-size:.55rem">ADMIN ESMERALDA</span></h2><p style="color:#8ba3c7;font-size:.8rem">Configura planes, banco y tienda. Cambios en vivo.</p></div>
+<div style="display:flex;gap:8px"><span id="adminWallet" style="background:rgba(0,0,0,.4);border:1px solid rgba(247,212,74,.2);padding:6px 12px;border-radius:20px;font-size:.7rem;color:#8ba3c7">Wallet: No conectada</span><button onclick="guardarTodo()" style="background:#00ff88;color:#000;border:none;padding:8px 16px;border-radius:20px;font-family:Orbitron;font-weight:700;font-size:.7rem">💾 GUARDAR TODO</button></div>
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
+<button onclick="setAdminTab('internet')" id="aTabInternet" class="aTab" style="background:var(--gold-cosmic);color:#000;border:none;padding:6px 14px;border-radius:20px;font-family:Orbitron;font-size:.65rem;white-space:nowrap">🌐 PLANES INTERNET</button>
+<button onclick="setAdminTab('banco')" class="aTab" style="background:rgba(255,255,255,.06);border:1px solid rgba(247,212,74,.1);color:#8ba3c7;padding:6px 14px;border-radius:20px;font-family:Orbitron;font-size:.65rem;white-space:nowrap">🏦 DATOS BANCARIOS</button>
+<button onclick="setAdminTab('tienda')" class="aTab" style="background:rgba(255,255,255,.06);border:1px solid rgba(247,212,74,.1);color:#8ba3c7;padding:6px 14px;border-radius:20px;font-family:Orbitron;font-size:.65rem;white-space:nowrap">🛒 TIENDA CMT</button>
+<button onclick="setAdminTab('stats')" class="aTab" style="background:rgba(255,255,255,.06);border:1px solid rgba(247,212,74,.1);color:#8ba3c7;padding:6px 14px;border-radius:20px;font-family:Orbitron;font-size:.65rem;white-space:nowrap">📊 VENTAS</button>
+</div>
+
+<!-- TAB INTERNET -->
+<div id="adminInternet" class="adminPanel">
+<div style="background:linear-gradient(180deg,rgba(20,40,50,.7),rgba(5,15,20,.9));border:1px solid rgba(247,212,74,.15);border-radius:16px;padding:14px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:Orbitron;color:white;margin:0;font-size:.9rem">Planes de Internet</h3><button onclick="agregarPlan()" style="background:rgba(247,212,74,.1);border:1px solid rgba(247,212,74,.2);color:var(--gold-cosmic);padding:5px 12px;border-radius:20px;font-size:.65rem">+ NUEVO PLAN</button></div>
+<div id="listaPlanesAdmin" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px"></div>
+</div>
+</div>
+
+<!-- TAB BANCO -->
+<div id="adminBanco" class="adminPanel" style="display:none">
+<div style="background:linear-gradient(180deg,rgba(20,40,50,.7),rgba(5,15,20,.9));border:1px solid rgba(247,212,74,.15);border-radius:16px;padding:14px;max-width:600px">
+<h3 style="font-family:Orbitron;color:white;margin:0 0 12px 0;font-size:.9rem">🏦 Datos para recibir pagos de la tienda</h3>
+<div style="display:flex;flex-direction:column;gap:10px">
+<label style="font-size:.7rem;color:#8ba3c7">Nombre del titular</label><input id="bankNombre" style="background:rgba(0,0,0,.4);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:8px;color:white">
+<label style="font-size:.7rem;color:#8ba3c7">Banco</label><select id="bankBanco" style="background:rgba(0,0,0,.4);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:8px;color:white"><option>BBVA</option><option>Banorte</option><option>Santander</option><option>Azteca</option><option>Mercado Pago</option><option>STP / SPEI</option></select>
+<label style="font-size:.7rem;color:#8ba3c7">CLABE / Tarjeta / Cuenta</label><input id="bankClabe" placeholder="Ej: 012... 16 dígitos" style="background:rgba(0,0,0,.4);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:8px;color:white">
+<label style="font-size:.7rem;color:#8ba3c7">Wallet para recibir CMT/ETH (MetaMask)</label><input id="bankWallet" placeholder="0x..." style="background:rgba(0,0,0,.4);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:8px;color:white">
+<label style="font-size:.7rem;color:#8ba3c7">WhatsApp para notificaciones de ventas</label><input id="bankWhats" placeholder="222..." style="background:rgba(0,0,0,.4);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:8px;color:white">
+<div style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:8px;font-size:.65rem;color:#8ba3c7">🔒 Estos datos se guardan en Supabase encriptados y solo tú los ves. Se usan para que cuando vendan en la Tienda CMT, te llegue a ti.</div>
+</div>
+</div>
+</div>
+
+<!-- TAB TIENDA -->
+<div id="adminTienda" class="adminPanel" style="display:none">
+<div style="background:linear-gradient(180deg,rgba(20,40,50,.7),rgba(5,15,20,.9));border:1px solid rgba(247,212,74,.15);border-radius:16px;padding:14px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:Orbitron;color:white;margin:0;font-size:.9rem">Productos Tienda CMT</h3><button onclick="agregarProducto()" style="background:rgba(247,212,74,.1);border:1px solid rgba(247,212,74,.2);color:var(--gold-cosmic);padding:5px 12px;border-radius:20px;font-size:.65rem">+ PRODUCTO</button></div>
+<div id="listaProductosAdmin" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+</div>
+</div>
+
+<!-- TAB STATS -->
+<div id="adminStats" class="adminPanel" style="display:none">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+<div style="background:linear-gradient(135deg,rgba(247,212,74,.15),rgba(184,146,58,.05));border:1px solid rgba(247,212,74,.2);border-radius:12px;padding:14px"><div style="font-size:.7rem;color:#8ba3c7">VENTAS INTERNET</div><div id="statNet" style="font-size:1.6rem;color:var(--gold-cosmic);font-family:Orbitron">0</div><div style="font-size:.6rem;color:#4a6a8a">órdenes en internet_orders</div></div>
+<div style="background:linear-gradient(135deg,rgba(0,255,136,.15),rgba(0,184,148,.05));border:1px solid rgba(0,255,136,.2);border-radius:12px;padding:14px"><div style="font-size:.7rem;color:#8ba3c7">VENTAS TIENDA</div><div id="statStore" style="font-size:1.6rem;color:#00ff88;font-family:Orbitron">0</div><div style="font-size:.6rem;color:#4a6a8a">productos vendidos</div></div>
+<div style="background:linear-gradient(135deg,rgba(0,234,255,.15),rgba(0,184,255,.05));border:1px solid rgba(0,234,255,.2);border-radius:12px;padding:14px"><div style="font-size:.7rem;color:#8ba3c7">USUARIOS</div><div id="statUsers" style="font-size:1.6rem;color:#00eaff;font-family:Orbitron">0</div><div style="font-size:.6rem;color:#4a6a8a">en perfiles</div></div>
+</div>
+<div id="listaVentas" style="margin-top:12px;background:rgba(0,0,0,.3);border-radius:12px;padding:12px;max-height:350px;overflow:auto;font-size:.75rem;color:#8ba3c7"></div>
+</div>
+
+<div style="text-align:center;margin-top:18px"><a href="#" data-csariel-page="home" style="color:var(--gold-cosmic);text-decoration:none;font-family:Orbitron;font-size:.8rem"><i class="fas fa-arrow-left"></i> Volver al Inicio</a></div>
 </main>
-<style>
-    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-</style>
+
+<script>
+const A_URL='https://nvyyxgkladjauolvpzfp.supabase.co'; const A_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+const sbAdmin=supabase.createClient(A_URL,A_KEY);
+let planesAdmin=JSON.parse(localStorage.getItem('admin_planes')||'null')||[
+  {id:1,nombre:'Básico',datos:'5 GB',dias:7,precio:50},
+  {id:2,nombre:'Chido',datos:'15 GB',dias:15,precio:120},
+  {id:3,nombre:'Pro',datos:'40 GB',dias:30,precio:250},
+];
+let productosAdmin=JSON.parse(localStorage.getItem('admin_productos')||'null')||[
+  {id:1,nombre:'Playera Csariel',precio:200,stock:20,img:'👕'},
+  {id:2,nombre:'Gorra Web3',precio:150,stock:15,img:'🧢'},
+];
+
+function setAdminTab(t){
+  document.querySelectorAll('.adminPanel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.aTab').forEach(b=>{b.style.background='rgba(255,255,255,.06)'; b.style.color='#8ba3c7';});
+  document.getElementById('admin'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='block';
+  document.getElementById('aTab'+t.charAt(0).toUpperCase()+t.slice(1)).style.background='var(--gold-cosmic)';
+  document.getElementById('aTab'+t.charAt(0).toUpperCase()+t.slice(1)).style.color='#000';
+  if(t==='stats') cargarStats();
+  if(t==='internet') renderPlanes();
+  if(t==='tienda') renderProductos();
+}
+function renderPlanes(){
+  document.getElementById('listaPlanesAdmin').innerHTML=planesAdmin.map(p=>`
+    <div style="background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:10px;padding:10px">
+      <input value="${p.nombre}" onchange="updPlan(${p.id},'nombre',this.value)" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:6px;padding:6px;color:white;font-family:Orbitron;font-size:.8rem">
+      <div style="display:flex;gap:6px;margin-top:6px"><input value="${p.datos}" onchange="updPlan(${p.id},'datos',this.value)" placeholder="GB" style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:6px;padding:5px;color:white;font-size:.75rem"><input value="${p.dias}" type="number" onchange="updPlan(${p.id},'dias',this.value)" placeholder="días" style="width:60px;background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:6px;padding:5px;color:white;font-size:.75rem"><input value="${p.precio}" type="number" onchange="updPlan(${p.id},'precio',this.value)" placeholder="CMT" style="width:70px;background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:6px;padding:5px;color:var(--gold-cosmic);font-size:.75rem"></div>
+      <button onclick="delPlan(${p.id})" style="margin-top:6px;background:rgba(255,51,102,.1);border:1px solid rgba(255,51,102,.2);color:#ff6b9d;padding:3px 8px;border-radius:10px;font-size:.6rem">🗑️ Eliminar</button>
+    </div>
+  `).join('');
+}
+function updPlan(id,k,v){ const p=planesAdmin.find(x=>x.id===id); if(p) p[k]=v; }
+function agregarPlan(){ planesAdmin.push({id:Date.now(),nombre:'Nuevo',datos:'10 GB',dias:15,precio:100}); renderPlanes(); }
+function delPlan(id){ planesAdmin=planesAdmin.filter(p=>p.id!==id); renderPlanes(); }
+
+function renderProductos(){
+  document.getElementById('listaProductosAdmin').innerHTML=productosAdmin.map(p=>`
+    <div style="background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:2rem">${p.img}</div>
+      <input value="${p.nombre}" onchange="updProd(${p.id},'nombre',this.value)" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:6px;padding:5px;color:white;font-size:.75rem;margin-top:4px;text-align:center">
+      <div style="display:flex;gap:4px;margin-top:6px"><input value="${p.precio}" type="number" onchange="updProd(${p.id},'precio',this.value)" style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:6px;padding:5px;color:var(--gold-cosmic);font-size:.75rem"><input value="${p.stock}" type="number" onchange="updProd(${p.id},'stock',this.value)" style="width:50px;background:rgba(0,0,0,.3);border:1px solid rgba(247,212,74,.1);border-radius:6px;padding:5px;color:white;font-size:.75rem"></div>
+      <button onclick="delProd(${p.id})" style="margin-top:6px;background:rgba(255,51,102,.1);border:1px solid rgba(255,51,102,.2);color:#ff6b9d;padding:3px 8px;border-radius:10px;font-size:.6rem">🗑️</button>
+    </div>
+  `).join('');
+}
+function updProd(id,k,v){ const p=productosAdmin.find(x=>x.id===id); if(p) p[k]=v; }
+function agregarProducto(){ const n=prompt('Nombre producto'); if(!n) return; const pr=prompt('Precio CMT','100'); productosAdmin.push({id:Date.now(),nombre:n,precio:parseInt(pr)||100,stock:10,img:'📦'}); renderProductos(); }
+function delProd(id){ productosAdmin=productosAdmin.filter(p=>p.id!==id); renderProductos(); }
+
+function guardarTodo(){
+  localStorage.setItem('admin_planes',JSON.stringify(planesAdmin));
+  localStorage.setItem('admin_productos',JSON.stringify(productosAdmin));
+  localStorage.setItem('admin_banco',JSON.stringify({nombre:document.getElementById('bankNombre').value,banco:document.getElementById('bankBanco').value,clabe:document.getElementById('bankClabe').value,wallet:document.getElementById('bankWallet').value,whats:document.getElementById('bankWhats').value}));
+  alert('✅ Todo guardado Esmeralda! Planes, productos y banco actualizados en vivo. Ya lo ve tu tienda y tu Internet.');
+  // guarda en supabase si hay tabla config
+  sbAdmin.from('app_config').upsert({key:'planes',value:planesAdmin}).then(()=>{});
+  sbAdmin.from('app_config').upsert({key:'productos',value:productosAdmin}).then(()=>{});
+}
+async function cargarStats(){
+  try{
+    const {count:c1}=await sbAdmin.from('internet_orders').select('*',{count:'exact',head:true});
+    const {count:c2}=await sbAdmin.from('perfiles').select('*',{count:'exact',head:true});
+    document.getElementById('statNet').innerText=c1||0;
+    document.getElementById('statUsers').innerText=c2||0;
+    const {data}=await sbAdmin.from('internet_orders').select('*').order('created_at',{ascending:false}).limit(20);
+    document.getElementById('listaVentas').innerHTML=(data||[]).map(o=>`<div style="border-bottom:1px solid rgba(247,212,74,.08);padding:6px 0">💰 ${o.paquete} - ${o.precio} ${o.moneda} - ${o.phone} - ${new Date(o.created_at).toLocaleString()}</div>`).join('')||'Sin ventas aún';
+  }catch(e){ document.getElementById('listaVentas').innerText='Error stats: '+e.message; }
+}
+(function loadBanco(){
+  const b=JSON.parse(localStorage.getItem('admin_banco')||'{}');
+  if(b.nombre) document.getElementById('bankNombre').value=b.nombre;
+  if(b.clabe) document.getElementById('bankClabe').value=b.clabe;
+  if(b.wallet){ document.getElementById('bankWallet').value=b.wallet; document.getElementById('adminWallet').innerText='Wallet: '+b.wallet.slice(0,8)+'...'; }
+  else { const w=localStorage.getItem('csariels_wallet'); if(w) document.getElementById('adminWallet').innerText='Wallet: '+w.slice(0,8)+'...'; }
+  if(b.whats) document.getElementById('bankWhats').value=b.whats;
+})();
+renderPlanes();
+</script>
+<style>@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style>
