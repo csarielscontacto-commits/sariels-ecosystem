@@ -1,18 +1,43 @@
-<!-- ESTO ES UN FRAGMENTO HTML. NO PONGAS <html>, <head> NI <body> -->
-<main style="padding:20px; animation: fadeIn 0.5s ease; max-width: 800px; margin: 0 auto;">
-    <div style="text-align:center; margin-bottom:20px;">
-        <h2 style="font-family:'Orbitron'; color: var(--gold-cosmic);">😂 Muro Memes</h2>
-        <p style="color:#8ba3c7;">Memes y confesiones. Zona +18 con moderación IA. ¡Anónimo y divertido!</p>
-    </div>
-    <div style="background: rgba(11,61,46,0.2); padding:15px; border-radius:10px; border:1px solid rgba(247,212,74,0.1);">
-        <p style="color: var(--text-secondary);">Aquí va el feed de memes, chistes y confesiones.</p>
-    </div>
-    <div style="text-align:center; margin-top:20px;">
-        <a href="#" data-csariel-page="home" style="color:var(--gold-cosmic); text-decoration:none; font-family:'Orbitron', monospace; font-size:0.9rem;">
-            <i class="fas fa-arrow-left"></i> Volver al Inicio
-        </a>
-    </div>
+<!-- MURO MEMES CONECTADO A SUPABASE - GRUPO EN VIVO -->
+<main style="max-width:900px;margin:0 auto;padding:15px;animation:fadeIn .4s">
+<div style="text-align:center;margin-bottom:14px"><h2 style="font-family:Orbitron;color:var(--gold-cosmic)">😂 MURO MEMES <span style="background:#00ff88;color:#000;padding:2px 8px;border-radius:10px;font-size:.6rem">EN VIVO • CONECTADO</span></h2><p style="color:#8ba3c7;font-size:.8rem">Grupo anónimo. Todo se guarda en Supabase. Si lo publicas, todos lo ven.</p></div>
+
+<div style="background:rgba(11,61,46,.3);border:1px solid rgba(247,212,74,.2);border-radius:16px;padding:12px;margin-bottom:16px">
+<textarea id="memeText" placeholder="Suelta el meme, chisme, confesión..." style="width:100%;background:rgba(0,0,0,.5);border:1px solid rgba(247,212,74,.15);border-radius:12px;padding:10px;color:white;min-height:70px;outline:none"></textarea>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><label style="font-size:.7rem;color:#8ba3c7"><input type="checkbox" id="memeNSFW"> +18</label><button onclick="publicarMemeSupabase()" style="background:var(--gold-cosmic);color:#000;border:none;padding:7px 16px;border-radius:20px;font-family:Orbitron;font-weight:700;font-size:.7rem;cursor:pointer">🚀 PUBLICAR AL GRUPO</button></div>
+<div id="memeStatus" style="font-size:.7rem;color:#00ff88;margin-top:6px"></div>
+</div>
+
+<div id="memeFeed" style="display:flex;flex-direction:column;gap:12px"></div>
 </main>
-<style>
-    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-</style>
+<script>
+const _URL='https://nvyyxgkladjauolvpzfp.supabase.co'; const _KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+const sb=supabase.createClient(_URL,_KEY);
+async function publicarMemeSupabase(){
+ const texto=document.getElementById('memeText').value.trim(); const nsfw=document.getElementById('memeNSFW').checked;
+ if(!texto) return alert('Escribe algo wey');
+ document.getElementById('memeStatus').innerText='⏳ Subiendo a Supabase...';
+ const wallet=localStorage.getItem('csariels_wallet')||'anon'; const author=wallet.slice(0,6);
+ const {error}=await sb.from('memes').insert([{texto,author,wallet,nsfw}]);
+ if(error){ document.getElementById('memeStatus').innerText='❌ Error: '+error.message; return; }
+ document.getElementById('memeText').value=''; document.getElementById('memeStatus').innerText='✅ Publicado en el grupo!';
+ setTimeout(()=>document.getElementById('memeStatus').innerText='',2000);
+}
+async function cargarMemes(){
+ const {data,error}=await sb.from('memes').select('*').order('created_at',{ascending:false}).limit(50);
+ if(error){ document.getElementById('memeFeed').innerHTML='❌ No hay tabla memes aún. Pídele el SQL a Anthropic.'; return; }
+ render(data);
+}
+function render(lista){
+ document.getElementById('memeFeed').innerHTML=lista.map(m=>`
+  <div style="background:linear-gradient(180deg,rgba(20,40,50,.7),rgba(5,15,20,.9));border:1px solid ${m.nsfw?'rgba(255,51,102,.3)':'rgba(247,212,74,.12)'};border-radius:14px;padding:10px">
+    <div style="display:flex;justify-content:space-between"><span style="font-size:.7rem;color:var(--gold-cosmic);font-family:Orbitron">👻 ${m.author} ${m.nsfw?'🔥+18':''}</span><span style="font-size:.6rem;color:#4a6a8a">${new Date(m.created_at).toLocaleString()}</span></div>
+    <div style="color:white;margin:8px 0;font-size:.9rem;white-space:pre-wrap">${m.texto}</div>
+    <div style="display:flex;gap:12px;color:#8ba3c7;font-size:.75rem"><span onclick="like('${m.id}',${m.likes})">😂 ${m.likes||0}</span><span>↗️ Compartir</span></div>
+  </div>`).join('');
+}
+async function like(id,actual){ await sb.from('memes').update({likes:actual+1}).eq('id',id); }
+cargarMemes();
+sb.channel('memes-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'memes'},payload=>{ cargarMemes(); if(navigator.vibrate) navigator.vibrate(30); }).subscribe();
+setInterval(cargarMemes,5000);
+</script>
