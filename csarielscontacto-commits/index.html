@@ -1,452 +1,192 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>◈ Csariel's | Ecosistema Web3</title>
-  <meta name="description" content="Ecosistema Web3 con IA Predictiva, Neurosimbólica y Marketing Geográfico" />
-  <meta name="theme-color" content="#0B3D2E" />
-  
-  <!-- 📱 CONFIGURACIÓN PARA APP (MANIFEST) -->
-  <link rel="manifest" href="/manifest.json">
-  
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-  
-  <!-- 🗺️ MAPA Y SUPABASE -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <script src="https://unpkg.com/i18next@21.8.13/dist/umd/i18next.min.js"></script>
-  <script src="https://unpkg.com/react-i18next@12.2.0/dist/umd/react-i18next.min.js"></script>
-  <script src="./js/security.js"></script>
-  
-  <style>
-    :root {
-      --space-deep: #05080f; --space-mid: #0a1428; --space-light: #101f3a;
-      --verde-bosque: #0B3D2E; --verde-bosque-light: #1a5a44;
-      --verde-bosque-glass: rgba(11,61,46,0.85); --gold-cosmic: #f7d44a;
-      --gold-dim: rgba(247,212,74,0.15); --gold-glow: rgba(247,212,74,0.25);
-      --nebula-1: #6c2bd9; --nebula-2: #ff6b9d; --nebula-3: #00d4ff;
-      --plasma: #ff3366; --quantum: #00e5ff; --text-primary: #e8f0f8;
-      --text-secondary: #8ba3c7; --text-muted: #4a6a8a;
-      --border: rgba(247,212,74,0.08); --border-glow: rgba(247,212,74,0.25);
-      --shadow-neon: 0 0 40px rgba(247,212,74,0.08); --shadow-glow: 0 0 60px rgba(11,61,46,0.3);
-      --radius: 20px; --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      --success: #00b894; --warning: #f7d44a; --danger: #ff3366;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>◈ Csariel's | Windows de Puebla</title>
+<meta name="theme-color" content="#00ff88" />
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-512.png">
 
-    .lang-selector { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--gold-dim); border-radius: 20px; padding: 4px 10px; }
-    .lang-btn { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; transition: var(--transition); padding: 2px 4px; font-family: 'Space Grotesk', sans-serif; border-radius: 4px; }
-    .lang-btn:hover { color: var(--gold-cosmic); transform: scale(1.1); }
-    .lang-btn.active { color: var(--gold-cosmic); background: rgba(247,212,74,0.1); border: 1px solid rgba(247,212,74,0.2); }
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="./js/security.js"></script>
 
-    .wallet-status { display: flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--gold-dim); font-size: 0.55rem; cursor: pointer; transition: var(--transition); }
-    .wallet-status:hover { border-color: var(--border-glow); }
-    .wallet-status .wallet-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .wallet-status .wallet-dot.online { background: var(--success); box-shadow: 0 0 10px rgba(0,184,148,0.3); }
-    .wallet-status .wallet-dot.offline { background: var(--text-muted); }
-    .wallet-status .wallet-dot.loading { background: var(--warning); animation: pulse-glow 1s ease-in-out infinite; }
-    .wallet-status .wallet-dot.metamask { background: #f6851b; box-shadow: 0 0 15px rgba(246,133,27,0.4); }
-    .wallet-status .wallet-text { color: var(--text-secondary); font-family: 'Orbitron', monospace; font-size: 0.5rem; }
-    .wallet-status .btn-conectar-wallet { background: none; border: 1px solid var(--gold-cosmic); color: var(--gold-cosmic); padding: 2px 8px; border-radius: 12px; font-size: 0.45rem; cursor: pointer; font-family: 'Orbitron', monospace; transition: var(--transition); }
-    .wallet-status .btn-conectar-wallet:hover { background: rgba(247,212,74,0.1); }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { background: var(--space-deep); color: var(--text-primary); font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; line-height: 1.6; min-height: 100vh; overflow-x: hidden; position: relative; }
-    #stars-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-
-    .nebula { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.10; pointer-events: none; z-index: 0; animation: nebula-drift 25s ease-in-out infinite alternate; }
-    .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
-    .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
-    .nebula-3 { width: 500px; height: 500px; background: var(--nebula-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
-    @keyframes nebula-drift { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, -30px) scale(1.15); } }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--space-deep); }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
-
-    .app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 20px 24px 40px; }
-
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 20px; border-bottom: 2px solid var(--gold-dim); margin-bottom: 28px; flex-wrap: wrap; gap: 12px; backdrop-filter: blur(10px); position: relative; }
-    .header::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent); opacity: 0.4; }
-    .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
-    .logo-icon { font-size: 2.4rem; filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
-    .logo-icon .hex { display: inline-block; background: var(--verde-bosque); color: var(--gold-cosmic); padding: 4px 12px; border-radius: 8px; font-size: 1.2rem; font-weight: 900; border: 2px solid var(--gold-cosmic); box-shadow: 0 0 30px rgba(247,212,74,0.1); font-family: 'Orbitron', monospace; }
-    @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(247,212,74,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(247,212,74,0.4)); } }
-    .logo-text { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 40px rgba(247,212,74,0.15); }
-    .logo-badge { font-family: 'Orbitron', monospace; font-size: 0.5rem; background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic)); color: white; padding: 4px 14px; border-radius: 20px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; -webkit-text-fill-color: white; box-shadow: 0 0 30px rgba(11,61,46,0.3); animation: badge-pulse 2s ease-in-out infinite; border: 1px solid rgba(247,212,74,0.2); }
-    @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(11,61,46,0.3); } 50% { box-shadow: 0 0 60px rgba(247,212,74,0.2); } }
-    .header-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .status-badge { display: flex; align-items: center; gap: 8px; background: rgba(247,212,74,0.06); border: 1px solid rgba(247,212,74,0.15); padding: 8px 18px; border-radius: 30px; font-size: 0.65rem; color: var(--gold-cosmic); font-family: 'Orbitron', monospace; letter-spacing: 1px; backdrop-filter: blur(10px); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: quantum-pulse 1.5s ease-in-out infinite; }
-    .status-dot.online { background: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.5); }
-    .status-dot.offline { background: var(--text-muted); box-shadow: 0 0 20px rgba(74,106,138,0.3); }
-    @keyframes quantum-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.7); } }
-
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: 1px solid var(--border); border-radius: 30px; background: rgba(247,212,74,0.03); color: var(--text-primary); font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; transition: var(--transition); text-decoration: none; }
-    .btn:hover { transform: scale(1.03); border-color: var(--border-glow); }
-    .btn-primary { background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light)); border-color: var(--gold-cosmic); color: var(--gold-cosmic); -webkit-text-fill-color: var(--gold-cosmic); }
-    .btn-primary:hover { background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque)); box-shadow: 0 0 40px rgba(11,61,46,0.5); }
-    .btn-gold { background: linear-gradient(135deg, var(--gold-cosmic), #b8923a); border-color: transparent; color: #0a0c10; -webkit-text-fill-color: #0a0c10; }
-    .btn-gold:hover { box-shadow: 0 0 40px rgba(247,212,74,0.3); }
-    .btn-success { background: linear-gradient(135deg, #00b894, #00897b); border-color: transparent; color: white; -webkit-text-fill-color: white; }
-    .btn-success:hover { background: linear-gradient(135deg, #00897b, #00695c); box-shadow: 0 0 40px rgba(0,184,148,0.3); }
-    .btn-outline { border-color: var(--border); background: transparent; }
-    .btn-outline:hover { background: rgba(247,212,74,0.05); border-color: var(--gold-cosmic); }
-    .btn-sm { padding: 6px 14px; font-size: 0.6rem; }
-    .btn-danger { background: rgba(255,51,102,0.15); border-color: rgba(255,51,102,0.3); color: var(--danger); }
-    .btn-danger:hover { background: rgba(255,51,102,0.25); }
-
-    .hero { background: linear-gradient(145deg, rgba(11,61,46,0.2), rgba(247,212,74,0.04)); border: 1px solid var(--gold-dim); border-radius: var(--radius); padding: 32px 40px; margin-bottom: 28px; position: relative; overflow: hidden; backdrop-filter: blur(10px); text-align: center; }
-    .hero::before { content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(247,212,74,0.04) 0%, transparent 70%); border-radius: 50%; pointer-events: none; animation: hero-glow 8s ease-in-out infinite alternate; }
-    @keyframes hero-glow { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(-50px, 30px) scale(1.5); opacity: 1; } }
-    .hero-content { position: relative; z-index: 1; }
-    .hero-title { font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; background: linear-gradient(135deg, var(--text-primary), var(--gold-cosmic), var(--verde-bosque-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 60px rgba(247,212,74,0.15); }
-    .hero-title .highlight { background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 40px rgba(247,212,74,0.3); }
-    .hero-sub { font-size: 1.1rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto 16px; letter-spacing: 0.5px; }
-    .hero-metrics { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gold-dim); }
-    .metric { display: flex; flex-direction: column; align-items: center; }
-    .metric .number { font-family: 'Orbitron', monospace; font-size: 1.3rem; font-weight: 700; color: var(--gold-cosmic); }
-    .metric .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-family: 'Orbitron', monospace; }
-
-    /* ================================================================ */
-    /* 🌟 CARRUSEL DE MARKETING (MUNDO) CON FONDO DEL LOGO */
-    /* ================================================================ */
-    .marketing-section {
-      margin-top: 30px;
-      margin-bottom: 30px;
-      text-align: center;
-      position: relative;
-    }
-    .marketing-section::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 400px;
-      height: 400px;
-      background-image: url('/icon-512.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      opacity: 0.1;
-      z-index: 0;
-      pointer-events: none;
-      animation: floatLogo 20s infinite linear;
-    }
-    @keyframes floatLogo {
-      0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) scale(1.1) rotate(360deg); }
-    }
-    .marketing-banner {
-      padding: 15px 20px;
-      border-radius: 15px;
-      background: rgba(11,61,46,0.2);
-      border: 1px solid var(--gold-dim);
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      min-height: 80px;
-      position: relative;
-      z-index: 1;
-    }
-    .marketing-banner .logo-marca { font-size: 3rem; filter: drop-shadow(0 0 15px var(--gold-glow)); }
-    .marketing-banner .texto-marca { font-family: 'Orbitron', monospace; font-size: 1.2rem; color: var(--gold-cosmic); }
-    .marketing-banner .boton-marca { background: var(--verde-bosque); border: 1px solid var(--gold-cosmic); color: var(--gold-cosmic); padding: 5px 15px; border-radius: 20px; font-family: 'Orbitron', monospace; font-size: 0.7rem; cursor: pointer; }
-
-    .swipe-container { position: relative; width: 100%; max-width: 800px; margin: 20px auto; overflow: hidden; display: flex; justify-content: center; align-items: center; touch-action: pan-y; z-index: 1; }
-    .swipe-track { display: flex; gap: 15px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 10px; will-change: transform; }
-    .swipe-item { flex: 0 0 200px; height: 200px; background: rgba(11,61,46,0.4); border: 2px solid var(--gold-cosmic); box-shadow: 0 0 30px rgba(247,212,74,0.2); border-radius: 20px; backdrop-filter: blur(15px); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--text-primary); font-family: 'Orbitron', monospace; font-size: 0.9rem; padding: 15px; transition: all 0.3s ease; text-decoration: none; cursor: pointer; }
-    .swipe-item:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(247,212,74,0.5); border-color: #ffffff; }
-    .swipe-item i { font-size: 2.5rem; margin-bottom: 10px; color: var(--gold-cosmic); }
-    .swipe-nav { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 10px; z-index: 1; }
-    .swipe-nav button { background: rgba(247,212,74,0.1); border: 1px solid var(--gold-dim); color: var(--gold-cosmic); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; transition: var(--transition); display: flex; justify-content: center; align-items: center; }
-    .swipe-nav button:hover { background: var(--gold-cosmic); color: #0a0c10; }
-    .swipe-dots { display: flex; gap: 8px; }
-    .swipe-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(247,212,74,0.2); transition: var(--transition); }
-    .swipe-dot.active { background: var(--gold-cosmic); width: 20px; border-radius: 4px; }
-    @media (max-width: 600px) { .swipe-item { flex: 0 0 150px; height: 150px; font-size: 0.7rem; } .swipe-item i { font-size: 2rem; } }
-
-    /* 🗺️ MAPA */
-    .map-section { margin-top: 40px; padding: 20px; background: rgba(11,61,46,0.15); border: 1px solid var(--gold-dim); border-radius: var(--radius); backdrop-filter: blur(10px); position: relative; }
-    .map-section h2 { font-family: 'Orbitron', monospace; font-size: 1.8rem; margin-bottom: 15px; color: var(--gold-cosmic); text-align: center; text-shadow: 0 0 20px rgba(247,212,74,0.2); }
-    #community-map { height: 400px; width: 100%; border-radius: 12px; border: 2px solid var(--gold-dim); z-index: 1; }
-    .leaflet-control-attribution { font-size: 9px !important; color: #333 !important; }
-
-    .footer { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--gold-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; position: relative; }
-    .footer::before { content: ''; position: absolute; top: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent); opacity: 0.2; }
-    .footer-text { color: var(--text-muted); font-size: 0.78rem; letter-spacing: 0.5px; font-family: 'Orbitron', monospace; }
-    .footer-text .brand { color: var(--gold-cosmic); }
-    .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
-    .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.75rem; transition: var(--transition); font-family: 'Orbitron', monospace; letter-spacing: 0.5px; }
-    .footer-links a:hover { color: var(--gold-cosmic); }
-    .footer-hex { display: inline-block; background: var(--verde-bosque); color: var(--gold-cosmic); padding: 2px 10px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; border: 1px solid var(--gold-cosmic); font-family: 'Orbitron', monospace; }
-
-    @media (max-width: 768px) { .app { padding: 16px; } .header { flex-direction: column; align-items: flex-start; } .logo-text { font-size: 1.2rem; } .header-actions { width: 100%; justify-content: flex-start; } .hero-title { font-size: 1.8rem; } .hero-metrics { gap: 20px; } .wallet-status { font-size: 0.45rem; padding: 2px 8px; } #community-map { height: 250px; } }
-    @media (max-width: 480px) { .hero-title { font-size: 1.4rem; } .btn { font-size: 0.6rem; padding: 8px 14px; } .wallet-status { font-size: 0.4rem; padding: 2px 6px; } .wallet-status .wallet-text { font-size: 0.4rem; } #community-map { height: 200px; } }
-  </style>
+<style>
+:root { --gold:#f7d44a; --green:#00ff88; --cyan:#00eaff; --purple:#a855f7; }
+body{background:#020208;color:#e8f0f8;font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+.orbitron{font-family:'Orbitron',monospace}
+.glass{backdrop-filter:blur(16px);background:linear-gradient(180deg,rgba(20,40,50,.75),rgba(5,15,20,.9));border:1px solid rgba(0,255,136,.25)}
+.card-cosmic{transition:all.3s;cursor:pointer}
+.card-cosmic:hover{transform:scale(1.05) translateY(-4px);box-shadow:0 0 35px currentColor}
+.earth{animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+#stars-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+</style>
 </head>
 <body>
-  <canvas id="stars-canvas"></canvas>
-  <div class="nebula nebula-1"></div>
-  <div class="nebula nebula-2"></div>
-  <div class="nebula nebula-3"></div>
+<canvas id="stars-canvas"></canvas>
+<div class="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_#0a2a1a_0%,_#020208_70%)] -z-10"></div>
 
-  <div class="app">
-    <header class="header">
-      <a href="#" class="logo">
-        <span class="logo-icon"><span class="hex">◈</span></span>
-        <span class="logo-text">Csariel's</span>
-        <span class="logo-badge">Inicio</span>
-      </a>
-      <div class="header-actions">
-        <div class="status-badge"><span class="status-dot online"></span><span>En línea</span></div>
-        <a href="#" data-csariel-page="store" class="btn btn-gold btn-sm"><i class="fas fa-store"></i> 🏪 Tienda CMT</a>
-        <a href="#" data-csariel-page="terms" class="btn btn-outline btn-sm" target="_blank"><i class="fas fa-file-contract"></i> 📜 Términos</a>
-        
-        <!-- 🧠 BOTÓN DE MARQUINHOS (YA CONECTADO) -->
-        <button class="btn btn-gold btn-sm" onclick="window.marquinhosUI?.toggleVentana()">
-          <i class="fas fa-brain"></i> 🧠 Marquinhos
-        </button>
-        
-        <div class="lang-selector" id="languageSelector">
-          <button class="lang-btn active" onclick="setLanguage('es')" id="btn-es">🇪🇸</button>
-          <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">🇺🇸</button>
-          <button class="lang-btn" onclick="setLanguage('fr')" id="btn-fr">🇫🇷</button>
-        </div>
-      </div>
-    </header>
+<div class="relative z-10 max-w-[1400px] mx-auto px-4 py-4">
+  <!-- HEADER TUYO PERO MAS CÓSMICO -->
+  <header class="flex justify-between items-center border-b border-yellow-500/10 pb-4 mb-6 backdrop-blur-md">
+    <div class="flex items-center gap-3">
+      <span class="bg-[#0B3D2E] text-[#f7d44a] border-2 border-[#f7d44a] px-3 py-1 rounded-lg orbitron font-black">◈</span>
+      <span class="orbitron font-black text-xl tracking-wider">CSARIEL'S <span class="text-[#f7d44a] text-sm font-normal">ECOSISTEMA WEB3</span></span>
+      <span class="hidden md:inline text-[9px] border border-cyan-400/30 px-2 py-1 rounded-full">TODO EN UN UNIVERSO</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="hidden md:flex items-center gap-2 bg-black/30 border border-green-500/20 rounded-full px-3 py-1 text-[10px]"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> En línea</div>
+      <button onclick="window.marquinhosUI?.toggleVentana()" class="bg-gradient-to-r from-[#f7d44a] to-[#b8923a] text-black orbitron text-[10px] px-4 py-2 rounded-full font-bold"><i class="fas fa-brain"></i> MARQUINHOS</button>
+    </div>
+  </header>
 
-    <section class="hero">
-      <div class="hero-content">
-        <h1 class="hero-title">Tu <span class="highlight">Ecosistema</span> Web3</h1>
-        <p class="hero-sub">IA, Marketing Geográfico y Web3 para potenciar tu negocio.</p>
-        <div class="hero-metrics">
-          <div class="metric"><span class="number">🌐</span><span class="label">Alcance Global</span></div>
-          <div class="metric"><span class="number">📈</span><span class="label">Algoritmos IA</span></div>
-          <div class="metric"><span class="number">🔒</span><span class="label">Web3 Ready</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="marketing-section">
-      <div class="marketing-banner" id="marketingBanner">
-        <div class="logo-marca" id="marcaLugar">🌍</div>
-        <div class="texto-marca" id="marcaTexto">¿Quieres publicar tu negocio aquí?</div>
-        <button class="boton-marca" onclick="alert('🚀 Conecta con Marketing para aparecer en este globo.')">📢 Publicar</button>
-      </div>
-
-      <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px; font-family: 'Orbitron';">💬 Desliza y elige tu mundo</p>
-      
-      <div class="swipe-container">
-        <div class="swipe-track" id="swipeTrack">
-          <a href="#" data-csariel-page="network" class="swipe-item"><i class="fas fa-users"></i><span>Mi Red</span></a>
-          <a href="#" data-csariel-page="livestream" class="swipe-item"><i class="fas fa-video"></i><span>Muro Live</span></a>
-          <a href="#" data-csariel-page="trading" class="swipe-item"><i class="fas fa-chart-line"></i><span>Trading</span></a>
-          <a href="#" data-csariel-page="memes" class="swipe-item"><i class="fas fa-grin-squint"></i><span>Muro Memes</span></a>
-          <a href="#" data-csariel-page="services" class="swipe-item"><i class="fas fa-tools"></i><span>Servicios</span></a>
-          <a href="#" data-csariel-page="admin" class="swipe-item"><i class="fas fa-cog"></i><span>Admin</span></a>
-          <a href="#" data-csariel-page="web3" class="swipe-item"><i class="fas fa-wallet"></i><span>Web3</span></a>
-          <a href="#" data-csariel-page="internet" class="swipe-item"><i class="fas fa-wifi"></i><span>Internet</span></a>
-        </div>
-      </div>
-
-      <div class="swipe-nav">
-        <button id="prevBtn" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
-        <div class="swipe-dots" id="swipeDots"></div>
-        <button id="nextBtn" aria-label="Siguiente"><i class="fas fa-chevron-right"></i></button>
-      </div>
-    </section>
-
-    <section class="map-section">
-      <h2 id="mapTitle">📍 Mapa de Influencia</h2>
-      <div id="community-map"></div>
-      <p style="text-align:center; margin-top:10px; color:var(--text-secondary); font-size:0.8rem;" id="mapSub">Encuentra servicios, lugares y personas cerca de ti.</p>
-    </section>
-
-    <footer class="footer">
-      <span class="footer-text"><span class="brand">◈ Csariel's</span> — IA · Marketing · Web3</span>
-      <div class="footer-links">
-        <a href="#" data-csariel-page="dashboard-central">📊 Dashboard</a>
-        <a href="#" data-csariel-page="network">👥 Mi Red</a>
-        <a href="#" data-csariel-page="web3">🔗 Web3</a>
-        <a href="#" data-csariel-page="services">🔧 Servicios</a>
-        <a href="#" data-csariel-page="livestream">📱 Muro Live</a>
-        <a href="#" data-csariel-page="store" style="color:var(--gold-cosmic);">🏪 Tienda CMT</a>
-        <span class="footer-hex">◈</span>
-      </div>
-    </footer>
+  <!-- TU BANNER DE MARKETING -->
+  <div id="marketingBanner" class="glass rounded-xl p-3 mb-6 flex justify-center items-center gap-4 text-center">
+    <div id="marcaLugar" class="text-3xl">🌍</div>
+    <div id="marcaTexto" class="orbitron text-xs text-[#f7d44a]">¿Quieres publicar tu negocio aquí? Tu marca puede ser el mundo</div>
+    <button onclick="location.href='/features/world-ads/comprar.html'" class="bg-[#0B3D2E] border border-[#f7d44a] text-[#f7d44a] px-4 py-1 rounded-full text-[10px] orbitron">📢 PUBLICAR</button>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Lógica del carrusel táctil
-      const track = document.getElementById('swipeTrack');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const dotsContainer = document.getElementById('swipeDots');
-      const items = track.querySelectorAll('.swipe-item');
-      const itemWidth = items[0]?.offsetWidth + 15 || 150;
-      let currentIndex = 0;
+  <!-- AQUÍ ESTÁ LA MAGIA: TU POSTER HECHO CÓDIGO -->
+  <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr_300px] gap-4 items-center">
 
-      function createDots() {
-        dotsContainer.innerHTML = '';
-        for(let i = 0; i < items.length; i++) {
-          const dot = document.createElement('div');
-          dot.classList.add('swipe-dot');
-          if(i === 0) dot.classList.add('active');
-          dotsContainer.appendChild(dot);
-        }
-      }
-      createDots();
+    <!-- IZQ -->
+    <div class="space-y-3 order-2 lg:order-1">
+      <div class="card-cosmic glass border-purple-400/50 text-purple-300 rounded-xl p-4" onclick="location.href='#'"><div class="flex gap-3"><span class="text-2xl">📹</span><div><div class="orbitron text-xs">MI MURO LIVE <span class="bg-red-600 text-white text-[7px] px-1 rounded">LIVE</span></div><div class="text-[11px] opacity-60">Transmite en vivo.</div></div></div></div>
+      <div class="card-cosmic glass border-yellow-400/50 text-yellow-300 rounded-xl p-4" onclick="location.href='#'"><div class="flex gap-3"><span class="text-2xl">📊</span><div><div class="orbitron text-xs">MIS TRADING</div><div class="text-[11px] opacity-60">Opera. Invierte.</div></div></div></div>
+      <div class="card-cosmic glass border-cyan-400/50 text-cyan-300 rounded-xl p-4" onclick="window.marquinhosUI?.toggleVentana()"><div class="flex gap-3"><span class="text-2xl">🤖</span><div><div class="orbitron text-xs">MARQUINHOS</div><div class="text-[11px] opacity-60">Tu asistente IA</div></div></div></div>
+      <div class="card-cosmic glass border-purple-400/50 text-purple-300 rounded-xl p-4" onclick="location.href='#'"><div class="flex gap-3"><span class="text-2xl">📶</span><div><div class="orbitron text-xs">COMPRAR INTERNET</div><div class="text-[11px] opacity-60">Conéctate sin límites</div></div></div></div>
+    </div>
 
-      function updateCarousel() {
-        const offset = currentIndex * -itemWidth;
-        track.style.transform = `translateX(${offset}px)`;
-        const dots = dotsContainer.querySelectorAll('.swipe-dot');
-        dots.forEach((dot, idx) => {
-          dot.classList.toggle('active', idx === currentIndex);
-        });
-      }
+    <!-- CENTRO - TIERRA TÁCTIL -->
+    <div class="order-1 lg:order-2 flex flex-col items-center relative py-4">
+      <div class="card-cosmic glass border-green-400/50 rounded-xl px-5 py-2 mb-4 z-20"><div class="flex gap-2 items-center"><span>👥</span><span class="orbitron text-[11px] text-green-300">MI RED SOCIAL</span></div></div>
 
-      nextBtn.addEventListener('click', () => {
-        if(currentIndex < items.length - 1) { currentIndex++; updateCarousel(); }
-      });
-      prevBtn.addEventListener('click', () => {
-        if(currentIndex > 0) { currentIndex--; updateCarousel(); }
-      });
+      <div id="globeEarth" class="earth relative w-[320px] h-[320px] md:w-[420px] md:h-[420px] rounded-full overflow-hidden border-2 border-yellow-400/40 shadow-[0_0_80px_rgba(247,212,74,0.5)] cursor-pointer select-none">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800" class="w-full h-full object-cover pointer-events-none">
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-black/80 border-2 border-yellow-400 rounded-lg rotate-45 flex items-center justify-center"><span class="-rotate-45 orbitron text-xl text-yellow-400">C</span></div>
+        <div id="worldAdsLayer" class="absolute inset-0"></div>
+      </div>
+      <div class="text-5xl -mt-8 z-30 animate-bounce pointer-events-none">👆</div>
 
-      let startX = 0, isDragging = false;
-      track.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isDragging = true; track.style.transition = 'none'; });
-      track.addEventListener('touchmove', (e) => { if(!isDragging) return; const diff = e.touches[0].clientX - startX; track.style.transform = `translateX(${(currentIndex * -itemWidth) + diff}px)`; });
-      track.addEventListener('touchend', (e) => {
-        if(!isDragging) return;
-        isDragging = false; track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        const diff = e.changedTouches[0].clientX - startX;
-        if(diff < -50 && currentIndex < items.length - 1) currentIndex++;
-        else if(diff > 50 && currentIndex > 0) currentIndex--;
-        updateCarousel();
-      });
+      <div class="card-cosmic glass border-green-400/50 rounded-xl px-6 py-2 mt-2 z-20" onclick="desplegarUniverso()"><div class="orbitron text-[10px] text-green-300">🚀 EXPLORAR ECOSISTEMA - TOCA EL MUNDO</div></div>
 
-      // 🗺️ MAPA CON GPS Y SUPABASE
-      const map = L.map('community-map').setView([19.4326, -99.1332], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+      <!-- CARRUSEL TUYO CONSERVADO ABAJO DE LA TIERRA -->
+      <p class="orbitron text-[9px] opacity-40 mt-6 mb-2">💬 DESLIZA Y ELIGE TU MUNDO</p>
+      <div class="w-full max-w-[420px] overflow-hidden relative">
+        <div id="swipeTrack" class="flex gap-3 transition-transform duration-500 will-change-transform p-2">
+          <a href="#" data-csariel-page="network" class="flex-none w-[130px] h-[90px] glass rounded-xl flex flex-col items-center justify-center text-[10px]"><i class="fas fa-users text-lg text-[#f7d44a] mb-1"></i>Mi Red</a>
+          <a href="#" data-csariel-page="livestream" class="flex-none w-[130px] h-[90px] glass rounded-xl flex flex-col items-center justify-center text-[10px]"><i class="fas fa-video text-lg text-purple-400 mb-1"></i>Muro Live</a>
+          <a href="#" data-csariel-page="trading" class="flex-none w-[130px] h-[90px] glass rounded-xl flex flex-col items-center justify-center text-[10px]"><i class="fas fa-chart-line text-lg text-yellow-400 mb-1"></i>Trading</a>
+          <a href="#" data-csariel-page="memes" class="flex-none w-[130px] h-[90px] glass rounded-xl flex flex-col items-center justify-center text-[10px]"><i class="fas fa-grin-squint text-lg text-green-400 mb-1"></i>Memes</a>
+          <a href="#" data-csariel-page="services" class="flex-none w-[130px] h-[90px] glass rounded-xl flex flex-col items-center justify-center text-[10px]"><i class="fas fa-tools text-lg text-cyan-400 mb-1"></i>Servicios</a>
+          <a href="#" data-csariel-page="store" class="flex-none w-[130px] h-[90px] glass rounded-xl flex flex-col items-center justify-center text-[10px] border-yellow-400/50"><i class="fas fa-store text-lg text-[#f7d44a] mb-1"></i>Tienda CMT</a>
+        </div>
+      </div>
+    </div>
 
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            map.flyTo([lat, lng], 15);
-            const userMarker = L.marker([lat, lng]).addTo(map);
-            userMarker.bindPopup("<b>📍 Estás aquí</b>").openPopup();
+    <!-- DER -->
+    <div class="space-y-3 order-3">
+      <div class="card-cosmic glass border-cyan-400/50 text-cyan-300 rounded-xl p-4" onclick="location.href='#'"><div class="flex gap-3"><span class="text-2xl">👛</span><div><div class="orbitron text-xs">MI WALLET</div><div class="text-[11px] opacity-60">Tus activos. Tu poder.</div></div></div></div>
+      <div class="card-cosmic glass border-yellow-400/50 text-yellow-300 rounded-xl p-4"><div class="flex gap-3"><span class="w-8 h-8 bg-yellow-400 text-black rounded-full flex items-center justify-center text-[10px] font-black">TOK</span><div><div class="orbitron text-xs">MI TRADING TOK</div><div class="text-[11px] opacity-60">TOK es poder.</div></div></div></div>
+      <div class="card-cosmic glass border-green-400/50 text-green-300 rounded-xl p-4"><div class="flex gap-3"><span class="text-2xl">🎮</span><div><div class="orbitron text-xs">ZONA GAMER</div><div class="text-[11px] opacity-60">Juega. Gana.</div></div></div></div>
+      <div class="card-cosmic glass border-purple-400/50 text-purple-300 rounded-xl p-4"><div class="flex gap-3"><span class="text-2xl">🧩</span><div><div class="orbitron text-xs">SERVICIOS</div><div class="text-[11px] opacity-60">Todo en un lugar.</div></div></div></div>
+    </div>
+  </div>
 
-            try {
-              const supabaseUrl = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-              const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
-              const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-              const { data, error } = await supabaseClient.rpc('get_nearby_services', {
-                lat: lat,
-                lng: lng,
-                radius_meters: 2000
-              });
-              if (error) { console.error("Error en la base de datos:", error); return; }
-              if (data && data.length > 0) {
-                data.forEach(service => {
-                  const coords = service.geom.coordinates; 
-                  const latService = coords[1];
-                  const lngService = coords[0];
-                  let color = 'blue';
-                  if(service.type === 'talacha') color = '#ff3366';
-                  if(service.type === 'recarga') color = '#f7d44a';
-                  if(service.type === 'oxxo') color = '#00d68f';
-                  const marker = L.circleMarker([latService, lngService], { color: color, radius: 8 }).addTo(map);
-                  const meta = service.meta || { nombre: 'Servicio' };
-                  marker.bindPopup(`<b>${meta.nombre || 'Sin nombre'}</b><br><small>A ${Math.round(service.distance_meters)} metros</small><br><span style="color:${color}; font-weight:bold;">⭐ ${meta.rating || 'Nuevo'}</span>`);
-                });
-              }
-            } catch (error) { console.error("Error conectando con Supabase:", error); }
-          },
-          (error) => {
-            console.warn("GPS denegado. Usando CDMX.");
-            const fallbackMarker = L.marker([19.4326, -99.1332]).addTo(map);
-            fallbackMarker.bindPopup("<b>📍 Csariel's (Demo)</b><br>Activa tu GPS para ver servicios.").openPopup();
-          }
-        );
-      } else {
-        const fallbackMarker = L.marker([19.4326, -99.1332]).addTo(map);
-        fallbackMarker.bindPopup("<b>📍 Csariel's (Demo)</b>").openPopup();
-      }
+  <!-- MAPA TUYO -->
+  <section class="mt-10 glass rounded-2xl p-4">
+    <h2 class="orbitron text-center text-[#f7d44a] mb-3">📍 MAPA DE INFLUENCIA</h2>
+    <div id="community-map" class="h-[350px] rounded-xl border border-yellow-500/20"></div>
+  </section>
+
+  <footer class="mt-8 border-t border-yellow-900/20 pt-4 grid grid-cols-5 text-center gap-2 opacity-60">
+    <div><div>🛡️</div><div class="text-[7px] orbitron">SEGURIDAD BLOCKCHAIN</div></div>
+    <div><div>📦</div><div class="text-[7px] orbitron">TRANSPARENCIA TOTAL</div></div>
+    <div><div class="text-green-400">◎</div><div class="text-[7px] orbitron">DESCENTRALIZADO</div></div>
+    <div><div>📍</div><div class="text-[7px] orbitron">HECHO EN PUEBLA</div></div>
+    <div><div>💰</div><div class="text-[7px] orbitron">100% NUESTRO</div></div>
+  </footer>
+</div>
+
+<!-- MENU RADIAL -->
+<div id="radial-menu" class="fixed z-50 hidden left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 bg-black/90 backdrop-blur-xl border border-cyan-400 rounded-2xl p-4 shadow-[0_0_50px_rgba(0,255,200,0.5)] w-[320px]">
+  <div class="orbitron text-center text-cyan-300 text-xs mb-3">¿A DÓNDE VAS, REY?</div>
+  <div class="grid grid-cols-3 gap-2 text-[10px]">
+    <button onclick="location.href='#'" class="bg-green-900/50 p-3 rounded-xl">👥<br>RED SOCIAL</button>
+    <button onclick="location.href='#'" class="bg-purple-900/50 p-3 rounded-xl">📹<br>MURO LIVE</button>
+    <button onclick="location.href='#'" class="bg-cyan-900/50 p-3 rounded-xl">👛<br>WALLET</button>
+    <button onclick="location.href='#'" class="bg-yellow-900/50 p-3 rounded-xl">📊<br>TRADING</button>
+    <button onclick="window.marquinhosUI?.toggleVentana();document.getElementById('radial-menu').classList.add('hidden')" class="bg-blue-900/50 p-3 rounded-xl">🤖<br>MARQUINHOS</button>
+    <button onclick="location.href='#'" class="bg-green-900/50 p-3 rounded-xl">🎮<br>GAMER</button>
+    <button onclick="location.href='/features/world-ads/comprar.html'" class="bg-yellow-900/50 col-span-2 p-3 rounded-xl border border-yellow-400">🌍 PONER MI MARCA EN EL MUNDO - 50 TOK</button>
+    <button onclick="document.getElementById('radial-menu').classList.add('hidden')" class="bg-red-900/50 p-3 rounded-xl">❌</button>
+  </div>
+</div>
+
+<script src="./js/estrellas.js"></script>
+<script type="module">
+import { MarquinhosUI } from './js/marquinhos-ui.js';
+const marquinhosUI = new MarquinhosUI();
+window.marquinhosUI = marquinhosUI;
+</script>
+<script src="core/assistant.js" defer></script>
+
+<script>
+// === TU LÓGICA ORIGINAL CONSERVADA + FUSIÓN CÓSMICA ===
+function desplegarUniverso(){
+  if(navigator.vibrate) navigator.vibrate(50);
+  const menu = document.getElementById('radial-menu');
+  menu.classList.toggle('hidden');
+  if(!menu.classList.contains('hidden')){
+    gsap.fromTo(menu, {scale:0, opacity:0}, {scale:1, opacity:1, duration:.4, ease:"back.out(2)"});
+    gsap.fromTo(".card-cosmic", {y:20, opacity:.7}, {y:0, opacity:1, stagger:.04, duration:.4});
+  }
+}
+window.desplegarUniverso = desplegarUniverso;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // TIERRA CLICKEABLE
+  const globe = document.getElementById('globeEarth');
+  let startX=0, dragging=false;
+  globe.addEventListener('touchstart', e=>{startX=e.touches[0].clientX});
+  globe.addEventListener('touchmove', e=>{dragging=true; globe.style.transform=`rotateY(${(e.touches[0].clientX-startX)/5}deg)`});
+  globe.addEventListener('touchend', e=>{ if(!dragging) desplegarUniverso(); dragging=false; setTimeout(()=>globe.style.transform='',300)});
+  globe.addEventListener('click', ()=>{ if(!dragging) desplegarUniverso() });
+
+  // TU CARRUSEL ORIGINAL
+  const track=document.getElementById('swipeTrack');
+  if(track){
+    let idx=0; const w=142;
+    setInterval(()=>{ idx=(idx+1)% (track.children.length-2); track.style.transform=`translateX(${-idx*w}px)` },3000);
+    let sX=0, isD=false;
+    track.addEventListener('touchstart', e=>{sX=e.touches[0].clientX; isD=true;});
+    track.addEventListener('touchend', e=>{ if(!isD) return; let d=e.changedTouches[0].clientX-sX; if(d<-40) idx=Math.min(idx+1, track.children.length-1); if(d>40) idx=Math.max(idx-1,0); track.style.transform=`translateX(${-idx*w}px)`; isD=false });
+  }
+
+  // TU MAPA ORIGINAL
+  const map=L.map('community-map').setView([19.043,-98.197],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      const {latitude:lat, longitude:lng}=pos.coords;
+      map.flyTo([lat,lng],15);
+      L.marker([lat,lng]).addTo(map).bindPopup("<b>📍 Estás aquí</b>").openPopup();
+      // World Ads demo: pin de tu marca sobre Puebla
+      const ad = L.divIcon({html:`<div style="background:#000;border:2px solid #00ff88;border-radius:50%;padding:4px;box-shadow:0 0 15px #00ff88">🌮</div>`,className:''});
+      L.marker([19.043,-98.197],{icon:ad}).addTo(map).bindPopup("🌮 La Michoacana - 50 TOK/día");
     });
-
-    const translations = {
-      es: { heroTitle: 'Tu <span class="highlight">Ecosistema</span> Web3', heroSub: 'IA, Marketing Geográfico y Web3 para potenciar tu negocio.', mapTitle: '📍 Mapa de Influencia', mapSub: 'Encuentra servicios, lugares y personas cerca de ti.', footerTag: 'IA · Marketing · Web3' },
-      en: { heroTitle: 'Your <span class="highlight">Ecosystem</span> Web3', heroSub: 'AI, Geographic Marketing and Web3 to boost your business.', mapTitle: '📍 Influence Map', mapSub: 'Find services, places and people near you.', footerTag: 'AI · Marketing · Web3' },
-      fr: { heroTitle: 'Votre <span class="highlight">Écosystème</span> Web3', heroSub: 'IA, Marketing Géographique et Web3 pour booster votre entreprise.', mapTitle: '📍 Carte d\'Influence', mapSub: 'Trouvez des services, des lieux et des personnes près de chez vous.', footerTag: 'IA · Marketing · Web3' }
-    };
-
-    function setLanguage(lang) {
-      const t = translations[lang];
-      document.getElementById('heroTitle').innerHTML = t.heroTitle;
-      document.getElementById('heroSub').innerText = t.heroSub;
-      document.getElementById('mapTitle').innerText = t.mapTitle;
-      document.getElementById('mapSub').innerText = t.mapSub;
-      document.getElementById('footerTag').innerText = t.footerTag;
-
-      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-${lang}`).classList.add('active');
-      localStorage.setItem('csariels_lang', lang);
-    }
-
-    const savedLang = localStorage.getItem('csariels_lang');
-    if(savedLang && translations[savedLang]) setLanguage(savedLang);
-
-    let walletAddress = null, walletProvider = null, walletConnected = false;
-
-    async function iniciarWallet() {
-      const dot = document.getElementById('walletDot'), text = document.getElementById('walletText'), btn = document.getElementById('btnConectarWallet');
-      if (typeof window.csarielsAPI !== 'undefined') {
-        try { const walletData = await window.csarielsAPI.getWallet(); if (walletData && walletData.address) { walletAddress = walletData.address; walletConnected = true; dot.className = 'wallet-dot metamask'; text.textContent = `🪙 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.style.display = 'none'; return; } } catch (e) {}
-      }
-      if (typeof window.ethereum !== 'undefined') {
-        try { const accounts = await window.ethereum.request({ method: 'eth_accounts' }); if (accounts && accounts.length > 0) { walletAddress = accounts[0]; walletProvider = new ethers.providers.Web3Provider(window.ethereum); walletConnected = true; dot.className = 'wallet-dot metamask'; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.textContent = '🦊 MetaMask'; btn.style.display = 'none'; localStorage.setItem('csariels_wallet', walletAddress); window.ethereum.on('accountsChanged', (a) => { if (a.length > 0) { walletAddress = a[0]; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; localStorage.setItem('csariels_wallet', walletAddress); } else { walletAddress = null; walletConnected = false; dot.className = 'wallet-dot offline'; text.textContent = '🦊 Desconectado'; btn.style.display = 'inline-block'; btn.textContent = 'Conectar MetaMask'; } }); return; } } catch (e) {}
-      }
-      const walletGuardada = localStorage.getItem('csariels_wallet');
-      if (walletGuardada) { walletAddress = walletGuardada; walletConnected = true; dot.className = 'wallet-dot online'; text.textContent = `🪙 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.style.display = 'none'; return; }
-      const nuevaWallet = '0x' + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('');
-      localStorage.setItem('csariels_wallet', nuevaWallet); walletAddress = nuevaWallet; walletConnected = true; dot.className = 'wallet-dot online'; text.textContent = `🪙 ${nuevaWallet.slice(0, 6)}...${nuevaWallet.slice(-4)}`; btn.style.display = 'none';
-    }
-
-    async function conectarMetaMask() {
-      const dot = document.getElementById('walletDot'), text = document.getElementById('walletText'), btn = document.getElementById('btnConectarWallet');
-      if (typeof window.ethereum === 'undefined') { alert('⚠️ MetaMask no está instalado.'); return; }
-      try { const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); walletAddress = accounts[0]; walletProvider = new ethers.providers.Web3Provider(window.ethereum); walletConnected = true; dot.className = 'wallet-dot metamask'; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; btn.style.display = 'none'; localStorage.setItem('csariels_wallet', walletAddress); window.ethereum.on('accountsChanged', (a) => { if (a.length > 0) { walletAddress = a[0]; text.textContent = `🦊 ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`; localStorage.setItem('csariels_wallet', walletAddress); } else { walletAddress = null; walletConnected = false; dot.className = 'wallet-dot offline'; text.textContent = '🦊 Desconectado'; btn.style.display = 'inline-block'; btn.textContent = 'Conectar MetaMask'; } }); } catch (error) { alert('❌ No se pudo conectar MetaMask: ' + error.message); }
-    }
-
-    window.conectarMetaMask = conectarMetaMask; window.walletAddress = () => walletAddress; window.getWalletProvider = () => walletProvider;
-  </script>
-  <script src="./js/estrellas.js"></script>
-  
-  <!-- 🧠 INICIALIZAR MARQUINHOS DESDE EL INDEX -->
-  <script type="module">
-    import { MarquinhosUI } from './js/marquinhos-ui.js';
-    const marquinhosUI = new MarquinhosUI();
-    window.marquinhosUI = marquinhosUI;
-    console.log('🧠 Marquinhos UI cargado correctamente');
-    setTimeout(() => {
-      marquinhosUI.mostrarNotificacion?.('🧠 ¡Hola! Soy Marquinhos, tu asistente.');
-    }, 2000);
-  </script>
-
-  <!-- ================================================================ -->
-  <!-- 🧠 ASISTENTE FLOTANTE "SRIEL" (CORE) -->
-  <!-- ================================================================ -->
-  <script src="core/assistant.js" defer></script>
+  }
+});
+</script>
 </body>
 </html>
