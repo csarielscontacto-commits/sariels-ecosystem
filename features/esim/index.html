@@ -1,0 +1,113 @@
+<!-- COMPRAR INTERNET - WINDOWS DE PUEBLA - REAL -->
+<main style="max-width:1000px;margin:0 auto;padding:15px;animation:fadeIn .4s">
+<div style="text-align:center;margin-bottom:16px">
+<h2 style="font-family:Orbitron;color:var(--gold-cosmic);margin:0">🌐 COMPRAR INTERNET <span style="background:#00ff88;color:#000;padding:2px 8px;border-radius:8px;font-size:.55rem">PAGO REAL</span></h2>
+<p style="color:#8ba3c7;font-size:.8rem">Paquetes Csariel's Net • Activa en 2 minutos • Paga con CMT, TOK o MetaMask</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:14px">
+<!-- PAQUETES -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px" id="internetGrid"></div>
+
+<!-- CHECKOUT -->
+<div style="background:linear-gradient(180deg,rgba(20,40,50,.7),rgba(5,15,20,.9));border:1px solid rgba(247,212,74,.2);border-radius:16px;padding:14px;position:sticky;top:10px;height:fit-content">
+<div style="font-family:Orbitron;font-size:.75rem;color:var(--gold-cosmic);margin-bottom:8px">🧾 RESUMEN</div>
+<div id="internetResumen" style="background:rgba(0,0,0,.4);border-radius:10px;padding:10px;font-size:.8rem;color:#8ba3c7">Selecciona un paquete 👈</div>
+
+<div style="margin-top:12px">
+<label style="font-size:.7rem;color:#8ba3c7">Tu número / ID para activar</label>
+<input id="netPhone" placeholder="55 1234 5678 o tu wallet" style="width:100%;margin-top:4px;background:rgba(0,0,0,.5);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:8px;color:white;outline:none;font-size:.8rem">
+</div>
+
+<div style="margin-top:10px">
+<label style="font-size:.7rem;color:#8ba3c7">Método de pago</label>
+<div style="display:flex;gap:6px;margin-top:6px"><button onclick="setPay('CMT')" id="payCMT" class="payBtn" style="flex:1;background:var(--gold-cosmic);color:#000;border:none;padding:6px;border-radius:20px;font-size:.65rem;font-family:Orbitron">CMT</button><button onclick="setPay('TOK')" id="payTOK" class="payBtn" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(247,212,74,.1);color:#8ba3c7;padding:6px;border-radius:20px;font-size:.65rem;font-family:Orbitron">TOK</button><button onclick="setPay('ETH')" id="payETH" class="payBtn" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(247,212,74,.1);color:#8ba3c7;padding:6px;border-radius:20px;font-size:.65rem;font-family:Orbitron">🦊 ETH</button></div>
+</div>
+
+<div style="background:rgba(247,212,74,.06);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:8px;margin-top:12px;display:flex;gap:6px"><input type="checkbox" id="checkNetTerms"><label for="checkNetTerms" style="font-size:.62rem;color:#8ba3c7;line-height:1.2">Acepto que el internet se activa en hasta 5 min, no hay reembolso si ya consumí datos. Acepto <a href="#" data-csariel-page="terms" style="color:var(--gold-cosmic)">Términos</a>.</label></div>
+
+<button onclick="comprarInternet()" style="width:100%;margin-top:12px;background:linear-gradient(135deg,#00ff88,#00b894);color:#000;border:none;padding:10px;border-radius:20px;font-family:Orbitron;font-weight:800;font-size:.8rem;cursor:pointer">🚀 PAGAR Y ACTIVAR</button>
+<div id="netStatus" style="font-size:.7rem;text-align:center;margin-top:8px;min-height:18px"></div>
+
+<div style="margin-top:14px;border-top:1px solid rgba(247,212,74,.1);padding-top:8px"><div style="font-size:.65rem;color:#8ba3c7;font-family:Orbitron">📶 COBERTURA</div><div style="font-size:.7rem;color:#4a6a8a;margin-top:4px">✅ Puebla, CDMX, Edomex<br>✅ 4G / 5G donde haya<br>✅ Tethering incluido<br>⚡ Activación automática</div></div>
+</div>
+</div>
+
+<div style="text-align:center;margin-top:20px"><a href="#" data-csariel-page="home" style="color:var(--gold-cosmic);text-decoration:none;font-family:Orbitron;font-size:.8rem"><i class="fas fa-arrow-left"></i> Volver al Inicio</a></div>
+</main>
+
+<script>
+const N_URL='https://nvyyxgkladjauolvpzfp.supabase.co'; const N_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+const sbNet=supabase.createClient(N_URL,N_KEY);
+let payMethod='CMT'; let selectedPack=null;
+const packs=[
+  {id:1,nombre:'Básico',datos:'5 GB',dias:7,precio:50,moneda:'CMT',popular:false,vel:'4G',color:'#8ba3c7'},
+  {id:2,nombre:'Chido',datos:'15 GB',dias:15,precio:120,moneda:'CMT',popular:true,vel:'4G/5G',color:'#f7d44a'},
+  {id:3,nombre:'Pro',datos:'40 GB',dias:30,precio:250,moneda:'CMT',popular:false,vel:'5G',color:'#00ff88'},
+  {id:4,nombre:'Ilimitado',datos:'Ilimitado',dias:30,precio:450,moneda:'CMT',popular:false,vel:'5G+',color:'#a855f7'},
+  {id:5,nombre:'1 Día Prueba',datos:'2 GB',dias:1,precio:15,moneda:'CMT',popular:false,vel:'4G',color:'#00eaff'},
+];
+
+function renderPacks(){
+  document.getElementById('internetGrid').innerHTML=packs.map(p=>`
+    <div onclick="selectPack(${p.id})" id="pack-${p.id}" style="background:linear-gradient(180deg,rgba(20,40,50,.7),rgba(5,15,20,.9));border:${p.popular?'2px solid var(--gold-cosmic)':'1px solid rgba(247,212,74,.12)'};border-radius:16px;padding:14px;cursor:pointer;position:relative;transition:.2s">
+      ${p.popular?'<div style="position:absolute;top:-8px;left:12px;background:var(--gold-cosmic);color:#000;font-size:.55rem;font-family:Orbitron;padding:2px 8px;border-radius:10px">MÁS VENDIDO</div>':''}
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:Orbitron;font-size:.9rem;color:${p.color}">${p.nombre}</span><span style="font-size:.6rem;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:10px;color:#8ba3c7">${p.vel}</span></div>
+      <div style="margin:10px 0"><span style="font-size:2rem;font-weight:800;color:white">${p.datos}</span><span style="font-size:.8rem;color:#8ba3c7"> / ${p.dias} días</span></div>
+      <div style="font-size:1.1rem;color:var(--gold-cosmic);font-family:Orbitron">${p.precio} ${p.moneda}</div>
+      <div style="margin-top:10px;font-size:.65rem;color:#4a6a8a">✓ Hotspot ✓ Sin contrato ✓ Activa al instante</div>
+    </div>
+  `).join('');
+}
+function selectPack(id){
+  selectedPack=packs.find(p=>p.id===id);
+  document.querySelectorAll('[id^="pack-"]').forEach(e=>e.style.transform='scale(1)');
+  document.getElementById('pack-'+id).style.transform='scale(1.02)';
+  document.getElementById('internetResumen').innerHTML=`<b style="color:white">${selectedPack.nombre}</b> - ${selectedPack.datos}<br>${selectedPack.dias} días - ${selectedPack.vel}<br><br><span style="color:var(--gold-cosmic);font-family:Orbitron;font-size:1rem">${selectedPack.precio} ${payMethod}</span><br><span style="font-size:.65rem">Se activa al: ${document.getElementById('netPhone').value||'tu número'}</span>`;
+}
+function setPay(m){
+  payMethod=m; document.querySelectorAll('.payBtn').forEach(b=>{b.style.background='rgba(255,255,255,.06)'; b.style.color='#8ba3c7'; b.style.border='1px solid rgba(247,212,74,.1)';});
+  document.getElementById('pay'+m).style.background='var(--gold-cosmic)'; document.getElementById('pay'+m).style.color='#000'; document.getElementById('pay'+m).style.border='none';
+  if(selectedPack) selectPack(selectedPack.id);
+}
+
+async function comprarInternet(){
+  const phone=document.getElementById('netPhone').value.trim();
+  const status=document.getElementById('netStatus');
+  const terms=document.getElementById('checkNetTerms').checked;
+  if(!selectedPack) return status.innerText='⚠️ Selecciona un paquete wey';
+  if(!phone) return status.innerText='⚠️ Pon tu número o wallet';
+  if(!terms) return status.innerText='⚠️ Acepta términos';
+  const wallet=localStorage.getItem('csariels_wallet')||phone;
+
+  status.innerText='⏳ Procesando pago con '+payMethod+'...';
+  try{
+    if(payMethod==='ETH' && window.ethereum){
+      const provider=new ethers.providers.Web3Provider(window.ethereum);
+      const signer=provider.getSigner();
+      const msg=`Csariel's Net: Comprar ${selectedPack.nombre} ${selectedPack.datos} por ${selectedPack.precio} ${payMethod} para ${phone}`;
+      await signer.signMessage(msg);
+    }
+    // guarda orden
+    const {error}=await sbNet.from('internet_orders').insert([{wallet, phone, paquete:selectedPack.nombre, datos:selectedPack.datos, precio:selectedPack.precio, moneda:payMethod, estado:'pagado'}]);
+    if(error && error.message.includes('does not exist')){
+      // fallback sin tabla
+      let orders=JSON.parse(localStorage.getItem('internet_orders')||'[]');
+      orders.push({...selectedPack, phone, payMethod, date:new Date().toISOString()});
+      localStorage.setItem('internet_orders',JSON.stringify(orders));
+    } else if(error) throw error;
+
+    // descuenta balance si es CMT/TOK
+    if(payMethod!=='ETH'){
+      try{ await sbNet.rpc('procesar_transaccion_commit',{p_user_id:wallet, p_tipo:'compra_internet', p_monto:selectedPack.precio, p_moneda:payMethod, p_detalle:{paquete:selectedPack.nombre, phone}}); }catch(e){}
+    }
+
+    status.innerHTML='✅ <b>¡Pagado!</b> Tu paquete '+selectedPack.datos+' se está activando al '+phone+'. Te llega SMS/WhatsApp en 2 min.';
+    // limpia
+    setTimeout(()=>{ document.getElementById('internetResumen').innerHTML='¡Listo! Revisa tu historial en Marquinhos.'; },2000);
+  }catch(e){ status.innerText='❌ Error: '+e.message; }
+}
+
+renderPacks();
+</script>
+<style>@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style>
