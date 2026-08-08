@@ -25,14 +25,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
-    <!-- ===== SUPABASE ===== -->
+    <!-- ===== SUPABASE (CDN) ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <!-- ===== CARGA DE CONFIGURACIÓN UNIFICADA ===== -->
+    <script src="./js/client-config-loader.js"></script>
 
     <!-- ===== CONECTORES ===== -->
     <script src="./js/security.js"></script>
     <script src="./js/perfil-connector.js"></script>
     <script src="./js/esim-connector.js"></script>
-    <script src="./js/config.js"></script>
+
+    <!-- ===== MARQUINHOS (ASISTENTE) ===== -->
+    <script type="module" src="./js/marquinhos-ui.js"></script>
 
     <style>
         /* ================================================================
@@ -553,35 +558,28 @@
 
     <script>
         // ================================================================
-        // 🚀 INICIALIZAR SEGURIDAD Y SUPABASE
+        // 🚀 INICIALIZACIÓN Y LOGIN
         // ================================================================
         let supabaseClient = null;
         let toastTimeout = null;
+        let configLoaded = false;
 
-        async function initSupabase() {
-            try {
-                const resp = await fetch('/api/config');
-                const config = await resp.json();
-                if (config.SUPABASE_URL && config.SUPABASE_ANON_KEY) {
-                    supabaseClient = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
-                    window.supabase = supabaseClient;
-                    console.log('✅ Supabase inicializado');
-                } else {
-                    console.error('❌ Error cargando configuración de Supabase');
-                }
-            } catch (e) {
-                console.error('❌ Error al cargar configuración:', e);
+        // Esperar a que la configuración esté lista
+        document.addEventListener('config:loaded', function(e) {
+            configLoaded = true;
+            if (window.supabase) {
+                supabaseClient = window.supabase;
+                console.log('✅ Supabase listo desde el evento config:loaded');
             }
-        }
+        });
 
-        function initSeguridad() {
-            if (window.Security) {
-                window.Security.initSeguridad();
-                console.log('🛡️ Seguridad activada para Inicio');
-            } else {
-                console.warn('⚠️ Security.js no cargado');
+        // También verificar directamente después de un tiempo
+        setTimeout(() => {
+            if (window.supabase) {
+                supabaseClient = window.supabase;
+                console.log('✅ Supabase listo (timeout)');
             }
-        }
+        }, 1000);
 
         // ================================================================
         // 🌟 ESTRELLAS (igual que Mi Red)
@@ -668,8 +666,9 @@
             }
 
             // Guardar en localStorage
+            const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
             localStorage.setItem('csariels_user_name', username);
-            localStorage.setItem('csariels_user_id', 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9));
+            localStorage.setItem('csariels_user_id', userId);
             if (email) localStorage.setItem('csariels_email', email);
             if (phone) localStorage.setItem('csariels_phone', phone);
             localStorage.setItem('csariels_login', 'true');
@@ -679,7 +678,7 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('perfiles').upsert({
-                        user_id: localStorage.getItem('csariels_user_id'),
+                        user_id: userId,
                         nombre: username,
                         email: email || null,
                         telefono: phone || null,
@@ -688,6 +687,8 @@
                 } catch (e) {
                     console.warn('No se pudo guardar perfil en Supabase:', e);
                 }
+            } else {
+                console.warn('⚠️ Supabase no disponible, el perfil se guarda solo en localStorage');
             }
 
             mostrarToast('✅ Bienvenido ' + username + '! Redirigiendo...');
@@ -700,16 +701,23 @@
             // Simulación de Google OAuth
             mostrarToast('🔵 Inicio con Google (próximamente integración real)');
             // Aquí iría la lógica real con Google OAuth
-            // Después del login exitoso, llamar a handleLogin con los datos del usuario.
         }
 
         // ================================================================
         // 🚀 INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', async function() {
-            initSeguridad();
-            await initSupabase();
+            // Inicializar estrellas
             initStars();
+
+            // Verificar seguridad
+            if (window.Security) {
+                window.Security.initSeguridad();
+                console.log('🛡️ Seguridad activada para Inicio');
+            } else {
+                console.warn('⚠️ Security.js no cargado');
+            }
+
             console.log('◈ Csariel\'s - Inicio de Sesión');
             console.log('📱 Red Social Integral · eSIM · Web3');
 
@@ -730,6 +738,11 @@
                     if (e.key === 'Enter') handleLogin();
                 });
             });
+
+            // Mostrar estado de carga de Supabase
+            if (!window.supabase) {
+                console.warn('⚠️ Supabase aún no cargado. Esperando...');
+            }
         });
 
         // Exponer funciones globales
