@@ -470,7 +470,7 @@
 
     <div class="app">
 
-        <!-- HEADER (IDÉNTICO A MI RED) -->
+        <!-- HEADER -->
         <header class="header">
             <a href="#" class="logo" onclick="event.preventDefault()">
                 <span class="logo-icon"><span class="hex">◈</span></span>
@@ -558,9 +558,10 @@
 
     <script>
         // ================================================================
-        // 🚀 INICIALIZACIÓN Y LOGIN
+        // 🔐 ANONYMOUS SIGN-IN (SUPABASE AUTH REAL)
         // ================================================================
         let supabaseClient = null;
+        let currentUid = null;
         let toastTimeout = null;
         let configLoaded = false;
 
@@ -570,16 +571,68 @@
             if (window.supabase) {
                 supabaseClient = window.supabase;
                 console.log('✅ Supabase listo desde el evento config:loaded');
+                // Iniciar sesión anónima automáticamente
+                iniciarSesionAnonima();
             }
         });
 
         // También verificar directamente después de un tiempo
         setTimeout(() => {
-            if (window.supabase) {
+            if (window.supabase && !supabaseClient) {
                 supabaseClient = window.supabase;
                 console.log('✅ Supabase listo (timeout)');
+                iniciarSesionAnonima();
             }
         }, 1000);
+
+        /**
+         * Inicia sesión anónima en Supabase y guarda el uid en localStorage.
+         * Esto debe ejecutarse UNA SOLA VEZ al cargar la página.
+         * El uid real se guarda en la misma clave 'csariels_user_id' que ya usa el frontend.
+         */
+        async function iniciarSesionAnonima() {
+            if (!supabaseClient) {
+                console.warn('⚠️ Supabase no disponible, esperando...');
+                return;
+            }
+
+            try {
+                // 1. Verificar si ya hay sesión activa (el navegador la recuerda)
+                const { data: { session } } = await supabaseClient.auth.getSession();
+
+                let uid = null;
+
+                if (session) {
+                    uid = session.user.id;
+                    console.log('🔄 Sesión existente recuperada:', uid);
+                } else {
+                    // 2. Si no hay sesión, crear una anónima nueva
+                    const { data, error } = await supabaseClient.auth.signInAnonymously();
+                    if (error) throw error;
+                    uid = data.session.user.id;
+                    console.log('🆕 Sesión anónima creada:', uid);
+                }
+
+                // 3. Guardar el uid REAL en la misma clave que usa el resto del código
+                localStorage.setItem('csariels_user_id', uid);
+                currentUid = uid;
+
+                // 4. También guardar el nombre si ya existía (para no perderlo)
+                if (!localStorage.getItem('csariels_user_name')) {
+                    localStorage.setItem('csariels_user_name', 'Usuario');
+                }
+
+                console.log('✅ Usuario autenticado con Supabase (uid real):', uid);
+                console.log('📌 localStorage.csariels_user_id actualizado');
+
+                // 5. Emitir evento para que otros scripts sepan que el usuario está autenticado
+                document.dispatchEvent(new CustomEvent('auth:ready', { detail: { uid } }));
+
+            } catch (error) {
+                console.error('❌ Error al iniciar sesión anónima:', error);
+                mostrarToast('⚠️ Error de conexión con Supabase', 'error');
+            }
+        }
 
         // ================================================================
         // 🌟 ESTRELLAS (igual que Mi Red)
@@ -635,7 +688,7 @@
         }
 
         // ================================================================
-        // 🔐 LOGIN / REGISTRO
+        // 🔐 LOGIN / REGISTRO (ahora con uid real de Supabase)
         // ================================================================
         function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
@@ -665,27 +718,41 @@
                 return;
             }
 
+            // Obtener el uid real de Supabase (ya debería estar en localStorage)
+            const uid = localStorage.getItem('csariels_user_id');
+            if (!uid) {
+                mostrarToast('⚠️ Error de autenticación. Reintenta.', 'error');
+                console.error('❌ No hay uid en localStorage. Asegúrate de que iniciarSesionAnonima() se ejecutó.');
+                return;
+            }
+
             // Guardar en localStorage
-            const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
             localStorage.setItem('csariels_user_name', username);
-            localStorage.setItem('csariels_user_id', userId);
             if (email) localStorage.setItem('csariels_email', email);
             if (phone) localStorage.setItem('csariels_phone', phone);
             localStorage.setItem('csariels_login', 'true');
             localStorage.setItem('csariels_member_since', new Date().getFullYear());
 
-            // Intentar guardar en Supabase (perfil)
+            // Intentar guardar en Supabase (perfiles) con el uid real
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('perfiles').upsert({
-                        user_id: userId,
-                        nombre: username,
-                        email: email || null,
-                        telefono: phone || null,
-                        ultimo_acceso: new Date().toISOString()
-                    }, { onConflict: 'user_id' });
+                    const { data, error } = await supabaseClient
+                        .from('perfiles')
+                        .upsert({
+                            user_id: uid,                // ← el uid REAL de Supabase
+                            nombre: username,
+                            email: email || null,
+                            telefono: phone || null,
+                            ultimo_acceso: new Date().toISOString()
+                        }, { onConflict: 'user_id' });
+
+                    if (error) throw error;
+                    console.log('✅ Perfil guardado en Supabase con uid:', uid);
+
                 } catch (e) {
-                    console.warn('No se pudo guardar perfil en Supabase:', e);
+                    console.error('❌ Error al guardar perfil en Supabase:', e);
+                    mostrarToast('⚠️ No se pudo guardar el perfil en Supabase', 'error');
+                    // No bloqueamos la redirección, pero avisamos al usuario
                 }
             } else {
                 console.warn('⚠️ Supabase no disponible, el perfil se guarda solo en localStorage');
@@ -718,7 +785,7 @@
                 console.warn('⚠️ Security.js no cargado');
             }
 
-            console.log('◈ Csariel\'s - Inicio de Sesión');
+            console.log('◈ Csariel\'s - Inicio de Sesión (con Supabase Auth anónimo)');
             console.log('📱 Red Social Integral · eSIM · Web3');
 
             // Verificar si ya hay sesión iniciada (redirigir automáticamente)
@@ -739,10 +806,17 @@
                 });
             });
 
-            // Mostrar estado de carga de Supabase
-            if (!window.supabase) {
-                console.warn('⚠️ Supabase aún no cargado. Esperando...');
+            // Si la sesión anónima ya se inició (por el evento o timeout), mostrar estado
+            if (currentUid) {
+                console.log('✅ UID disponible:', currentUid);
+            } else {
+                console.log('⏳ Esperando autenticación anónima...');
             }
+
+            // Escuchar el evento auth:ready para saber cuándo está lista la autenticación
+            document.addEventListener('auth:ready', (e) => {
+                console.log('🔐 Autenticación lista, UID:', e.detail.uid);
+            });
         });
 
         // Exponer funciones globales
