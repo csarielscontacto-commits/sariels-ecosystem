@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprar Internet | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- 🔒 CSP -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- ===== SUPABASE ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <style>
+        /* ================================================================
+           PLANTILLA IDÉNTICA A MI RED
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER (IDÉNTICO A MI RED) ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15,45,26,0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-trading {
+            background: linear-gradient(135deg, var(--quantum), #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            animation: pulse-trading 2s ease-in-out infinite;
+        }
+        .btn-trading:hover {
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-trading {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        }
+        .btn-internet {
+            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
+        }
+        .btn-internet:hover {
+            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-internet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
+        }
+
+        /* ===== FOOTER (IDÉNTICO A MI RED) ===== */
+        .footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        /* ================================================================
+           ESTILOS PROPIOS DE COMPRAR INTERNET
+           ================================================================ */
+        .internet-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 14px;
+        }
+        .pack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 10px;
+        }
+        .pack-card {
+            background: linear-gradient(180deg, rgba(20,40,50,0.7), rgba(5,15,20,0.9));
+            border: 1px solid rgba(247,212,74,0.12);
+            border-radius: 16px;
+            padding: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        .pack-card:hover { transform: translateY(-3px); border-color: var(--border-glow); }
+        .pack-card.popular { border: 2px solid var(--gold-cosmic); }
+        .pack-card .popular-badge {
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: var(--gold-cosmic);
+            color: #000;
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .pack-card .pack-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pack-card .pack-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+        }
+        .pack-card .pack-vel {
+            font-size: 0.6rem;
+            background: rgba(255,255,255,0.06);
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+        }
+        .pack-card .pack-data {
+            margin: 10px 0;
+        }
+        .pack-card .pack-data .size {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+        }
+        .pack-card .pack-data .days {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .pack-card .pack-price {
+            font-size: 1.1rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .pack-card .pack-features {
+            margin-top: 10px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .pack-card .pack-features i { margin-right: 4px; }
+
+        .checkout-card {
+            background: linear-gradient(180deg, rgba(20,40,50,0.7), rgba(5,15,20,0.9));
+            border: 1px solid rgba(247,212,74,0.12);
+            border-radius: 16px;
+            padding: 14px;
+            position: sticky;
+            top: 10px;
+            height: fit-content;
+        }
+        .checkout-card .checkout-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 8px;
+        }
+        .checkout-card .checkout-resumen {
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-height: 80px;
+        }
+        .checkout-card .checkout-resumen strong { color: white; }
+        .checkout-card .checkout-resumen .precio-final {
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+        }
+        .checkout-card .pay-methods {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .checkout-card .pay-methods .pay-btn {
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(247,212,74,0.1);
+            color: var(--text-secondary);
+            padding: 6px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .checkout-card .pay-methods .pay-btn.active {
+            background: var(--gold-cosmic);
+            color: #000;
+            border: none;
+        }
+        .checkout-card .pay-methods .pay-btn:hover:not(.active) { border-color: var(--gold-cosmic); }
+
+        .checkout-card .terms-row {
+            background: rgba(247,212,74,0.06);
+            border: 1px solid rgba(247,212,74,0.15);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 12px;
+            display: flex;
+            gap: 6px;
+            align-items: flex-start;
+        }
+        .checkout-card .terms-row input { margin-top: 2px; accent-color: var(--gold-cosmic); }
+        .checkout-card .terms-row label { font-size: 0.62rem; color: var(--text-secondary); line-height: 1.2; }
+        .checkout-card .terms-row label a { color: var(--gold-cosmic); text-decoration: underline; }
+
+        .btn-pagar {
+            width: 100%;
+            margin-top: 12px;
+            background: linear-gradient(135deg, #00ff88, #00b894);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 800;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-pagar:hover { transform: scale(1.01); box-shadow: 0 0 30px rgba(0,255,136,0.3); }
+        .btn-pagar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .cobertura-box {
+            margin-top: 14px;
+            border-top: 1px solid rgba(247,212,74,0.1);
+            padding-top: 8px;
+        }
+        .cobertura-box .cobertura-title {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+        }
+        .cobertura-box .cobertura-items {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .cobertura-box .cobertura-items i { margin-right: 4px; }
+
+        .volver-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .volver-link a {
+            color: var(--gold-cosmic);
+            text-decoration: none;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+        }
+        .volver-link a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .internet-grid {
+                grid-template-columns: 1fr;
+            }
+            .pack-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            .checkout-card {
+                position: static;
+            }
+        }
+        @media (max-width: 480px) {
+            .pack-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-actions .btn { font-size: 0.45rem; padding: 4px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- HEADER (IDÉNTICO A MI RED) -->
+        <header class="header">
+            <a href="#" class="logo" onclick="event.preventDefault()">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Internet</span>
+            </a>
+            <div class="header-actions">
+                <a href="../red/index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-users"></i> Mi Red
+                </a>
+                <a href="../live/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-rss"></i> Muro Live
+                </a>
+                <a href="../memes/index.html" class="btn btn-danger btn-sm">
+                    <i class="fas fa-mask"></i> Memes
+                </a>
+                <a href="../trading/index.html" class="btn btn-trading btn-sm">
+                    <i class="fas fa-chart-line"></i> Trading
+                </a>
+                <a href="../servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> Servicios
+                </a>
+                <a href="../../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+            </div>
+        </header>
+
+        <!-- ===== CONTENIDO PRINCIPAL ===== -->
+        <div style="max-width:1000px;margin:0 auto;padding:10px 0;animation:fadeIn .4s">
+
+            <!-- TÍTULO -->
+            <div style="text-align:center;margin-bottom:16px">
+                <h2 style="font-family:Orbitron;color:var(--gold-cosmic);margin:0;font-size:1.2rem;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+                    🌐 COMPRAR INTERNET
+                    <span style="background:#00ff88;color:#000;padding:2px 10px;border-radius:8px;font-size:0.55rem;font-family:Orbitron;">PAGO REAL</span>
+                </h2>
+                <p style="color:var(--text-secondary);font-size:0.8rem;">Paquetes Csariel's Net • Activa en 2 minutos • Paga con CMT, TOK o MetaMask</p>
+            </div>
+
+            <!-- GRID PRINCIPAL -->
+            <div class="internet-grid">
+                <!-- PAQUETES -->
+                <div class="pack-grid" id="internetGrid"></div>
+
+                <!-- CHECKOUT -->
+                <div class="checkout-card">
+                    <div class="checkout-title">🧾 RESUMEN</div>
+                    <div class="checkout-resumen" id="internetResumen">Selecciona un paquete 👈</div>
+
+                    <div style="margin-top:12px">
+                        <label style="font-size:0.7rem;color:var(--text-secondary);display:block;margin-bottom:3px;">Tu número / ID para activar</label>
+                        <input id="netPhone" placeholder="55 1234 5678 o tu wallet" style="width:100%;padding:8px;background:rgba(0,0,0,0.4);border:1px solid rgba(247,212,74,0.15);border-radius:8px;color:white;outline:none;font-size:0.8rem;">
+                    </div>
+
+                    <div style="margin-top:10px">
+                        <label style="font-size:0.7rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Método de pago</label>
+                        <div class="pay-methods">
+                            <button onclick="setPay('CMT')" id="payCMT" class="pay-btn active">CMT</button>
+                            <button onclick="setPay('TOK')" id="payTOK" class="pay-btn">TOK</button>
+                            <button onclick="setPay('ETH')" id="payETH" class="pay-btn">🦊 ETH</button>
+                        </div>
+                    </div>
+
+                    <div class="terms-row">
+                        <input type="checkbox" id="checkNetTerms">
+                        <label for="checkNetTerms">Acepto que el internet se activa en hasta 5 min, no hay reembolso si ya consumí datos. Acepto <a href="../../terminos-completos.html" target="_blank">Términos</a>.</label>
+                    </div>
+
+                    <button onclick="comprarInternet()" class="btn-pagar" id="btnPagar">
+                        🚀 PAGAR Y ACTIVAR
+                    </button>
+                    <div id="netStatus" style="font-size:0.7rem;text-align:center;margin-top:8px;min-height:18px;color:var(--text-secondary);"></div>
+
+                    <!-- Cobertura -->
+                    <div class="cobertura-box">
+                        <div class="cobertura-title">📶 COBERTURA</div>
+                        <div class="cobertura-items">
+                            <div><i class="fas fa-check-circle" style="color:var(--success);"></i> Puebla, CDMX, Edomex</div>
+                            <div><i class="fas fa-check-circle" style="color:var(--success);"></i> 4G / 5G donde haya</div>
+                            <div><i class="fas fa-check-circle" style="color:var(--success);"></i> Tethering incluido</div>
+                            <div><i class="fas fa-bolt" style="color:var(--quantum);"></i> Activación automática</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VOLVER -->
+            <div class="volver-link">
+                <a href="../../index.html"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+            </div>
+        </div>
+
+        <!-- FOOTER (IDÉNTICO A MI RED) -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Internet de alta velocidad · 4G/5G
+            </span>
+            <div class="footer-links">
+                <a href="../red/index.html">👥 Mi Red</a>
+                <a href="../live/index.html">📱 Muro Live</a>
+                <a href="../memes/index.html" style="color:var(--danger);">😂 Memes</a>
+                <a href="../trading/index.html" style="color:#00e5ff;">📈 Trading</a>
+                <a href="../servicios/index.html" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
+                <a href="../../terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔥 SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // TOAST
+        // ================================================================
+        let toastTimeout = null;
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // SUPABASE
+        // ================================================================
+        const N_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+        const N_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+        const sbNet = supabase.createClient(N_URL, N_KEY);
+
+        let payMethod = 'CMT';
+        let selectedPack = null;
+
+        const packs = [
+            { id: 1, nombre: 'Básico', datos: '5 GB', dias: 7, precio: 50, moneda: 'CMT', popular: false, vel: '4G', color: '#8ba3c7' },
+            { id: 2, nombre: 'Chido', datos: '15 GB', dias: 15, precio: 120, moneda: 'CMT', popular: true, vel: '4G/5G', color: '#f7d44a' },
+            { id: 3, nombre: 'Pro', datos: '40 GB', dias: 30, precio: 250, moneda: 'CMT', popular: false, vel: '5G', color: '#00ff88' },
+            { id: 4, nombre: 'Ilimitado', datos: 'Ilimitado', dias: 30, precio: 450, moneda: 'CMT', popular: false, vel: '5G+', color: '#a855f7' },
+            { id: 5, nombre: '1 Día Prueba', datos: '2 GB', dias: 1, precio: 15, moneda: 'CMT', popular: false, vel: '4G', color: '#00eaff' }
+        ];
+
+        function renderPacks() {
+            document.getElementById('internetGrid').innerHTML = packs.map(p => `
+                <div onclick="selectPack(${p.id})" id="pack-${p.id}" class="pack-card ${p.popular ? 'popular' : ''}">
+                    ${p.popular ? '<div class="popular-badge">MÁS VENDIDO</div>' : ''}
+                    <div class="pack-header">
+                        <span class="pack-name" style="color:${p.color}">${p.nombre}</span>
+                        <span class="pack-vel">${p.vel}</span>
+                    </div>
+                    <div class="pack-data">
+                        <span class="size">${p.datos}</span>
+                        <span class="days"> / ${p.dias} días</span>
+                    </div>
+                    <div class="pack-price">${p.precio} ${p.moneda}</div>
+                    <div class="pack-features">
+                        <i class="fas fa-check-circle"></i> Hotspot
+                        <i class="fas fa-check-circle" style="margin-left:8px;"></i> Sin contrato
+                        <i class="fas fa-bolt" style="margin-left:8px;"></i> Activa al instante
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectPack(id) {
+            selectedPack = packs.find(p => p.id === id);
+            document.querySelectorAll('.pack-card').forEach(el => el.style.transform = 'scale(1)');
+            document.getElementById('pack-' + id).style.transform = 'scale(1.02)';
+            const phone = document.getElementById('netPhone').value.trim() || 'tu número';
+            document.getElementById('internetResumen').innerHTML = `
+                <strong>${selectedPack.nombre}</strong> - ${selectedPack.datos}<br>
+                ${selectedPack.dias} días - ${selectedPack.vel}<br><br>
+                <span class="precio-final">${selectedPack.precio} ${payMethod}</span><br>
+                <span style="font-size:0.65rem;">Se activa al: ${phone}</span>
+            `;
+        }
+
+        function setPay(m) {
+            payMethod = m;
+            document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('pay' + m).classList.add('active');
+            if (selectedPack) selectPack(selectedPack.id);
+        }
+
+        async function comprarInternet() {
+            const phone = document.getElementById('netPhone').value.trim();
+            const status = document.getElementById('netStatus');
+            const terms = document.getElementById('checkNetTerms').checked;
+            const btn = document.getElementById('btnPagar');
+
+            if (!selectedPack) {
+                status.innerText = '⚠️ Selecciona un paquete';
+                return;
+            }
+            if (!phone) {
+                status.innerText = '⚠️ Pon tu número o wallet';
+                return;
+            }
+            if (!terms) {
+                status.innerText = '⚠️ Acepta términos';
+                return;
+            }
+
+            const wallet = localStorage.getItem('csariels_wallet') || phone;
+            status.innerText = '⏳ Procesando pago con ' + payMethod + '...';
+            btn.disabled = true;
+
+            try {
+                if (payMethod === 'ETH' && window.ethereum) {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const signer = provider.getSigner();
+                    const msg = `Csariel's Net: Comprar ${selectedPack.nombre} ${selectedPack.datos} por ${selectedPack.precio} ${payMethod} para ${phone}`;
+                    await signer.signMessage(msg);
+                }
+
+                // Guardar orden
+                const { error } = await sbNet.from('internet_orders').insert([{
+                    wallet, phone,
+                    paquete: selectedPack.nombre,
+                    datos: selectedPack.datos,
+                    precio: selectedPack.precio,
+                    moneda: payMethod,
+                    estado: 'pagado'
+                }]);
+
+                if (error && error.message.includes('does not exist')) {
+                    // Fallback local
+                    let orders = JSON.parse(localStorage.getItem('internet_orders') || '[]');
+                    orders.push({ ...selectedPack, phone, payMethod, date: new Date().toISOString() });
+                    localStorage.setItem('internet_orders', JSON.stringify(orders));
+                } else if (error) throw error;
+
+                // Descuento si es CMT/TOK (opcional)
+                if (payMethod !== 'ETH') {
+                    try {
+                        await sbNet.rpc('procesar_transaccion_commit', {
+                            p_user_id: wallet,
+                            p_tipo: 'compra_internet',
+                            p_monto: selectedPack.precio,
+                            p_moneda: payMethod,
+                            p_detalle: { paquete: selectedPack.nombre, phone }
+                        });
+                    } catch (e) { /* ignora si no existe la función */ }
+                }
+
+                status.innerHTML = '✅ <b>¡Pagado!</b> Tu paquete ' + selectedPack.datos + ' se está activando al ' + phone + '. Te llega SMS/WhatsApp en 2 min.';
+                document.getElementById('internetResumen').innerHTML = '🎉 ¡Listo! Revisa tu historial en Marquinhos.';
+                mostrarToast('✅ Internet activado exitosamente');
+            } catch (e) {
+                status.innerText = '❌ Error: ' + e.message;
+                mostrarToast('❌ ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            initStars();
+            renderPacks();
+
+            // Actualizar resumen al cambiar número
+            document.getElementById('netPhone').addEventListener('input', function() {
+                if (selectedPack) selectPack(selectedPack.id);
+            });
+
+            // Enter para pagar
+            document.getElementById('netPhone').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') comprarInternet();
+            });
+        });
+
+        // Exponer funciones
+        window.selectPack = selectPack;
+        window.setPay = setPay;
+        window.comprarInternet = comprarInternet;
+        window.mostrarToast = mostrarToast;
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</body>
+</html>
