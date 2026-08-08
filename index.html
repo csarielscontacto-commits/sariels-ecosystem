@@ -28,7 +28,7 @@
     <!-- ===== SUPABASE (CDN) ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-    <!-- ===== CARGA DE CONFIGURACIÓN UNIFICADA ===== -->
+    <!-- ===== CARGA DE CONFIGURACIÓN ===== -->
     <script src="./js/client-config-loader.js"></script>
 
     <!-- ===== CONECTORES ===== -->
@@ -36,13 +36,10 @@
     <script src="./js/perfil-connector.js"></script>
     <script src="./js/esim-connector.js"></script>
 
-    <!-- ===== MARQUINHOS (ASISTENTE) ===== -->
+    <!-- ===== MARQUINHOS ===== -->
     <script type="module" src="./js/marquinhos-ui.js"></script>
 
     <style>
-        /* ================================================================
-           PLANTILLA IDÉNTICA A MI RED
-           ================================================================ */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -117,7 +114,6 @@
             padding: 16px 20px 30px;
         }
 
-        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
@@ -239,7 +235,6 @@
         }
         .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
 
-        /* ===== FOOTER ===== */
         .footer {
             margin-top: 40px;
             padding-top: 14px;
@@ -313,7 +308,6 @@
         .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--danger); color: white; }
 
-        /* ===== LOGIN FORM ===== */
         .login-card {
             background: rgba(15,45,26,0.25);
             border: 1px solid var(--gold-dim);
@@ -462,15 +456,12 @@
     </style>
 </head>
 <body>
-    <!-- ===== FONDO ESTELAR ===== -->
     <canvas id="stars-canvas"></canvas>
     <div class="nebula nebula-1"></div>
     <div class="nebula nebula-2"></div>
     <div class="nebula nebula-3"></div>
 
     <div class="app">
-
-        <!-- HEADER -->
         <header class="header">
             <a href="#" class="logo" onclick="event.preventDefault()">
                 <span class="logo-icon"><span class="hex">◈</span></span>
@@ -491,36 +482,28 @@
             </div>
         </header>
 
-        <!-- ===== CARD DE LOGIN / REGISTRO ===== -->
         <div class="login-card" id="loginCard">
             <div class="title">🔐 Bienvenido a Csariel's</div>
             <div class="subtitle">Regístrate o inicia sesión para acceder a la red</div>
 
-            <!-- Nombre de usuario -->
             <div class="form-group">
                 <label>Nombre de usuario *</label>
                 <input type="text" id="inputUsername" placeholder="Ej: TuNombre" />
             </div>
-
-            <!-- Correo electrónico -->
             <div class="form-group">
                 <label>Correo electrónico</label>
                 <input type="email" id="inputEmail" placeholder="tu@email.com" />
             </div>
-
-            <!-- Número de celular -->
             <div class="form-group">
                 <label>Número de celular</label>
                 <input type="tel" id="inputPhone" placeholder="55 1234 5678" />
             </div>
 
-            <!-- Términos y condiciones -->
             <div class="terms-row">
                 <input type="checkbox" id="acceptTerms" />
                 <label for="acceptTerms">Acepto los <a href="./terminos-completos.html">Términos y Condiciones</a> y el <a href="./aviso-privacidad.html">Aviso de Privacidad</a></label>
             </div>
 
-            <!-- Botón de acceso -->
             <button class="btn btn-gold btn-login" onclick="handleLogin()" id="btnLogin">
                 <i class="fas fa-rocket"></i> Entrar al Ecosistema
             </button>
@@ -529,7 +512,6 @@
                 <hr /> O <hr />
             </div>
 
-            <!-- Botón Cuenta Google -->
             <button class="btn btn-google btn-login" onclick="loginWithGoogle()">
                 <i class="fab fa-google" style="font-size: 1rem; margin-right: 6px;"></i> Continuar con Google
             </button>
@@ -539,7 +521,6 @@
             </div>
         </div>
 
-        <!-- FOOTER -->
         <footer class="footer">
             <span class="footer-text">
                 <span class="brand">◈ Csariel's</span> — Red Social Integral · eSIM · Web3
@@ -553,89 +534,17 @@
         </footer>
     </div>
 
-    <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
     <script>
         // ================================================================
-        // 🔐 ANONYMOUS SIGN-IN (SUPABASE AUTH REAL)
+        // 🔥 LOGIN QUE FUNCIONA SIEMPRE (modo local + Supabase)
         // ================================================================
         let supabaseClient = null;
-        let currentUid = null;
         let toastTimeout = null;
-        let configLoaded = false;
-
-        // Esperar a que la configuración esté lista
-        document.addEventListener('config:loaded', function(e) {
-            configLoaded = true;
-            if (window.supabase) {
-                supabaseClient = window.supabase;
-                console.log('✅ Supabase listo desde el evento config:loaded');
-                // Iniciar sesión anónima automáticamente
-                iniciarSesionAnonima();
-            }
-        });
-
-        // También verificar directamente después de un tiempo
-        setTimeout(() => {
-            if (window.supabase && !supabaseClient) {
-                supabaseClient = window.supabase;
-                console.log('✅ Supabase listo (timeout)');
-                iniciarSesionAnonima();
-            }
-        }, 1000);
-
-        /**
-         * Inicia sesión anónima en Supabase y guarda el uid en localStorage.
-         * Esto debe ejecutarse UNA SOLA VEZ al cargar la página.
-         * El uid real se guarda en la misma clave 'csariels_user_id' que ya usa el frontend.
-         */
-        async function iniciarSesionAnonima() {
-            if (!supabaseClient) {
-                console.warn('⚠️ Supabase no disponible, esperando...');
-                return;
-            }
-
-            try {
-                // 1. Verificar si ya hay sesión activa (el navegador la recuerda)
-                const { data: { session } } = await supabaseClient.auth.getSession();
-
-                let uid = null;
-
-                if (session) {
-                    uid = session.user.id;
-                    console.log('🔄 Sesión existente recuperada:', uid);
-                } else {
-                    // 2. Si no hay sesión, crear una anónima nueva
-                    const { data, error } = await supabaseClient.auth.signInAnonymously();
-                    if (error) throw error;
-                    uid = data.session.user.id;
-                    console.log('🆕 Sesión anónima creada:', uid);
-                }
-
-                // 3. Guardar el uid REAL en la misma clave que usa el resto del código
-                localStorage.setItem('csariels_user_id', uid);
-                currentUid = uid;
-
-                // 4. También guardar el nombre si ya existía (para no perderlo)
-                if (!localStorage.getItem('csariels_user_name')) {
-                    localStorage.setItem('csariels_user_name', 'Usuario');
-                }
-
-                console.log('✅ Usuario autenticado con Supabase (uid real):', uid);
-                console.log('📌 localStorage.csariels_user_id actualizado');
-
-                // 5. Emitir evento para que otros scripts sepan que el usuario está autenticado
-                document.dispatchEvent(new CustomEvent('auth:ready', { detail: { uid } }));
-
-            } catch (error) {
-                console.error('❌ Error al iniciar sesión anónima:', error);
-                mostrarToast('⚠️ Error de conexión con Supabase', 'error');
-            }
-        }
 
         // ================================================================
-        // 🌟 ESTRELLAS (igual que Mi Red)
+        // 🌟 ESTRELLAS
         // ================================================================
         function initStars() {
             const canvas = document.getElementById('stars-canvas');
@@ -688,7 +597,7 @@
         }
 
         // ================================================================
-        // 🔐 LOGIN / REGISTRO (ahora con uid real de Supabase)
+        // 🔐 TOAST
         // ================================================================
         function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
@@ -699,6 +608,9 @@
             toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
         }
 
+        // ================================================================
+        // 🚀 LOGIN (100% funcional en local + Supabase)
+        // ================================================================
         async function handleLogin() {
             const username = document.getElementById('inputUsername').value.trim();
             const email = document.getElementById('inputEmail').value.trim();
@@ -718,77 +630,82 @@
                 return;
             }
 
-            // Obtener el uid real de Supabase (ya debería estar en localStorage)
-            const uid = localStorage.getItem('csariels_user_id');
-            if (!uid) {
-                mostrarToast('⚠️ Error de autenticación. Reintenta.', 'error');
-                console.error('❌ No hay uid en localStorage. Asegúrate de que iniciarSesionAnonima() se ejecutó.');
-                return;
-            }
-
-            // Guardar en localStorage
+            // ===== 1. Guardar en localStorage (SIEMPRE) =====
+            const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
             localStorage.setItem('csariels_user_name', username);
+            localStorage.setItem('csariels_user_id', userId);
             if (email) localStorage.setItem('csariels_email', email);
             if (phone) localStorage.setItem('csariels_phone', phone);
             localStorage.setItem('csariels_login', 'true');
             localStorage.setItem('csariels_member_since', new Date().getFullYear());
 
-            // Intentar guardar en Supabase (perfiles) con el uid real
-            if (supabaseClient) {
+            // ===== 2. Intentar guardar en Supabase (si está disponible) =====
+            let supabaseOk = false;
+            if (window.supabase) {
                 try {
-                    const { data, error } = await supabaseClient
+                    // Verificar si hay sesión anónima activa
+                    const { data: { session } } = await window.supabase.auth.getSession();
+                    let uid = session?.user?.id;
+
+                    if (!uid) {
+                        // Si no hay sesión, crear una anónima
+                        const { data, error } = await window.supabase.auth.signInAnonymously();
+                        if (error) throw error;
+                        uid = data.session.user.id;
+                        console.log('🆕 Sesión anónima creada:', uid);
+                        localStorage.setItem('csariels_user_id', uid);
+                    }
+
+                    // Guardar perfil con el uid real
+                    const { error } = await window.supabase
                         .from('perfiles')
                         .upsert({
-                            user_id: uid,                // ← el uid REAL de Supabase
+                            user_id: uid,
                             nombre: username,
                             email: email || null,
                             telefono: phone || null,
                             ultimo_acceso: new Date().toISOString()
                         }, { onConflict: 'user_id' });
 
-                    if (error) throw error;
-                    console.log('✅ Perfil guardado en Supabase con uid:', uid);
-
+                    if (!error) {
+                        supabaseOk = true;
+                        console.log('✅ Perfil guardado en Supabase con uid:', uid);
+                    } else {
+                        console.warn('⚠️ Error guardando perfil en Supabase:', error);
+                    }
                 } catch (e) {
-                    console.error('❌ Error al guardar perfil en Supabase:', e);
-                    mostrarToast('⚠️ No se pudo guardar el perfil en Supabase', 'error');
-                    // No bloqueamos la redirección, pero avisamos al usuario
+                    console.warn('⚠️ Supabase no disponible, guardando solo en localStorage:', e);
                 }
-            } else {
-                console.warn('⚠️ Supabase no disponible, el perfil se guarda solo en localStorage');
             }
 
-            mostrarToast('✅ Bienvenido ' + username + '! Redirigiendo...');
+            // ===== 3. Redirigir =====
+            const mensaje = supabaseOk
+                ? '✅ Bienvenido ' + username + '! (datos en Supabase)'
+                : '✅ Bienvenido ' + username + '! (modo local)';
+            mostrarToast(mensaje);
             setTimeout(() => {
                 window.location.href = './features/usuario/index.html';
             }, 800);
         }
 
         function loginWithGoogle() {
-            // Simulación de Google OAuth
             mostrarToast('🔵 Inicio con Google (próximamente integración real)');
-            // Aquí iría la lógica real con Google OAuth
         }
 
         // ================================================================
         // 🚀 INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', async function() {
-            // Inicializar estrellas
             initStars();
 
-            // Verificar seguridad
             if (window.Security) {
                 window.Security.initSeguridad();
-                console.log('🛡️ Seguridad activada para Inicio');
-            } else {
-                console.warn('⚠️ Security.js no cargado');
+                console.log('🛡️ Seguridad activada');
             }
 
-            console.log('◈ Csariel\'s - Inicio de Sesión (con Supabase Auth anónimo)');
-            console.log('📱 Red Social Integral · eSIM · Web3');
+            console.log('◈ Csariel\'s - Inicio (modo híbrido: localStorage + Supabase)');
 
-            // Verificar si ya hay sesión iniciada (redirigir automáticamente)
+            // Redirigir si ya hay sesión
             if (localStorage.getItem('csariels_login') === 'true') {
                 const username = localStorage.getItem('csariels_user_name');
                 if (username) {
@@ -799,27 +716,14 @@
                 }
             }
 
-            // Permitir "Enter" para enviar
+            // Enter para enviar
             document.querySelectorAll('#inputUsername, #inputEmail, #inputPhone').forEach(input => {
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') handleLogin();
                 });
             });
-
-            // Si la sesión anónima ya se inició (por el evento o timeout), mostrar estado
-            if (currentUid) {
-                console.log('✅ UID disponible:', currentUid);
-            } else {
-                console.log('⏳ Esperando autenticación anónima...');
-            }
-
-            // Escuchar el evento auth:ready para saber cuándo está lista la autenticación
-            document.addEventListener('auth:ready', (e) => {
-                console.log('🔐 Autenticación lista, UID:', e.detail.uid);
-            });
         });
 
-        // Exponer funciones globales
         window.handleLogin = handleLogin;
         window.loginWithGoogle = loginWithGoogle;
         window.mostrarToast = mostrarToast;
