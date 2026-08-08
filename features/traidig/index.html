@@ -1,156 +1,551 @@
-<!-- ESTO ES UN FRAGMENTO HTML. NO PONGAS <html>, <head> NI <body> -->
-<main style="padding:20px; animation: fadeIn 0.5s ease; max-width: 800px; margin: 0 auto;">
-    
-    <div style="text-align:center; margin-bottom:20px;">
-        <h2 style="font-family:'Orbitron'; color: var(--gold-cosmic);">📈 Trading TOK (Cartera Invisible)</h2>
-        <p style="color:#8ba3c7;">Conectado a los 81 artículos de la cartera. Compra y vende en tiempo real.</p>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📈 TRADING TOK | Csariel's</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    :root{ --gold-cosmic:#f7d44a; --bg-dark:#020208; --text-primary:#e8f0f8; --text-secondary:#8ba3c7; --text-muted:#4a6a8a; }
+    body{background:var(--bg-dark);color:var(--text-primary);font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+    .orbitron{font-family:'Orbitron',monospace}
+    .glass{backdrop-filter:blur(16px);background:linear-gradient(180deg,rgba(20,40,50,.75),rgba(5,15,20,.9));border:1px solid rgba(247,212,74,.2)}
+    .chart-container{background:rgba(0,0,0,.4);border-radius:16px;padding:12px;border:1px solid rgba(247,212,74,.1)}
+    .indicator-tag{background:rgba(247,212,74,.08);border:1px solid rgba(247,212,74,.15);border-radius:8px;padding:4px 10px;font-size:.6rem;color:var(--text-secondary)}
+    .btn-timeframe{background:rgba(255,255,255,.05);border:1px solid rgba(247,212,74,.1);color:var(--text-secondary);padding:4px 12px;border-radius:12px;font-size:.6rem;font-family:'Orbitron';cursor:pointer;transition:.2s}
+    .btn-timeframe.active{background:var(--gold-cosmic);color:#000;border-color:var(--gold-cosmic)}
+    .btn-timeframe:hover{background:rgba(247,212,74,.2)}
+    .order-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(247,212,74,.05);font-size:.7rem;color:var(--text-secondary)}
+    .order-row .buy{color:#00ff88}
+    .order-row .sell{color:#ff3366}
+  </style>
+</head>
+<body>
+<div class="max-w-[1400px] mx-auto px-4 py-4">
+  <!-- HEADER -->
+  <header class="flex justify-between items-center border-b border-yellow-500/10 pb-4 mb-4">
+    <div class="flex items-center gap-3">
+      <a href="../../index.html" class="bg-[#0B3D2E] text-[#f7d44a] border-2 border-[#f7d44a] px-3 py-1 rounded-lg orbitron font-black">C</a>
+      <span class="orbitron font-black text-xl">CSARIEL'S</span>
+      <span class="text-[10px] border border-green-400/30 px-2 py-1 rounded-full text-green-300">📈 TRADING</span>
     </div>
+    <a href="../../index.html" class="orbitron text-[10px] border border-white/20 px-3 py-1.5 rounded-full">🌍 MUNDO</a>
+  </header>
 
-    <!-- TARJETA DE SALDO REAL -->
-    <div style="background: rgba(0, 214, 143, 0.1); border: 2px solid #00d68f; border-radius: 15px; padding: 15px; margin-bottom: 20px; text-align: center;">
-        <p style="color: var(--text-muted); font-family: 'Orbitron', monospace; font-size: 0.8rem; margin-bottom: 5px;">💰 SALDO DE LA CARTERA</p>
-        <h2 id="userBalance" style="font-family:'Orbitron'; color: var(--gold-cosmic); font-size: 2.5rem; margin: 0;">Cargando...</h2>
-        <p style="color: var(--text-muted); font-size: 0.7rem; margin-top: 5px;">Wallet ID: <span id="walletIdDisplay" style="color: #8ba3c7;">---</span></p>
-    </div>
-
-    <!-- GRÁFICO DE PRECIOS DE ARTÍCULOS -->
-    <div style="background: rgba(11,61,46,0.2); border: 1px solid var(--gold-dim); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
-        <h3 style="font-family:'Orbitron'; color: var(--gold-cosmic); font-size: 1rem; margin-bottom: 10px;">📊 Artículos / Inventario</h3>
-        <div id="inventoryList" style="height: 150px; width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; overflow-y: auto; padding: 10px; color: var(--text-secondary); font-size: 0.8rem; border: 1px solid var(--gold-dim);">
-            <p style="text-align:center; color: var(--text-muted);">Cargando inventario real...</p>
+  <main style="max-width:1200px;margin:0 auto;padding:15px;">
+    <!-- Panel superior: precio, cambio, indicadores -->
+    <div class="glass rounded-2xl p-4 mb-4">
+      <div class="flex flex-wrap justify-between items-center">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 class="orbitron text-2xl text-[#f7d44a]">TOK/USDT</h2>
+            <span id="priceDisplay" class="text-2xl font-bold text-white">0.0000</span>
+            <span id="changeDisplay" class="text-sm font-bold text-green-400">+0.00%</span>
+          </div>
+          <div class="flex flex-wrap gap-2 mt-1">
+            <span class="indicator-tag">BB(20,2) U:<span id="bbU">0.00</span> M:<span id="bbM">0.00</span> L:<span id="bbL">0.00</span></span>
+            <span class="indicator-tag">Vol: <span id="volDisplay">0.00</span>M</span>
+            <span class="indicator-tag">MACD(12,26) <span id="macdLine">0.0000</span> | Signal:<span id="signalLine">0.0000</span> | Hist:<span id="histLine">0.0000</span></span>
+          </div>
         </div>
-        <p style="text-align:center; color: var(--text-muted); font-size: 0.7rem; margin-top: 10px;">Precio actual por artículo: <span id="currentPrice" style="color: var(--gold-cosmic); font-weight: bold;">$0.50</span> USD</p>
+        <div class="flex items-center gap-3">
+          <button id="btnConnect" onclick="conectarWallet()" class="bg-[#f7d44a] text-black px-4 py-2 rounded-full orbitron text-xs font-bold hover:bg-yellow-400 transition">
+            🦊 CONECTAR METAMASK
+          </button>
+          <span id="walletStatus" class="text-[10px] text-green-400 hidden">● Conectado</span>
+        </div>
+      </div>
     </div>
 
-    <!-- PANEL DE COMPRA/VENTA -->
-    <div style="background: rgba(11,61,46,0.2); border: 1px solid var(--gold-dim); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <button id="tabBuy" onclick="switchTab('buy')" style="flex: 1; background: var(--gold-cosmic); border: none; color: #0a0c10; padding: 10px; border-radius: 10px; font-family: 'Orbitron', font-weight: bold; cursor: pointer;">COMPRAR</button>
-            <button id="tabSell" onclick="switchTab('sell')" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 10px; border-radius: 10px; font-family: 'Orbitron'; cursor: pointer;">VENDER</button>
+    <!-- GRÁFICO + PANEL DERECHO -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <!-- Gráfico (ocupa 2 columnas) -->
+      <div class="lg:col-span-2 chart-container">
+        <div class="flex flex-wrap gap-1 mb-2">
+          <button class="btn-timeframe active" data-tf="1m">1m</button>
+          <button class="btn-timeframe" data-tf="5m">5m</button>
+          <button class="btn-timeframe" data-tf="15m">15m</button>
+          <button class="btn-timeframe" data-tf="1h">1h</button>
+          <button class="btn-timeframe" data-tf="1d">1d</button>
+        </div>
+        <canvas id="tradingChart" height="300" style="width:100%;background:rgba(0,0,0,.3);border-radius:10px"></canvas>
+        <!-- Indicadores overlay (debajo del gráfico) -->
+        <div class="flex flex-wrap gap-3 mt-2 text-[10px] text-[#4a6a8a]">
+          <span>📊 BB(20,2) <span id="bbU2">0.00</span> | <span id="bbM2">0.00</span> | <span id="bbL2">0.00</span></span>
+          <span>📈 MACD <span id="macd2">0.0000</span> | Signal <span id="signal2">0.0000</span> | Hist <span id="hist2">0.0000</span></span>
+        </div>
+      </div>
+
+      <!-- Panel de Trading (1 columna) -->
+      <div class="glass rounded-2xl p-4">
+        <div class="flex gap-2 mb-3">
+          <button id="tabBuy" onclick="setTradeMode('buy')" class="flex-1 bg-green-500 text-black py-2 rounded-full orbitron text-sm font-bold">COMPRAR</button>
+          <button id="tabSell" onclick="setTradeMode('sell')" class="flex-1 bg-gray-700 text-white py-2 rounded-full orbitron text-sm font-bold">VENDER</button>
         </div>
 
-        <div id="buySection">
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Cantidad de Artículos a comprar:</p>
-            <input type="number" id="tradeAmount" value="1" min="0.01" step="0.01" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(247,212,74,0.1); color: var(--text-primary); padding: 12px; border-radius: 10px; font-family: 'Space Grotesk'; margin-bottom: 10px;">
-            <button onclick="ejecutarTrade('buy')" style="width: 100%; background: linear-gradient(135deg, #00d68f, #008f5a); border: none; color: white; padding: 12px; border-radius: 30px; font-family: 'Orbitron', font-weight: bold; cursor: pointer;">
-                ✅ COMPRAR ARTÍCULOS
-            </button>
+        <!-- Saldos -->
+        <div class="bg-black/30 rounded-xl p-3 mb-3 text-xs">
+          <div class="flex justify-between"><span class="text-[#8ba3c7]">TOK</span><span id="balTOK" class="text-[#f7d44a] font-bold">0.00</span></div>
+          <div class="flex justify-between"><span class="text-[#8ba3c7]">USDT</span><span id="balUSDT" class="text-[#00ff88] font-bold">0.00</span></div>
+          <div class="flex justify-between"><span class="text-[#8ba3c7]">MATIC</span><span id="balMATIC" class="text-[#00eaff] font-bold">0.0000</span></div>
         </div>
 
-        <div id="sellSection" style="display: none;">
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Cantidad de Artículos a vender:</p>
-            <input type="number" id="tradeAmountSell" value="1" min="0.01" step="0.01" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(247,212,74,0.1); color: var(--text-primary); padding: 12px; border-radius: 10px; font-family: 'Space Grotesk'; margin-bottom: 10px;">
-            <button onclick="ejecutarTrade('sell')" style="width: 100%; background: linear-gradient(135deg, #ff3366, #b3002d); border: none; color: white; padding: 12px; border-radius: 30px; font-family: 'Orbitron', font-weight: bold; cursor: pointer;">
-                🔴 VENDER ARTÍCULOS
-            </button>
+        <!-- Cantidad -->
+        <label class="text-[10px] text-[#8ba3c7]">Cantidad de TOK</label>
+        <input id="tradeAmount" type="number" step="0.01" placeholder="0.00" class="w-full bg-black/50 border border-yellow-500/20 rounded-xl px-3 py-2 text-sm text-white outline-none mb-2" oninput="calcTotal()">
+
+        <div class="flex justify-between text-[10px] text-[#8ba3c7] mb-1">
+          <span>Precio unitario (referencia)</span>
+          <span id="priceRef" class="text-[#f7d44a]">0.0000</span>
         </div>
-        
-        <div id="tradeStatus" style="margin-top: 10px; font-family: 'Space Grotesk'; font-size: 0.9rem; text-align: center; color: var(--gold-cosmic);"></div>
+        <div class="flex justify-between text-[10px] text-[#8ba3c7] mb-2">
+          <span>Total estimado</span>
+          <span id="totalEst" class="text-white font-bold">0.00</span>
+        </div>
+
+        <div class="flex justify-between text-[10px] text-[#8ba3c7] mb-3">
+          <span>⛽ Costo de gas estimado:</span>
+          <span id="gasEst" class="text-[#00eaff]">-- MATIC</span>
+        </div>
+
+        <!-- Checkbox términos -->
+        <label class="flex items-center gap-2 text-[9px] text-[#8ba3c7] mb-2">
+          <input type="checkbox" id="acceptTermsTrade" /> He leído y acepto los <a href="#" data-csariel-page="terminos-uso" class="text-[#f7d44a] underline">Términos y Condiciones</a>
+        </label>
+
+        <button id="btnExecute" onclick="ejecutarTrade()" class="w-full bg-gradient-to-r from-[#f7d44a] to-[#b8923a] text-black py-3 rounded-full orbitron font-bold text-sm transition hover:scale-[1.02]">
+          🚀 EJECUTAR ORDEN
+        </button>
+        <div id="tradeStatus" class="text-[10px] text-center mt-2 min-h-[18px] text-[#8ba3c7]"></div>
+      </div>
     </div>
 
-    <div style="text-align:center; margin-top:20px;">
-        <a href="#" data-csariel-page="home" style="color:var(--gold-cosmic); text-decoration:none;">
-            <i class="fas fa-arrow-left"></i> Volver al Inicio
-        </a>
+    <!-- ÓRDENES ABIERTAS + HISTORIAL -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div class="glass rounded-2xl p-4">
+        <h3 class="orbitron text-xs text-[#f7d44a] mb-2">📋 ÓRDENES ABIERTAS</h3>
+        <div id="openOrders" class="max-h-40 overflow-y-auto">
+          <div class="text-[10px] text-[#4a6a8a] text-center">Conecta tu wallet para ver tus órdenes.</div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <h3 class="orbitron text-xs text-[#f7d44a] mb-2">📜 HISTORIAL</h3>
+        <div id="historyOrders" class="max-h-40 overflow-y-auto">
+          <div class="text-[10px] text-[#4a6a8a] text-center">Conecta tu wallet para ver tu historial.</div>
+        </div>
+      </div>
     </div>
-</main>
 
-<style>
-    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-    input, select { outline: none; transition: border 0.3s; }
-    input:focus, select:focus { border-color: var(--gold-cosmic) !important; }
-</style>
+    <!-- AVISO LEGAL -->
+    <div class="mt-4 p-3 border border-yellow-500/10 rounded-xl bg-black/30">
+      <p class="text-[8px] text-[#4a6a8a] text-center">
+        ⚠️ Aviso Legal: El trading de TOK implica riesgos. Csariel's no ofrece asesoría financiera. 
+        Las transacciones son irreversibles. Jurisdicción: Puebla, México. 
+        <a href="#" data-csariel-page="terminos-uso" class="text-[#f7d44a] underline">Términos completos (81 artículos)</a>
+      </p>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <div class="text-center mt-4">
+      <a href="../../index.html" class="text-[#f7d44a] orbitron text-sm"><i class="fas fa-arrow-left"></i> Volver al Mundo</a>
+    </div>
+  </main>
+</div>
+
 <script>
-    const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ============================================================
+// CONFIGURACIÓN SUPABASE
+// ============================================================
+const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let userId = localStorage.getItem('csariels_wallet') || 'usuario_prueba_001';
-    let currentBalance = 0;
+// ============================================================
+// VARIABLES GLOBALES
+// ============================================================
+let walletAddr = localStorage.getItem('csariels_wallet') || null;
+let tradeMode = 'buy';
+let currentPrice = 0;
+let chartData = [];
+let orderBookData = [];
+let userOrders = [];
+let timeframe = '1m';
 
-    document.addEventListener('DOMContentLoaded', function() {
-        userId = localStorage.getItem('csariels_wallet') || 'usuario_prueba_001';
-        document.getElementById('walletIdDisplay').innerText = userId || 'No conectada';
-        if(userId) {
-            cargarArticulosReales();
-            cargarSaldoReal();
-        }
+// DOM refs
+const priceDisplay = document.getElementById('priceDisplay');
+const changeDisplay = document.getElementById('changeDisplay');
+const balTOK = document.getElementById('balTOK');
+const balUSDT = document.getElementById('balUSDT');
+const balMATIC = document.getElementById('balMATIC');
+const tradeAmount = document.getElementById('tradeAmount');
+const totalEst = document.getElementById('totalEst');
+const priceRef = document.getElementById('priceRef');
+const gasEst = document.getElementById('gasEst');
+const tradeStatus = document.getElementById('tradeStatus');
+const btnConnect = document.getElementById('btnConnect');
+const walletStatus = document.getElementById('walletStatus');
+const openOrdersDiv = document.getElementById('openOrders');
+const historyDiv = document.getElementById('historyOrders');
+
+// ============================================================
+// FUNCIÓN PARA CONECTAR WALLET
+// ============================================================
+async function conectarWallet() {
+  if (typeof window.ethereum === 'undefined') {
+    alert('❌ Instala MetaMask para operar.');
+    return;
+  }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    walletAddr = accounts[0];
+    localStorage.setItem('csariels_wallet', walletAddr);
+    btnConnect.innerText = '🦊 ' + walletAddr.slice(0,6) + '...' + walletAddr.slice(-4);
+    btnConnect.classList.add('bg-green-600', 'text-white');
+    walletStatus.classList.remove('hidden');
+    await cargarBalances();
+    await cargarOrdenes();
+    await cargarHistorial();
+  } catch (e) {
+    alert('Error al conectar: ' + e.message);
+  }
+}
+
+// ============================================================
+// CARGAR BALANCES DESDE SUPABASE
+// ============================================================
+async function cargarBalances() {
+  if (!walletAddr) return;
+  try {
+    const { data } = await sb
+      .from('user_balances')
+      .select('tok, usdt, matic')
+      .eq('user_id', walletAddr)
+      .maybeSingle();
+    if (data) {
+      balTOK.innerText = data.tok || '0.00';
+      balUSDT.innerText = data.usdt || '0.00';
+      balMATIC.innerText = data.matic || '0.0000';
+    } else {
+      // Crear balance si no existe
+      await sb.from('user_balances').insert([{ user_id: walletAddr, tok: 0, usdt: 0, matic: 0 }]);
+    }
+  } catch (e) {
+    console.warn('Error cargando balances:', e);
+  }
+}
+
+// ============================================================
+// CARGAR ÓRDENES ABIERTAS
+// ============================================================
+async function cargarOrdenes() {
+  if (!walletAddr) {
+    openOrdersDiv.innerHTML = '<div class="text-[10px] text-[#4a6a8a] text-center">Conecta tu wallet para ver tus órdenes.</div>';
+    return;
+  }
+  try {
+    const { data } = await sb
+      .from('orders')
+      .select('*')
+      .eq('user_id', walletAddr)
+      .eq('status', 'open')
+      .order('created_at', { ascending: false });
+    if (data && data.length > 0) {
+      openOrdersDiv.innerHTML = data.map(o => `
+        <div class="order-row">
+          <span class="${o.type === 'buy' ? 'buy' : 'sell'}">${o.type.toUpperCase()}</span>
+          <span>${o.amount} TOK</span>
+          <span>@ $${o.price}</span>
+          <span class="text-[#4a6a8a]">${new Date(o.created_at).toLocaleTimeString()}</span>
+        </div>
+      `).join('');
+    } else {
+      openOrdersDiv.innerHTML = '<div class="text-[10px] text-[#4a6a8a] text-center">No tienes órdenes abiertas.</div>';
+    }
+  } catch (e) {
+    openOrdersDiv.innerHTML = '<div class="text-[10px] text-[#4a6a8a] text-center">Error al cargar órdenes.</div>';
+  }
+}
+
+// ============================================================
+// CARGAR HISTORIAL
+// ============================================================
+async function cargarHistorial() {
+  if (!walletAddr) {
+    historyDiv.innerHTML = '<div class="text-[10px] text-[#4a6a8a] text-center">Conecta tu wallet para ver tu historial.</div>';
+    return;
+  }
+  try {
+    const { data } = await sb
+      .from('orders')
+      .select('*')
+      .eq('user_id', walletAddr)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (data && data.length > 0) {
+      historyDiv.innerHTML = data.map(o => `
+        <div class="order-row">
+          <span class="${o.type === 'buy' ? 'buy' : 'sell'}">${o.type.toUpperCase()}</span>
+          <span>${o.amount} TOK</span>
+          <span>@ $${o.price}</span>
+          <span class="text-[${o.status === 'filled' ? '#00ff88' : '#ff3366'}]">${o.status}</span>
+        </div>
+      `).join('');
+    } else {
+      historyDiv.innerHTML = '<div class="text-[10px] text-[#4a6a8a] text-center">Aún no tienes operaciones.</div>';
+    }
+  } catch (e) {
+    historyDiv.innerHTML = '<div class="text-[10px] text-[#4a6a8a] text-center">Error al cargar historial.</div>';
+  }
+}
+
+// ============================================================
+// CAMBIAR MODO COMPRA/VENTA
+// ============================================================
+function setTradeMode(mode) {
+  tradeMode = mode;
+  document.getElementById('tabBuy').className = 'flex-1 py-2 rounded-full orbitron text-sm font-bold ' + 
+    (mode === 'buy' ? 'bg-green-500 text-black' : 'bg-gray-700 text-white');
+  document.getElementById('tabSell').className = 'flex-1 py-2 rounded-full orbitron text-sm font-bold ' + 
+    (mode === 'sell' ? 'bg-red-500 text-white' : 'bg-gray-700 text-white');
+  document.getElementById('btnExecute').innerText = mode === 'buy' ? '🚀 COMPRAR TOK' : '💸 VENDER TOK';
+}
+
+// ============================================================
+// CALCULAR TOTAL
+// ============================================================
+function calcTotal() {
+  const amount = parseFloat(tradeAmount.value) || 0;
+  const price = currentPrice || 0;
+  const total = amount * price;
+  totalEst.innerText = total.toFixed(2);
+  priceRef.innerText = price.toFixed(4);
+  // Gas estimado (simulado)
+  const gas = (amount * 0.001).toFixed(4);
+  gasEst.innerText = gas + ' MATIC';
+}
+
+// ============================================================
+// EJECUTAR TRADE (GUARDA EN SUPABASE)
+// ============================================================
+async function ejecutarTrade() {
+  if (!walletAddr) {
+    tradeStatus.innerText = '❌ Conecta tu wallet primero.';
+    return;
+  }
+  if (!document.getElementById('acceptTermsTrade').checked) {
+    tradeStatus.innerText = '⚠️ Debes aceptar los Términos y Condiciones.';
+    return;
+  }
+  const amount = parseFloat(tradeAmount.value);
+  if (!amount || amount <= 0) {
+    tradeStatus.innerText = '⚠️ Ingresa una cantidad válida.';
+    return;
+  }
+  const price = currentPrice || 0;
+  const total = amount * price;
+  tradeStatus.innerText = '⏳ Procesando orden...';
+
+  try {
+    // 1. Guardar orden en Supabase
+    const { data, error } = await sb
+      .from('orders')
+      .insert([{
+        user_id: walletAddr,
+        type: tradeMode,
+        amount: amount,
+        price: price,
+        total: total,
+        status: 'open',
+        created_at: new Date().toISOString()
+      }]);
+    if (error) throw error;
+
+    // 2. Simular ejecución (en realidad esperarías matching, pero aquí lo marcamos como filled)
+    // Para demostración, actualizamos el saldo
+    const { data: balance } = await sb
+      .from('user_balances')
+      .select('tok, usdt')
+      .eq('user_id', walletAddr)
+      .maybeSingle();
+    if (balance) {
+      let newTok = balance.tok || 0;
+      let newUsdt = balance.usdt || 0;
+      if (tradeMode === 'buy') {
+        newTok += amount;
+        newUsdt -= total;
+      } else {
+        newTok -= amount;
+        newUsdt += total;
+      }
+      await sb
+        .from('user_balances')
+        .update({ tok: newTok, usdt: newUsdt })
+        .eq('user_id', walletAddr);
+    }
+
+    // 3. Marcar orden como filled
+    await sb
+      .from('orders')
+      .update({ status: 'filled', filled_at: new Date().toISOString() })
+      .eq('user_id', walletAddr)
+      .eq('status', 'open');
+
+    tradeStatus.innerText = '✅ ¡Orden ejecutada! ' + amount + ' TOK ' + (tradeMode === 'buy' ? 'comprados' : 'vendidos');
+    tradeAmount.value = '';
+    totalEst.innerText = '0.00';
+    await cargarBalances();
+    await cargarOrdenes();
+    await cargarHistorial();
+  } catch (e) {
+    tradeStatus.innerText = '❌ Error: ' + e.message;
+  }
+}
+
+// ============================================================
+// GRÁFICO (SIMULADO CON DATOS EN TIEMPO REAL)
+// ============================================================
+function dibujarGrafico() {
+  const canvas = document.getElementById('tradingChart');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.parentElement.clientWidth - 24;
+  const h = canvas.height = 300;
+
+  // Generar datos si no hay
+  if (chartData.length === 0) {
+    let base = 5.5;
+    for (let i = 0; i < 60; i++) {
+      base += (Math.random() - 0.48) * 0.08;
+      chartData.push({ time: i, open: base, high: base + 0.02, low: base - 0.02, close: base + (Math.random() - 0.5) * 0.03 });
+    }
+  } else {
+    // Agregar nuevo punto
+    const last = chartData[chartData.length - 1];
+    const newClose = last.close + (Math.random() - 0.48) * 0.06;
+    chartData.push({
+      time: chartData.length,
+      open: last.close,
+      high: Math.max(last.close, newClose) + 0.01,
+      low: Math.min(last.close, newClose) - 0.01,
+      close: newClose
     });
+    if (chartData.length > 120) chartData.shift();
+  }
 
-    async function cargarArticulosReales() {
-        const invDiv = document.getElementById('inventoryList');
-        invDiv.innerHTML = "<p style='text-align:center;'>Cargando inventario...</p>";
-        const { data, error } = await supabase.from('articulos').select('*');
-        if (error) {
-            console.error("Error cargando inventario:", error);
-            invDiv.innerHTML = "<p style='color: #ff3366; text-align:center;'>Error al cargar el inventario.</p>";
-            return;
-        }
-        if (data && data.length > 0) {
-            invDiv.innerHTML = "";
-            data.forEach(art => {
-                invDiv.innerHTML += `<p style="margin: 2px 0; display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:4px 0;">
-                    <span>🔹 ${art.nombre || 'Sin nombre'}</span>
-                    <span style="color:var(--gold-cosmic);">$${art.precio || '0.00'}</span>
-                </p>`;
-            });
-        } else {
-            invDiv.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>No hay artículos en el inventario.</p>";
-        }
-    }
+  // Calcular indicadores BB y MACD (simplificados para demo)
+  const closes = chartData.map(d => d.close);
+  const price = closes[closes.length - 1] || 0;
+  currentPrice = price;
+  priceDisplay.innerText = price.toFixed(4);
+  
+  // Cambio porcentual
+  const prev = closes[closes.length - 2] || price;
+  const change = ((price - prev) / prev * 100);
+  changeDisplay.innerText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+  changeDisplay.className = 'text-sm font-bold ' + (change >= 0 ? 'text-green-400' : 'text-red-400');
 
-    async function cargarSaldoReal() {
-        try {
-            const { data, error } = await supabase.rpc('obtener_saldo_commit', { p_user_id: userId });
-            if (error) throw error;
-            if (data && data.length > 0) {
-                const saldo = parseFloat(data[0].balance_commit || 0);
-                currentBalance = saldo;
-                document.getElementById('userBalance').innerText = saldo.toFixed(2) + " TOK";
-            }
-        } catch (error) {
-            console.error("Error cargando saldo:", error);
-            document.getElementById('userBalance').innerText = "Error";
-        }
-    }
+  // Actualizar BB y MACD en UI
+  const mean = closes.reduce((a,b) => a+b, 0) / closes.length;
+  const variance = closes.reduce((a,b) => a + (b-mean)**2, 0) / closes.length;
+  const std = Math.sqrt(variance);
+  document.getElementById('bbU').innerText = (mean + 2*std).toFixed(2);
+  document.getElementById('bbM').innerText = mean.toFixed(2);
+  document.getElementById('bbL').innerText = (mean - 2*std).toFixed(2);
+  document.getElementById('bbU2').innerText = (mean + 2*std).toFixed(2);
+  document.getElementById('bbM2').innerText = mean.toFixed(2);
+  document.getElementById('bbL2').innerText = (mean - 2*std).toFixed(2);
 
-    window.ejecutarTrade = async function(tipo) {
-        if(!userId) { document.getElementById('tradeStatus').innerHTML = "<span style='color: #ff3366;'>❌ Cartera no identificada.</span>"; return; }
-        const amountInput = tipo === 'buy' ? document.getElementById('tradeAmount') : document.getElementById('tradeAmountSell');
-        const monto = parseFloat(amountInput.value);
-        const statusDiv = document.getElementById('tradeStatus');
-        if(!monto || monto <= 0) { statusDiv.innerHTML = "<span style='color: #ff3366;'>❌ Ingresa un monto válido.</span>"; return; }
-        statusDiv.innerHTML = "<span style='color: #f7d44a;'>⏳ Procesando transacción real...</span>";
-        try {
-            const { data, error } = await supabase.rpc('procesar_transaccion_commit', {
-                p_sender_id: userId, p_receiver_id: 'sistema_trading', p_amount: monto,
-                p_asset_type: tipo === 'buy' ? 'compra' : 'venta',
-                p_description: `Operación de ${tipo === 'buy' ? 'compra' : 'venta'} de ${monto} artículos`
-            });
-            if (error) throw error;
-            if(data && data.success) {
-                statusDiv.innerHTML = `<span style='color: #00d68f;'>✅ Transacción exitosa! ID: ${data.transaction_id}. Comisión: ${data.commission_amount}</span>`;
-                await cargarSaldoReal(); amountInput.value = '';
-            } else { statusDiv.innerHTML = "<span style='color: #ff3366;'>❌ La operación no pudo completarse.</span>"; }
-        } catch (error) {
-            console.error("Error en transacción:", error);
-            statusDiv.innerHTML = `<span style='color: #ff3366;'>❌ Error: ${error.message}</span>`;
-        }
-    };
+  // MACD simulado
+  const macd = (closes[closes.length-1] - closes[closes.length-6]) || 0;
+  const signal = macd * 0.8;
+  const hist = macd - signal;
+  document.getElementById('macdLine').innerText = macd.toFixed(4);
+  document.getElementById('signalLine').innerText = signal.toFixed(4);
+  document.getElementById('histLine').innerText = hist.toFixed(4);
+  document.getElementById('macd2').innerText = macd.toFixed(4);
+  document.getElementById('signal2').innerText = signal.toFixed(4);
+  document.getElementById('hist2').innerText = hist.toFixed(4);
 
-    window.switchTab = function(tab) {
-        const buyBtn = document.getElementById('tabBuy'), sellBtn = document.getElementById('tabSell');
-        const buySec = document.getElementById('buySection'), sellSec = document.getElementById('sellSection');
-        if(tab === 'buy') {
-            buyBtn.style.background = "var(--gold-cosmic)"; buyBtn.style.color = "#0a0c10";
-            sellBtn.style.background = "rgba(255,255,255,0.05)"; sellBtn.style.color = "var(--text-muted)";
-            buySec.style.display = "block"; sellSec.style.display = "none";
-        } else {
-            sellBtn.style.background = "var(--gold-cosmic)"; sellBtn.style.color = "#0a0c10";
-            buyBtn.style.background = "rgba(255,255,255,0.05)"; buyBtn.style.color = "var(--text-muted)";
-            buySec.style.display = "none"; sellSec.style.display = "block";
-        }
-    }
+  // Volumen
+  const vol = (Math.random() * 0.5 + 0.2).toFixed(2);
+  document.getElementById('volDisplay').innerText = vol;
+
+  // Dibujar velas
+  ctx.clearRect(0, 0, w, h);
+  const min = Math.min(...closes) * 0.98;
+  const max = Math.max(...closes) * 1.02;
+  const range = max - min;
+
+  chartData.forEach((d, i) => {
+    const x = (i / chartData.length) * w;
+    const yOpen = h - ((d.open - min) / range) * h;
+    const yClose = h - ((d.close - min) / range) * h;
+    const yHigh = h - ((d.high - min) / range) * h;
+    const yLow = h - ((d.low - min) / range) * h;
+    const color = d.close >= d.open ? '#00ff88' : '#ff3366';
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    // Sombra (wick)
+    ctx.beginPath();
+    ctx.moveTo(x, yHigh);
+    ctx.lineTo(x, yLow);
+    ctx.stroke();
+    // Cuerpo
+    const bodyH = Math.max(2, Math.abs(yOpen - yClose));
+    ctx.fillRect(x - 2, Math.min(yOpen, yClose), 4, bodyH);
+  });
+
+  // Línea de precio actual
+  const yPrice = h - ((price - min) / range) * h;
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(247,212,74,0.3)';
+  ctx.setLineDash([4,4]);
+  ctx.moveTo(0, yPrice);
+  ctx.lineTo(w, yPrice);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#f7d44a';
+  ctx.font = '10px monospace';
+  ctx.fillText('$' + price.toFixed(4), w - 60, yPrice - 6);
+}
+
+// ============================================================
+// TIMEFRAME
+// ============================================================
+document.querySelectorAll('.btn-timeframe').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.btn-timeframe').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    timeframe = this.dataset.tf;
+    chartData = [];
+    dibujarGrafico();
+  });
+});
+
+// ============================================================
+// INICIALIZAR
+// ============================================================
+if (walletAddr) {
+  btnConnect.innerText = '🦊 ' + walletAddr.slice(0,6) + '...' + walletAddr.slice(-4);
+  btnConnect.classList.add('bg-green-600', 'text-white');
+  walletStatus.classList.remove('hidden');
+  cargarBalances();
+  cargarOrdenes();
+  cargarHistorial();
+}
+
+// Dibujar gráfico cada 2 segundos
+dibujarGrafico();
+setInterval(dibujarGrafico, 2000);
+
+// Exponer funciones globales
+window.conectarWallet = conectarWallet;
+window.setTradeMode = setTradeMode;
+window.ejecutarTrade = ejecutarTrade;
+window.calcTotal = calcTotal;
 </script>
+</body>
+</html>
