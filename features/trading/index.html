@@ -6,7 +6,6 @@
     <title>Csariel's STOKS · Trading</title>
     <meta name="theme-color" content="#0F2D1A" />
 
-    <!-- 🔒 CSP -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
@@ -21,17 +20,11 @@
         form-action 'self';
     ">
 
-    <!-- ===== RECURSOS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    
-    <!-- ===== LIGHTWEIGHT CHARTS (Professional) ===== -->
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.js"></script>
-
-    <!-- ===== SUPABASE ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-    <!-- ===== CONECTORES ===== -->
     <script src="../../js/client-config-loader.js"></script>
     <script src="../../js/security.js"></script>
     <script src="../../js/perfil-connector.js"></script>
@@ -39,7 +32,7 @@
 
     <style>
         /* ================================================================
-           PLANTILLA PROFESIONAL DE TRADING
+           DISEÑO DE PANTALLA ANCHA - TRADING PROFESIONAL
            ================================================================ */
         :root {
             --space-deep: #05080f;
@@ -57,10 +50,8 @@
             --danger: #ff3366;
             --quantum: #00e5ff;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
         body {
             background: var(--space-deep);
             color: var(--text-primary);
@@ -69,397 +60,328 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-
         #stars-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
+            position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;
         }
+        .nebula {
+            position:fixed; border-radius:50%; filter:blur(120px); opacity:0.08; pointer-events:none; z-index:0;
+            animation:nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width:700px; height:700px; background:var(--verde-bosque); top:-15%; right:-15%; }
+        .nebula-2 { width:600px; height:600px; background:var(--gold-cosmic); bottom:-15%; left:-15%; animation-delay:-8s; opacity:0.04; }
+        .nebula-3 { width:500px; height:500px; background:var(--quantum); top:50%; left:50%; transform:translate(-50%,-50%); animation-delay:-15s; opacity:0.03; }
+        @keyframes nebula-drift { 0% { transform:translate(0,0) scale(1); } 100% { transform:translate(40px,-30px) scale(1.15); } }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background:linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius:3px; }
 
-        .nebula { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.08; pointer-events: none; z-index: 0; animation: nebula-drift 25s ease-in-out infinite alternate; }
-        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
-        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.04; }
-        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.03; }
-
-        @keyframes nebula-drift { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, -30px) scale(1.15); } }
-
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: var(--space-deep); }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
-
-        .app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 16px 20px 30px; }
+        .app { position:relative; z-index:1; max-width:1600px; margin:0 auto; padding:16px 24px 30px; }
 
         /* ===== HEADER ===== */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0 16px;
-            border-bottom: 2px solid var(--gold-dim);
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-            backdrop-filter: blur(10px);
+            display:flex; justify-content:space-between; align-items:center; padding:12px 0 16px;
+            border-bottom:2px solid var(--gold-dim); margin-bottom:16px; flex-wrap:wrap; gap:10px;
+            backdrop-filter:blur(10px);
         }
-
-        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
         .logo-icon .hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 900;
-            border: 2px solid var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-            box-shadow: 0 0 20px rgba(212,175,55,0.1);
+            display:inline-block; background:var(--verde-bosque); color:var(--gold-cosmic);
+            padding:3px 10px; border-radius:6px; font-size:1rem; font-weight:900;
+            border:2px solid var(--gold-cosmic); font-family:'Orbitron',monospace;
+            box-shadow:0 0 20px rgba(212,175,55,0.1);
         }
         .logo-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.3rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family:'Orbitron',monospace; font-size:1.3rem; font-weight:900;
+            background:linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
         }
         .logo-badge {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.45rem;
-            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
-            color: white;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-weight: 700;
-            border: 1px solid rgba(212,175,55,0.2);
+            font-family:'Orbitron',monospace; font-size:0.45rem;
+            background:linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color:white; padding:3px 12px; border-radius:20px; font-weight:700;
+            border:1px solid rgba(212,175,55,0.2);
         }
-
-        .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
+        .header-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 16px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(212,175,55,0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.6rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
+            display:inline-flex; align-items:center; gap:6px; padding:7px 16px;
+            border:1px solid var(--border); border-radius:30px; background:rgba(212,175,55,0.03);
+            color:var(--text-primary); font-family:'Orbitron',monospace; font-size:0.6rem;
+            font-weight:600; cursor:pointer; transition:var(--transition); text-decoration:none;
         }
-        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:hover { transform:scale(1.02); border-color:var(--border-glow); }
         .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
+            background:linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque));
+            border-color:var(--gold-cosmic); color:var(--gold-cosmic); -webkit-text-fill-color:var(--gold-cosmic);
         }
         .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
+            background:linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color:transparent; color:#0a0c10; -webkit-text-fill-color:#0a0c10;
         }
-        .btn-gold:hover { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
-        .btn-outline { border-color: var(--border); background: transparent; }
-        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
-        .btn-success { background: #00b894; border-color: #00b894; color: white; -webkit-text-fill-color: white; }
-        .btn-danger { background: var(--danger); border-color: var(--danger); color: white; -webkit-text-fill-color: white; }
+        .btn-gold:hover { box-shadow:0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color:var(--border); background:transparent; }
+        .btn-sm { padding:4px 12px; font-size:0.55rem; }
+        .btn-success { background:#00b894; border-color:#00b894; color:white; -webkit-text-fill-color:white; }
+        .btn-danger { background:var(--danger); border-color:var(--danger); color:white; -webkit-text-fill-color:white; }
 
-        /* ===== PANEL DE PRECIO PROFESIONAL ===== */
+        /* ===== CONTENEDOR PRINCIPAL: GRÁFICO + PANEL ===== */
+        .trading-grid {
+            display:grid;
+            grid-template-columns: 1fr 340px;
+            gap:16px;
+            margin-bottom:16px;
+        }
+
+        /* ===== PANEL DE PRECIO (encima del gráfico) ===== */
         .trading-header {
-            background: rgba(15,45,26,0.15);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 16px 24px;
-            margin-bottom: 12px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
+            grid-column: 1 / -1;
+            background:rgba(15,45,26,0.15);
+            border:1px solid var(--gold-dim);
+            border-radius:var(--radius);
+            padding:12px 20px;
+            backdrop-filter:blur(10px);
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:12px;
         }
-        .trading-header .left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .trading-header .symbol {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: white;
-        }
-        .trading-header .address {
-            font-family: monospace;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            background: rgba(0,0,0,0.3);
-            padding: 2px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--gold-dim);
-        }
-        .trading-header .price-group { text-align: right; }
-        .trading-header .price {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: white;
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 1px;
-        }
-        .trading-header .change {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-left: 12px;
-        }
-        .trading-header .change.positive { color: var(--success); }
-        .trading-header .change.negative { color: var(--danger); }
-        .trading-header .label { font-size: 0.6rem; color: var(--text-muted); font-family: 'Orbitron', monospace; }
+        .trading-header .left { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+        .trading-header .symbol { font-family:'Orbitron',monospace; font-size:1.4rem; font-weight:700; color:white; }
+        .trading-header .address { font-family:monospace; font-size:0.65rem; color:var(--text-muted); background:rgba(0,0,0,0.3); padding:2px 12px; border-radius:12px; border:1px solid var(--gold-dim); }
+        .trading-header .price-group { text-align:right; }
+        .trading-header .price { font-size:1.8rem; font-weight:700; color:white; font-family:'Orbitron',monospace; letter-spacing:1px; }
+        .trading-header .change { font-size:0.9rem; font-weight:600; margin-left:10px; }
+        .trading-header .change.positive { color:var(--success); }
+        .trading-header .change.negative { color:var(--danger); }
+        .trading-header .label { font-size:0.6rem; color:var(--text-muted); font-family:'Orbitron',monospace; }
 
-        /* ===== TIMEFRAMES ===== */
-        .timeframes {
-            display: flex;
-            gap: 4px;
-            margin: 6px 0 0;
-            flex-wrap: wrap;
-        }
-        .timeframes .tf {
-            padding: 2px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 0.6rem;
-            font-family: 'Orbitron', monospace;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .timeframes .tf.active {
-            background: var(--gold-cosmic);
-            color: #000;
-            border-color: var(--gold-cosmic);
-            box-shadow: 0 0 20px rgba(212,175,55,0.3);
-        }
-        .timeframes .tf:hover { border-color: var(--gold-cosmic); }
-
-        /* ===== GRÁFICO PROFESIONAL ===== */
+        /* ===== GRÁFICO ===== */
         .chart-wrapper {
-            background: rgba(0,0,0,0.5);
-            border-radius: var(--radius);
-            border: 1px solid var(--gold-dim);
-            padding: 12px;
-            margin-bottom: 12px;
+            background:rgba(0,0,0,0.5);
+            border-radius:var(--radius);
+            border:1px solid var(--gold-dim);
+            padding:12px;
         }
         .chart-wrapper #chart-container {
-            width: 100%;
-            height: 460px;
+            width:100%;
+            height:440px;
         }
 
-        /* ===== INDICADORES ===== */
-        .indicators-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 6px 0 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 10px;
+        /* ===== INDICADORES Y TIMEFRAMES (dentro del gráfico) ===== */
+        .chart-toolbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-bottom:8px;
         }
+        .timeframes { display:flex; gap:4px; flex-wrap:wrap; }
+        .timeframes .tf {
+            padding:2px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);
+            background:transparent; color:var(--text-muted); font-size:0.55rem;
+            font-family:'Orbitron',monospace; cursor:pointer; transition:all 0.2s;
+        }
+        .timeframes .tf.active { background:var(--gold-cosmic); color:#000; border-color:var(--gold-cosmic); box-shadow:0 0 20px rgba(212,175,55,0.3); }
+        .timeframes .tf:hover { border-color:var(--gold-cosmic); }
+
+        .indicators-bar { display:flex; gap:6px; flex-wrap:wrap; }
         .indicators-bar .ind-btn {
-            padding: 4px 14px;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 0.55rem;
-            font-family: 'Orbitron', monospace;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding:2px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);
+            background:transparent; color:var(--text-muted); font-size:0.5rem;
+            font-family:'Orbitron',monospace; cursor:pointer; transition:all 0.2s;
         }
-        .indicators-bar .ind-btn:hover { border-color: var(--gold-cosmic); color: white; }
-        .indicators-bar .ind-btn.active { background: rgba(212,175,55,0.1); border-color: var(--gold-cosmic); color: var(--gold-cosmic); }
+        .indicators-bar .ind-btn:hover { border-color:var(--gold-cosmic); color:white; }
+        .indicators-bar .ind-btn.active { background:rgba(212,175,55,0.1); border-color:var(--gold-cosmic); color:var(--gold-cosmic); }
 
-        /* ===== ACCIONES PRINCIPALES (COMPRAR / VENDER) ===== */
-        .action-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 10px 0 16px;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .action-bar .left-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .action-bar .right-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .action-bar .btn-action {
-            padding: 8px 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: rgba(255,255,255,0.03);
-            color: var(--text-secondary);
-            font-size: 0.7rem;
-            font-family: 'Orbitron', monospace;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-        }
-        .action-bar .btn-action:hover { border-color: var(--gold-cosmic); color: white; background: rgba(255,255,255,0.05); }
-        
-        .action-bar .btn-buy {
-            background: linear-gradient(135deg, #00b894, #00897b);
-            border-color: transparent;
-            color: white;
-            -webkit-text-fill-color: white;
-            padding: 10px 32px;
-            font-size: 0.85rem;
-            box-shadow: 0 0 30px rgba(0,184,148,0.2);
-        }
-        .action-bar .btn-buy:hover { transform: scale(1.03); box-shadow: 0 0 50px rgba(0,184,148,0.4); }
-        
-        .action-bar .btn-sell {
-            background: linear-gradient(135deg, #ff3366, #cc0033);
-            border-color: transparent;
-            color: white;
-            -webkit-text-fill-color: white;
-            padding: 10px 32px;
-            font-size: 0.85rem;
-            box-shadow: 0 0 30px rgba(255,51,102,0.2);
-        }
-        .action-bar .btn-sell:hover { transform: scale(1.03); box-shadow: 0 0 50px rgba(255,51,102,0.4); }
-
-        /* ===== PANEL DE TRADING ===== */
+        /* ===== PANEL DE TRADING (derecha) ===== */
         .trade-panel {
-            background: rgba(15,45,26,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            margin-top: 12px;
-            display: none;
-            backdrop-filter: blur(10px);
+            background:rgba(15,45,26,0.2);
+            border:1px solid var(--gold-dim);
+            border-radius:var(--radius);
+            padding:16px 18px;
+            backdrop-filter:blur(10px);
+            display:flex;
+            flex-direction:column;
+            gap:10px;
         }
-        .trade-panel.active { display: block; animation: fadeInUp 0.25s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .trade-panel .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .trade-panel .balance-row {
-            display: flex;
-            gap: 20px;
-            background: rgba(0,0,0,0.25);
-            border-radius: 8px;
-            padding: 8px 16px;
-            margin-bottom: 14px;
-            font-size: 0.75rem;
+            display:flex;
+            justify-content:space-between;
+            background:rgba(0,0,0,0.25);
+            border-radius:8px;
+            padding:6px 12px;
+            font-size:0.7rem;
+            flex-wrap:wrap;
+            gap:4px;
         }
-        .trade-panel .balance-row .item { color: var(--text-muted); }
-        .trade-panel .balance-row .value { color: white; font-weight: 600; }
-        .trade-panel .input-group { margin-bottom: 10px; }
-        .trade-panel .input-group label { display: block; font-size: 0.6rem; color: var(--text-muted); font-family: 'Orbitron', monospace; margin-bottom: 4px; }
+        .trade-panel .balance-row .item { color:var(--text-muted); }
+        .trade-panel .balance-row .value { color:white; font-weight:600; }
+
+        .trade-panel .input-group { margin-bottom:6px; }
+        .trade-panel .input-group label {
+            display:block; font-size:0.55rem; color:var(--text-muted);
+            font-family:'Orbitron',monospace; margin-bottom:2px;
+        }
         .trade-panel .input-group input {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--gold-dim);
-            border-radius: 8px;
-            color: white;
-            font-size: 1rem;
-            outline: none;
+            width:100%; padding:8px 12px;
+            background:rgba(0,0,0,0.4);
+            border:1px solid var(--gold-dim);
+            border-radius:8px;
+            color:white; font-size:0.9rem; outline:none;
         }
-        .trade-panel .input-group input:focus { border-color: var(--gold-cosmic); }
-        .trade-panel .price-info { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .trade-panel .price-info .value { color: white; font-weight: 600; }
+        .trade-panel .input-group input:focus { border-color:var(--gold-cosmic); }
+
+        .trade-panel .price-info {
+            display:flex;
+            justify-content:space-between;
+            font-size:0.65rem;
+            color:var(--text-muted);
+            padding:2px 0;
+            border-bottom:1px solid rgba(255,255,255,0.03);
+        }
+        .trade-panel .price-info .value { color:white; font-weight:600; }
+        .trade-panel .gas-info {
+            font-size:0.6rem;
+            color:var(--text-muted);
+            text-align:right;
+            padding:2px 0;
+        }
         .trade-panel .terms-check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.55rem;
-            color: var(--text-muted);
-            margin: 12px 0;
+            display:flex;
+            align-items:center;
+            gap:6px;
+            font-size:0.5rem;
+            color:var(--text-muted);
+            margin:4px 0;
         }
-        .trade-panel .terms-check input { accent-color: var(--gold-cosmic); }
-        .trade-panel .btn-execute { width: 100%; padding: 12px; justify-content: center; font-size: 0.8rem; margin-top: 6px; }
+        .trade-panel .terms-check input { accent-color:var(--gold-cosmic); }
+
+        .trade-panel .btn-execute {
+            width:100%;
+            padding:10px;
+            justify-content:center;
+            font-size:0.75rem;
+            margin-top:4px;
+        }
+        .trade-panel .btn-execute.buy { background:linear-gradient(135deg, #00b894, #00897b); border-color:transparent; color:white; }
+        .trade-panel .btn-execute.sell { background:linear-gradient(135deg, #ff3366, #cc0033); border-color:transparent; color:white; }
+        .trade-panel .btn-execute:hover { transform:scale(1.02); }
+
+        .trade-panel .trade-status {
+            text-align:center;
+            font-size:0.6rem;
+            color:var(--text-muted);
+            min-height:18px;
+        }
+
+        /* ===== ÓRDENES E HISTORIAL ===== */
+        .orders-grid {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+            margin-top:16px;
+        }
+        .orders-grid .order-card {
+            background:rgba(15,45,26,0.15);
+            border:1px solid var(--gold-dim);
+            border-radius:var(--radius);
+            padding:14px 16px;
+        }
+        .orders-grid .order-card h4 {
+            font-family:'Orbitron',monospace;
+            font-size:0.7rem;
+            color:var(--gold-cosmic);
+            margin-bottom:6px;
+        }
+        .orders-grid .order-card .order-item {
+            display:flex;
+            justify-content:space-between;
+            padding:4px 0;
+            border-bottom:1px solid rgba(255,255,255,0.03);
+            font-size:0.6rem;
+            color:var(--text-secondary);
+        }
+        .orders-grid .order-card .order-item:last-child { border-bottom:none; }
+        .orders-grid .order-card .order-item .type-buy { color:var(--success); }
+        .orders-grid .order-card .order-item .type-sell { color:var(--danger); }
+        .orders-grid .order-card .order-item .status-filled { color:var(--success); }
+        .orders-grid .order-card .order-item .status-open { color:var(--gold-cosmic); }
+
+        /* ===== AVISO LEGAL ===== */
+        .legal-notice {
+            margin-top:16px;
+            padding:12px 16px;
+            border:1px solid var(--gold-dim);
+            border-radius:var(--radius);
+            background:rgba(0,0,0,0.2);
+            text-align:center;
+            font-size:0.5rem;
+            color:var(--text-muted);
+            line-height:1.6;
+        }
+        .legal-notice a { color:var(--gold-cosmic); text-decoration:underline; }
 
         /* ===== FOOTER ===== */
         .footer {
-            margin-top: 24px;
-            padding-top: 14px;
-            border-top: 1px solid var(--gold-dim);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            margin-top:20px;
+            padding-top:14px;
+            border-top:1px solid var(--gold-dim);
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:10px;
         }
-        .footer-text { color: var(--text-muted); font-size: 0.5rem; letter-spacing: 0.5px; font-family: 'Orbitron', monospace; }
-        .footer-text .brand { color: var(--gold-cosmic); }
-        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
-        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.5rem; transition: var(--transition); font-family: 'Orbitron', monospace; }
-        .footer-links a:hover { color: var(--gold-cosmic); }
-        .footer-hex { background: var(--verde-bosque); color: var(--gold-cosmic); padding: 2px 8px; border-radius: 4px; font-size: 0.45rem; font-weight: 700; border: 1px solid var(--gold-cosmic); font-family: 'Orbitron', monospace; }
+        .footer-text { color:var(--text-muted); font-size:0.5rem; letter-spacing:0.5px; font-family:'Orbitron',monospace; }
+        .footer-text .brand { color:var(--gold-cosmic); }
+        .footer-links { display:flex; gap:8px; flex-wrap:wrap; }
+        .footer-links a { color:var(--text-muted); text-decoration:none; font-size:0.5rem; transition:var(--transition); font-family:'Orbitron',monospace; }
+        .footer-links a:hover { color:var(--gold-cosmic); }
+        .footer-hex { background:var(--verde-bosque); color:var(--gold-cosmic); padding:2px 8px; border-radius:4px; font-size:0.45rem; font-weight:700; border:1px solid var(--gold-cosmic); font-family:'Orbitron',monospace; }
 
+        /* ===== TOAST ===== */
         .toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.7rem;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 5000;
-            pointer-events: none;
-            font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(212,175,55,0.15);
-            max-width: 90%;
-            text-align: center;
+            position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(80px);
+            background:var(--verde-bosque); color:var(--gold-cosmic);
+            padding:10px 20px; border-radius:var(--radius); font-weight:600; font-size:0.7rem;
+            opacity:0; transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+            z-index:5000; pointer-events:none;
+            font-family:'Orbitron',monospace;
+            border:1px solid rgba(212,175,55,0.15);
+            max-width:90%; text-align:center;
         }
-        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--danger); color: white; }
+        .toast.active { opacity:1; transform:translateX(-50%) translateY(0); }
+        .toast.error { background:var(--danger); color:white; }
 
+        /* ===== MODALES ===== */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            padding: 20px;
+            position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);
+            display:none; align-items:center; justify-content:center;
+            z-index:3000; padding:20px;
         }
-        .modal-overlay.active { display: flex; }
+        .modal-overlay.active { display:flex; }
         .modal-content {
-            background: rgba(15,45,26,0.95);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 24px;
-            max-width: 450px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
+            background:rgba(15,45,26,0.95); border:1px solid var(--gold-dim);
+            border-radius:var(--radius); padding:24px;
+            max-width:450px; width:100%; max-height:90vh; overflow-y:auto;
+            position:relative;
         }
-        .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; transition: var(--transition); }
-        .modal-close:hover { color: white; }
-        .modal-title { font-family: 'Orbitron', monospace; color: var(--gold-cosmic); font-size: 1rem; margin-bottom: 8px; }
+        .modal-close { position:absolute; top:12px; right:16px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer; transition:var(--transition); }
+        .modal-close:hover { color:white; }
+        .modal-title { font-family:'Orbitron',monospace; color:var(--gold-cosmic); font-size:1rem; margin-bottom:8px; }
 
-        @media (max-width: 768px) {
-            .trading-header { flex-direction: column; align-items: stretch; gap: 8px; }
-            .trading-header .price-group { text-align: left; }
-            .action-bar { flex-direction: column; align-items: stretch; }
-            .action-bar .left-actions, .action-bar .right-actions { justify-content: center; }
-            .chart-wrapper #chart-container { height: 300px; }
-            .trade-panel .grid-2 { grid-template-columns: 1fr; }
+        @media (max-width:1024px) {
+            .trading-grid { grid-template-columns:1fr; }
+            .orders-grid { grid-template-columns:1fr; }
+            .chart-wrapper #chart-container { height:320px; }
+        }
+        @media (max-width:600px) {
+            .trading-header { flex-direction:column; align-items:stretch; gap:6px; }
+            .trading-header .price-group { text-align:left; }
+            .trading-header .price { font-size:1.4rem; }
+            .chart-wrapper #chart-container { height:240px; }
+            .app { padding:12px; }
         }
     </style>
 </head>
@@ -470,7 +392,6 @@
     <div class="nebula nebula-3"></div>
 
     <div class="app">
-
         <!-- HEADER -->
         <header class="header">
             <a href="#" class="logo" onclick="event.preventDefault()">
@@ -508,56 +429,77 @@
             </div>
         </div>
 
-        <!-- GRÁFICO -->
-        <div class="chart-wrapper">
-            <div id="chart-container"></div>
-        </div>
-
-        <!-- INDICADORES -->
-        <div class="indicators-bar">
-            <button class="ind-btn active" data-ind="ma" onclick="toggleIndicator('ma')">MA</button>
-            <button class="ind-btn active" data-ind="bol" onclick="toggleIndicator('bol')">BOL</button>
-            <button class="ind-btn" data-ind="rsi" onclick="toggleIndicator('rsi')">RSI</button>
-            <button class="ind-btn active" data-ind="volume" onclick="toggleIndicator('volume')">Volume</button>
-            <button class="ind-btn" data-ind="macd" onclick="toggleIndicator('macd')">MACD</button>
-        </div>
-
-        <!-- ACCIONES -->
-        <div class="action-bar">
-            <div class="left-actions">
-                <button class="btn-action" onclick="abrirPosicion()">📍 Posición</button>
-                <button class="btn-action" onclick="abrirRecibir()">📥 Recibir</button>
-                <button class="btn-action" onclick="abrirMas()">⚙️ Más</button>
+        <!-- GRID PRINCIPAL: GRÁFICO + PANEL DE TRADING -->
+        <div class="trading-grid">
+            <!-- COLUMNA IZQUIERDA: GRÁFICO -->
+            <div class="chart-wrapper">
+                <div class="chart-toolbar">
+                    <div class="indicators-bar">
+                        <button class="ind-btn active" data-ind="ma" onclick="toggleIndicator('ma')">MA</button>
+                        <button class="ind-btn active" data-ind="bol" onclick="toggleIndicator('bol')">BOL</button>
+                        <button class="ind-btn" data-ind="rsi" onclick="toggleIndicator('rsi')">RSI</button>
+                        <button class="ind-btn active" data-ind="volume" onclick="toggleIndicator('volume')">Volume</button>
+                        <button class="ind-btn" data-ind="macd" onclick="toggleIndicator('macd')">MACD</button>
+                    </div>
+                </div>
+                <div id="chart-container"></div>
             </div>
-            <div class="right-actions">
-                <button class="btn-action btn-sell" onclick="toggleTradePanel('sell')">📉 VENDER</button>
-                <button class="btn-action btn-buy" onclick="toggleTradePanel('buy')">📈 COMPRAR</button>
-            </div>
-        </div>
 
-        <!-- PANEL DE TRADING -->
-        <div class="trade-panel" id="tradePanel">
-            <div class="balance-row">
-                <span class="item">STOKS: <span class="value" id="balSTOKS">0.00</span></span>
-                <span class="item">MXN: <span class="value" id="balMXN">0.00</span></span>
-            </div>
-            <div class="grid-2">
+            <!-- COLUMNA DERECHA: PANEL DE TRADING -->
+            <div class="trade-panel" id="tradePanel">
+                <div class="balance-row">
+                    <span class="item">STOKS: <span class="value" id="balSTOKS">0.00</span></span>
+                    <span class="item">MXN: <span class="value" id="balMXN">0.00</span></span>
+                </div>
                 <div class="input-group">
                     <label>Cantidad de STOKS</label>
                     <input type="number" id="tradeAmount" step="0.01" placeholder="0.00" oninput="calcTotal()" />
                 </div>
-                <div class="input-group">
-                    <label>Precio unitario</label>
-                    <input type="text" id="priceRef" readonly value="0.0000" style="background:rgba(0,0,0,0.2);border:1px solid var(--gold-dim);border-radius:8px;padding:10px;color:white;font-weight:600;" />
+                <div class="price-info">
+                    <span>Precio unitario (referencia)</span>
+                    <span class="value" id="priceRef">0.0000</span>
+                </div>
+                <div class="price-info">
+                    <span>Total estimado</span>
+                    <span class="value" id="totalEst">0.00 MXN</span>
+                </div>
+                <div class="gas-info">
+                    ⛽ Costo de gas estimado: <span id="gasEst">-- MATIC</span>
+                </div>
+                <div class="terms-check">
+                    <input type="checkbox" id="acceptTerms" />
+                    <label for="acceptTerms">He leído y acepto los <a href="#" onclick="alert('Términos completos')" style="color:var(--gold-cosmic);text-decoration:underline;">Términos y Condiciones</a></label>
+                </div>
+                <button class="btn btn-execute buy" onclick="ejecutarOrden()" id="btnExecute">🚀 COMPRAR STOKS</button>
+                <div class="trade-status" id="tradeStatus"></div>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                    <button class="btn btn-success btn-sm" style="flex:1;justify-content:center;" onclick="setTradeMode('buy')">Comprar</button>
+                    <button class="btn btn-danger btn-sm" style="flex:1;justify-content:center;" onclick="setTradeMode('sell')">Vender</button>
                 </div>
             </div>
-            <div class="price-info"><span>Total estimado</span><span class="value" id="totalEst">0.00 MXN</span></div>
-            <div class="terms-check">
-                <input type="checkbox" id="acceptTerms" />
-                <label for="acceptTerms">Acepto los <a href="#" onclick="alert('Términos completos')" style="color:var(--gold-cosmic);text-decoration:underline;">Términos de Trading</a></label>
+        </div>
+
+        <!-- ÓRDENES ABIERTAS E HISTORIAL -->
+        <div class="orders-grid">
+            <div class="order-card">
+                <h4>📋 Órdenes Abiertas</h4>
+                <div id="openOrders">
+                    <div class="order-item">Conecta tu wallet para ver tus órdenes.</div>
+                </div>
             </div>
-            <button class="btn btn-gold btn-execute" onclick="ejecutarOrden()" id="btnExecute">🚀 EJECUTAR ORDEN</button>
-            <div id="tradeStatus" class="text-center text-xs text-[#8ba3c7] mt-2 min-h-[20px]"></div>
+            <div class="order-card">
+                <h4>📜 Historial</h4>
+                <div id="historyOrders">
+                    <div class="order-item">Conecta tu wallet para ver tu historial.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AVISO LEGAL -->
+        <div class="legal-notice">
+            ⚠️ Aviso Legal y Términos (resumen): El trading de STOKS implica riesgos. Csariel's no ofrece asesoría financiera.
+            Las transacciones son irreversibles. Jurisdicción: Puebla, México.
+            <a href="../../terminos-completos.html">Términos completos (81 artículos)</a>
         </div>
 
         <!-- FOOTER -->
@@ -565,21 +507,31 @@
             <span class="footer-text"><span class="brand">◈ Csariel's</span> — STOKS Trading · Utility Token</span>
             <div class="footer-links">
                 <a href="../usuario/index.html">👥 Mi Red</a>
+                <a href="../live/index.html">📹 Live</a>
                 <a href="../../terminos-completos.html">📜 Términos</a>
                 <span class="footer-hex">◈</span>
             </div>
         </footer>
     </div>
 
-    <!-- MODALES -->
+    <!-- ===== MODALES ===== -->
     <div class="modal-overlay" id="positionModal">
         <div class="modal-content" style="position:relative;">
             <button class="modal-close" onclick="cerrarPosicion()">✕</button>
             <h3 class="modal-title">📍 Posición</h3>
             <div id="positionContent">
-                <div class="flex justify-between py-2 border-b border-[rgba(255,255,255,0.05)]"><span class="text-[#8ba3c7]">STOKS en cartera</span><span class="text-white font-bold" id="posSTOKS">0.00</span></div>
-                <div class="flex justify-between py-2 border-b border-[rgba(255,255,255,0.05)]"><span class="text-[#8ba3c7]">Valor en MXN</span><span class="text-[#D4AF37] font-bold" id="posMXN">0.00</span></div>
-                <div class="flex justify-between py-2"><span class="text-[#8ba3c7]">Precio promedio</span><span class="text-white font-bold" id="posAvg">0.0000</span></div>
+                <div class="flex justify-between py-2 border-b border-[rgba(255,255,255,0.05)]">
+                    <span class="text-[#8ba3c7]">STOKS en cartera</span>
+                    <span class="text-white font-bold" id="posSTOKS">0.00</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-[rgba(255,255,255,0.05)]">
+                    <span class="text-[#8ba3c7]">Valor en MXN</span>
+                    <span class="text-[#D4AF37] font-bold" id="posMXN">0.00</span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-[#8ba3c7]">Precio promedio</span>
+                    <span class="text-white font-bold" id="posAvg">0.0000</span>
+                </div>
             </div>
             <button class="btn btn-outline" onclick="cerrarPosicion()" style="width:100%;justify-content:center;margin-top:12px;">Cerrar</button>
         </div>
@@ -590,7 +542,9 @@
             <button class="modal-close" onclick="cerrarRecibir()">✕</button>
             <h3 class="modal-title">📥 Recibir STOKS</h3>
             <p class="text-[#8ba3c7] text-sm mb-3">Deposita STOKS a esta dirección:</p>
-            <div style="background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;padding:12px;word-break:break-all;font-family:monospace;font-size:0.7rem;color:var(--text-secondary);">0x45c6455aa01356609d96b659c6eb880b7e1d046d</div>
+            <div style="background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;padding:12px;word-break:break-all;font-family:monospace;font-size:0.7rem;color:var(--text-secondary);">
+                0x45c6455aa01356609d96b659c6eb880b7e1d046d
+            </div>
             <button class="btn btn-gold" onclick="copiarDireccion()" style="width:100%;justify-content:center;margin-top:12px;"><i class="fas fa-copy"></i> Copiar dirección</button>
         </div>
     </div>
@@ -599,7 +553,7 @@
 
     <script>
         // ================================================================
-        // VARIABLES GLOBALES
+        // 🔥 LÓGICA DE TRADING - PANTALLA ANCHA PROFESIONAL
         // ================================================================
         let supabaseClient = null;
         let walletAddress = localStorage.getItem('csariels_wallet') || '0x00000...00000';
@@ -613,6 +567,19 @@
         let chartData = [];
         let indicators = { ma: true, bol: true, rsi: false, volume: true, macd: false };
         let toastTimeout = null;
+
+        // DOM refs
+        const priceDisplay = document.getElementById('currentPrice');
+        const changeDisplay = document.getElementById('priceChange');
+        const walletDisplay = document.getElementById('walletDisplay');
+        const balSTOKS = document.getElementById('balSTOKS');
+        const balMXN = document.getElementById('balMXN');
+        const tradeAmount = document.getElementById('tradeAmount');
+        const priceRef = document.getElementById('priceRef');
+        const totalEst = document.getElementById('totalEst');
+        const gasEst = document.getElementById('gasEst');
+        const tradeStatus = document.getElementById('tradeStatus');
+        const btnExecute = document.getElementById('btnExecute');
 
         // ================================================================
         // 🔒 INICIALIZAR
@@ -641,9 +608,11 @@
                 localStorage.setItem('csariels_wallet', walletAddress);
                 document.getElementById('btnConnectWallet').innerHTML = `<i class="fas fa-check"></i> ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
                 document.getElementById('btnConnectWallet').classList.add('btn-success');
-                document.getElementById('walletDisplay').textContent = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
+                walletDisplay.textContent = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
                 mostrarToast('🦊 Wallet conectada');
                 cargarBalances();
+                cargarOrdenes();
+                cargarHistorial();
             } catch (e) { mostrarToast('❌ Error al conectar', 'error'); }
         }
 
@@ -651,16 +620,70 @@
         // 💰 CARGAR BALANCES
         // ================================================================
         async function cargarBalances() {
-            if (!supabaseClient || walletAddress === '0x00000...00000') { balSTOKS.textContent = '1250.00'; balMXN.textContent = '5000.00'; return; }
+            if (!supabaseClient || walletAddress === '0x00000...00000') {
+                balSTOKS.textContent = '1250.00';
+                balMXN.textContent = '5000.00';
+                return;
+            }
             try {
                 const { data } = await supabaseClient.from('user_balances').select('tok, usdt').eq('user_id', walletAddress).maybeSingle();
-                if (data) { balSTOKS.textContent = data.tok?.toFixed(2) || '0.00'; balMXN.textContent = data.usdt?.toFixed(2) || '0.00'; }
-                else { balSTOKS.textContent = '1000.00'; balMXN.textContent = '1000.00'; }
+                if (data) {
+                    balSTOKS.textContent = data.tok?.toFixed(2) || '0.00';
+                    balMXN.textContent = data.usdt?.toFixed(2) || '0.00';
+                } else {
+                    balSTOKS.textContent = '1000.00';
+                    balMXN.textContent = '1000.00';
+                }
             } catch (e) { console.error(e); }
         }
 
         // ================================================================
-        // 📊 GENERAR DATOS
+        // 📊 CARGAR ÓRDENES E HISTORIAL
+        // ================================================================
+        async function cargarOrdenes() {
+            if (!supabaseClient || walletAddress === '0x00000...00000') {
+                document.getElementById('openOrders').innerHTML = '<div class="order-item">Conecta tu wallet para ver tus órdenes.</div>';
+                return;
+            }
+            try {
+                const { data } = await supabaseClient.from('orders').select('*').eq('user_id', walletAddress).eq('status', 'open').order('created_at', { ascending: false });
+                if (data && data.length > 0) {
+                    document.getElementById('openOrders').innerHTML = data.map(o => `
+                        <div class="order-item">
+                            <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
+                            <span>${o.amount} STOKS @ $${o.price}</span>
+                            <span class="status-open">${o.status}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('openOrders').innerHTML = '<div class="order-item">No tienes órdenes abiertas.</div>';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function cargarHistorial() {
+            if (!supabaseClient || walletAddress === '0x00000...00000') {
+                document.getElementById('historyOrders').innerHTML = '<div class="order-item">Conecta tu wallet para ver tu historial.</div>';
+                return;
+            }
+            try {
+                const { data } = await supabaseClient.from('orders').select('*').eq('user_id', walletAddress).order('created_at', { ascending: false }).limit(20);
+                if (data && data.length > 0) {
+                    document.getElementById('historyOrders').innerHTML = data.map(o => `
+                        <div class="order-item">
+                            <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
+                            <span>${o.amount} STOKS @ $${o.price}</span>
+                            <span class="${o.status === 'filled' ? 'status-filled' : 'status-open'}">${o.status}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('historyOrders').innerHTML = '<div class="order-item">Aún no tienes operaciones.</div>';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // ================================================================
+        // 📊 GENERAR DATOS DEL GRÁFICO
         // ================================================================
         function generarDatosCandlestick(count = 120) {
             const data = []; let base = 1.35; const now = Date.now(); const intervalMs = 60000;
@@ -678,13 +701,14 @@
         }
 
         // ================================================================
-        // 📈 GRÁFICO PROFESIONAL
+        // 📈 INICIALIZAR GRÁFICO
         // ================================================================
         function initChart() {
             if (chart) return;
             const container = document.getElementById('chart-container');
             chart = LightweightCharts.createChart(container, {
-                width: container.clientWidth, height: 460,
+                width: container.clientWidth,
+                height: 440,
                 layout: { background: { color: 'transparent' }, textColor: '#d1d4dc' },
                 grid: { vertLines: { color: 'rgba(255,255,255,0.05)' }, horzLines: { color: 'rgba(255,255,255,0.05)' } },
                 crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
@@ -704,7 +728,9 @@
             calcularBollinger(chartData);
             actualizarPrecio();
 
-            window.addEventListener('resize', () => { if (chart) chart.applyOptions({ width: container.clientWidth }); });
+            window.addEventListener('resize', () => {
+                if (chart) chart.applyOptions({ width: container.clientWidth });
+            });
         }
 
         // ================================================================
@@ -749,11 +775,13 @@
             const last = chartData[chartData.length - 1]; if (!last) return;
             const price = last.close; const prev = chartData[chartData.length - 2]?.close || price;
             const change = ((price - prev) / prev * 100) || 0;
-            document.getElementById('currentPrice').textContent = price.toFixed(4);
-            const el = document.getElementById('priceChange');
+            priceDisplay.textContent = price.toFixed(4);
+            const el = changeDisplay;
             el.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
             el.className = `change ${change >= 0 ? 'positive' : 'negative'}`;
-            document.getElementById('priceRef').value = price.toFixed(4);
+            priceRef.textContent = price.toFixed(4);
+            const gas = (price * 0.001).toFixed(4);
+            gasEst.textContent = gas + ' MATIC';
             calcTotal();
         }
 
@@ -806,24 +834,20 @@
         }
 
         // ================================================================
-        // 🧮 PANEL DE TRADING
+        // 🧮 TRADING
         // ================================================================
-        function toggleTradePanel(mode) {
+        function setTradeMode(mode) {
             tradeMode = mode;
-            document.getElementById('tradePanel').classList.add('active');
-            const btn = document.getElementById('btnExecute');
-            if (mode === 'buy') { btn.innerHTML = '🚀 COMPRAR STOKS'; btn.className = 'btn btn-gold btn-execute'; }
-            else { btn.innerHTML = '💸 VENDER STOKS'; btn.className = 'btn btn-danger btn-execute'; }
-            document.getElementById('tradePanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            document.getElementById('tradeAmount').focus();
-            calcTotal();
+            btnExecute.innerHTML = mode === 'buy' ? '🚀 COMPRAR STOKS' : '💸 VENDER STOKS';
+            btnExecute.className = 'btn btn-execute ' + (mode === 'buy' ? 'buy' : 'sell');
         }
 
         function calcTotal() {
-            const amount = parseFloat(document.getElementById('tradeAmount').value) || 0;
+            const amount = parseFloat(tradeAmount.value) || 0;
             const total = amount * currentPrice;
-            document.getElementById('totalEst').textContent = total.toFixed(2) + ' MXN';
-            document.getElementById('priceRef').value = currentPrice.toFixed(4);
+            totalEst.textContent = total.toFixed(2) + ' MXN';
+            const gas = (amount * 0.001).toFixed(4);
+            gasEst.textContent = gas + ' MATIC';
         }
 
         // ================================================================
@@ -832,13 +856,15 @@
         async function ejecutarOrden() {
             if (walletAddress === '0x00000...00000') { tradeStatus.textContent = '❌ Conecta tu wallet.'; return; }
             if (!document.getElementById('acceptTerms').checked) { tradeStatus.textContent = '⚠️ Acepta los términos.'; return; }
-            const amount = parseFloat(document.getElementById('tradeAmount').value);
+            const amount = parseFloat(tradeAmount.value);
             if (!amount || amount <= 0) { tradeStatus.textContent = '⚠️ Cantidad válida.'; return; }
             const price = currentPrice; const total = amount * price;
             tradeStatus.textContent = '⏳ Procesando...';
             try {
                 if (supabaseClient) {
-                    const { error } = await supabaseClient.from('orders').insert([{ user_id: walletAddress, type: tradeMode, amount, price, total, status: 'filled' }]);
+                    const { error } = await supabaseClient.from('orders').insert([{
+                        user_id: walletAddress, type: tradeMode, amount, price, total, status: 'filled'
+                    }]);
                     if (error) throw error;
                     const { data: balance } = await supabaseClient.from('user_balances').select('tok, usdt').eq('user_id', walletAddress).maybeSingle();
                     if (balance) {
@@ -852,30 +878,15 @@
                     balSTOKS.textContent = tok.toFixed(2); balMXN.textContent = mxn.toFixed(2);
                 }
                 tradeStatus.textContent = `✅ ${amount} STOKS ${tradeMode === 'buy' ? 'comprados' : 'vendidos'}`;
-                document.getElementById('tradeAmount').value = ''; document.getElementById('totalEst').textContent = '0.00 MXN';
-                cargarBalances(); mostrarToast('✅ Orden ejecutada');
+                tradeAmount.value = ''; totalEst.textContent = '0.00 MXN';
+                cargarBalances(); cargarOrdenes(); cargarHistorial();
+                mostrarToast('✅ Orden ejecutada');
             } catch (e) { tradeStatus.textContent = '❌ Error: ' + e.message; }
         }
 
         // ================================================================
-        // 🛠️ ACCIONES
+        // 🛠️ TOAST Y ESTRELLAS
         // ================================================================
-        function abrirPosicion() {
-            document.getElementById('posSTOKS').textContent = document.getElementById('balSTOKS').textContent;
-            const tok = parseFloat(document.getElementById('balSTOKS').textContent) || 0;
-            document.getElementById('posMXN').textContent = (tok * currentPrice).toFixed(2);
-            document.getElementById('posAvg').textContent = currentPrice.toFixed(4);
-            document.getElementById('positionModal').classList.add('active');
-        }
-        function cerrarPosicion() { document.getElementById('positionModal').classList.remove('active'); }
-        function abrirRecibir() { document.getElementById('receiveModal').classList.add('active'); }
-        function cerrarRecibir() { document.getElementById('receiveModal').classList.remove('active'); }
-        function copiarDireccion() {
-            const text = '0x45c6455aa01356609d96b659c6eb880b7e1d046d';
-            navigator.clipboard.writeText(text).then(() => mostrarToast('✅ Dirección copiada')).catch(() => prompt('Copia manual:', text));
-        }
-        function abrirMas() { mostrarToast('📊 Panel de trading ampliado.'); toggleTradePanel('buy'); }
-
         function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
             toast.textContent = mensaje; toast.className = `toast${tipo ? ' error' : ''}`;
@@ -884,11 +895,26 @@
         }
 
         function initStars() {
-            const canvas = document.getElementById('stars-canvas'); const ctx = canvas.getContext('2d'); let width, height, stars = [], STAR_COUNT = 200;
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height, stars = [], STAR_COUNT = 200;
             function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
             function createStars() { stars = []; for (let i=0; i<STAR_COUNT; i++) stars.push({ x: Math.random()*width, y: Math.random()*height, radius: Math.random()*1.5+0.3, speed: Math.random()*0.015+0.005, opacity: Math.random()*0.7+0.3, twinkleSpeed: Math.random()*0.02+0.01, twinklePhase: Math.random()*Math.PI*2 }); }
-            function draw() { ctx.clearRect(0,0,width,height); for (let star of stars) { const opacity = star.opacity*(0.6+0.4*Math.sin(star.twinklePhase)); ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI*2); ctx.fillStyle = `rgba(255,255,255,${opacity})`; ctx.fill(); star.twinklePhase += star.twinkleSpeed; star.y += star.speed; if (star.y > height) { star.y=0; star.x=Math.random()*width; } } requestAnimationFrame(draw); }
-            resize(); createStars(); draw(); window.addEventListener('resize', () => { resize(); createStars(); });
+            function draw() {
+                ctx.clearRect(0,0,width,height);
+                for (let star of stars) {
+                    const opacity = star.opacity*(0.6+0.4*Math.sin(star.twinklePhase));
+                    ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) { star.y=0; star.x=Math.random()*width; }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize(); createStars(); draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
         }
 
         // ================================================================
@@ -899,25 +925,20 @@
             if (walletAddress && walletAddress !== '0x00000...00000') {
                 document.getElementById('btnConnectWallet').innerHTML = `<i class="fas fa-check"></i> ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
                 document.getElementById('btnConnectWallet').classList.add('btn-success');
-                document.getElementById('walletDisplay').textContent = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
-                cargarBalances();
+                walletDisplay.textContent = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
+                cargarBalances(); cargarOrdenes(); cargarHistorial();
             }
             setInterval(simularActualizacion, 3000);
-            console.log('📈 Csariel\'s STOKS Trading (Profesional)');
+            console.log('📈 Csariel\'s STOKS Trading - Pantalla Ancha');
         });
 
+        // Exponer funciones globales
         window.conectarWallet = conectarWallet;
         window.setTimeframe = setTimeframe;
         window.toggleIndicator = toggleIndicator;
-        window.toggleTradePanel = toggleTradePanel;
+        window.setTradeMode = setTradeMode;
         window.ejecutarOrden = ejecutarOrden;
         window.calcTotal = calcTotal;
-        window.abrirPosicion = abrirPosicion;
-        window.cerrarPosicion = cerrarPosicion;
-        window.abrirRecibir = abrirRecibir;
-        window.cerrarRecibir = cerrarRecibir;
-        window.copiarDireccion = copiarDireccion;
-        window.abrirMas = abrirMas;
         window.mostrarToast = mostrarToast;
     </script>
 </body>
