@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="titulo_foro">Csariel's · Foro Social</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <meta name="description" data-i18n="descripcion_foro" content="Comunidad, publicaciones y debates en Csariel's" />
+
+    <!-- 🔒 CSP -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ================================================================
+           ESTILOS CSARIEL'S (MANTENIDOS)
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15,45,26,0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 10px; font-size: 0.5rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-trading {
+            background: linear-gradient(135deg, var(--quantum), #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            animation: pulse-trading 2s ease-in-out infinite;
+        }
+        .btn-trading:hover {
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-trading {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        }
+        .btn-internet {
+            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
+        }
+        .btn-internet:hover {
+            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-internet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
+        }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover {
+            box-shadow: 0 0 40px rgba(168,85,247,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover {
+            box-shadow: 0 0 40px rgba(0,212,255,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            border-radius: 30px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .status-dot.online {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+        }
+
+        /* ================================================================
+           SELECTOR DE IDIOMA
+           ================================================================ */
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212,175,55,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212,175,55,0.08);
+        }
+        .language-selector .lang-icon {
+            font-size: 0.7rem;
+            margin-right: 2px;
+        }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            color: var(--text-secondary);
+            background: rgba(212,175,55,0.05);
+        }
+        .lang-btn.active {
+            border-color: var(--gold-cosmic);
+            background: rgba(212,175,55,0.1);
+            color: var(--gold-cosmic);
+        }
+
+        /* ================================================================
+           FORO SOCIAL (TIPO REDDIT)
+           ================================================================ */
+
+        /* Barra de creación */
+        .create-post-bar {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+        .create-post-bar .input-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .create-post-bar .input-row input,
+        .create-post-bar .input-row select {
+            flex: 1;
+            min-width: 140px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .create-post-bar .input-row input:focus,
+        .create-post-bar .input-row select:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .create-post-bar .input-row input::placeholder {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        .create-post-bar .input-row select option {
+            background: var(--space-deep);
+            color: var(--text-primary);
+        }
+
+        /* Filtros */
+        .filters-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .filter-chip {
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--gold-dim);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filter-chip:hover {
+            border-color: var(--border-glow);
+            color: var(--text-secondary);
+        }
+        .filter-chip.active {
+            border-color: var(--gold-cosmic);
+            background: rgba(212,175,55,0.1);
+            color: var(--gold-cosmic);
+        }
+
+        /* Posts */
+        .post-card {
+            background: rgba(15,45,26,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+        .post-card:hover {
+            border-color: var(--border-glow);
+            background: rgba(15,45,26,0.3);
+        }
+        .post-card .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .post-card .post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .post-card .post-author {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+        .post-card .post-author .badge-author {
+            font-size: 0.4rem;
+            background: rgba(212,175,55,0.15);
+            color: var(--gold-cosmic);
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-family: 'Orbitron', monospace;
+        }
+        .post-card .post-time {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        .post-card .post-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .post-card .post-title a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .post-card .post-title a:hover {
+            color: var(--gold-cosmic);
+        }
+        .post-card .post-content {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin: 4px 0 10px;
+            line-height: 1.7;
+        }
+        .post-card .post-content img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            margin: 8px 0;
+            border: 1px solid var(--gold-dim);
+        }
+        .post-card .post-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .post-card .post-tags .tag {
+            font-size: 0.45rem;
+            background: rgba(212,175,55,0.08);
+            border: 1px solid rgba(212,175,55,0.1);
+            padding: 2px 10px;
+            border-radius: 12px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .post-card .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 8px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .post-card .post-actions .vote-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .post-card .post-actions .vote-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            padding: 2px 4px;
+        }
+        .post-card .post-actions .vote-btn:hover { color: var(--text-primary); }
+        .post-card .post-actions .vote-btn.upvoted { color: var(--success); }
+        .post-card .post-actions .vote-btn.downvoted { color: var(--danger); }
+        .post-card .post-actions .vote-score {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        .post-card .post-actions .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Space Grotesk', sans-serif;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        .post-card .post-actions .action-btn:hover {
+            background: rgba(212,175,55,0.05);
+            color: var(--text-primary);
+        }
+        .post-card .post-actions .action-btn i { font-size: 0.7rem; }
+
+        /* Comentarios */
+        .comments-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .comment {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0 8px 12px;
+            border-left: 2px solid var(--gold-dim);
+            margin-left: 8px;
+        }
+        .comment .comment-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.5rem;
+            flex-shrink: 0;
+        }
+        .comment .comment-body {
+            flex: 1;
+        }
+        .comment .comment-author {
+            font-weight: 600;
+            font-size: 0.65rem;
+            color: var(--text-primary);
+        }
+        .comment .comment-time {
+            font-size: 0.4rem;
+            color: var(--text-muted);
+            margin-left: 6px;
+        }
+        .comment .comment-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin: 2px 0;
+        }
+        .comment .comment-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 2px;
+        }
+        .comment .comment-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .comment .comment-actions button:hover { color: var(--text-primary); }
+
+        .comment-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .comment-input-row input {
+            flex: 1;
+            padding: 6px 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-size: 0.7rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .comment-input-row input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .comment-input-row input::placeholder {
+            color: var(--text-muted);
+            font-size: 0.6rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        @media (max-width: 480px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .create-post-bar .input-row { flex-direction: column; }
+            .post-card .post-title { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="../../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge" data-i18n="foro">Foro</span>
+            </a>
+            <div class="header-actions">
+                <!-- ===== SELECTOR DE IDIOMA ===== -->
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span data-i18n="conectado">Conectado</span>
+                </div>
+
+                <!-- ===== BOTONES ===== -->
+                <a href="../../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
+                </a>
+                <a href="../red/index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
+                </a>
+                <a href="../streaming/index.html" class="btn btn-danger btn-sm">
+                    <i class="fas fa-video"></i> <span data-i18n="live">Live</span>
+                </a>
+                <a href="../trading/index.html" class="btn btn-trading btn-sm">
+                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
+                </a>
+                <a href="../servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
+                </a>
+                <a href="../internet/index.html" class="btn btn-internet btn-sm">
+                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
+                </a>
+                <a href="../tienda/index.html" class="btn btn-tienda btn-sm">
+                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
+                </a>
+                <a href="../wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
+                </a>
+                <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- FORO SOCIAL -->
+        <!-- ================================================================ -->
+
+        <!-- BARRA DE CREACIÓN -->
+        <div class="create-post-bar">
+            <div class="input-row">
+                <input type="text" id="postTitle" data-i18n-placeholder="titulo_publicacion" placeholder="Título de la publicación..." />
+                <select id="postCategory">
+                    <option value="general" data-i18n="categoria_general">📌 General</option>
+                    <option value="tecnologia" data-i18n="categoria_tecnologia">💻 Tecnología</option>
+                    <option value="cultura" data-i18n="categoria_cultura">🎭 Cultura</option>
+                    <option value="deportes" data-i18n="categoria_deportes">⚽ Deportes</option>
+                    <option value="trading" data-i18n="categoria_trading">📈 Trading</option>
+                    <option value="ayuda" data-i18n="categoria_ayuda">🆘 Ayuda</option>
+                </select>
+                <button class="btn btn-gold" onclick="crearPublicacion()">
+                    <i class="fas fa-pen"></i> <span data-i18n="publicar">Publicar</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filters-row">
+            <button class="filter-chip active" data-filter="all" onclick="filtrarPublicaciones('all')">
+                <span data-i18n="todos">📋 Todos</span>
+            </button>
+            <button class="filter-chip" data-filter="popular" onclick="filtrarPublicaciones('popular')">
+                <span data-i18n="populares">🔥 Populares</span>
+            </button>
+            <button class="filter-chip" data-filter="recientes" onclick="filtrarPublicaciones('recientes')">
+                <span data-i18n="recientes">🕐 Recientes</span>
+            </button>
+            <button class="filter-chip" data-filter="tecnologia" onclick="filtrarPublicaciones('tecnologia')">
+                💻 <span data-i18n="tecnologia">Tecnología</span>
+            </button>
+            <button class="filter-chip" data-filter="trading" onclick="filtrarPublicaciones('trading')">
+                📈 <span data-i18n="trading">Trading</span>
+            </button>
+            <button class="filter-chip" data-filter="cultura" onclick="filtrarPublicaciones('cultura')">
+                🎭 <span data-i18n="cultura">Cultura</span>
+            </button>
+            <button class="filter-chip" data-filter="ayuda" onclick="filtrarPublicaciones('ayuda')">
+                🆘 <span data-i18n="ayuda">Ayuda</span>
+            </button>
+        </div>
+
+        <!-- LISTA DE PUBLICACIONES -->
+        <div id="postsContainer"></div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_tagline">Foro Social · Comunidad · Debates</span>
+            </span>
+            <div class="footer-links">
+                <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
+                <a href="../red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="../streaming/index.html" data-i18n="live">📹 Live</a>
+                <a href="../trading/index.html" data-i18n="trading">📈 Trading</a>
+                <a href="../servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="../internet/index.html" data-i18n="internet">🌍 Internet</a>
+                <a href="../tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
+                <a href="../wallet/index.html" data-i18n="wallet">◈ Wallet</a>
+                <a href="../../terminos-completos.html" data-i18n="terminos">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔥 SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🔐 TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize();
+                createStars(); });
+        }
+
+        // ================================================================
+        // 🌐 SISTEMA DE IDIOMAS (COMPARTIDO)
+        // ================================================================
+        const CSARIELS_IDIOMA = {
+            actual: 'es',
+            traducciones: {},
+
+            init: async function() {
+                this.actual = localStorage.getItem('csariels_idioma') || 'es';
+                await this.cargarTraducciones(this.actual);
+                this.aplicarTraducciones();
+                this.actualizarBotones();
+                console.log(`🌐 Foro - Idioma: ${this.actual}`);
+                return this.actual;
+            },
+
+            cargarTraducciones: async function(idioma) {
+                const traduccionesInline = {
+                    es: {
+                        'titulo_foro': 'Csariel\'s · Foro Social',
+                        'descripcion_foro': 'Comunidad, publicaciones y debates en Csariel\'s',
+                        'foro': 'Foro',
+                        'conectado': 'Conectado',
+                        'inicio': 'Inicio',
+                        'mi_red': 'Mi Red',
+                        'live': 'Live',
+                        'trading': 'Trading',
+                        'servicios': 'Servicios',
+                        'internet': 'Internet',
+                        'tienda': 'Tienda',
+                        'wallet': 'Wallet',
+                        'terminos': 'Términos',
+                        'footer_tagline': 'Foro Social · Comunidad · Debates',
+                        'titulo_publicacion': 'Título de la publicación...',
+                        'publicar': 'Publicar',
+                        'todos': '📋 Todos',
+                        'populares': '🔥 Populares',
+                        'recientes': '🕐 Recientes',
+                        'tecnologia': 'Tecnología',
+                        'cultura': 'Cultura',
+                        'ayuda': 'Ayuda',
+                        'categoria_general': '📌 General',
+                        'categoria_tecnologia': '💻 Tecnología',
+                        'categoria_cultura': '🎭 Cultura',
+                        'categoria_deportes': '⚽ Deportes',
+                        'categoria_trading': '📈 Trading',
+                        'categoria_ayuda': '🆘 Ayuda',
+                        'comentar': 'Comentar',
+                        'compartir': 'Compartir',
+                        'guardar': 'Guardar',
+                        'reportar': 'Reportar',
+                        'escribe_comentario': 'Escribe un comentario...',
+                        'publicado_por': 'Publicado por',
+                        'hace': 'hace',
+                        'segundos': 'segundos',
+                        'minutos': 'minutos',
+                        'horas': 'horas',
+                        'dias': 'días',
+                        'meses': 'meses',
+                        'respuesta': 'Responder',
+                        'sin_publicaciones': 'No hay publicaciones aún',
+                        'se_primero': 'Sé el primero en publicar algo'
+                    },
+                    en: {
+                        'titulo_foro': 'Csariel\'s · Social Forum',
+                        'descripcion_foro': 'Community, posts and debates at Csariel\'s',
+                        'foro': 'Forum',
+                        'conectado': 'Online',
+                        'inicio': 'Home',
+                        'mi_red': 'My Network',
+                        'live': 'Live',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Store',
+                        'wallet': 'Wallet',
+                        'terminos': 'Terms',
+                        'footer_tagline': 'Social Forum · Community · Debates',
+                        'titulo_publicacion': 'Post title...',
+                        'publicar': 'Publish',
+                        'todos': '📋 All',
+                        'populares': '🔥 Popular',
+                        'recientes': '🕐 Recent',
+                        'tecnologia': 'Technology',
+                        'cultura': 'Culture',
+                        'ayuda': 'Help',
+                        'categoria_general': '📌 General',
+                        'categoria_tecnologia': '💻 Technology',
+                        'categoria_cultura': '🎭 Culture',
+                        'categoria_deportes': '⚽ Sports',
+                        'categoria_trading': '📈 Trading',
+                        'categoria_ayuda': '🆘 Help',
+                        'comentar': 'Comment',
+                        'compartir': 'Share',
+                        'guardar': 'Save',
+                        'reportar': 'Report',
+                        'escribe_comentario': 'Write a comment...',
+                        'publicado_por': 'Posted by',
+                        'hace': 'ago',
+                        'segundos': 'seconds',
+                        'minutos': 'minutes',
+                        'horas': 'hours',
+                        'dias': 'days',
+                        'meses': 'months',
+                        'respuesta': 'Reply',
+                        'sin_publicaciones': 'No posts yet',
+                        'se_primero': 'Be the first to post something'
+                    },
+                    fr: {
+                        'titulo_foro': 'Csariel\'s · Forum Social',
+                        'descripcion_foro': 'Communauté, publications et débats sur Csariel\'s',
+                        'foro': 'Forum',
+                        'conectado': 'Connecté',
+                        'inicio': 'Accueil',
+                        'mi_red': 'Mon Réseau',
+                        'live': 'Live',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Magasin',
+                        'wallet': 'Portefeuille',
+                        'terminos': 'Termes',
+                        'footer_tagline': 'Forum Social · Communauté · Débats',
+                        'titulo_publicacion': 'Titre de la publication...',
+                        'publicar': 'Publier',
+                        'todos': '📋 Tous',
+                        'populares': '🔥 Populaires',
+                        'recientes': '🕐 Récents',
+                        'tecnologia': 'Technologie',
+                        'cultura': 'Culture',
+                        'ayuda': 'Aide',
+                        'categoria_general': '📌 Général',
+                        'categoria_tecnologia': '💻 Technologie',
+                        'categoria_cultura': '🎭 Culture',
+                        'categoria_deportes': '⚽ Sports',
+                        'categoria_trading': '📈 Trading',
+                        'categoria_ayuda': '🆘 Aide',
+                        'comentar': 'Commenter',
+                        'compartir': 'Partager',
+                        'guardar': 'Sauvegarder',
+                        'reportar': 'Signaler',
+                        'escribe_comentario': 'Écrire un commentaire...',
+                        'publicado_por': 'Publié par',
+                        'hace': 'il y a',
+                        'segundos': 'secondes',
+                        'minutos': 'minutes',
+                        'horas': 'heures',
+                        'dias': 'jours',
+                        'meses': 'mois',
+                        'respuesta': 'Répondre',
+                        'sin_publicaciones': 'Aucune publication',
+                        'se_primero': 'Soyez le premier à publier'
+                    }
+                };
+
+                this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
+            },
+
+            cambiar: function(idioma) {
+                if (!idioma || idioma === this.actual) return;
+                this.actual = idioma;
+                localStorage.setItem('csariels_idioma', idioma);
+                this.cargarTraducciones(idioma).then(() => {
+                    this.aplicarTraducciones();
+                    this.actualizarBotones();
+                    this.notificarCambio(idioma);
+                });
+            },
+
+            aplicarTraducciones: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (this.traducciones[key]) el.textContent = this.traducciones[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (this.traducciones[key]) el.placeholder = this.traducciones[key];
+                });
+                if (this.traducciones['titulo_foro']) {
+                    document.title = this.traducciones['titulo_foro'];
+                }
+                const metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc && this.traducciones['descripcion_foro']) {
+                    metaDesc.setAttribute('content', this.traducciones['descripcion_foro']);
+                }
+                // Actualizar opciones del select
+                document.querySelectorAll('#postCategory option').forEach(opt => {
+                    const key = opt.getAttribute('data-i18n');
+                    if (key && this.traducciones[key]) {
+                        opt.textContent = this.traducciones[key];
+                    }
+                });
+            },
+
+            actualizarBotones: function() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    btn.classList.toggle('active', lang === this.actual);
+                });
+            },
+
+            notificarCambio: function(idioma) {
+                localStorage.setItem('csariels_idioma', idioma);
+                try {
+                    window.dispatchEvent(new CustomEvent('idioma-cambiado', { detail: { idioma: idioma } }));
+                } catch (e) { console.warn(e); }
+                const nombres = { es: 'Español 🌎', en: 'English 🌍', fr: 'Français 🌏' };
+                mostrarToast(`🌐 ${nombres[idioma] || idioma.toUpperCase()}`);
+            }
+        };
+
+        // ================================================================
+        // 📝 PUBLICACIONES (DATOS)
+        // ================================================================
+        let publicaciones = [];
+        let filtroActual = 'all';
+        let usuarioActual = localStorage.getItem('csariels_user_name') || 'Anonimo';
+
+        // ================================================================
+        // 🚀 PUBLICACIONES - CRUD
+        // ================================================================
+
+        function crearPublicacion() {
+            const titulo = document.getElementById('postTitle').value.trim();
+            const categoria = document.getElementById('postCategory').value;
+
+            if (!titulo || titulo.length < 3) {
+                mostrarToast(CSARIELS_IDIOMA.traducciones['error_titulo'] || '⚠️ Escribe un título válido (mínimo 3 caracteres)', 'error');
+                return;
+            }
+
+            const nueva = {
+                id: Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                titulo: titulo,
+                categoria: categoria,
+                autor: usuarioActual,
+                contenido: '',
+                votos: 0,
+                comentarios: [],
+                timestamp: Date.now(),
+                upvoted: false,
+                downvoted: false
+            };
+
+            publicaciones.unshift(nueva);
+            document.getElementById('postTitle').value = '';
+            mostrarToast('✅ Publicación creada');
+            renderizarPublicaciones();
+            guardarPublicaciones();
+        }
+
+        function votar(id, tipo) {
+            const post = publicaciones.find(p => p.id === id);
+            if (!post) return;
+
+            if (tipo === 'up') {
+                if (post.upvoted) {
+                    post.votos--;
+                    post.upvoted = false;
+                } else {
+                    post.votos++;
+                    post.upvoted = true;
+                    if (post.downvoted) {
+                        post.votos++;
+                        post.downvoted = false;
+                    }
+                }
+            } else if (tipo === 'down') {
+                if (post.downvoted) {
+                    post.votos++;
+                    post.downvoted = false;
+                } else {
+                    post.votos--;
+                    post.downvoted = true;
+                    if (post.upvoted) {
+                        post.votos--;
+                        post.upvoted = false;
+                    }
+                }
+            }
+            renderizarPublicaciones();
+            guardarPublicaciones();
+        }
+
+        function agregarComentario(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (!input) return;
+            const texto = input.value.trim();
+            if (!texto || texto.length < 2) {
+                mostrarToast('⚠️ Escribe un comentario válido', 'error');
+                return;
+            }
+
+            const post = publicaciones.find(p => p.id === postId);
+            if (!post) return;
+
+            post.comentarios.push({
+                id: Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                autor: usuarioActual,
+                texto: texto,
+                timestamp: Date.now()
+            });
+
+            input.value = '';
+            mostrarToast('✅ Comentario agregado');
+            renderizarPublicaciones();
+            guardarPublicaciones();
+        }
+
+        function eliminarPublicacion(id) {
+            if (!confirm('¿Seguro que quieres eliminar esta publicación?')) return;
+            publicaciones = publicaciones.filter(p => p.id !== id);
+            renderizarPublicaciones();
+            guardarPublicaciones();
+            mostrarToast('🗑️ Publicación eliminada');
+        }
+
+        function formatTime(timestamp) {
+            const diff = Math.floor((Date.now() - timestamp) / 1000);
+            if (diff < 60) return `${diff} ${CSARIELS_IDIOMA.traducciones['segundos'] || 's'}`;
+            if (diff < 3600) return `${Math.floor(diff / 60)} ${CSARIELS_IDIOMA.traducciones['minutos'] || 'min'}`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} ${CSARIELS_IDIOMA.traducciones['horas'] || 'h'}`;
+            if (diff < 2592000) return `${Math.floor(diff / 86400)} ${CSARIELS_IDIOMA.traducciones['dias'] || 'd'}`;
+            return `${Math.floor(diff / 2592000)} ${CSARIELS_IDIOMA.traducciones['meses'] || 'm'}`;
+        }
+
+        // ================================================================
+        // 🎨 RENDERIZAR PUBLICACIONES
+        // ================================================================
+
+        function renderizarPublicaciones() {
+            const container = document.getElementById('postsContainer');
+            let filtradas = [...publicaciones];
+
+            if (filtroActual === 'popular') {
+                filtradas.sort((a, b) => b.votos - a.votos);
+            } else if (filtroActual === 'recientes') {
+                filtradas.sort((a, b) => b.timestamp - a.timestamp);
+            } else if (filtroActual !== 'all') {
+                filtradas = filtradas.filter(p => p.categoria === filtroActual);
+            }
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+                    <div class="post-card" style="text-align:center;padding:40px 20px;">
+                        <div style="font-size:3rem;opacity:0.3;margin-bottom:10px;">📭</div>
+                        <h3 style="color:var(--text-secondary);font-family:'Orbitron',monospace;font-size:0.8rem;">
+                            ${CSARIELS_IDIOMA.traducciones['sin_publicaciones'] || 'No hay publicaciones aún'}
+                        </h3>
+                        <p style="color:var(--text-muted);font-size:0.65rem;">
+                            ${CSARIELS_IDIOMA.traducciones['se_primero'] || 'Sé el primero en publicar algo'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtradas.map(p => {
+                const categoriaIcon = {
+                    'general': '📌',
+                    'tecnologia': '💻',
+                    'cultura': '🎭',
+                    'deportes': '⚽',
+                    'trading': '📈',
+                    'ayuda': '🆘'
+                } [p.categoria] || '📌';
+
+                const catName = {
+                    'general': 'General',
+                    'tecnologia': 'Tecnología',
+                    'cultura': 'Cultura',
+                    'deportes': 'Deportes',
+                    'trading': 'Trading',
+                    'ayuda': 'Ayuda'
+                } [p.categoria] || p.categoria;
+
+                return `
+                    <div class="post-card" id="post-${p.id}">
+                        <div class="post-header">
+                            <div class="post-avatar">${p.autor.charAt(0).toUpperCase()}</div>
+                            <div class="post-author">
+                                ${p.autor}
+                                <span class="badge-author">${categoriaIcon} ${catName}</span>
+                            </div>
+                            <div class="post-time">
+                                ${CSARIELS_IDIOMA.traducciones['publicado_por'] || 'Publicado por'} ${p.autor} · ${formatTime(p.timestamp)} ${CSARIELS_IDIOMA.traducciones['hace'] || 'hace'}
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="eliminarPublicacion('${p.id}')" style="margin-left:auto;padding:2px 8px;font-size:0.4rem;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="post-title">
+                            <a href="#" onclick="event.preventDefault()">${p.titulo}</a>
+                        </div>
+                        ${p.contenido ? `<div class="post-content">${p.contenido}</div>` : ''}
+                        
+                        <div class="post-actions">
+                            <div class="vote-group">
+                                <button class="vote-btn ${p.upvoted ? 'upvoted' : ''}" onclick="votar('${p.id}','up')">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <span class="vote-score">${p.votos}</span>
+                                <button class="vote-btn ${p.downvoted ? 'downvoted' : ''}" onclick="votar('${p.id}','down')">
+                                    <i class="fas fa-arrow-down"></i>
+                                </button>
+                            </div>
+                            
+                            <button class="action-btn" onclick="toggleComentarios('${p.id}')">
+                                <i class="fas fa-comment"></i> ${p.comentarios.length} <span data-i18n="comentar">Comentar</span>
+                            </button>
+                            <button class="action-btn" onclick="mostrarToast('📤 Compartir (próximamente)')">
+                                <i class="fas fa-share"></i> <span data-i18n="compartir">Compartir</span>
+                            </button>
+                            <button class="action-btn" onclick="mostrarToast('⭐ Guardado')">
+                                <i class="fas fa-bookmark"></i> <span data-i18n="guardar">Guardar</span>
+                            </button>
+                            <button class="action-btn" onclick="mostrarToast('🚫 Reportado')">
+                                <i class="fas fa-flag"></i> <span data-i18n="reportar">Reportar</span>
+                            </button>
+                        </div>
+
+                        <div class="comments-section" id="comments-${p.id}" style="display:none;">
+                            ${p.comentarios.map(c => `
+                                <div class="comment">
+                                    <div class="comment-avatar">${c.autor.charAt(0).toUpperCase()}</div>
+                                    <div class="comment-body">
+                                        <div class="comment-author">
+                                            ${c.autor}
+                                            <span class="comment-time">${formatTime(c.timestamp)} ${CSARIELS_IDIOMA.traducciones['hace'] || 'hace'}</span>
+                                        </div>
+                                        <div class="comment-text">${c.texto}</div>
+                                        <div class="comment-actions">
+                                            <button onclick="mostrarToast('💬 Responder (próximamente)')">
+                                                <i class="fas fa-reply"></i> <span data-i18n="respuesta">Responder</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+
+                            <div class="comment-input-row">
+                                <input type="text" id="comment-input-${p.id}" data-i18n-placeholder="escribe_comentario" placeholder="Escribe un comentario..." />
+                                <button class="btn btn-primary btn-sm" onclick="agregarComentario('${p.id}')">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleComentarios(id) {
+            const section = document.getElementById(`comments-${id}`);
+            if (section) {
+                section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // ================================================================
+        // 🔍 FILTROS
+        // ================================================================
+
+        function filtrarPublicaciones(filtro) {
+            filtroActual = filtro;
+            document.querySelectorAll('.filter-chip').forEach(el => {
+                el.classList.toggle('active', el.dataset.filter === filtro);
+            });
+            renderizarPublicaciones();
+        }
+
+        // ================================================================
+        // 💾 GUARDAR Y CARGAR
+        // ================================================================
+
+        function guardarPublicaciones() {
+            try {
+                localStorage.setItem('csariels_foro_publicaciones', JSON.stringify(publicaciones));
+            } catch (e) { console.warn('Error guardando:', e); }
+        }
+
+        function cargarPublicaciones() {
+            try {
+                const data = localStorage.getItem('csariels_foro_publicaciones');
+                if (data) {
+                    publicaciones = JSON.parse(data);
+                } else {
+                    // Publicaciones de ejemplo
+                    publicaciones = [{
+                        id: '1',
+                        titulo: '🌟 ¡Bienvenidos al nuevo Foro Social de Csariel\'s!',
+                        categoria: 'general',
+                        autor: 'Csariel',
+                        contenido: 'Este es un espacio para compartir ideas, noticias y conectar con la comunidad.',
+                        votos: 15,
+                        comentarios: [
+                            { id: 'c1', autor: 'María', texto: '¡Excelente iniciativa! 🎉', timestamp: Date.now() - 120000 },
+                            { id: 'c2', autor: 'Carlos', texto: 'Me encanta el diseño espacial ✨', timestamp: Date.now() - 60000 }
+                        ],
+                        timestamp: Date.now() - 3600000,
+                        upvoted: false,
+                        downvoted: false
+                    }, {
+                        id: '2',
+                        titulo: '📈 ¿Qué opinan del mercado de criptomonedas?',
+                        categoria: 'trading',
+                        autor: 'TraderPro',
+                        contenido: 'Bitcoin rompiendo resistencias... ¿será el inicio de un nuevo bull run?',
+                        votos: 8,
+                        comentarios: [],
+                        timestamp: Date.now() - 7200000,
+                        upvoted: false,
+                        downvoted: false
+                    }, {
+                        id: '3',
+                        titulo: '💻 Nuevo curso de programación web en Csariel\'s Academy',
+                        categoria: 'tecnologia',
+                        autor: 'DevMaster',
+                        contenido: 'Aprende HTML, CSS y JavaScript desde cero. ¡Inscripciones abiertas!',
+                        votos: 5,
+                        comentarios: [
+                            { id: 'c3', autor: 'Ana', texto: '¿Cuándo empieza?', timestamp: Date.now() - 180000 }
+                        ],
+                        timestamp: Date.now() - 10800000,
+                        upvoted: false,
+                        downvoted: false
+                    }];
+                    guardarPublicaciones();
+                }
+            } catch (e) {
+                console.warn('Error cargando:', e);
+                publicaciones = [];
+            }
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+
+            // Inicializar idioma
+            await CSARIELS_IDIOMA.init();
+
+            // Cargar publicaciones
+            cargarPublicaciones();
+            renderizarPublicaciones();
+
+            console.log('◈ Csariel\'s - Foro Social (tipo Reddit)');
+            console.log(`👤 Usuario: ${usuarioActual}`);
+            console.log(`📝 Publicaciones: ${publicaciones.length}`);
+
+            // Enter para publicar
+            document.getElementById('postTitle').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') crearPublicacion();
+            });
+
+            // Escuchar cambios de idioma
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
+        });
+
+        // Exponer funciones globales
+        window.crearPublicacion = crearPublicacion;
+        window.votar = votar;
+        window.agregarComentario = agregarComentario;
+        window.eliminarPublicacion = eliminarPublicacion;
+        window.toggleComentarios = toggleComentarios;
+        window.filtrarPublicaciones = filtrarPublicaciones;
+        window.mostrarToast = mostrarToast;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
+    </script>
+</body>
+</html>
