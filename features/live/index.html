@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muro Live | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- 🔒 CSP -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology https://cdn.tailwindcss.com;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology wss://*.livekit.cloud;
+        frame-src 'self';
+        media-src 'self' blob:;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ===== LIVKIT CLIENT SDK ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.0.0/dist/livekit-client.umd.min.js"></script>
+
+    <!-- ===== SCRIPTS CON RUTAS CORRECTAS ===== -->
+    <script src="../../js/security.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/muro-connector.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/esim-connector.js"></script>
+    <script src="../../js/config.js"></script>
+
+    <style>
+        /* ================================================================
+           PLANTILLA IDÉNTICA A CSARIEL'S
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --card-bg: #123722;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15,45,26,0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-trading {
+            background: linear-gradient(135deg, var(--quantum), #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            animation: pulse-trading 2s ease-in-out infinite;
+        }
+        .btn-trading:hover {
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-trading {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        }
+        .btn-internet {
+            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
+        }
+        .btn-internet:hover {
+            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-internet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
+        }
+
+        /* ===== BOTÓN TIENDA ===== */
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover {
+            box-shadow: 0 0 40px rgba(168,85,247,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+
+        /* ===== BOTÓN WALLET ===== */
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover {
+            box-shadow: 0 0 40px rgba(0,212,255,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        /* ===== SELECTOR DE IDIOMA ===== */
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212,175,55,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212,175,55,0.08);
+        }
+        .language-selector .lang-icon { font-size: 0.7rem; margin-right: 2px; }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover { color: var(--text-secondary); background: rgba(212,175,55,0.05); }
+        .lang-btn.active { border-color: var(--gold-cosmic); background: rgba(212,175,55,0.1); color: var(--gold-cosmic); }
+
+        /* ================================================================
+           BUSCADOR INTELIGENTE (NUEVO)
+           ================================================================ */
+        .search-container {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+        .search-container .search-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .search-container .search-row input {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .search-container .search-row input:focus { border-color: var(--gold-cosmic); }
+        .search-container .search-row input::placeholder { color: var(--text-muted); font-size: 0.75rem; }
+        .search-container .search-row select {
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            min-width: 120px;
+        }
+        .search-container .search-row select option { background: var(--space-deep); color: var(--text-primary); }
+        .search-container .results-count {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-family: 'Orbitron', monospace;
+        }
+        .search-result {
+            background: rgba(15,45,26,0.15);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+        .search-result:hover { background: rgba(15,45,26,0.25); border-color: var(--border-glow); }
+        .search-result .result-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .search-result .result-info { flex: 1; }
+        .search-result .result-info .name {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+        }
+        .search-result .result-info .meta {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+        }
+        .search-result .result-info .meta .tag {
+            background: rgba(212,175,55,0.1);
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 0.45rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .search-result .result-action .btn { padding: 2px 10px; font-size: 0.45rem; }
+
+        /* ===== ESTILOS PROPIOS DE LIVE ===== */
+        .post-card {
+            background: var(--card-bg);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        .post-card:hover { border-color: var(--border-glow); }
+        .post-card .media-container {
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            background: #0a0a0a;
+        }
+        .post-card .media-container img,
+        .post-card .media-container video {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        .live-container {
+            background: #000;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 16px;
+            position: relative;
+            border: 2px solid var(--danger);
+        }
+        .live-container video {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: cover;
+            display: block;
+        }
+        .live-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .live-overlay .dot {
+            width: 8px;
+            height: 8px;
+            background: #ff0033;
+            border-radius: 50%;
+            animation: pulse-dot 1s infinite;
+        }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .live-controls {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+        }
+
+        .comment-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .comment-box input {
+            flex: 1;
+            padding: 8px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--gold-dim);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            outline: none;
+        }
+        .comment-box input:focus { border-color: var(--gold-cosmic); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 2.5rem; opacity: 0.3; margin-bottom: 8px; }
+        .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 0.85rem; color: var(--text-secondary); }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: rgba(15,45,26,0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1rem;
+        }
+        .modal-body { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.8; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label {
+            display: block;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 3px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--gold-cosmic); }
+        .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+        .modal-actions .btn { flex: 1; justify-content: center; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .search-container .search-row { flex-direction: column; }
+            .search-container .search-row select { width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="../../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge" data-i18n="live">Live</span>
+            </a>
+            <div class="header-actions">
+                <!-- ===== SELECTOR DE IDIOMA ===== -->
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
+                </div>
+
+                <!-- ===== BOTONES ===== -->
+                <a href="../../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
+                </a>
+                <a href="../red/index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
+                </a>
+                <a href="../foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
+                </a>
+                <a href="../trading/index.html" class="btn btn-trading btn-sm">
+                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
+                </a>
+                <a href="../servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
+                </a>
+                <a href="../internet/index.html" class="btn btn-internet btn-sm">
+                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
+                </a>
+                <a href="../tienda/index.html" class="btn btn-tienda btn-sm">
+                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
+                </a>
+                <a href="../wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
+                </a>
+                <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- ===== BUSCADOR INTELIGENTE (NUEVO) ===== -->
+        <div class="search-container">
+            <div class="search-row">
+                <input type="text" id="searchInput" data-i18n-placeholder="buscar_live" placeholder="🔍 Buscar personas, videos, publicaciones..." oninput="buscarInteligente()" />
+                <select id="searchFilter" onchange="buscarInteligente()">
+                    <option value="todo" data-i18n="todo">📋 Todo</option>
+                    <option value="personas" data-i18n="personas">👥 Personas</option>
+                    <option value="videos" data-i18n="videos">📹 Videos</option>
+                    <option value="publicaciones" data-i18n="publicaciones">📝 Publicaciones</option>
+                    <option value="streamers" data-i18n="streamers">📡 Streamers</option>
+                </select>
+                <button class="btn btn-gold btn-sm" onclick="buscarInteligente()">
+                    <i class="fas fa-search"></i> <span data-i18n="buscar">Buscar</span>
+                </button>
+            </div>
+            <div class="results-count" id="resultsCount"></div>
+            <div id="searchResults"></div>
+        </div>
+
+        <!-- ===== TÍTULO Y ESTADO DE LIVES ACTIVOS ===== -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <h1 class="font-['Orbitron'] text-[#D4AF37] text-xl">📹 Muro Live</h1>
+            <span id="liveCount" class="text-[#8ba3c7] text-sm">0 lives activos</span>
+        </div>
+
+        <!-- ===== CONTENEDOR DE LIVE ACTIVO ===== -->
+        <div id="livePlayerContainer" class="live-container" style="display:none;">
+            <video id="liveVideo" autoplay playsinline></video>
+            <div class="live-overlay">
+                <span class="dot"></span> EN VIVO
+                <span id="liveViewers">0</span> viendo
+            </div>
+            <div class="live-controls">
+                <button class="btn btn-danger btn-sm" onclick="detenerLive()" id="btnDetenerLive">
+                    <i class="fas fa-stop"></i> Detener
+                </button>
+                <button class="btn btn-gold btn-sm" onclick="abrirDonacion()">
+                    <i class="fas fa-heart"></i> Donar
+                </button>
+                <span id="liveStreamer" class="text-white text-sm ml-2"></span>
+            </div>
+            <div id="liveChat" class="p-3 max-h-40 overflow-y-auto" style="background:rgba(0,0,0,0.6);">
+                <div class="text-[#8ba3c7] text-xs">Mensajes del chat...</div>
+            </div>
+            <div class="comment-box p-2">
+                <input id="liveChatInput" placeholder="Escribe un mensaje..." />
+                <button class="btn btn-primary btn-sm" onclick="enviarMensajeLive()">Enviar</button>
+            </div>
+        </div>
+
+        <!-- ===== FEED DE PUBLICACIONES Y LIVES PASADOS ===== -->
+        <div id="feedContainer" class="space-y-3"></div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_live">Muro Live · Transmisiones en vivo · Donaciones</span>
+            </span>
+            <div class="footer-links">
+                <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
+                <a href="../red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="../foro/index.html" data-i18n="foro">💬 Foro</a>
+                <a href="../trading/index.html" data-i18n="trading">📈 Trading</a>
+                <a href="../servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="../internet/index.html" data-i18n="internet">🌐 Internet</a>
+                <a href="../tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
+                <a href="../wallet/index.html" data-i18n="wallet">◈ Wallet</a>
+                <a href="../../terminos-completos.html" data-i18n="terminos">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== MODALES ===== -->
+
+    <!-- MODAL PUBLICAR -->
+    <div class="modal-overlay" id="postModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarPublicacion()">✕</button>
+            <h3 class="modal-title" data-i18n="nueva_publicacion">📝 Nueva Publicación</h3>
+            <div class="form-group">
+                <label data-i18n="texto">Texto</label>
+                <textarea id="postText" rows="3" data-i18n-placeholder="que_piensas" placeholder="¿Qué estás pensando?"></textarea>
+            </div>
+            <div class="form-group">
+                <label data-i18n="imagen">Imagen (URL)</label>
+                <input type="text" id="postImage" data-i18n-placeholder="url_imagen" placeholder="https://ejemplo.com/imagen.jpg" />
+            </div>
+            <div class="form-group">
+                <label data-i18n="video">Video (URL)</label>
+                <input type="text" id="postVideo" data-i18n-placeholder="url_video" placeholder="https://ejemplo.com/video.mp4" />
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-gold" onclick="publicarPost()">
+                    <i class="fas fa-check"></i> <span data-i18n="publicar">Publicar</span>
+                </button>
+                <button class="btn btn-outline" onclick="cerrarPublicacion()">
+                    <i class="fas fa-times"></i> <span data-i18n="cancelar">Cancelar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DONACIÓN -->
+    <div class="modal-overlay donation-modal" id="donationModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarDonacion()">✕</button>
+            <h3 class="modal-title" data-i18n="donar_streamer">❤️ Donar al streamer</h3>
+            <p class="text-[#8ba3c7] text-sm mb-2" data-i18n="apoya_streamer">Apoya a <span id="donationStreamerName">el streamer</span> en su transmisión.</p>
+            <div class="donation-amounts" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
+                <button class="amount-btn" data-amount="1" onclick="selectDonacion(1)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$1</button>
+                <button class="amount-btn" data-amount="5" onclick="selectDonacion(5)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$5</button>
+                <button class="amount-btn" data-amount="10" onclick="selectDonacion(10)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$10</button>
+                <button class="amount-btn" data-amount="25" onclick="selectDonacion(25)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$25</button>
+                <button class="amount-btn" data-amount="50" onclick="selectDonacion(50)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$50</button>
+            </div>
+            <div class="form-group">
+                <label data-i18n="monto_personalizado">Monto personalizado (min 1)</label>
+                <input type="number" id="donationCustom" min="1" data-i18n-placeholder="ej_15" placeholder="Ej: 15" oninput="selectDonacion(0)" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.85rem;outline:none;font-family:'Space Grotesk',sans-serif;" />
+            </div>
+            <div class="form-group">
+                <label data-i18n="mensaje_streamer">Mensaje para el streamer (opcional)</label>
+                <input type="text" id="donationMessage" data-i18n-placeholder="eres_increible" placeholder="¡Eres increíble!" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.85rem;outline:none;font-family:'Space Grotesk',sans-serif;" />
+            </div>
+            <div class="bg-black/30 rounded-xl p-3 text-xs text-[#8ba3c7] mb-3">
+                <div data-i18n="donacion">Donación: <span id="donationAmountDisplay">$0.00</span></div>
+                <div data-i18n="streamer_share">Para el streamer (50%): <span id="donationStreamerShare">$0.00</span></div>
+                <div data-i18n="platform_share">Csariel's (50%): <span id="donationPlatformShare">$0.00</span></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-gold" onclick="procesarDonacion()">
+                    <i class="fas fa-paper-plane"></i> <span data-i18n="enviar_donacion">Enviar Donación</span>
+                </button>
+                <button class="btn btn-outline" onclick="cerrarDonacion()">
+                    <i class="fas fa-times"></i> <span data-i18n="cancelar">Cancelar</span>
+                </button>
+            </div>
+            <p class="text-[#4a6a8a] text-[0.5rem] text-center mt-2" data-i18n="donacion_nota">Las donaciones se procesan en la red Polygon. Comisión del 50% para mantener la plataforma.</p>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔥 SCRIPTS COMPLETOS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🌐 SISTEMA DE IDIOMAS (COMPARTIDO)
+        // ================================================================
+        const CSARIELS_IDIOMA = {
+            actual: 'es',
+            traducciones: {},
+
+            init: async function() {
+                this.actual = localStorage.getItem('csariels_idioma') || 'es';
+                await this.cargarTraducciones(this.actual);
+                this.aplicarTraducciones();
+                this.actualizarBotones();
+                console.log(`🌐 Live - Idioma: ${this.actual}`);
+                return this.actual;
+            },
+
+            cargarTraducciones: async function(idioma) {
+                const traduccionesInline = {
+                    es: {
+                        'live': 'Live',
+                        'inicio': 'Inicio',
+                        'mi_red': 'Mi Red',
+                        'foro': 'Foro',
+                        'trading': 'Trading',
+                        'servicios': 'Servicios',
+                        'internet': 'Internet',
+                        'tienda': 'Tienda',
+                        'wallet': 'Wallet',
+                        'terminos': 'Términos',
+                        'footer_live': 'Muro Live · Transmisiones en vivo · Donaciones',
+                        'buscar_live': '🔍 Buscar personas, videos, publicaciones...',
+                        'buscar': 'Buscar',
+                        'todo': '📋 Todo',
+                        'personas': '👥 Personas',
+                        'videos': '📹 Videos',
+                        'publicaciones': '📝 Publicaciones',
+                        'streamers': '📡 Streamers',
+                        'nueva_publicacion': '📝 Nueva Publicación',
+                        'texto': 'Texto',
+                        'que_piensas': '¿Qué estás pensando?',
+                        'imagen': 'Imagen (URL)',
+                        'url_imagen': 'https://ejemplo.com/imagen.jpg',
+                        'video': 'Video (URL)',
+                        'url_video': 'https://ejemplo.com/video.mp4',
+                        'publicar': 'Publicar',
+                        'cancelar': 'Cancelar',
+                        'donar_streamer': '❤️ Donar al streamer',
+                        'apoya_streamer': 'Apoya a ',
+                        'monto_personalizado': 'Monto personalizado (min 1)',
+                        'ej_15': 'Ej: 15',
+                        'mensaje_streamer': 'Mensaje para el streamer (opcional)',
+                        'eres_increible': '¡Eres increíble!',
+                        'donacion': 'Donación: ',
+                        'streamer_share': 'Para el streamer (50%): ',
+                        'platform_share': "Csariel's (50%): ",
+                        'enviar_donacion': 'Enviar Donación',
+                        'donacion_nota': 'Las donaciones se procesan en la red Polygon. Comisión del 50% para mantener la plataforma.'
+                    },
+                    en: {
+                        'live': 'Live',
+                        'inicio': 'Home',
+                        'mi_red': 'My Network',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Store',
+                        'wallet': 'Wallet',
+                        'terminos': 'Terms',
+                        'footer_live': 'Live Wall · Live Streams · Donations',
+                        'buscar_live': '🔍 Search people, videos, posts...',
+                        'buscar': 'Search',
+                        'todo': '📋 All',
+                        'personas': '👥 People',
+                        'videos': '📹 Videos',
+                        'publicaciones': '📝 Posts',
+                        'streamers': '📡 Streamers',
+                        'nueva_publicacion': '📝 New Post',
+                        'texto': 'Text',
+                        'que_piensas': 'What are you thinking?',
+                        'imagen': 'Image (URL)',
+                        'url_imagen': 'https://example.com/image.jpg',
+                        'video': 'Video (URL)',
+                        'url_video': 'https://example.com/video.mp4',
+                        'publicar': 'Publish',
+                        'cancelar': 'Cancel',
+                        'donar_streamer': '❤️ Donate to streamer',
+                        'apoya_streamer': 'Support ',
+                        'monto_personalizado': 'Custom amount (min 1)',
+                        'ej_15': 'Ex: 15',
+                        'mensaje_streamer': 'Message to streamer (optional)',
+                        'eres_increible': "You're amazing!",
+                        'donacion': 'Donation: ',
+                        'streamer_share': 'For streamer (50%): ',
+                        'platform_share': "Csariel's (50%): ",
+                        'enviar_donacion': 'Send Donation',
+                        'donacion_nota': 'Donations are processed on Polygon network. 50% fee to maintain the platform.'
+                    },
+                    fr: {
+                        'live': 'Live',
+                        'inicio': 'Accueil',
+                        'mi_red': 'Mon Réseau',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Magasin',
+                        'wallet': 'Portefeuille',
+                        'terminos': 'Termes',
+                        'footer_live': 'Mur Live · Diffusions en direct · Dons',
+                        'buscar_live': '🔍 Rechercher des personnes, vidéos, publications...',
+                        'buscar': 'Rechercher',
+                        'todo': '📋 Tout',
+                        'personas': '👥 Personnes',
+                        'videos': '📹 Vidéos',
+                        'publicaciones': '📝 Publications',
+                        'streamers': '📡 Streamers',
+                        'nueva_publicacion': '📝 Nouvelle Publication',
+                        'texto': 'Texte',
+                        'que_piensas': 'À quoi pensez-vous ?',
+                        'imagen': 'Image (URL)',
+                        'url_imagen': 'https://exemple.com/image.jpg',
+                        'video': 'Vidéo (URL)',
+                        'url_video': 'https://exemple.com/video.mp4',
+                        'publicar': 'Publier',
+                        'cancelar': 'Annuler',
+                        'donar_streamer': '❤️ Faire un don au streamer',
+                        'apoya_streamer': 'Soutenir ',
+                        'monto_personalizado': 'Montant personnalisé (min 1)',
+                        'ej_15': 'Ex: 15',
+                        'mensaje_streamer': 'Message pour le streamer (facultatif)',
+                        'eres_increible': "Tu es incroyable !",
+                        'donacion': 'Don: ',
+                        'streamer_share': 'Pour le streamer (50%) : ',
+                        'platform_share': "Csariel's (50%) : ",
+                        'enviar_donacion': 'Envoyer le Don',
+                        'donacion_nota': 'Les dons sont traités sur le réseau Polygon. Commission de 50% pour maintenir la plateforme.'
+                    }
+                };
+                this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
+            },
+
+            cambiar: function(idioma) {
+                if (!idioma || idioma === this.actual) return;
+                this.actual = idioma;
+                localStorage.setItem('csariels_idioma', idioma);
+                this.cargarTraducciones(idioma).then(() => {
+                    this.aplicarTraducciones();
+                    this.actualizarBotones();
+                    this.notificarCambio(idioma);
+                });
+            },
+
+            aplicarTraducciones: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (this.traducciones[key]) el.textContent = this.traducciones[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (this.traducciones[key]) el.placeholder = this.traducciones[key];
+                });
+                // Actualizar opciones del select
+                document.querySelectorAll('#searchFilter option').forEach(opt => {
+                    const key = opt.getAttribute('data-i18n');
+                    if (key && this.traducciones[key]) {
+                        opt.textContent = this.traducciones[key];
+                    }
+                });
+            },
+
+            actualizarBotones: function() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    btn.classList.toggle('active', lang === this.actual);
+                });
+            },
+
+            notificarCambio: function(idioma) {
+                localStorage.setItem('csariels_idioma', idioma);
+                try {
+                    window.dispatchEvent(new CustomEvent('idioma-cambiado', { detail: { idioma: idioma } }));
+                } catch (e) { console.warn(e); }
+                const nombres = { es: 'Español 🌎', en: 'English 🌍', fr: 'Français 🌏' };
+                mostrarToast(`🌐 ${nombres[idioma] || idioma.toUpperCase()}`);
+            }
+        };
+
+        // ================================================================
+        // 🔐 TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize();
+                createStars(); });
+        }
+
+        // ================================================================
+        // 🔍 BUSCADOR INTELIGENTE
+        // ================================================================
+        let datosBusqueda = {
+            personas: [
+                { id: 'p1', nombre: 'María García', online: true, seguidores: 120, streamer: true },
+                { id: 'p2', nombre: 'Carlos Ruiz', online: false, seguidores: 45, streamer: false },
+                { id: 'p3', nombre: 'Ana López', online: true, seguidores: 230, streamer: true },
+                { id: 'p4', nombre: 'Luis Morales', online: false, seguidores: 12, streamer: false },
+                { id: 'p5', nombre: 'Pedro Sánchez', online: true, seguidores: 89, streamer: true }
+            ],
+            videos: [
+                { id: 'v1', titulo: 'Tutorial de Trading con STOKS', autor: 'TraderPro', fecha: '2026-08-07', duracion: '12:30' },
+                { id: 'v2', titulo: 'Live de Free Fire con Csariel', autor: 'CsarielGaming', fecha: '2026-08-08', duracion: '45:00' },
+                { id: 'v3', titulo: 'Cómo activar tu eSIM', autor: 'Talaverín', fecha: '2026-08-06', duracion: '5:20' }
+            ],
+            publicaciones: [
+                { id: 'pub1', titulo: '🔥 ¡Nuevo sistema de recompensas!', autor: 'Csariel', categoria: 'general', fecha: '2026-08-08' },
+                { id: 'pub2', titulo: '📈 Análisis de mercado semanal', autor: 'TraderPro', categoria: 'trading', fecha: '2026-08-07' },
+                { id: 'pub3', titulo: '💻 Curso de programación web', autor: 'DevMaster', categoria: 'tecnologia', fecha: '2026-08-06' }
+            ]
+        };
+
+        function buscarInteligente() {
+            const termino = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtro = document.getElementById('searchFilter').value;
+            const resultados = document.getElementById('searchResults');
+            const count = document.getElementById('resultsCount');
+
+            if (!termino && filtro === 'todo') {
+                resultados.innerHTML = '';
+                count.textContent = '';
+                return;
+            }
+
+            let encontrados = [];
+
+            // Buscar personas
+            if (filtro === 'todo' || filtro === 'personas' || filtro === 'streamers') {
+                const personasFiltradas = datosBusqueda.personas.filter(p => {
+                    const matchNombre = p.nombre.toLowerCase().includes(termino);
+                    const matchStreamer = filtro === 'streamers' ? p.streamer : true;
+                    return matchNombre && matchStreamer;
+                });
+                encontrados = encontrados.concat(personasFiltradas.map(p => ({
+                    ...p,
+                    tipo: 'persona',
+                    label: p.streamer ? '📡 Streamer' : '👤 Usuario'
+                })));
+            }
+
+            // Buscar videos
+            if (filtro === 'todo' || filtro === 'videos') {
+                const videosFiltrados = datosBusqueda.videos.filter(v =>
+                    v.titulo.toLowerCase().includes(termino) ||
+                    v.autor.toLowerCase().includes(termino)
+                );
+                encontrados = encontrados.concat(videosFiltrados.map(v => ({
+                    ...v,
+                    tipo: 'video',
+                    label: '📹 Video'
+                })));
+            }
+
+            // Buscar publicaciones
+            if (filtro === 'todo' || filtro === 'publicaciones') {
+                const pubsFiltradas = datosBusqueda.publicaciones.filter(p =>
+                    p.titulo.toLowerCase().includes(termino) ||
+                    p.autor.toLowerCase().includes(termino) ||
+                    p.categoria.includes(termino)
+                );
+                encontrados = encontrados.concat(pubsFiltradas.map(p => ({
+                    ...p,
+                    tipo: 'publicacion',
+                    label: '📝 Publicación'
+                })));
+            }
+
+            // Mostrar resultados
+            if (encontrados.length === 0) {
+                resultados.innerHTML = `
+                    <div class="search-result" style="justify-content:center;color:var(--text-muted);font-size:0.7rem;">
+                        <i class="fas fa-search"></i> No se encontraron resultados para "${termino}"
+                    </div>
+                `;
+                count.textContent = '0 resultados';
+                return;
+            }
+
+            count.textContent = `${encontrados.length} resultado${encontrados.length > 1 ? 's' : ''}`;
+
+            resultados.innerHTML = encontrados.slice(0, 10).map(item => {
+                let html = '';
+                if (item.tipo === 'persona') {
+                    html = `
+                        <div class="search-result">
+                            <div class="result-avatar ${item.online ? 'online' : 'offline'}">${item.nombre.charAt(0)}</div>
+                            <div class="result-info">
+                                <div class="name">${item.nombre} ${item.online ? '🟢' : '⚪'}</div>
+                                <div class="meta">
+                                    <span class="tag">${item.label}</span>
+                                    ${item.seguidores} seguidores
+                                </div>
+                            </div>
+                            <div class="result-action">
+                                <button class="btn btn-primary" onclick="mostrarToast('👤 Perfil de ${item.nombre}')">Ver</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (item.tipo === 'video') {
+                    html = `
+                        <div class="search-result">
+                            <div class="result-avatar" style="background:linear-gradient(135deg,#ff0033,#ff3366);">▶️</div>
+                            <div class="result-info">
+                                <div class="name">${item.titulo}</div>
+                                <div class="meta">
+                                    <span class="tag">${item.label}</span>
+                                    ${item.autor} · ${item.duracion} · ${item.fecha}
+                                </div>
+                            </div>
+                            <div class="result-action">
+                                <button class="btn btn-danger" onclick="mostrarToast('▶️ Reproduciendo ${item.titulo}')">Ver</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (item.tipo === 'publicacion') {
+                    html = `
+                        <div class="search-result">
+                            <div class="result-avatar" style="background:linear-gradient(135deg,#D4AF37,#b8923a);">📄</div>
+                            <div class="result-info">
+                                <div class="name">${item.titulo}</div>
+                                <div class="meta">
+                                    <span class="tag">${item.label}</span>
+                                    ${item.autor} · ${item.categoria} · ${item.fecha}
+                                </div>
+                            </div>
+                            <div class="result-action">
+                                <button class="btn btn-gold" onclick="mostrarToast('📄 Abriendo publicación')">Ver</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                return html;
+            }).join('');
+        }
+
+        // ================================================================
+        // 🚀 CÓDIGO ORIGINAL DE LIVE (MANTENIDO)
+        // ================================================================
+        let currentUserId = localStorage.getItem('csariels_user_id') || 'user_test';
+        let currentUserName = localStorage.getItem('csariels_user_name') || 'Usuario';
+        let supabaseClient = null;
+        let room = null;
+        let localParticipant = null;
+        let isBroadcaster = false;
+        let currentLiveRoomId = null;
+        let liveStreamerName = '';
+        let liveViewers = 0;
+        let donationAmount = 0;
+
+        // Elementos DOM
+        const feedContainer = document.getElementById('feedContainer');
+        const livePlayerContainer = document.getElementById('livePlayerContainer');
+        const liveVideo = document.getElementById('liveVideo');
+        const liveChat = document.getElementById('liveChat');
+        const liveChatInput = document.getElementById('liveChatInput');
+        const liveViewersSpan = document.getElementById('liveViewers');
+        const liveStreamerSpan = document.getElementById('liveStreamer');
+        const liveCountSpan = document.getElementById('liveCount');
+        const btnDetenerLive = document.getElementById('btnDetenerLive');
+
+        async function initSupabase() {
+            try {
+                const resp = await fetch('/api/config');
+                const config = await resp.json();
+                if (config.SUPABASE_URL && config.SUPABASE_ANON_KEY) {
+                    supabaseClient = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+                    window.supabase = supabaseClient;
+                    console.log('✅ Supabase inicializado');
+                }
+            } catch (e) {
+                console.error('❌ Error al cargar configuración:', e);
+            }
+        }
+
+        async function puedeUsarLive(consumo_mb = 0.5, modulo = 'live') {
+            try {
+                const puede = await window.esimConnector?.puedeEjecutarAccion(consumo_mb, modulo);
+                if (!puede || !puede.puede) {
+                    mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
+                    if (puede?.recargar) {
+                        setTimeout(() => {
+                            if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
+                                window.location.href = '../red/index.html#esim';
+                            }
+                        }, 1000);
+                    }
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('❌ Error verificando datos:', error);
+                mostrarToast('⚠️ Error al verificar conexión', 'error');
+                return false;
+            }
+        }
+
+        async function obtenerTokenLiveKit(roomName, identity, name, canPublish = false) {
+            try {
+                const resp = await fetch(`${supabaseClient.supabaseUrl}/functions/v1/generate-live-token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${supabaseClient.supabaseKey}`
+                    },
+                    body: JSON.stringify({
+                        room: roomName,
+                        identity: identity,
+                        name: name,
+                        metadata: JSON.stringify({ wallet: localStorage.getItem('csariels_wallet') || 'anon' }),
+                        canPublish: canPublish
+                    })
+                });
+                const data = await resp.json();
+                return data;
+            } catch (e) {
+                console.error('Error obteniendo token LiveKit:', e);
+                return null;
+            }
+        }
+
+        async function iniciarLive() {
+            const puede = await puedeUsarLive(2, 'live');
+            if (!puede) return;
+
+            if (room) {
+                mostrarToast('⚠️ Ya estás transmitiendo', 'error');
+                return;
+            }
+
+            currentLiveRoomId = 'live_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+            isBroadcaster = true;
+            liveStreamerName = currentUserName;
+
+            const tokenData = await obtenerTokenLiveKit(
+                currentLiveRoomId,
+                localStorage.getItem('csariels_wallet') || `user_${Date.now()}`,
+                currentUserName,
+                true
+            );
+
+            if (!tokenData || !tokenData.token) {
+                mostrarToast('❌ Error al obtener token de LiveKit', 'error');
+                return;
+            }
+
+            try {
+                room = new Livekit.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+
+                room.on('participantConnected', (participant) => {
+                    liveViewers++;
+                    actualizarContadorLive();
+                });
+
+                room.on('participantDisconnected', (participant) => {
+                    liveViewers--;
+                    actualizarContadorLive();
+                });
+
+                room.on('connected', () => {
+                    localParticipant = room.localParticipant;
+                    mostrarToast('🔴 Transmisión iniciada');
+                    btnDetenerLive.style.display = 'inline-flex';
+                    livePlayerContainer.style.display = 'block';
+                    liveStreamerSpan.textContent = 'Transmitiendo: ' + currentUserName;
+                    publicarTracks();
+                });
+
+                room.on('disconnected', () => {
+                    detenerLive();
+                });
+
+                await room.connect(tokenData.serverUrl || 'ws://localhost:7880', tokenData.token);
+
+                suscribirChatLive(currentLiveRoomId);
+                await guardarLiveEnSupabase();
+
+            } catch (error) {
+                console.error('Error al iniciar live:', error);
+                mostrarToast('❌ Error al iniciar live: ' + error.message, 'error');
+                room = null;
+            }
+        }
+
+        async function publicarTracks() {
+            try {
+                const tracks = await localParticipant?.createTracks({
+                    video: { facingMode: 'user', width: 640, height: 480 },
+                    audio: true
+                });
+                await localParticipant?.publishTracks(tracks);
+                const videoTracks = localParticipant.videoTracks;
+                if (videoTracks.size > 0) {
+                    const track = videoTracks.values().next().value?.videoTrack;
+                    if (track) {
+                        track.attach(liveVideo);
+                    }
+                }
+            } catch (e) {
+                console.error('Error publicando tracks:', e);
+                mostrarToast('⚠️ No se pudo acceder a cámara/micrófono', 'error');
+            }
+        }
+
+        async function guardarLiveEnSupabase() {
+            try {
+                await supabaseClient.from('live_posts').insert([{
+                    usuario_id: currentUserId,
+                    usuario_nombre: currentUserName,
+                    tipo: 'live',
+                    is_live: true,
+                    room_id: currentLiveRoomId,
+                    created_at: new Date().toISOString(),
+                    extra: { active: true, viewers: 0 }
+                }]);
+            } catch (e) {
+                console.warn('No se pudo guardar live en Supabase:', e);
+            }
+        }
+
+        async function unirseALive(roomId, streamerName) {
+            if (room) {
+                mostrarToast('Ya estás viendo un live', 'error');
+                return;
+            }
+
+            const puede = await puedeUsarLive(1, 'live');
+            if (!puede) return;
+
+            currentLiveRoomId = roomId;
+            liveStreamerName = streamerName;
+            isBroadcaster = false;
+
+            const tokenData = await obtenerTokenLiveKit(
+                roomId,
+                localStorage.getItem('csariels_wallet') || `viewer_${Date.now()}`,
+                currentUserName,
+                false
+            );
+
+            if (!tokenData || !tokenData.token) {
+                mostrarToast('❌ Error al obtener token de LiveKit', 'error');
+                return;
+            }
+
+            try {
+                room = new Livekit.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+
+                room.on('trackSubscribed', (track, publication, participant) => {
+                    if (track.kind === 'video') {
+                        track.attach(liveVideo);
+                        livePlayerContainer.style.display = 'block';
+                        liveStreamerSpan.textContent = 'Viendo a: ' + streamerName;
+                    }
+                });
+
+                room.on('participantConnected', () => {
+                    liveViewers++;
+                    actualizarContadorLive();
+                });
+
+                room.on('participantDisconnected', () => {
+                    liveViewers--;
+                    actualizarContadorLive();
+                });
+
+                room.on('disconnected', () => {
+                    detenerLive();
+                });
+
+                await room.connect(tokenData.serverUrl || 'ws://localhost:7880', tokenData.token);
+
+                suscribirChatLive(currentLiveRoomId);
+                mostrarToast('👁️ Conectado al live de ' + streamerName);
+
+            } catch (error) {
+                console.error('Error al unirse al live:', error);
+                mostrarToast('❌ Error al unirse al live', 'error');
+                room = null;
+            }
+        }
+
+        async function detenerLive() {
+            if (room) {
+                await room.disconnect();
+                room = null;
+                localParticipant = null;
+                liveVideo.srcObject = null;
+                liveVideo.src = '';
+                livePlayerContainer.style.display = 'none';
+                liveStreamerSpan.textContent = '';
+                btnDetenerLive.style.display = 'none';
+                liveViewers = 0;
+                actualizarContadorLive();
+
+                if (currentLiveRoomId) {
+                    try {
+                        await supabaseClient.from('live_posts')
+                            .update({ is_live: false, extra: { active: false } })
+                            .eq('room_id', currentLiveRoomId);
+                    } catch (e) {}
+                }
+                currentLiveRoomId = null;
+                mostrarToast('⏹️ Live finalizado');
+            }
+        }
+
+        function actualizarContadorLive() {
+            if (liveViewersSpan) liveViewersSpan.textContent = liveViewers;
+        }
+
+        let chatSubscription = null;
+
+        function suscribirChatLive(roomId) {
+            if (chatSubscription) {
+                chatSubscription.unsubscribe();
+                chatSubscription = null;
+            }
+
+            chatSubscription = supabaseClient
+                .channel(`live_chat_${roomId}`)
+                .on('broadcast', { event: 'message' }, (payload) => {
+                    agregarMensajeChat(payload.payload.user, payload.payload.message);
+                })
+                .subscribe();
+
+            cargarHistorialChat(roomId);
+        }
+
+        async function cargarHistorialChat(roomId) {
+            try {
+                const { data } = await supabaseClient
+                    .from('live_chat_messages')
+                    .select('*')
+                    .eq('room_id', roomId)
+                    .order('created_at', { ascending: true })
+                    .limit(50);
+                if (data) {
+                    data.forEach(msg => {
+                        agregarMensajeChat(msg.user_name, msg.message);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function agregarMensajeChat(user, message) {
+            const div = document.createElement('div');
+            div.className = 'text-xs text-[#e8f0f8] mb-1';
+            div.innerHTML = `<span class="text-[#D4AF37] font-bold">${user}:</span> ${message}`;
+            liveChat.appendChild(div);
+            liveChat.scrollTop = liveChat.scrollHeight;
+        }
+
+        async function enviarMensajeLive() {
+            const msg = liveChatInput.value.trim();
+            if (!msg || !currentLiveRoomId) return;
+            const payload = { user: currentUserName, message: msg };
+            if (chatSubscription) {
+                chatSubscription.send({
+                    type: 'broadcast',
+                    event: 'message',
+                    payload
+                });
+            }
+            try {
+                await supabaseClient.from('live_chat_messages').insert([{
+                    room_id: currentLiveRoomId,
+                    user_name: currentUserName,
+                    message: msg,
+                    created_at: new Date().toISOString()
+                }]);
+            } catch (e) {}
+            liveChatInput.value = '';
+        }
+
+        function abrirDonacion() {
+            if (!currentLiveRoomId) {
+                mostrarToast('⚠️ No hay un live activo para donar', 'error');
+                return;
+            }
+            document.getElementById('donationStreamerName').textContent = liveStreamerName;
+            document.getElementById('donationModal').classList.add('active');
+            selectDonacion(0);
+        }
+
+        function cerrarDonacion() {
+            document.getElementById('donationModal').classList.remove('active');
+        }
+
+        function selectDonacion(amount) {
+            const custom = document.getElementById('donationCustom');
+            if (amount === 0) {
+                amount = parseFloat(custom.value) || 0;
+            }
+            selectedDonation = amount;
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.toggle('active', parseFloat(btn.dataset.amount) === amount);
+            });
+            const total = amount;
+            document.getElementById('donationAmountDisplay').textContent = '$' + total.toFixed(2);
+            document.getElementById('donationStreamerShare').textContent = '$' + (total * 0.5).toFixed(2);
+            document.getElementById('donationPlatformShare').textContent = '$' + (total * 0.5).toFixed(2);
+        }
+
+        async function procesarDonacion() {
+            if (selectedDonation < 1) {
+                mostrarToast('⚠️ Ingresa un monto válido', 'error');
+                return;
+            }
+            const puede = await puedeUsarLive(0.3, 'donacion');
+            if (!puede) return;
+
+            const message = document.getElementById('donationMessage').value.trim();
+            const streamerWallet = localStorage.getItem('csariels_wallet') || 'anon';
+            const donorWallet = localStorage.getItem('csariels_wallet') || 'anon';
+
+            try {
+                const { error } = await supabaseClient.from('donations').insert([{
+                    room_id: currentLiveRoomId,
+                    streamer_id: streamerWallet,
+                    streamer_name: liveStreamerName,
+                    donor_id: donorWallet,
+                    donor_name: currentUserName,
+                    amount: selectedDonation,
+                    platform_fee: selectedDonation * 0.5,
+                    streamer_share: selectedDonation * 0.5,
+                    message: message,
+                    created_at: new Date().toISOString()
+                }]);
+                if (error) throw error;
+
+                mostrarToast(`❤️ Donación de $${selectedDonation} enviada a ${liveStreamerName}`);
+                cerrarDonacion();
+
+                if (chatSubscription) {
+                    chatSubscription.send({
+                        type: 'broadcast',
+                        event: 'message',
+                        payload: {
+                            user: '🎁 Donación',
+                            message: `${currentUserName} donó $${selectedDonation} a ${liveStreamerName}`
+                        }
+                    });
+                }
+
+            } catch (e) {
+                console.error('Error procesando donación:', e);
+                mostrarToast('❌ Error al procesar donación', 'error');
+            }
+        }
+
+        function abrirPublicacion() {
+            document.getElementById('postModal').classList.add('active');
+        }
+
+        function cerrarPublicacion() {
+            document.getElementById('postModal').classList.remove('active');
+            document.getElementById('postText').value = '';
+            document.getElementById('postImage').value = '';
+            document.getElementById('postVideo').value = '';
+        }
+
+        async function publicarPost() {
+            const puede = await puedeUsarLive(0.5, 'publicacion');
+            if (!puede) return;
+
+            const texto = document.getElementById('postText').value.trim();
+            const imagen = document.getElementById('postImage').value.trim();
+            const video = document.getElementById('postVideo').value.trim();
+
+            if (!texto && !imagen && !video) {
+                mostrarToast('⚠️ Escribe algo o agrega una imagen/video', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.from('live_posts').insert([{
+                    usuario_id: currentUserId,
+                    usuario_nombre: currentUserName,
+                    tipo: 'publicacion',
+                    is_live: false,
+                    contenido: texto,
+                    media_url: imagen || video,
+                    media_type: video ? 'video' : (imagen ? 'image' : null),
+                    created_at: new Date().toISOString()
+                }]);
+                if (error) throw error;
+                mostrarToast('✅ Publicación creada');
+                cerrarPublicacion();
+                cargarFeed();
+            } catch (e) {
+                console.error('Error publicando:', e);
+                mostrarToast('❌ Error al publicar', 'error');
+            }
+        }
+
+        async function cargarFeed() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('live_posts')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw error;
+
+                const livesActivos = data.filter(p => p.is_live === true);
+                liveCountSpan.textContent = livesActivos.length + ' lives activos';
+
+                feedContainer.innerHTML = data.map(post => {
+                    const esLive = post.is_live === true;
+                    const esPublicacion = post.tipo === 'publicacion' || !esLive;
+                    let mediaHTML = '';
+                    if (post.media_url) {
+                        if (post.media_type === 'video' || post.media_url.match(/\.(mp4|webm|mov)/i)) {
+                            mediaHTML = `<div class="media-container"><video controls><source src="${post.media_url}" type="video/mp4" /></video></div>`;
+                        } else {
+                            mediaHTML = `<div class="media-container"><img src="${post.media_url}" alt="Imagen" loading="lazy" /></div>`;
+                        }
+                    }
+
+                    let accionesExtra = '';
+                    if (esLive && post.room_id) {
+                        accionesExtra = `
+                            <button class="btn btn-danger btn-sm" onclick="unirseALive('${post.room_id}','${post.usuario_nombre}')">
+                                <i class="fas fa-eye"></i> Ver Live
+                            </button>
+                            <button class="btn btn-gold btn-sm" onclick="abrirDonacion()">
+                                <i class="fas fa-heart"></i> Donar
+                            </button>
+                        `;
+                    }
+
+                    return `
+                        <div class="post-card">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#0F2D1A] border-2 border-[#D4AF37] flex items-center justify-center text-lg">
+                                    ${post.usuario_nombre.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="font-bold text-white">${post.usuario_nombre}</span>
+                                        <span class="text-[#8ba3c7] text-xs">${new Date(post.created_at).toLocaleString()}</span>
+                                        ${esLive ? '<span class="bg-red-600 text-white text-[0.5rem] px-2 py-0.5 rounded-full">🔴 EN VIVO</span>' : ''}
+                                    </div>
+                                    ${post.contenido ? `<div class="text-[#e8f0f8] text-sm my-1">${post.contenido}</div>` : ''}
+                                    ${mediaHTML}
+                                    <div class="flex gap-3 mt-2 text-xs text-[#8ba3c7]">
+                                        <button class="hover:text-[#D4AF37] transition" onclick="darLike('${post.id}')">
+                                            <i class="fas fa-heart"></i> <span id="like-${post.id}">${post.likes || 0}</span>
+                                        </button>
+                                        <button class="hover:text-[#D4AF37] transition" onclick="mostrarComentarios('${post.id}')">
+                                            <i class="fas fa-comment"></i> Comentar
+                                        </button>
+                                        ${accionesExtra}
+                                    </div>
+                                    <div id="comments-${post.id}" class="mt-2 space-y-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                suscribirFeed();
+
+            } catch (e) {
+                console.error('Error cargando feed:', e);
+                mostrarToast('❌ Error al cargar el feed', 'error');
+            }
+        }
+
+        async function darLike(postId) {
+            try {
+                const { data, error } = await supabaseClient.rpc('increment_like', { post_id: postId });
+                if (error) throw error;
+                const likeSpan = document.getElementById(`like-${postId}`);
+                if (likeSpan) {
+                    const current = parseInt(likeSpan.textContent) || 0;
+                    likeSpan.textContent = current + 1;
+                }
+            } catch (e) {
+                console.error('Error dando like:', e);
+                mostrarToast('❌ Error al dar like', 'error');
+            }
+        }
+
+        let commentSubscriptions = {};
+
+        function mostrarComentarios(postId) {
+            const container = document.getElementById(`comments-${postId}`);
+            if (!container) return;
+            if (container.dataset.open === 'true') {
+                container.innerHTML = '';
+                container.dataset.open = 'false';
+                return;
+            }
+            container.dataset.open = 'true';
+            cargarComentarios(postId, container);
+
+            const inputDiv = document.createElement('div');
+            inputDiv.className = 'flex gap-2 mt-2';
+            inputDiv.innerHTML = `
+                <input type="text" id="comment-input-${postId}" placeholder="Escribe un comentario..." class="flex-1 bg-black/30 border border-[#D4AF37]/20 rounded-full px-3 py-1 text-sm text-white outline-none" />
+                <button class="btn btn-primary btn-sm" onclick="enviarComentario('${postId}')">Enviar</button>
+            `;
+            container.appendChild(inputDiv);
+
+            if (commentSubscriptions[postId]) {
+                commentSubscriptions[postId].unsubscribe();
+            }
+            const channel = supabaseClient
+                .channel(`comments_${postId}`)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'comments',
+                    filter: `post_id=eq.${postId}`
+                }, (payload) => {
+                    const newComment = payload.new;
+                    agregarComentario(container, newComment.user_name, newComment.content, true);
+                })
+                .subscribe();
+            commentSubscriptions[postId] = channel;
+        }
+
+        async function cargarComentarios(postId, container) {
+            try {
+                const { data } = await supabaseClient
+                    .from('comments')
+                    .select('*')
+                    .eq('post_id', postId)
+                    .order('created_at', { ascending: true })
+                    .limit(20);
+                if (data) {
+                    data.forEach(c => {
+                        agregarComentario(container, c.user_name, c.content, false);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function agregarComentario(container, user, content, isNew) {
+            const div = document.createElement('div');
+            div.className = 'text-xs text-[#e8f0f8] flex gap-2';
+            if (isNew) div.style.animation = 'fadeIn 0.3s';
+            div.innerHTML = `<span class="text-[#D4AF37] font-bold">${user}:</span> ${content}`;
+            const inputDiv = container.lastElementChild;
+            container.insertBefore(div, inputDiv);
+        }
+
+        async function enviarComentario(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                const { error } = await supabaseClient.from('comments').insert([{
+                    post_id: postId,
+                    user_id: currentUserId,
+                    user_name: currentUserName,
+                    content: text,
+                    created_at: new Date().toISOString()
+                }]);
+                if (error) throw error;
+                input.value = '';
+                mostrarToast('💬 Comentario enviado');
+            } catch (e) {
+                console.error('Error enviando comentario:', e);
+                mostrarToast('❌ Error al comentar', 'error');
+            }
+        }
+
+        let feedSubscription = null;
+
+        function suscribirFeed() {
+            if (feedSubscription) {
+                feedSubscription.unsubscribe();
+            }
+            feedSubscription = supabaseClient
+                .channel('live_feed')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'live_posts'
+                }, () => {
+                    cargarFeed();
+                })
+                .subscribe();
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+            await CSARIELS_IDIOMA.init();
+            await initSupabase();
+
+            console.log('📹 Csariel\'s - Muro Live');
+            console.log('🔴 LiveKit integrado');
+            console.log('📶 Verificación de datos eSIM activada');
+            console.log('🔍 Buscador inteligente activado');
+
+            await cargarFeed();
+
+            const params = new URLSearchParams(window.location.search);
+            const roomParam = params.get('room');
+            if (roomParam) {
+                const { data } = await supabaseClient
+                    .from('live_posts')
+                    .select('usuario_nombre')
+                    .eq('room_id', roomParam)
+                    .single();
+                if (data) {
+                    unirseALive(roomParam, data.usuario_nombre);
+                }
+            }
+
+            // Escuchar cambios de idioma
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
+        });
+
+        // Exponer funciones globales
+        window.iniciarLive = iniciarLive;
+        window.detenerLive = detenerLive;
+        window.unirseALive = unirseALive;
+        window.enviarMensajeLive = enviarMensajeLive;
+        window.abrirDonacion = abrirDonacion;
+        window.cerrarDonacion = cerrarDonacion;
+        window.selectDonacion = selectDonacion;
+        window.procesarDonacion = procesarDonacion;
+        window.abrirPublicacion = abrirPublicacion;
+        window.cerrarPublicacion = cerrarPublicacion;
+        window.publicarPost = publicarPost;
+        window.darLike = darLike;
+        window.mostrarComentarios = mostrarComentarios;
+        window.enviarComentario = enviarComentario;
+        window.mostrarToast = mostrarToast;
+        window.buscarInteligente = buscarInteligente;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
+    </script>
+</body>
+</html>
