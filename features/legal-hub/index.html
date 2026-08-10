@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Hub | Csariel's</title>
+    <title data-i18n="titulo_legal">⚖️ Legal Hub | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
 
     <!-- 🔒 CSP -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
         style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
         img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
         frame-src 'self';
         media-src 'self';
         object-src 'none';
@@ -27,7 +27,7 @@
 
     <style>
         /* ================================================================
-           PLANTILLA IDÉNTICA A CSARIEL'S (Mi Red, Live, Trading, etc.)
+           PLANTILLA IDÉNTICA A CSARIEL'S
            ================================================================ */
         :root {
             --space-deep: #05080f;
@@ -289,8 +289,33 @@
             50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
         }
 
+        /* ===== SELECTOR DE IDIOMA ===== */
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212,175,55,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212,175,55,0.08);
+        }
+        .language-selector .lang-icon { font-size: 0.7rem; margin-right: 2px; }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover { color: var(--text-secondary); background: rgba(212,175,55,0.05); }
+        .lang-btn.active { border-color: var(--gold-cosmic); background: rgba(212,175,55,0.1); color: var(--gold-cosmic); }
+
         /* ================================================================
-           ESTILOS PROPIOS DEL LEGAL HUB
+           ESTILOS PROPIOS DE LEGAL HUB
            ================================================================ */
         .legal-container {
             background: rgba(15,45,26,0.25);
@@ -327,12 +352,10 @@
             color: var(--gold-cosmic);
             font-size: 1.8rem;
             margin-bottom: 4px;
-            text-align: center;
         }
         .legal-container .sub {
             color: var(--text-secondary);
             font-size: 0.9rem;
-            text-align: center;
             margin-bottom: 24px;
         }
 
@@ -441,6 +464,29 @@
             font-family: 'Orbitron', monospace;
         }
 
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: flex-start; }
             .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
@@ -462,68 +508,67 @@
 
     <div class="app">
 
-        <!-- HEADER CON TODOS LOS ENLACES -->
+        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA -->
         <header class="header">
-            <a href="#" class="logo" onclick="event.preventDefault()">
+            <a href="../../index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Legal Hub</span>
+                <span class="logo-badge" data-i18n="legal_hub">Legal Hub</span>
             </a>
             <div class="header-actions">
-                <a href="../../index.html" class="btn btn-primary btn-sm">
-                    <i class="fas fa-home"></i> Inicio
+                <!-- ===== SELECTOR DE IDIOMA ===== -->
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
+                </div>
+
+                <a href="../../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
                 </a>
                 <a href="../red/index.html" class="btn btn-primary btn-sm">
-                    <i class="fas fa-users"></i> Mi Red
+                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
                 </a>
                 <a href="../live/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-rss"></i> Muro Live
+                    <i class="fas fa-video"></i> <span data-i18n="live">Live</span>
                 </a>
-                <a href="../memes/index.html" class="btn btn-danger btn-sm">
-                    <i class="fas fa-mask"></i> Memes
+                <a href="../foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
                 </a>
                 <a href="../trading/index.html" class="btn btn-trading btn-sm">
-                    <i class="fas fa-chart-line"></i> Trading
+                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
                 </a>
                 <a href="../servicios/index.html" class="btn btn-gold btn-sm">
-                    <i class="fas fa-tools"></i> Servicios
+                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
                 </a>
                 <a href="../internet/index.html" class="btn btn-internet btn-sm">
-                    <i class="fas fa-satellite-dish"></i> Internet
+                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
                 </a>
                 <a href="../tienda/index.html" class="btn btn-tienda btn-sm">
-                    <i class="fas fa-store"></i> Tienda
+                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
                 </a>
                 <a href="../wallet/index.html" class="btn btn-wallet btn-sm">
-                    <i class="fas fa-wallet"></i> Wallet
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
                 </a>
                 <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-file-contract"></i> Términos
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
                 </a>
             </div>
         </header>
 
-        <!-- ===== CONTENIDO ===== -->
+        <!-- ===== LEGAL HUB ===== -->
         <div class="legal-container">
-            <h1>⚖️ Centro de Documentos Legales</h1>
-            <div class="sub">Csariel's Ecosystem · Puebla, México · Actualizado 2026</div>
+            <h1>⚖️ <span data-i18n="centro_documentos">Centro de Documentos Legales</span></h1>
+            <div class="sub" data-i18n="legal_sub">Csariel's Ecosystem · Puebla, México · Actualizado 2026</div>
 
             <div class="doc-grid">
                 <!-- Términos de Uso -->
                 <a href="../../terminos-completos.html" class="doc-card">
                     <span class="icon">📜</span>
                     <div class="info">
-                        <h3>Términos de Uso</h3>
-                        <p>18+ Trading y Streaming · Riesgo cripto · Jurisdicción Puebla</p>
-                    </div>
-                </a>
-
-                <!-- Términos Servicios -->
-                <a href="../terminos-servicios/index.html" class="doc-card">
-                    <span class="icon">🔧</span>
-                    <div class="info">
-                        <h3>Términos Servicios Comunitarios</h3>
-                        <p>Muro talachas · $50/6 meses · Wallet 0x45c6...046d</p>
+                        <h3 data-i18n="terminos_uso">Términos de Uso</h3>
+                        <p data-i18n="terminos_uso_desc">Trading y Streaming · Riesgo · Jurisdicción Puebla</p>
                     </div>
                 </a>
 
@@ -531,17 +576,8 @@
                 <a href="../../aviso-privacidad.html" class="doc-card" style="border-color:#00ff8844;">
                     <span class="icon">🔒</span>
                     <div class="info">
-                        <h3 style="color:#00ff88;">Aviso de Privacidad</h3>
-                        <p>ARCO LFPDPPP · Datos, wallet, derechos</p>
-                    </div>
-                </a>
-
-                <!-- Derechos de Autor -->
-                <a href="../derechos-autor/index.html" class="doc-card">
-                    <span class="icon">©️</span>
-                    <div class="info">
-                        <h3>Derechos de Autor DMCA</h3>
-                        <p>Protección contenido creadores</p>
+                        <h3 style="color:#00ff88;" data-i18n="aviso_privacidad">Aviso de Privacidad</h3>
+                        <p data-i18n="aviso_privacidad_desc">ARCO LFPDPPP · Datos, wallet, derechos</p>
                     </div>
                 </a>
 
@@ -549,17 +585,8 @@
                 <a href="../moderacion/index.html" class="doc-card">
                     <span class="icon">🛡️</span>
                     <div class="info">
-                        <h3>Moderación de Contenido</h3>
-                        <p>Reglas +18 y reporte</p>
-                    </div>
-                </a>
-
-                <!-- Formulario Takedown -->
-                <a href="../takedown/index.html" class="doc-card">
-                    <span class="icon">📝</span>
-                    <div class="info">
-                        <h3>Formulario Takedown</h3>
-                        <p>Reclamar derechos</p>
+                        <h3 data-i18n="moderacion">Moderación de Contenido</h3>
+                        <p data-i18n="moderacion_desc">Reglas y reporte</p>
                     </div>
                 </a>
 
@@ -567,8 +594,35 @@
                 <a href="../contrato-creador/index.html" class="doc-card">
                     <span class="icon">🤝</span>
                     <div class="info">
-                        <h3>Contrato Creador</h3>
-                        <p>50% creador / 50% plataforma</p>
+                        <h3 data-i18n="contrato_creador">Contrato Creador</h3>
+                        <p data-i18n="contrato_creador_desc">50% creador / 50% plataforma</p>
+                    </div>
+                </a>
+
+                <!-- Derechos de Autor -->
+                <a href="../derechos-autor/index.html" class="doc-card">
+                    <span class="icon">©️</span>
+                    <div class="info">
+                        <h3 data-i18n="derechos_autor">Derechos de Autor</h3>
+                        <p data-i18n="derechos_autor_desc">Protección contenido creadores</p>
+                    </div>
+                </a>
+
+                <!-- Términos Servicios -->
+                <a href="../terminos-servicios/index.html" class="doc-card">
+                    <span class="icon">🔧</span>
+                    <div class="info">
+                        <h3 data-i18n="terminos_servicios">Términos Servicios</h3>
+                        <p data-i18n="terminos_servicios_desc">Muro talachas · Wallet 0x45c6...046d</p>
+                    </div>
+                </a>
+
+                <!-- Formulario Takedown -->
+                <a href="../takedown/index.html" class="doc-card">
+                    <span class="icon">📝</span>
+                    <div class="info">
+                        <h3 data-i18n="takedown">Formulario Takedown</h3>
+                        <p data-i18n="takedown_desc">Reclamar derechos</p>
                     </div>
                 </a>
 
@@ -576,48 +630,231 @@
                 <a href="../faq-legal/index.html" class="doc-card">
                     <span class="icon">❓</span>
                     <div class="info">
-                        <h3>FAQ Legal</h3>
-                        <p>Preguntas frecuentes legales</p>
+                        <h3 data-i18n="faq_legal">FAQ Legal</h3>
+                        <p data-i18n="faq_legal_desc">Preguntas frecuentes legales</p>
                     </div>
                 </a>
             </div>
 
             <div style="text-align:center;margin-top:20px;color:var(--text-muted);font-size:0.6rem;">
-                <p>Wallet oficial recepción: <strong style="color:var(--gold-cosmic);">0x45c6455aa01356609d96b659c6eb880b7e1d046d</strong> (Polygon)</p>
+                <p data-i18n="wallet_oficial">Wallet oficial recepción: <strong style="color:var(--gold-cosmic);">0x45c6455aa01356609d96b659c6eb880b7e1d046d</strong> (Polygon)</p>
             </div>
 
             <div class="volver">
-                <a href="../../index.html"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+                <a href="../../index.html"><i class="fas fa-arrow-left"></i> <span data-i18n="volver_inicio">Volver al Inicio</span></a>
             </div>
         </div>
 
-        <!-- FOOTER (TODOS LOS ENLACES) -->
+        <!-- ===== FOOTER ===== -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Legal Hub · Documentos Legales
+                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_legal">Legal Hub · Documentos Legales</span>
             </span>
             <div class="footer-links">
-                <a href="../../index.html">🏠 Inicio</a>
-                <a href="../red/index.html">👥 Mi Red</a>
-                <a href="../live/index.html">📱 Muro Live</a>
-                <a href="../memes/index.html" style="color:var(--danger);">😂 Memes</a>
-                <a href="../trading/index.html" style="color:#00e5ff;">📈 Trading</a>
-                <a href="../servicios/index.html" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
-                <a href="../internet/index.html" style="color:#00d68f;">🌐 Internet</a>
-                <a href="../tienda/index.html" style="color:#a855f7;">🏰 Tienda</a>
-                <a href="../wallet/index.html" style="color:#00d4ff;">◈ Wallet</a>
-                <a href="../../terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
+                <a href="../red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="../live/index.html" data-i18n="live">📹 Live</a>
+                <a href="../foro/index.html" data-i18n="foro">💬 Foro</a>
+                <a href="../trading/index.html" data-i18n="trading">📈 Trading</a>
+                <a href="../servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="../internet/index.html" data-i18n="internet">🌐 Internet</a>
+                <a href="../tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
+                <a href="../wallet/index.html" data-i18n="wallet">◈ Wallet</a>
+                <a href="../../terminos-completos.html" data-i18n="terminos">📜 Términos</a>
                 <span class="footer-hex">◈</span>
             </div>
         </footer>
     </div>
 
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS + ESTRELLAS -->
+    <!-- 🔥 SCRIPTS (SIN WEB3) -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
-        // ESTRELLAS
+        // 🌐 SISTEMA DE IDIOMAS (COMPARTIDO)
+        // ================================================================
+        const CSARIELS_IDIOMA = {
+            actual: 'es',
+            traducciones: {},
+
+            init: async function() {
+                this.actual = localStorage.getItem('csariels_idioma') || 'es';
+                await this.cargarTraducciones(this.actual);
+                this.aplicarTraducciones();
+                this.actualizarBotones();
+                console.log(`🌐 Legal Hub - Idioma: ${this.actual}`);
+                return this.actual;
+            },
+
+            cargarTraducciones: async function(idioma) {
+                const traduccionesInline = {
+                    es: {
+                        'titulo_legal': '⚖️ Legal Hub | Csariel\'s',
+                        'legal_hub': 'Legal Hub',
+                        'inicio': 'Inicio',
+                        'mi_red': 'Mi Red',
+                        'live': 'Live',
+                        'foro': 'Foro',
+                        'trading': 'Trading',
+                        'servicios': 'Servicios',
+                        'internet': 'Internet',
+                        'tienda': 'Tienda',
+                        'wallet': 'Wallet',
+                        'terminos': 'Términos',
+                        'footer_legal': 'Legal Hub · Documentos Legales',
+                        'centro_documentos': 'Centro de Documentos Legales',
+                        'legal_sub': 'Csariel\'s Ecosystem · Puebla, México · Actualizado 2026',
+                        'terminos_uso': 'Términos de Uso',
+                        'terminos_uso_desc': 'Trading y Streaming · Riesgo · Jurisdicción Puebla',
+                        'aviso_privacidad': 'Aviso de Privacidad',
+                        'aviso_privacidad_desc': 'ARCO LFPDPPP · Datos, wallet, derechos',
+                        'moderacion': 'Moderación de Contenido',
+                        'moderacion_desc': 'Reglas y reporte',
+                        'contrato_creador': 'Contrato Creador',
+                        'contrato_creador_desc': '50% creador / 50% plataforma',
+                        'derechos_autor': 'Derechos de Autor',
+                        'derechos_autor_desc': 'Protección contenido creadores',
+                        'terminos_servicios': 'Términos Servicios',
+                        'terminos_servicios_desc': 'Muro talachas · Wallet 0x45c6...046d',
+                        'takedown': 'Formulario Takedown',
+                        'takedown_desc': 'Reclamar derechos',
+                        'faq_legal': 'FAQ Legal',
+                        'faq_legal_desc': 'Preguntas frecuentes legales',
+                        'wallet_oficial': 'Wallet oficial recepción:',
+                        'volver_inicio': 'Volver al Inicio'
+                    },
+                    en: {
+                        'titulo_legal': '⚖️ Legal Hub | Csariel\'s',
+                        'legal_hub': 'Legal Hub',
+                        'inicio': 'Home',
+                        'mi_red': 'My Network',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Store',
+                        'wallet': 'Wallet',
+                        'terminos': 'Terms',
+                        'footer_legal': 'Legal Hub · Legal Documents',
+                        'centro_documentos': 'Legal Documents Center',
+                        'legal_sub': 'Csariel\'s Ecosystem · Puebla, Mexico · Updated 2026',
+                        'terminos_uso': 'Terms of Use',
+                        'terminos_uso_desc': 'Trading and Streaming · Risk · Jurisdiction Puebla',
+                        'aviso_privacidad': 'Privacy Notice',
+                        'aviso_privacidad_desc': 'ARCO LFPDPPP · Data, wallet, rights',
+                        'moderacion': 'Content Moderation',
+                        'moderacion_desc': 'Rules and reporting',
+                        'contrato_creador': 'Creator Contract',
+                        'contrato_creador_desc': '50% creator / 50% platform',
+                        'derechos_autor': 'Copyright',
+                        'derechos_autor_desc': 'Creator content protection',
+                        'terminos_servicios': 'Services Terms',
+                        'terminos_servicios_desc': 'Services Wall · Wallet 0x45c6...046d',
+                        'takedown': 'Takedown Form',
+                        'takedown_desc': 'Claim rights',
+                        'faq_legal': 'Legal FAQ',
+                        'faq_legal_desc': 'Frequently asked legal questions',
+                        'wallet_oficial': 'Official receiving wallet:',
+                        'volver_inicio': 'Back to Home'
+                    },
+                    fr: {
+                        'titulo_legal': '⚖️ Legal Hub | Csariel\'s',
+                        'legal_hub': 'Legal Hub',
+                        'inicio': 'Accueil',
+                        'mi_red': 'Mon Réseau',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Magasin',
+                        'wallet': 'Portefeuille',
+                        'terminos': 'Termes',
+                        'footer_legal': 'Legal Hub · Documents Juridiques',
+                        'centro_documentos': 'Centre de Documents Juridiques',
+                        'legal_sub': 'Écosystème Csariel\'s · Puebla, Mexique · Mis à jour 2026',
+                        'terminos_uso': 'Conditions d\'Utilisation',
+                        'terminos_uso_desc': 'Trading et Streaming · Risque · Juridiction Puebla',
+                        'aviso_privacidad': 'Avis de Confidentialité',
+                        'aviso_privacidad_desc': 'ARCO LFPDPPP · Données, portefeuille, droits',
+                        'moderacion': 'Modération de Contenu',
+                        'moderacion_desc': 'Règles et signalement',
+                        'contrato_creador': 'Contrat Créateur',
+                        'contrato_creador_desc': '50% créateur / 50% plateforme',
+                        'derechos_autor': 'Droits d\'Auteur',
+                        'derechos_autor_desc': 'Protection du contenu des créateurs',
+                        'terminos_servicios': 'Termes Services',
+                        'terminos_servicios_desc': 'Mur Services · Portefeuille 0x45c6...046d',
+                        'takedown': 'Formulaire Takedown',
+                        'takedown_desc': 'Réclamer des droits',
+                        'faq_legal': 'FAQ Juridique',
+                        'faq_legal_desc': 'Questions juridiques fréquentes',
+                        'wallet_oficial': 'Portefeuille de réception officiel :',
+                        'volver_inicio': 'Retour à l\'Accueil'
+                    }
+                };
+                this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
+            },
+
+            cambiar: function(idioma) {
+                if (!idioma || idioma === this.actual) return;
+                this.actual = idioma;
+                localStorage.setItem('csariels_idioma', idioma);
+                this.cargarTraducciones(idioma).then(() => {
+                    this.aplicarTraducciones();
+                    this.actualizarBotones();
+                    this.notificarCambio(idioma);
+                });
+            },
+
+            aplicarTraducciones: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (this.traducciones[key]) el.textContent = this.traducciones[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (this.traducciones[key]) el.placeholder = this.traducciones[key];
+                });
+            },
+
+            actualizarBotones: function() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    btn.classList.toggle('active', lang === this.actual);
+                });
+            },
+
+            notificarCambio: function(idioma) {
+                localStorage.setItem('csariels_idioma', idioma);
+                try {
+                    window.dispatchEvent(new CustomEvent('idioma-cambiado', { detail: { idioma: idioma } }));
+                } catch (e) { console.warn(e); }
+                const nombres = { es: 'Español 🌎', en: 'English 🌍', fr: 'Français 🌏' };
+                mostrarToast(`🌐 ${nombres[idioma] || idioma.toUpperCase()}`);
+            }
+        };
+
+        // ================================================================
+        // 🔐 TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
         // ================================================================
         function initStars() {
             const canvas = document.getElementById('stars-canvas');
@@ -670,16 +907,30 @@
             window.addEventListener('resize', () => { resize(); createStars(); });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
             initStars();
-            console.log('⚖️ Csariel\'s - Legal Hub');
+            await CSARIELS_IDIOMA.init();
+            console.log('⚖️ Csariel\'s - Legal Hub (SIN WEB3)');
+
+            // Escuchar cambios de idioma
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
         });
+
+        window.mostrarToast = mostrarToast;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
     </script>
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </body>
 </html>
