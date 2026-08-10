@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro Live | Csariel's</title>
+    <title data-i18n="titulo_live">📹 Live | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
 
     <!-- 🔒 CSP -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology https://cdn.tailwindcss.com;
-        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com 'unsafe-inline';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
         img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology wss://*.livekit.cloud;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
         frame-src 'self';
         media-src 'self' blob:;
         object-src 'none';
@@ -24,18 +24,7 @@
     <!-- ===== RECURSOS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- ===== LIVKIT CLIENT SDK ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.0.0/dist/livekit-client.umd.min.js"></script>
-
-    <!-- ===== SCRIPTS CON RUTAS CORRECTAS ===== -->
-    <script src="../../js/security.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="../../js/muro-connector.js"></script>
-    <script src="../../js/perfil-connector.js"></script>
-    <script src="../../js/esim-connector.js"></script>
-    <script src="../../js/config.js"></script>
 
     <style>
         /* ================================================================
@@ -60,7 +49,6 @@
             --danger: #ff3366;
             --warning: #D4AF37;
             --quantum: #00e5ff;
-            --card-bg: #123722;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -268,7 +256,6 @@
             50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
         }
 
-        /* ===== BOTÓN TIENDA ===== */
         .btn-tienda {
             background: linear-gradient(135deg, #a855f7, #7c3aed);
             border-color: transparent;
@@ -286,7 +273,6 @@
             50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
         }
 
-        /* ===== BOTÓN WALLET ===== */
         .btn-wallet {
             background: linear-gradient(135deg, #00d4ff, #0099ff);
             border-color: transparent;
@@ -329,137 +315,101 @@
         .lang-btn:hover { color: var(--text-secondary); background: rgba(212,175,55,0.05); }
         .lang-btn.active { border-color: var(--gold-cosmic); background: rgba(212,175,55,0.1); color: var(--gold-cosmic); }
 
-        /* ================================================================
-           BUSCADOR INTELIGENTE (NUEVO)
-           ================================================================ */
-        .search-container {
-            background: rgba(15,45,26,0.25);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            backdrop-filter: blur(10px);
-        }
-        .search-container .search-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .search-container .search-row input {
-            flex: 1;
-            min-width: 180px;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 0.85rem;
-            outline: none;
-            transition: var(--transition);
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .search-container .search-row input:focus { border-color: var(--gold-cosmic); }
-        .search-container .search-row input::placeholder { color: var(--text-muted); font-size: 0.75rem; }
-        .search-container .search-row select {
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            outline: none;
-            font-family: 'Space Grotesk', sans-serif;
-            min-width: 120px;
-        }
-        .search-container .search-row select option { background: var(--space-deep); color: var(--text-primary); }
-        .search-container .results-count {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-            font-family: 'Orbitron', monospace;
-        }
-        .search-result {
-            background: rgba(15,45,26,0.15);
-            border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-top: 6px;
+        .status-badge {
+            padding: 4px 12px;
+            font-size: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 10px;
-            transition: var(--transition);
-        }
-        .search-result:hover { background: rgba(15,45,26,0.25); border-color: var(--border-glow); }
-        .search-result .result-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: white;
-            font-size: 0.75rem;
-            flex-shrink: 0;
-        }
-        .search-result .result-info { flex: 1; }
-        .search-result .result-info .name {
-            font-weight: 600;
-            font-size: 0.75rem;
-            color: var(--text-primary);
-        }
-        .search-result .result-info .meta {
-            font-size: 0.55rem;
-            color: var(--text-muted);
-        }
-        .search-result .result-info .meta .tag {
-            background: rgba(212,175,55,0.1);
-            padding: 1px 8px;
-            border-radius: 10px;
-            font-size: 0.45rem;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            border-radius: 30px;
             color: var(--gold-cosmic);
             font-family: 'Orbitron', monospace;
         }
-        .search-result .result-action .btn { padding: 2px 10px; font-size: 0.45rem; }
+        .status-dot.online {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+        }
 
-        /* ===== ESTILOS PROPIOS DE LIVE ===== */
-        .post-card {
-            background: var(--card-bg);
+        /* ================================================================
+           ESTILOS PROPIOS DE LIVE
+           ================================================================ */
+        .live-container {
+            background: rgba(15,45,26,0.25);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
-            padding: 16px;
-            transition: all 0.3s;
-            margin-bottom: 12px;
-        }
-        .post-card:hover { border-color: var(--border-glow); }
-        .post-card .media-container {
-            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
             overflow: hidden;
-            margin-top: 10px;
-            background: #0a0a0a;
+            margin-bottom: 16px;
         }
-        .post-card .media-container img,
-        .post-card .media-container video {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
+        .live-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.08;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .live-container {
+        .live-container .title {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+        .live-container .sub {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+        }
+
+        .video-container {
             background: #000;
             border-radius: var(--radius);
             overflow: hidden;
             margin-bottom: 16px;
             position: relative;
-            border: 2px solid var(--danger);
+            min-height: 300px;
+            border: 2px solid var(--gold-dim);
         }
-        .live-container video {
+        .video-container video {
             width: 100%;
             height: auto;
             max-height: 500px;
             object-fit: cover;
             display: block;
+        }
+        .video-container .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-family: 'Orbitron', monospace;
+        }
+        .video-container .placeholder .icon {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 12px;
         }
         .live-overlay {
             position: absolute;
@@ -487,17 +437,39 @@
         .live-controls {
             display: flex;
             gap: 10px;
-            padding: 10px;
-            background: rgba(0,0,0,0.5);
             flex-wrap: wrap;
-        }
-
-        .comment-box {
-            display: flex;
-            gap: 8px;
             margin-top: 10px;
         }
-        .comment-box input {
+        .live-controls .btn {
+            flex: 1;
+            justify-content: center;
+            min-width: 100px;
+        }
+
+        .chat-box {
+            margin-top: 16px;
+            background: rgba(0,0,0,0.3);
+            border-radius: var(--radius);
+            padding: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .chat-box .chat-message {
+            padding: 4px 0;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .chat-box .chat-message .user {
+            color: var(--gold-cosmic);
+            font-weight: 700;
+        }
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .chat-input-row input {
             flex: 1;
             padding: 8px 14px;
             border-radius: 30px;
@@ -505,77 +477,89 @@
             background: rgba(0,0,0,0.3);
             color: white;
             outline: none;
+            font-size: 0.8rem;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        .comment-box input:focus { border-color: var(--gold-cosmic); }
+        .chat-input-row input:focus { border-color: var(--gold-cosmic); }
+        .chat-input-row input::placeholder { color: var(--text-muted); }
 
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-        .empty-state .icon { font-size: 2.5rem; opacity: 0.3; margin-bottom: 8px; }
-        .empty-state h3 { font-family: 'Orbitron', monospace; font-size: 0.85rem; color: var(--text-secondary); }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            padding: 20px;
+        /* ===== FEED ===== */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .modal-overlay.active { display: flex; }
-        .modal-content {
-            background: rgba(15,45,26,0.95);
+        .feed-item {
+            background: rgba(15,45,26,0.2);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
-            padding: 24px;
-            max-width: 520px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
+            padding: 14px 16px;
+            transition: var(--transition);
         }
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 16px;
+        .feed-item:hover { border-color: var(--border-glow); }
+        .feed-item .feed-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .feed-item .feed-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .feed-item .feed-author {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+        .feed-item .feed-time {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        .feed-item .feed-content {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin: 4px 0 8px;
+        }
+        .feed-item .feed-content img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 6px;
+            border: 1px solid var(--gold-dim);
+        }
+        .feed-item .feed-actions {
+            display: flex;
+            gap: 12px;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            padding-top: 6px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .feed-item .feed-actions button {
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1.3rem;
             cursor: pointer;
             transition: var(--transition);
-        }
-        .modal-close:hover { color: var(--text-primary); }
-        .modal-title {
-            font-family: 'Orbitron', monospace;
-            color: var(--gold-cosmic);
-            font-size: 1rem;
-        }
-        .modal-body { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.8; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label {
-            display: block;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-            margin-bottom: 3px;
-        }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 0.85rem;
-            outline: none;
-            transition: var(--transition);
             font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--gold-cosmic); }
-        .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-        .modal-actions .btn { flex: 1; justify-content: center; }
+        .feed-item .feed-actions button:hover { color: var(--text-primary); }
 
         /* ===== FOOTER ===== */
         .footer {
@@ -654,8 +638,9 @@
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: flex-start; }
             .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-            .search-container .search-row { flex-direction: column; }
-            .search-container .search-row select { width: 100%; }
+            .live-controls .btn { flex: none; width: 100%; }
+            .video-container { min-height: 200px; }
+            .video-container .placeholder { height: 200px; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.45rem; padding: 4px 8px; }
@@ -671,7 +656,7 @@
 
     <div class="app">
 
-        <!-- ===== HEADER ===== -->
+        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA -->
         <header class="header">
             <a href="../../index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
@@ -687,7 +672,11 @@
                     <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
                 </div>
 
-                <!-- ===== BOTONES ===== -->
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span data-i18n="conectado">Conectado</span>
+                </div>
+
                 <a href="../../index.html" class="btn btn-outline btn-sm">
                     <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
                 </a>
@@ -718,63 +707,92 @@
             </div>
         </header>
 
-        <!-- ===== BUSCADOR INTELIGENTE (NUEVO) ===== -->
-        <div class="search-container">
-            <div class="search-row">
-                <input type="text" id="searchInput" data-i18n-placeholder="buscar_live" placeholder="🔍 Buscar personas, videos, publicaciones..." oninput="buscarInteligente()" />
-                <select id="searchFilter" onchange="buscarInteligente()">
-                    <option value="todo" data-i18n="todo">📋 Todo</option>
-                    <option value="personas" data-i18n="personas">👥 Personas</option>
-                    <option value="videos" data-i18n="videos">📹 Videos</option>
-                    <option value="publicaciones" data-i18n="publicaciones">📝 Publicaciones</option>
-                    <option value="streamers" data-i18n="streamers">📡 Streamers</option>
-                </select>
-                <button class="btn btn-gold btn-sm" onclick="buscarInteligente()">
-                    <i class="fas fa-search"></i> <span data-i18n="buscar">Buscar</span>
-                </button>
-            </div>
-            <div class="results-count" id="resultsCount"></div>
-            <div id="searchResults"></div>
-        </div>
+        <!-- ===== LIVE ===== -->
+        <div class="live-container">
+            <div class="title">📹 Muro Live</div>
+            <div class="sub" data-i18n="live_subtitle">Transmisiones en vivo · Interactúa con la comunidad</div>
 
-        <!-- ===== TÍTULO Y ESTADO DE LIVES ACTIVOS ===== -->
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h1 class="font-['Orbitron'] text-[#D4AF37] text-xl">📹 Muro Live</h1>
-            <span id="liveCount" class="text-[#8ba3c7] text-sm">0 lives activos</span>
-        </div>
-
-        <!-- ===== CONTENEDOR DE LIVE ACTIVO ===== -->
-        <div id="livePlayerContainer" class="live-container" style="display:none;">
-            <video id="liveVideo" autoplay playsinline></video>
-            <div class="live-overlay">
-                <span class="dot"></span> EN VIVO
-                <span id="liveViewers">0</span> viendo
+            <!-- VIDEO -->
+            <div class="video-container" id="videoContainer">
+                <video id="liveVideo" autoplay playsinline muted style="display:none;"></video>
+                <div class="placeholder" id="videoPlaceholder">
+                    <div class="icon">📹</div>
+                    <span data-i18n="no_live_activo">No hay live activo</span>
+                    <span style="font-size:0.6rem;color:var(--text-muted);margin-top:4px;" data-i18n="inicia_transmision">Inicia una transmisión para comenzar</span>
+                </div>
+                <div class="live-overlay" id="liveOverlay" style="display:none;">
+                    <span class="dot"></span> <span data-i18n="en_vivo">EN VIVO</span>
+                    <span id="liveViewers" style="margin-left:8px;">0</span> <span data-i18n="viendo">viendo</span>
+                </div>
             </div>
+
+            <!-- CONTROLES -->
             <div class="live-controls">
-                <button class="btn btn-danger btn-sm" onclick="detenerLive()" id="btnDetenerLive">
-                    <i class="fas fa-stop"></i> Detener
+                <button class="btn btn-danger" id="btnIniciarLive" onclick="iniciarLive()">
+                    <i class="fas fa-circle"></i> <span data-i18n="iniciar_live">Iniciar Live</span>
                 </button>
-                <button class="btn btn-gold btn-sm" onclick="abrirDonacion()">
-                    <i class="fas fa-heart"></i> Donar
+                <button class="btn btn-danger" id="btnDetenerLive" onclick="detenerLive()" style="display:none;">
+                    <i class="fas fa-stop"></i> <span data-i18n="detener_live">Detener Live</span>
                 </button>
-                <span id="liveStreamer" class="text-white text-sm ml-2"></span>
+                <button class="btn btn-gold" id="btnDonar" onclick="donarLive()">
+                    <i class="fas fa-heart"></i> <span data-i18n="donar">Donar CMT</span>
+                </button>
+                <button class="btn btn-outline" onclick="mostrarToast('🔊 Próximamente')">
+                    <i class="fas fa-volume-up"></i> <span data-i18n="audio">Audio</span>
+                </button>
             </div>
-            <div id="liveChat" class="p-3 max-h-40 overflow-y-auto" style="background:rgba(0,0,0,0.6);">
-                <div class="text-[#8ba3c7] text-xs">Mensajes del chat...</div>
+
+            <!-- CHAT -->
+            <div class="chat-box" id="chatBox">
+                <div class="chat-message" data-i18n="bienvenido_chat">💬 Bienvenido al chat del live</div>
             </div>
-            <div class="comment-box p-2">
-                <input id="liveChatInput" placeholder="Escribe un mensaje..." />
-                <button class="btn btn-primary btn-sm" onclick="enviarMensajeLive()">Enviar</button>
+            <div class="chat-input-row">
+                <input type="text" id="chatInput" data-i18n-placeholder="escribe_mensaje" placeholder="Escribe un mensaje...">
+                <button class="btn btn-primary btn-sm" onclick="enviarMensaje()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
 
-        <!-- ===== FEED DE PUBLICACIONES Y LIVES PASADOS ===== -->
-        <div id="feedContainer" class="space-y-3"></div>
+        <!-- FEED DE PUBLICACIONES -->
+        <h3 style="font-family:'Orbitron';color:var(--text-secondary);font-size:0.85rem;margin-bottom:10px;" data-i18n="publicaciones_recientes">📝 Publicaciones Recientes</h3>
+        <div class="feed-container" id="feedContainer">
+            <div class="feed-item">
+                <div class="feed-header">
+                    <div class="feed-avatar">C</div>
+                    <span class="feed-author">Csariel</span>
+                    <span class="feed-time">Hace 2 horas</span>
+                </div>
+                <div class="feed-content">
+                    🚀 ¡Bienvenidos al nuevo Muro Live! Transmisiones en vivo, donaciones y más.
+                </div>
+                <div class="feed-actions">
+                    <button><i class="fas fa-heart"></i> 12</button>
+                    <button><i class="fas fa-comment"></i> 5</button>
+                    <button><i class="fas fa-share"></i> Compartir</button>
+                </div>
+            </div>
+            <div class="feed-item">
+                <div class="feed-header">
+                    <div class="feed-avatar">M</div>
+                    <span class="feed-author">María</span>
+                    <span class="feed-time">Hace 4 horas</span>
+                </div>
+                <div class="feed-content">
+                    🎉 ¡Mi primera transmisión en vivo! Los espero a todos.
+                </div>
+                <div class="feed-actions">
+                    <button><i class="fas fa-heart"></i> 8</button>
+                    <button><i class="fas fa-comment"></i> 3</button>
+                    <button><i class="fas fa-share"></i> Compartir</button>
+                </div>
+            </div>
+        </div>
 
         <!-- ===== FOOTER ===== -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_live">Muro Live · Transmisiones en vivo · Donaciones</span>
+                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_live">Muro Live · Transmisiones · Donaciones</span>
             </span>
             <div class="footer-links">
                 <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
@@ -791,79 +809,11 @@
         </footer>
     </div>
 
-    <!-- ===== MODALES ===== -->
-
-    <!-- MODAL PUBLICAR -->
-    <div class="modal-overlay" id="postModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="cerrarPublicacion()">✕</button>
-            <h3 class="modal-title" data-i18n="nueva_publicacion">📝 Nueva Publicación</h3>
-            <div class="form-group">
-                <label data-i18n="texto">Texto</label>
-                <textarea id="postText" rows="3" data-i18n-placeholder="que_piensas" placeholder="¿Qué estás pensando?"></textarea>
-            </div>
-            <div class="form-group">
-                <label data-i18n="imagen">Imagen (URL)</label>
-                <input type="text" id="postImage" data-i18n-placeholder="url_imagen" placeholder="https://ejemplo.com/imagen.jpg" />
-            </div>
-            <div class="form-group">
-                <label data-i18n="video">Video (URL)</label>
-                <input type="text" id="postVideo" data-i18n-placeholder="url_video" placeholder="https://ejemplo.com/video.mp4" />
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-gold" onclick="publicarPost()">
-                    <i class="fas fa-check"></i> <span data-i18n="publicar">Publicar</span>
-                </button>
-                <button class="btn btn-outline" onclick="cerrarPublicacion()">
-                    <i class="fas fa-times"></i> <span data-i18n="cancelar">Cancelar</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DONACIÓN -->
-    <div class="modal-overlay donation-modal" id="donationModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="cerrarDonacion()">✕</button>
-            <h3 class="modal-title" data-i18n="donar_streamer">❤️ Donar al streamer</h3>
-            <p class="text-[#8ba3c7] text-sm mb-2" data-i18n="apoya_streamer">Apoya a <span id="donationStreamerName">el streamer</span> en su transmisión.</p>
-            <div class="donation-amounts" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
-                <button class="amount-btn" data-amount="1" onclick="selectDonacion(1)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$1</button>
-                <button class="amount-btn" data-amount="5" onclick="selectDonacion(5)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$5</button>
-                <button class="amount-btn" data-amount="10" onclick="selectDonacion(10)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$10</button>
-                <button class="amount-btn" data-amount="25" onclick="selectDonacion(25)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$25</button>
-                <button class="amount-btn" data-amount="50" onclick="selectDonacion(50)" style="padding:8px 16px;border-radius:30px;background:rgba(212,175,55,0.1);border:1px solid var(--gold-dim);color:var(--text-primary);cursor:pointer;transition:var(--transition);">$50</button>
-            </div>
-            <div class="form-group">
-                <label data-i18n="monto_personalizado">Monto personalizado (min 1)</label>
-                <input type="number" id="donationCustom" min="1" data-i18n-placeholder="ej_15" placeholder="Ej: 15" oninput="selectDonacion(0)" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.85rem;outline:none;font-family:'Space Grotesk',sans-serif;" />
-            </div>
-            <div class="form-group">
-                <label data-i18n="mensaje_streamer">Mensaje para el streamer (opcional)</label>
-                <input type="text" id="donationMessage" data-i18n-placeholder="eres_increible" placeholder="¡Eres increíble!" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;color:var(--text-primary);font-size:0.85rem;outline:none;font-family:'Space Grotesk',sans-serif;" />
-            </div>
-            <div class="bg-black/30 rounded-xl p-3 text-xs text-[#8ba3c7] mb-3">
-                <div data-i18n="donacion">Donación: <span id="donationAmountDisplay">$0.00</span></div>
-                <div data-i18n="streamer_share">Para el streamer (50%): <span id="donationStreamerShare">$0.00</span></div>
-                <div data-i18n="platform_share">Csariel's (50%): <span id="donationPlatformShare">$0.00</span></div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-gold" onclick="procesarDonacion()">
-                    <i class="fas fa-paper-plane"></i> <span data-i18n="enviar_donacion">Enviar Donación</span>
-                </button>
-                <button class="btn btn-outline" onclick="cerrarDonacion()">
-                    <i class="fas fa-times"></i> <span data-i18n="cancelar">Cancelar</span>
-                </button>
-            </div>
-            <p class="text-[#4a6a8a] text-[0.5rem] text-center mt-2" data-i18n="donacion_nota">Las donaciones se procesan en la red Polygon. Comisión del 50% para mantener la plataforma.</p>
-        </div>
-    </div>
-
     <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS COMPLETOS -->
+    <!-- 🔥 SCRIPTS (SIN WEB3) -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
@@ -885,7 +835,9 @@
             cargarTraducciones: async function(idioma) {
                 const traduccionesInline = {
                     es: {
+                        'titulo_live': '📹 Live | Csariel\'s',
                         'live': 'Live',
+                        'conectado': 'Conectado',
                         'inicio': 'Inicio',
                         'mi_red': 'Mi Red',
                         'foro': 'Foro',
@@ -895,37 +847,24 @@
                         'tienda': 'Tienda',
                         'wallet': 'Wallet',
                         'terminos': 'Términos',
-                        'footer_live': 'Muro Live · Transmisiones en vivo · Donaciones',
-                        'buscar_live': '🔍 Buscar personas, videos, publicaciones...',
-                        'buscar': 'Buscar',
-                        'todo': '📋 Todo',
-                        'personas': '👥 Personas',
-                        'videos': '📹 Videos',
-                        'publicaciones': '📝 Publicaciones',
-                        'streamers': '📡 Streamers',
-                        'nueva_publicacion': '📝 Nueva Publicación',
-                        'texto': 'Texto',
-                        'que_piensas': '¿Qué estás pensando?',
-                        'imagen': 'Imagen (URL)',
-                        'url_imagen': 'https://ejemplo.com/imagen.jpg',
-                        'video': 'Video (URL)',
-                        'url_video': 'https://ejemplo.com/video.mp4',
-                        'publicar': 'Publicar',
-                        'cancelar': 'Cancelar',
-                        'donar_streamer': '❤️ Donar al streamer',
-                        'apoya_streamer': 'Apoya a ',
-                        'monto_personalizado': 'Monto personalizado (min 1)',
-                        'ej_15': 'Ej: 15',
-                        'mensaje_streamer': 'Mensaje para el streamer (opcional)',
-                        'eres_increible': '¡Eres increíble!',
-                        'donacion': 'Donación: ',
-                        'streamer_share': 'Para el streamer (50%): ',
-                        'platform_share': "Csariel's (50%): ",
-                        'enviar_donacion': 'Enviar Donación',
-                        'donacion_nota': 'Las donaciones se procesan en la red Polygon. Comisión del 50% para mantener la plataforma.'
+                        'footer_live': 'Muro Live · Transmisiones · Donaciones',
+                        'live_subtitle': 'Transmisiones en vivo · Interactúa con la comunidad',
+                        'no_live_activo': 'No hay live activo',
+                        'inicia_transmision': 'Inicia una transmisión para comenzar',
+                        'en_vivo': 'EN VIVO',
+                        'viendo': 'viendo',
+                        'iniciar_live': 'Iniciar Live',
+                        'detener_live': 'Detener Live',
+                        'donar': 'Donar CMT',
+                        'audio': 'Audio',
+                        'bienvenido_chat': '💬 Bienvenido al chat del live',
+                        'escribe_mensaje': 'Escribe un mensaje...',
+                        'publicaciones_recientes': '📝 Publicaciones Recientes'
                     },
                     en: {
+                        'titulo_live': '📹 Live | Csariel\'s',
                         'live': 'Live',
+                        'conectado': 'Connected',
                         'inicio': 'Home',
                         'mi_red': 'My Network',
                         'foro': 'Forum',
@@ -935,37 +874,24 @@
                         'tienda': 'Store',
                         'wallet': 'Wallet',
                         'terminos': 'Terms',
-                        'footer_live': 'Live Wall · Live Streams · Donations',
-                        'buscar_live': '🔍 Search people, videos, posts...',
-                        'buscar': 'Search',
-                        'todo': '📋 All',
-                        'personas': '👥 People',
-                        'videos': '📹 Videos',
-                        'publicaciones': '📝 Posts',
-                        'streamers': '📡 Streamers',
-                        'nueva_publicacion': '📝 New Post',
-                        'texto': 'Text',
-                        'que_piensas': 'What are you thinking?',
-                        'imagen': 'Image (URL)',
-                        'url_imagen': 'https://example.com/image.jpg',
-                        'video': 'Video (URL)',
-                        'url_video': 'https://example.com/video.mp4',
-                        'publicar': 'Publish',
-                        'cancelar': 'Cancel',
-                        'donar_streamer': '❤️ Donate to streamer',
-                        'apoya_streamer': 'Support ',
-                        'monto_personalizado': 'Custom amount (min 1)',
-                        'ej_15': 'Ex: 15',
-                        'mensaje_streamer': 'Message to streamer (optional)',
-                        'eres_increible': "You're amazing!",
-                        'donacion': 'Donation: ',
-                        'streamer_share': 'For streamer (50%): ',
-                        'platform_share': "Csariel's (50%): ",
-                        'enviar_donacion': 'Send Donation',
-                        'donacion_nota': 'Donations are processed on Polygon network. 50% fee to maintain the platform.'
+                        'footer_live': 'Live Wall · Streams · Donations',
+                        'live_subtitle': 'Live streams · Interact with the community',
+                        'no_live_activo': 'No active live stream',
+                        'inicia_transmision': 'Start a stream to begin',
+                        'en_vivo': 'LIVE',
+                        'viendo': 'watching',
+                        'iniciar_live': 'Start Live',
+                        'detener_live': 'Stop Live',
+                        'donar': 'Donate CMT',
+                        'audio': 'Audio',
+                        'bienvenido_chat': '💬 Welcome to the live chat',
+                        'escribe_mensaje': 'Write a message...',
+                        'publicaciones_recientes': '📝 Recent Posts'
                     },
                     fr: {
+                        'titulo_live': '📹 Live | Csariel\'s',
                         'live': 'Live',
+                        'conectado': 'Connecté',
                         'inicio': 'Accueil',
                         'mi_red': 'Mon Réseau',
                         'foro': 'Forum',
@@ -975,34 +901,19 @@
                         'tienda': 'Magasin',
                         'wallet': 'Portefeuille',
                         'terminos': 'Termes',
-                        'footer_live': 'Mur Live · Diffusions en direct · Dons',
-                        'buscar_live': '🔍 Rechercher des personnes, vidéos, publications...',
-                        'buscar': 'Rechercher',
-                        'todo': '📋 Tout',
-                        'personas': '👥 Personnes',
-                        'videos': '📹 Vidéos',
-                        'publicaciones': '📝 Publications',
-                        'streamers': '📡 Streamers',
-                        'nueva_publicacion': '📝 Nouvelle Publication',
-                        'texto': 'Texte',
-                        'que_piensas': 'À quoi pensez-vous ?',
-                        'imagen': 'Image (URL)',
-                        'url_imagen': 'https://exemple.com/image.jpg',
-                        'video': 'Vidéo (URL)',
-                        'url_video': 'https://exemple.com/video.mp4',
-                        'publicar': 'Publier',
-                        'cancelar': 'Annuler',
-                        'donar_streamer': '❤️ Faire un don au streamer',
-                        'apoya_streamer': 'Soutenir ',
-                        'monto_personalizado': 'Montant personnalisé (min 1)',
-                        'ej_15': 'Ex: 15',
-                        'mensaje_streamer': 'Message pour le streamer (facultatif)',
-                        'eres_increible': "Tu es incroyable !",
-                        'donacion': 'Don: ',
-                        'streamer_share': 'Pour le streamer (50%) : ',
-                        'platform_share': "Csariel's (50%) : ",
-                        'enviar_donacion': 'Envoyer le Don',
-                        'donacion_nota': 'Les dons sont traités sur le réseau Polygon. Commission de 50% pour maintenir la plateforme.'
+                        'footer_live': 'Mur Live · Diffusions · Dons',
+                        'live_subtitle': 'Diffusions en direct · Interagissez avec la communauté',
+                        'no_live_activo': 'Aucun live actif',
+                        'inicia_transmision': 'Lancez une diffusion pour commencer',
+                        'en_vivo': 'EN DIRECT',
+                        'viendo': 'regardent',
+                        'iniciar_live': 'Démarrer Live',
+                        'detener_live': 'Arrêter Live',
+                        'donar': 'Donner CMT',
+                        'audio': 'Audio',
+                        'bienvenido_chat': '💬 Bienvenue dans le chat du live',
+                        'escribe_mensaje': 'Écrivez un message...',
+                        'publicaciones_recientes': '📝 Publications Récentes'
                     }
                 };
                 this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
@@ -1027,13 +938,6 @@
                 document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                     const key = el.getAttribute('data-i18n-placeholder');
                     if (this.traducciones[key]) el.placeholder = this.traducciones[key];
-                });
-                // Actualizar opciones del select
-                document.querySelectorAll('#searchFilter option').forEach(opt => {
-                    const key = opt.getAttribute('data-i18n');
-                    if (key && this.traducciones[key]) {
-                        opt.textContent = this.traducciones[key];
-                    }
                 });
             },
 
@@ -1085,7 +989,6 @@
                 canvas.width = width;
                 canvas.height = height;
             }
-
             function createStars() {
                 stars = [];
                 for (let i = 0; i < STAR_COUNT; i++) {
@@ -1100,7 +1003,6 @@
                     });
                 }
             }
-
             function draw() {
                 ctx.clearRect(0, 0, width, height);
                 for (let star of stars) {
@@ -1121,814 +1023,150 @@
             resize();
             createStars();
             draw();
-            window.addEventListener('resize', () => { resize();
-                createStars(); });
+            window.addEventListener('resize', () => { resize(); createStars(); });
         }
 
         // ================================================================
-        // 🔍 BUSCADOR INTELIGENTE
+        // LIVE (SIN WEB3)
         // ================================================================
-        let datosBusqueda = {
-            personas: [
-                { id: 'p1', nombre: 'María García', online: true, seguidores: 120, streamer: true },
-                { id: 'p2', nombre: 'Carlos Ruiz', online: false, seguidores: 45, streamer: false },
-                { id: 'p3', nombre: 'Ana López', online: true, seguidores: 230, streamer: true },
-                { id: 'p4', nombre: 'Luis Morales', online: false, seguidores: 12, streamer: false },
-                { id: 'p5', nombre: 'Pedro Sánchez', online: true, seguidores: 89, streamer: true }
-            ],
-            videos: [
-                { id: 'v1', titulo: 'Tutorial de Trading con STOKS', autor: 'TraderPro', fecha: '2026-08-07', duracion: '12:30' },
-                { id: 'v2', titulo: 'Live de Free Fire con Csariel', autor: 'CsarielGaming', fecha: '2026-08-08', duracion: '45:00' },
-                { id: 'v3', titulo: 'Cómo activar tu eSIM', autor: 'Talaverín', fecha: '2026-08-06', duracion: '5:20' }
-            ],
-            publicaciones: [
-                { id: 'pub1', titulo: '🔥 ¡Nuevo sistema de recompensas!', autor: 'Csariel', categoria: 'general', fecha: '2026-08-08' },
-                { id: 'pub2', titulo: '📈 Análisis de mercado semanal', autor: 'TraderPro', categoria: 'trading', fecha: '2026-08-07' },
-                { id: 'pub3', titulo: '💻 Curso de programación web', autor: 'DevMaster', categoria: 'tecnologia', fecha: '2026-08-06' }
-            ]
-        };
+        let liveActivo = false;
+        let mediaStream = null;
 
-        function buscarInteligente() {
-            const termino = document.getElementById('searchInput').value.toLowerCase().trim();
-            const filtro = document.getElementById('searchFilter').value;
-            const resultados = document.getElementById('searchResults');
-            const count = document.getElementById('resultsCount');
-
-            if (!termino && filtro === 'todo') {
-                resultados.innerHTML = '';
-                count.textContent = '';
-                return;
-            }
-
-            let encontrados = [];
-
-            // Buscar personas
-            if (filtro === 'todo' || filtro === 'personas' || filtro === 'streamers') {
-                const personasFiltradas = datosBusqueda.personas.filter(p => {
-                    const matchNombre = p.nombre.toLowerCase().includes(termino);
-                    const matchStreamer = filtro === 'streamers' ? p.streamer : true;
-                    return matchNombre && matchStreamer;
-                });
-                encontrados = encontrados.concat(personasFiltradas.map(p => ({
-                    ...p,
-                    tipo: 'persona',
-                    label: p.streamer ? '📡 Streamer' : '👤 Usuario'
-                })));
-            }
-
-            // Buscar videos
-            if (filtro === 'todo' || filtro === 'videos') {
-                const videosFiltrados = datosBusqueda.videos.filter(v =>
-                    v.titulo.toLowerCase().includes(termino) ||
-                    v.autor.toLowerCase().includes(termino)
-                );
-                encontrados = encontrados.concat(videosFiltrados.map(v => ({
-                    ...v,
-                    tipo: 'video',
-                    label: '📹 Video'
-                })));
-            }
-
-            // Buscar publicaciones
-            if (filtro === 'todo' || filtro === 'publicaciones') {
-                const pubsFiltradas = datosBusqueda.publicaciones.filter(p =>
-                    p.titulo.toLowerCase().includes(termino) ||
-                    p.autor.toLowerCase().includes(termino) ||
-                    p.categoria.includes(termino)
-                );
-                encontrados = encontrados.concat(pubsFiltradas.map(p => ({
-                    ...p,
-                    tipo: 'publicacion',
-                    label: '📝 Publicación'
-                })));
-            }
-
-            // Mostrar resultados
-            if (encontrados.length === 0) {
-                resultados.innerHTML = `
-                    <div class="search-result" style="justify-content:center;color:var(--text-muted);font-size:0.7rem;">
-                        <i class="fas fa-search"></i> No se encontraron resultados para "${termino}"
-                    </div>
-                `;
-                count.textContent = '0 resultados';
-                return;
-            }
-
-            count.textContent = `${encontrados.length} resultado${encontrados.length > 1 ? 's' : ''}`;
-
-            resultados.innerHTML = encontrados.slice(0, 10).map(item => {
-                let html = '';
-                if (item.tipo === 'persona') {
-                    html = `
-                        <div class="search-result">
-                            <div class="result-avatar ${item.online ? 'online' : 'offline'}">${item.nombre.charAt(0)}</div>
-                            <div class="result-info">
-                                <div class="name">${item.nombre} ${item.online ? '🟢' : '⚪'}</div>
-                                <div class="meta">
-                                    <span class="tag">${item.label}</span>
-                                    ${item.seguidores} seguidores
-                                </div>
-                            </div>
-                            <div class="result-action">
-                                <button class="btn btn-primary" onclick="mostrarToast('👤 Perfil de ${item.nombre}')">Ver</button>
-                            </div>
-                        </div>
-                    `;
-                } else if (item.tipo === 'video') {
-                    html = `
-                        <div class="search-result">
-                            <div class="result-avatar" style="background:linear-gradient(135deg,#ff0033,#ff3366);">▶️</div>
-                            <div class="result-info">
-                                <div class="name">${item.titulo}</div>
-                                <div class="meta">
-                                    <span class="tag">${item.label}</span>
-                                    ${item.autor} · ${item.duracion} · ${item.fecha}
-                                </div>
-                            </div>
-                            <div class="result-action">
-                                <button class="btn btn-danger" onclick="mostrarToast('▶️ Reproduciendo ${item.titulo}')">Ver</button>
-                            </div>
-                        </div>
-                    `;
-                } else if (item.tipo === 'publicacion') {
-                    html = `
-                        <div class="search-result">
-                            <div class="result-avatar" style="background:linear-gradient(135deg,#D4AF37,#b8923a);">📄</div>
-                            <div class="result-info">
-                                <div class="name">${item.titulo}</div>
-                                <div class="meta">
-                                    <span class="tag">${item.label}</span>
-                                    ${item.autor} · ${item.categoria} · ${item.fecha}
-                                </div>
-                            </div>
-                            <div class="result-action">
-                                <button class="btn btn-gold" onclick="mostrarToast('📄 Abriendo publicación')">Ver</button>
-                            </div>
-                        </div>
-                    `;
-                }
-                return html;
-            }).join('');
-        }
-
-        // ================================================================
-        // 🚀 CÓDIGO ORIGINAL DE LIVE (MANTENIDO)
-        // ================================================================
-        let currentUserId = localStorage.getItem('csariels_user_id') || 'user_test';
-        let currentUserName = localStorage.getItem('csariels_user_name') || 'Usuario';
-        let supabaseClient = null;
-        let room = null;
-        let localParticipant = null;
-        let isBroadcaster = false;
-        let currentLiveRoomId = null;
-        let liveStreamerName = '';
-        let liveViewers = 0;
-        let donationAmount = 0;
-
-        // Elementos DOM
-        const feedContainer = document.getElementById('feedContainer');
-        const livePlayerContainer = document.getElementById('livePlayerContainer');
-        const liveVideo = document.getElementById('liveVideo');
-        const liveChat = document.getElementById('liveChat');
-        const liveChatInput = document.getElementById('liveChatInput');
-        const liveViewersSpan = document.getElementById('liveViewers');
-        const liveStreamerSpan = document.getElementById('liveStreamer');
-        const liveCountSpan = document.getElementById('liveCount');
-        const btnDetenerLive = document.getElementById('btnDetenerLive');
-
-        async function initSupabase() {
-            try {
-                const resp = await fetch('/api/config');
-                const config = await resp.json();
-                if (config.SUPABASE_URL && config.SUPABASE_ANON_KEY) {
-                    supabaseClient = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
-                    window.supabase = supabaseClient;
-                    console.log('✅ Supabase inicializado');
-                }
-            } catch (e) {
-                console.error('❌ Error al cargar configuración:', e);
-            }
-        }
-
-        async function puedeUsarLive(consumo_mb = 0.5, modulo = 'live') {
-            try {
-                const puede = await window.esimConnector?.puedeEjecutarAccion(consumo_mb, modulo);
-                if (!puede || !puede.puede) {
-                    mostrarToast(puede?.mensaje || '⚠️ Sin conexión a internet', 'error');
-                    if (puede?.recargar) {
-                        setTimeout(() => {
-                            if (confirm('📶 ¿Quieres ir a Mi Red para activar o recargar tu eSIM?')) {
-                                window.location.href = '../red/index.html#esim';
-                            }
-                        }, 1000);
-                    }
-                    return false;
-                }
-                return true;
-            } catch (error) {
-                console.error('❌ Error verificando datos:', error);
-                mostrarToast('⚠️ Error al verificar conexión', 'error');
-                return false;
-            }
-        }
-
-        async function obtenerTokenLiveKit(roomName, identity, name, canPublish = false) {
-            try {
-                const resp = await fetch(`${supabaseClient.supabaseUrl}/functions/v1/generate-live-token`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${supabaseClient.supabaseKey}`
-                    },
-                    body: JSON.stringify({
-                        room: roomName,
-                        identity: identity,
-                        name: name,
-                        metadata: JSON.stringify({ wallet: localStorage.getItem('csariels_wallet') || 'anon' }),
-                        canPublish: canPublish
-                    })
-                });
-                const data = await resp.json();
-                return data;
-            } catch (e) {
-                console.error('Error obteniendo token LiveKit:', e);
-                return null;
-            }
-        }
-
-        async function iniciarLive() {
-            const puede = await puedeUsarLive(2, 'live');
-            if (!puede) return;
-
-            if (room) {
+        function iniciarLive() {
+            if (liveActivo) {
                 mostrarToast('⚠️ Ya estás transmitiendo', 'error');
                 return;
             }
 
-            currentLiveRoomId = 'live_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
-            isBroadcaster = true;
-            liveStreamerName = currentUserName;
+            const userId = localStorage.getItem('csariels_user_id') || 'user_' + Date.now();
+            const userName = localStorage.getItem('csariels_user_name') || 'Usuario';
 
-            const tokenData = await obtenerTokenLiveKit(
-                currentLiveRoomId,
-                localStorage.getItem('csariels_wallet') || `user_${Date.now()}`,
-                currentUserName,
-                true
-            );
+            // Solicitar cámara y micrófono
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then((stream) => {
+                    mediaStream = stream;
+                    const video = document.getElementById('liveVideo');
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    document.getElementById('videoPlaceholder').style.display = 'none';
+                    document.getElementById('liveOverlay').style.display = 'flex';
 
-            if (!tokenData || !tokenData.token) {
-                mostrarToast('❌ Error al obtener token de LiveKit', 'error');
-                return;
-            }
+                    liveActivo = true;
+                    document.getElementById('btnIniciarLive').style.display = 'none';
+                    document.getElementById('btnDetenerLive').style.display = 'inline-flex';
 
-            try {
-                room = new Livekit.Room({
-                    adaptiveStream: true,
-                    dynacast: true,
-                });
+                    // Actualizar contador de viewers
+                    let viewers = Math.floor(Math.random() * 10) + 1;
+                    document.getElementById('liveViewers').textContent = viewers;
+                    const interval = setInterval(() => {
+                        if (!liveActivo) {
+                            clearInterval(interval);
+                            return;
+                        }
+                        const change = Math.floor(Math.random() * 3) - 1;
+                        viewers = Math.max(0, viewers + change);
+                        document.getElementById('liveViewers').textContent = viewers;
+                    }, 5000);
 
-                room.on('participantConnected', (participant) => {
-                    liveViewers++;
-                    actualizarContadorLive();
-                });
+                    mostrarToast(`🔴 Live iniciado como ${userName}`);
+                    agregarMensajeChat('🎥', `${userName} inició una transmisión en vivo`);
 
-                room.on('participantDisconnected', (participant) => {
-                    liveViewers--;
-                    actualizarContadorLive();
-                });
-
-                room.on('connected', () => {
-                    localParticipant = room.localParticipant;
-                    mostrarToast('🔴 Transmisión iniciada');
-                    btnDetenerLive.style.display = 'inline-flex';
-                    livePlayerContainer.style.display = 'block';
-                    liveStreamerSpan.textContent = 'Transmitiendo: ' + currentUserName;
-                    publicarTracks();
-                });
-
-                room.on('disconnected', () => {
-                    detenerLive();
-                });
-
-                await room.connect(tokenData.serverUrl || 'ws://localhost:7880', tokenData.token);
-
-                suscribirChatLive(currentLiveRoomId);
-                await guardarLiveEnSupabase();
-
-            } catch (error) {
-                console.error('Error al iniciar live:', error);
-                mostrarToast('❌ Error al iniciar live: ' + error.message, 'error');
-                room = null;
-            }
-        }
-
-        async function publicarTracks() {
-            try {
-                const tracks = await localParticipant?.createTracks({
-                    video: { facingMode: 'user', width: 640, height: 480 },
-                    audio: true
-                });
-                await localParticipant?.publishTracks(tracks);
-                const videoTracks = localParticipant.videoTracks;
-                if (videoTracks.size > 0) {
-                    const track = videoTracks.values().next().value?.videoTrack;
-                    if (track) {
-                        track.attach(liveVideo);
-                    }
-                }
-            } catch (e) {
-                console.error('Error publicando tracks:', e);
-                mostrarToast('⚠️ No se pudo acceder a cámara/micrófono', 'error');
-            }
-        }
-
-        async function guardarLiveEnSupabase() {
-            try {
-                await supabaseClient.from('live_posts').insert([{
-                    usuario_id: currentUserId,
-                    usuario_nombre: currentUserName,
-                    tipo: 'live',
-                    is_live: true,
-                    room_id: currentLiveRoomId,
-                    created_at: new Date().toISOString(),
-                    extra: { active: true, viewers: 0 }
-                }]);
-            } catch (e) {
-                console.warn('No se pudo guardar live en Supabase:', e);
-            }
-        }
-
-        async function unirseALive(roomId, streamerName) {
-            if (room) {
-                mostrarToast('Ya estás viendo un live', 'error');
-                return;
-            }
-
-            const puede = await puedeUsarLive(1, 'live');
-            if (!puede) return;
-
-            currentLiveRoomId = roomId;
-            liveStreamerName = streamerName;
-            isBroadcaster = false;
-
-            const tokenData = await obtenerTokenLiveKit(
-                roomId,
-                localStorage.getItem('csariels_wallet') || `viewer_${Date.now()}`,
-                currentUserName,
-                false
-            );
-
-            if (!tokenData || !tokenData.token) {
-                mostrarToast('❌ Error al obtener token de LiveKit', 'error');
-                return;
-            }
-
-            try {
-                room = new Livekit.Room({
-                    adaptiveStream: true,
-                    dynacast: true,
-                });
-
-                room.on('trackSubscribed', (track, publication, participant) => {
-                    if (track.kind === 'video') {
-                        track.attach(liveVideo);
-                        livePlayerContainer.style.display = 'block';
-                        liveStreamerSpan.textContent = 'Viendo a: ' + streamerName;
-                    }
-                });
-
-                room.on('participantConnected', () => {
-                    liveViewers++;
-                    actualizarContadorLive();
-                });
-
-                room.on('participantDisconnected', () => {
-                    liveViewers--;
-                    actualizarContadorLive();
-                });
-
-                room.on('disconnected', () => {
-                    detenerLive();
-                });
-
-                await room.connect(tokenData.serverUrl || 'ws://localhost:7880', tokenData.token);
-
-                suscribirChatLive(currentLiveRoomId);
-                mostrarToast('👁️ Conectado al live de ' + streamerName);
-
-            } catch (error) {
-                console.error('Error al unirse al live:', error);
-                mostrarToast('❌ Error al unirse al live', 'error');
-                room = null;
-            }
-        }
-
-        async function detenerLive() {
-            if (room) {
-                await room.disconnect();
-                room = null;
-                localParticipant = null;
-                liveVideo.srcObject = null;
-                liveVideo.src = '';
-                livePlayerContainer.style.display = 'none';
-                liveStreamerSpan.textContent = '';
-                btnDetenerLive.style.display = 'none';
-                liveViewers = 0;
-                actualizarContadorLive();
-
-                if (currentLiveRoomId) {
-                    try {
-                        await supabaseClient.from('live_posts')
-                            .update({ is_live: false, extra: { active: false } })
-                            .eq('room_id', currentLiveRoomId);
-                    } catch (e) {}
-                }
-                currentLiveRoomId = null;
-                mostrarToast('⏹️ Live finalizado');
-            }
-        }
-
-        function actualizarContadorLive() {
-            if (liveViewersSpan) liveViewersSpan.textContent = liveViewers;
-        }
-
-        let chatSubscription = null;
-
-        function suscribirChatLive(roomId) {
-            if (chatSubscription) {
-                chatSubscription.unsubscribe();
-                chatSubscription = null;
-            }
-
-            chatSubscription = supabaseClient
-                .channel(`live_chat_${roomId}`)
-                .on('broadcast', { event: 'message' }, (payload) => {
-                    agregarMensajeChat(payload.payload.user, payload.payload.message);
-                })
-                .subscribe();
-
-            cargarHistorialChat(roomId);
-        }
-
-        async function cargarHistorialChat(roomId) {
-            try {
-                const { data } = await supabaseClient
-                    .from('live_chat_messages')
-                    .select('*')
-                    .eq('room_id', roomId)
-                    .order('created_at', { ascending: true })
-                    .limit(50);
-                if (data) {
-                    data.forEach(msg => {
-                        agregarMensajeChat(msg.user_name, msg.message);
+                    // Guardar en localStorage
+                    const lives = JSON.parse(localStorage.getItem('csariels_lives') || '[]');
+                    lives.push({
+                        id: Date.now(),
+                        usuario: userName,
+                        user_id: userId,
+                        inicio: new Date().toISOString(),
+                        activo: true
                     });
-                }
-            } catch (e) {}
-        }
+                    localStorage.setItem('csariels_lives', JSON.stringify(lives));
 
-        function agregarMensajeChat(user, message) {
-            const div = document.createElement('div');
-            div.className = 'text-xs text-[#e8f0f8] mb-1';
-            div.innerHTML = `<span class="text-[#D4AF37] font-bold">${user}:</span> ${message}`;
-            liveChat.appendChild(div);
-            liveChat.scrollTop = liveChat.scrollHeight;
-        }
-
-        async function enviarMensajeLive() {
-            const msg = liveChatInput.value.trim();
-            if (!msg || !currentLiveRoomId) return;
-            const payload = { user: currentUserName, message: msg };
-            if (chatSubscription) {
-                chatSubscription.send({
-                    type: 'broadcast',
-                    event: 'message',
-                    payload
+                })
+                .catch((err) => {
+                    mostrarToast('❌ Error al acceder a cámara/micrófono', 'error');
+                    console.error('Error al iniciar live:', err);
                 });
-            }
-            try {
-                await supabaseClient.from('live_chat_messages').insert([{
-                    room_id: currentLiveRoomId,
-                    user_name: currentUserName,
-                    message: msg,
-                    created_at: new Date().toISOString()
-                }]);
-            } catch (e) {}
-            liveChatInput.value = '';
         }
 
-        function abrirDonacion() {
-            if (!currentLiveRoomId) {
-                mostrarToast('⚠️ No hay un live activo para donar', 'error');
+        function detenerLive() {
+            if (!liveActivo) return;
+
+            // Detener stream
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+
+            const video = document.getElementById('liveVideo');
+            video.srcObject = null;
+            video.style.display = 'none';
+            document.getElementById('videoPlaceholder').style.display = 'flex';
+            document.getElementById('liveOverlay').style.display = 'none';
+
+            liveActivo = false;
+            document.getElementById('btnIniciarLive').style.display = 'inline-flex';
+            document.getElementById('btnDetenerLive').style.display = 'none';
+
+            mostrarToast('⏹️ Live finalizado');
+            agregarMensajeChat('📢', 'El live ha finalizado');
+        }
+
+        function donarLive() {
+            const userId = localStorage.getItem('csariels_user_id') || 'user_default';
+            const saldo = parseInt(localStorage.getItem(`csariels_cmt_balance_${userId}`) || '0');
+
+            if (saldo < 1) {
+                mostrarToast('⚠️ Saldo insuficiente. Recarga CMT en la Tienda.', 'error');
                 return;
             }
-            document.getElementById('donationStreamerName').textContent = liveStreamerName;
-            document.getElementById('donationModal').classList.add('active');
-            selectDonacion(0);
-        }
 
-        function cerrarDonacion() {
-            document.getElementById('donationModal').classList.remove('active');
-        }
-
-        function selectDonacion(amount) {
-            const custom = document.getElementById('donationCustom');
-            if (amount === 0) {
-                amount = parseFloat(custom.value) || 0;
+            const monto = prompt('¿Cuántos CMT quieres donar?', '10');
+            if (!monto) return;
+            const cantidad = parseInt(monto);
+            if (isNaN(cantidad) || cantidad < 1) {
+                mostrarToast('⚠️ Monto inválido', 'error');
+                return;
             }
-            selectedDonation = amount;
-            document.querySelectorAll('.amount-btn').forEach(btn => {
-                btn.classList.toggle('active', parseFloat(btn.dataset.amount) === amount);
+            if (cantidad > saldo) {
+                mostrarToast(`⚠️ Saldo insuficiente. Tienes ${saldo} CMT`, 'error');
+                return;
+            }
+
+            // Descontar saldo
+            const nuevoSaldo = saldo - cantidad;
+            localStorage.setItem(`csariels_cmt_balance_${userId}`, nuevoSaldo.toString());
+
+            // Registrar donación
+            const donaciones = JSON.parse(localStorage.getItem('csariels_donaciones') || '[]');
+            donaciones.push({
+                id: Date.now(),
+                user_id: userId,
+                monto: cantidad,
+                fecha: new Date().toISOString()
             });
-            const total = amount;
-            document.getElementById('donationAmountDisplay').textContent = '$' + total.toFixed(2);
-            document.getElementById('donationStreamerShare').textContent = '$' + (total * 0.5).toFixed(2);
-            document.getElementById('donationPlatformShare').textContent = '$' + (total * 0.5).toFixed(2);
+            localStorage.setItem('csariels_donaciones', JSON.stringify(donaciones));
+
+            mostrarToast(`❤️ Donaste ${cantidad} CMT al streamer`);
+            agregarMensajeChat('🎁', `💖 ${localStorage.getItem('csariels_user_name') || 'Usuario'} donó ${cantidad} CMT`);
         }
 
-        async function procesarDonacion() {
-            if (selectedDonation < 1) {
-                mostrarToast('⚠️ Ingresa un monto válido', 'error');
-                return;
-            }
-            const puede = await puedeUsarLive(0.3, 'donacion');
-            if (!puede) return;
-
-            const message = document.getElementById('donationMessage').value.trim();
-            const streamerWallet = localStorage.getItem('csariels_wallet') || 'anon';
-            const donorWallet = localStorage.getItem('csariels_wallet') || 'anon';
-
-            try {
-                const { error } = await supabaseClient.from('donations').insert([{
-                    room_id: currentLiveRoomId,
-                    streamer_id: streamerWallet,
-                    streamer_name: liveStreamerName,
-                    donor_id: donorWallet,
-                    donor_name: currentUserName,
-                    amount: selectedDonation,
-                    platform_fee: selectedDonation * 0.5,
-                    streamer_share: selectedDonation * 0.5,
-                    message: message,
-                    created_at: new Date().toISOString()
-                }]);
-                if (error) throw error;
-
-                mostrarToast(`❤️ Donación de $${selectedDonation} enviada a ${liveStreamerName}`);
-                cerrarDonacion();
-
-                if (chatSubscription) {
-                    chatSubscription.send({
-                        type: 'broadcast',
-                        event: 'message',
-                        payload: {
-                            user: '🎁 Donación',
-                            message: `${currentUserName} donó $${selectedDonation} a ${liveStreamerName}`
-                        }
-                    });
-                }
-
-            } catch (e) {
-                console.error('Error procesando donación:', e);
-                mostrarToast('❌ Error al procesar donación', 'error');
-            }
+        function enviarMensaje() {
+            const input = document.getElementById('chatInput');
+            const texto = input.value.trim();
+            if (!texto) return;
+            const userName = localStorage.getItem('csariels_user_name') || 'Usuario';
+            agregarMensajeChat(userName, texto);
+            input.value = '';
         }
 
-        function abrirPublicacion() {
-            document.getElementById('postModal').classList.add('active');
-        }
-
-        function cerrarPublicacion() {
-            document.getElementById('postModal').classList.remove('active');
-            document.getElementById('postText').value = '';
-            document.getElementById('postImage').value = '';
-            document.getElementById('postVideo').value = '';
-        }
-
-        async function publicarPost() {
-            const puede = await puedeUsarLive(0.5, 'publicacion');
-            if (!puede) return;
-
-            const texto = document.getElementById('postText').value.trim();
-            const imagen = document.getElementById('postImage').value.trim();
-            const video = document.getElementById('postVideo').value.trim();
-
-            if (!texto && !imagen && !video) {
-                mostrarToast('⚠️ Escribe algo o agrega una imagen/video', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient.from('live_posts').insert([{
-                    usuario_id: currentUserId,
-                    usuario_nombre: currentUserName,
-                    tipo: 'publicacion',
-                    is_live: false,
-                    contenido: texto,
-                    media_url: imagen || video,
-                    media_type: video ? 'video' : (imagen ? 'image' : null),
-                    created_at: new Date().toISOString()
-                }]);
-                if (error) throw error;
-                mostrarToast('✅ Publicación creada');
-                cerrarPublicacion();
-                cargarFeed();
-            } catch (e) {
-                console.error('Error publicando:', e);
-                mostrarToast('❌ Error al publicar', 'error');
-            }
-        }
-
-        async function cargarFeed() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('live_posts')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(50);
-
-                if (error) throw error;
-
-                const livesActivos = data.filter(p => p.is_live === true);
-                liveCountSpan.textContent = livesActivos.length + ' lives activos';
-
-                feedContainer.innerHTML = data.map(post => {
-                    const esLive = post.is_live === true;
-                    const esPublicacion = post.tipo === 'publicacion' || !esLive;
-                    let mediaHTML = '';
-                    if (post.media_url) {
-                        if (post.media_type === 'video' || post.media_url.match(/\.(mp4|webm|mov)/i)) {
-                            mediaHTML = `<div class="media-container"><video controls><source src="${post.media_url}" type="video/mp4" /></video></div>`;
-                        } else {
-                            mediaHTML = `<div class="media-container"><img src="${post.media_url}" alt="Imagen" loading="lazy" /></div>`;
-                        }
-                    }
-
-                    let accionesExtra = '';
-                    if (esLive && post.room_id) {
-                        accionesExtra = `
-                            <button class="btn btn-danger btn-sm" onclick="unirseALive('${post.room_id}','${post.usuario_nombre}')">
-                                <i class="fas fa-eye"></i> Ver Live
-                            </button>
-                            <button class="btn btn-gold btn-sm" onclick="abrirDonacion()">
-                                <i class="fas fa-heart"></i> Donar
-                            </button>
-                        `;
-                    }
-
-                    return `
-                        <div class="post-card">
-                            <div class="flex items-start gap-3">
-                                <div class="w-10 h-10 rounded-full bg-[#0F2D1A] border-2 border-[#D4AF37] flex items-center justify-center text-lg">
-                                    ${post.usuario_nombre.charAt(0).toUpperCase()}
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="font-bold text-white">${post.usuario_nombre}</span>
-                                        <span class="text-[#8ba3c7] text-xs">${new Date(post.created_at).toLocaleString()}</span>
-                                        ${esLive ? '<span class="bg-red-600 text-white text-[0.5rem] px-2 py-0.5 rounded-full">🔴 EN VIVO</span>' : ''}
-                                    </div>
-                                    ${post.contenido ? `<div class="text-[#e8f0f8] text-sm my-1">${post.contenido}</div>` : ''}
-                                    ${mediaHTML}
-                                    <div class="flex gap-3 mt-2 text-xs text-[#8ba3c7]">
-                                        <button class="hover:text-[#D4AF37] transition" onclick="darLike('${post.id}')">
-                                            <i class="fas fa-heart"></i> <span id="like-${post.id}">${post.likes || 0}</span>
-                                        </button>
-                                        <button class="hover:text-[#D4AF37] transition" onclick="mostrarComentarios('${post.id}')">
-                                            <i class="fas fa-comment"></i> Comentar
-                                        </button>
-                                        ${accionesExtra}
-                                    </div>
-                                    <div id="comments-${post.id}" class="mt-2 space-y-1"></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                suscribirFeed();
-
-            } catch (e) {
-                console.error('Error cargando feed:', e);
-                mostrarToast('❌ Error al cargar el feed', 'error');
-            }
-        }
-
-        async function darLike(postId) {
-            try {
-                const { data, error } = await supabaseClient.rpc('increment_like', { post_id: postId });
-                if (error) throw error;
-                const likeSpan = document.getElementById(`like-${postId}`);
-                if (likeSpan) {
-                    const current = parseInt(likeSpan.textContent) || 0;
-                    likeSpan.textContent = current + 1;
-                }
-            } catch (e) {
-                console.error('Error dando like:', e);
-                mostrarToast('❌ Error al dar like', 'error');
-            }
-        }
-
-        let commentSubscriptions = {};
-
-        function mostrarComentarios(postId) {
-            const container = document.getElementById(`comments-${postId}`);
-            if (!container) return;
-            if (container.dataset.open === 'true') {
-                container.innerHTML = '';
-                container.dataset.open = 'false';
-                return;
-            }
-            container.dataset.open = 'true';
-            cargarComentarios(postId, container);
-
-            const inputDiv = document.createElement('div');
-            inputDiv.className = 'flex gap-2 mt-2';
-            inputDiv.innerHTML = `
-                <input type="text" id="comment-input-${postId}" placeholder="Escribe un comentario..." class="flex-1 bg-black/30 border border-[#D4AF37]/20 rounded-full px-3 py-1 text-sm text-white outline-none" />
-                <button class="btn btn-primary btn-sm" onclick="enviarComentario('${postId}')">Enviar</button>
-            `;
-            container.appendChild(inputDiv);
-
-            if (commentSubscriptions[postId]) {
-                commentSubscriptions[postId].unsubscribe();
-            }
-            const channel = supabaseClient
-                .channel(`comments_${postId}`)
-                .on('postgres_changes', {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'comments',
-                    filter: `post_id=eq.${postId}`
-                }, (payload) => {
-                    const newComment = payload.new;
-                    agregarComentario(container, newComment.user_name, newComment.content, true);
-                })
-                .subscribe();
-            commentSubscriptions[postId] = channel;
-        }
-
-        async function cargarComentarios(postId, container) {
-            try {
-                const { data } = await supabaseClient
-                    .from('comments')
-                    .select('*')
-                    .eq('post_id', postId)
-                    .order('created_at', { ascending: true })
-                    .limit(20);
-                if (data) {
-                    data.forEach(c => {
-                        agregarComentario(container, c.user_name, c.content, false);
-                    });
-                }
-            } catch (e) {}
-        }
-
-        function agregarComentario(container, user, content, isNew) {
+        function agregarMensajeChat(usuario, mensaje) {
+            const chatBox = document.getElementById('chatBox');
             const div = document.createElement('div');
-            div.className = 'text-xs text-[#e8f0f8] flex gap-2';
-            if (isNew) div.style.animation = 'fadeIn 0.3s';
-            div.innerHTML = `<span class="text-[#D4AF37] font-bold">${user}:</span> ${content}`;
-            const inputDiv = container.lastElementChild;
-            container.insertBefore(div, inputDiv);
-        }
-
-        async function enviarComentario(postId) {
-            const input = document.getElementById(`comment-input-${postId}`);
-            const text = input.value.trim();
-            if (!text) return;
-
-            try {
-                const { error } = await supabaseClient.from('comments').insert([{
-                    post_id: postId,
-                    user_id: currentUserId,
-                    user_name: currentUserName,
-                    content: text,
-                    created_at: new Date().toISOString()
-                }]);
-                if (error) throw error;
-                input.value = '';
-                mostrarToast('💬 Comentario enviado');
-            } catch (e) {
-                console.error('Error enviando comentario:', e);
-                mostrarToast('❌ Error al comentar', 'error');
-            }
-        }
-
-        let feedSubscription = null;
-
-        function suscribirFeed() {
-            if (feedSubscription) {
-                feedSubscription.unsubscribe();
-            }
-            feedSubscription = supabaseClient
-                .channel('live_feed')
-                .on('postgres_changes', {
-                    event: '*',
-                    schema: 'public',
-                    table: 'live_posts'
-                }, () => {
-                    cargarFeed();
-                })
-                .subscribe();
+            div.className = 'chat-message';
+            div.innerHTML = `<span class="user">${usuario}:</span> ${mensaje}`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         // ================================================================
@@ -1937,27 +1175,17 @@
         document.addEventListener('DOMContentLoaded', async function() {
             initStars();
             await CSARIELS_IDIOMA.init();
-            await initSupabase();
 
-            console.log('📹 Csariel\'s - Muro Live');
-            console.log('🔴 LiveKit integrado');
-            console.log('📶 Verificación de datos eSIM activada');
-            console.log('🔍 Buscador inteligente activado');
+            // Cargar donaciones guardadas
+            const donaciones = JSON.parse(localStorage.getItem('csariels_donaciones') || '[]');
+            console.log(`💖 Donaciones totales: ${donaciones.length}`);
 
-            await cargarFeed();
+            console.log('📹 Csariel\'s - Muro Live (SIN WEB3)');
 
-            const params = new URLSearchParams(window.location.search);
-            const roomParam = params.get('room');
-            if (roomParam) {
-                const { data } = await supabaseClient
-                    .from('live_posts')
-                    .select('usuario_nombre')
-                    .eq('room_id', roomParam)
-                    .single();
-                if (data) {
-                    unirseALive(roomParam, data.usuario_nombre);
-                }
-            }
+            // Enter para enviar mensaje
+            document.getElementById('chatInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') enviarMensaje();
+            });
 
             // Escuchar cambios de idioma
             window.addEventListener('storage', (e) => {
@@ -1973,23 +1201,12 @@
             });
         });
 
-        // Exponer funciones globales
         window.iniciarLive = iniciarLive;
         window.detenerLive = detenerLive;
-        window.unirseALive = unirseALive;
-        window.enviarMensajeLive = enviarMensajeLive;
-        window.abrirDonacion = abrirDonacion;
-        window.cerrarDonacion = cerrarDonacion;
-        window.selectDonacion = selectDonacion;
-        window.procesarDonacion = procesarDonacion;
-        window.abrirPublicacion = abrirPublicacion;
-        window.cerrarPublicacion = cerrarPublicacion;
-        window.publicarPost = publicarPost;
-        window.darLike = darLike;
-        window.mostrarComentarios = mostrarComentarios;
-        window.enviarComentario = enviarComentario;
+        window.donarLive = donarLive;
+        window.enviarMensaje = enviarMensaje;
+        window.agregarMensajeChat = agregarMensajeChat;
         window.mostrarToast = mostrarToast;
-        window.buscarInteligente = buscarInteligente;
         window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
     </script>
 </body>
