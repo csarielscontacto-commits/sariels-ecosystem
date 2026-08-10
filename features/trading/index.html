@@ -252,7 +252,7 @@
         .indicators-bar .ind-btn:hover { border-color:var(--gold-cosmic); color:white; }
         .indicators-bar .ind-btn.active { background:rgba(212,175,55,0.1); border-color:var(--gold-cosmic); color:var(--gold-cosmic); }
 
-        /* ===== PANEL DE TRADING (derecha) ===== */
+        /* ===== PANEL DE TRADING (derecha) - VERSIÓN LEGAL ===== */
         .trade-panel {
             background:rgba(15,45,26,0.2);
             border:1px solid var(--gold-dim);
@@ -299,12 +299,31 @@
             border-bottom:1px solid rgba(255,255,255,0.03);
         }
         .trade-panel .price-info .value { color:white; font-weight:600; }
-        .trade-panel .gas-info {
+
+        /* ===== COMISIÓN (Art. 3.4) - NUEVO ===== */
+        .commission-info {
             font-size:0.6rem;
             color:var(--text-muted);
-            text-align:right;
-            padding:2px 0;
+            text-align:center;
+            padding:4px 0;
+            border-bottom:1px solid rgba(255,255,255,0.03);
         }
+        .commission-info strong {
+            color:var(--gold-cosmic);
+        }
+
+        /* ===== RIESGO (Art. 3.5) - NUEVO ===== */
+        .risk-warning {
+            font-size:0.5rem;
+            color:var(--danger);
+            text-align:center;
+            margin-top:4px;
+            padding:4px 8px;
+            background:rgba(255,51,102,0.05);
+            border-radius:6px;
+            border:1px solid rgba(255,51,102,0.1);
+        }
+
         .trade-panel .terms-check {
             display:flex;
             align-items:center;
@@ -314,6 +333,7 @@
             margin:4px 0;
         }
         .trade-panel .terms-check input { accent-color:var(--gold-cosmic); }
+        .trade-panel .terms-check a { color:var(--gold-cosmic); text-decoration:underline; }
 
         .trade-panel .btn-execute {
             width:100%;
@@ -366,7 +386,7 @@
         .orders-grid .order-card .order-item .status-filled { color:var(--success); }
         .orders-grid .order-card .order-item .status-open { color:var(--gold-cosmic); }
 
-        /* ===== AVISO LEGAL ===== */
+        /* ===== AVISO LEGAL (Art. 5.5 y 5.10) - ACTUALIZADO ===== */
         .legal-notice {
             margin-top:16px;
             padding:12px 16px;
@@ -376,9 +396,13 @@
             text-align:center;
             font-size:0.5rem;
             color:var(--text-muted);
-            line-height:1.6;
+            line-height:1.8;
         }
         .legal-notice a { color:var(--gold-cosmic); text-decoration:underline; }
+        .legal-notice .jurisdiction {
+            color:var(--text-secondary);
+            font-weight:600;
+        }
 
         /* ===== FOOTER ===== */
         .footer {
@@ -539,7 +563,7 @@
                 <div id="chart-container"></div>
             </div>
 
-            <!-- COLUMNA DERECHA: PANEL DE TRADING -->
+            <!-- COLUMNA DERECHA: PANEL DE TRADING (VERSIÓN LEGAL) -->
             <div class="trade-panel" id="tradePanel">
                 <div class="balance-row">
                     <span class="item">STOKS: <span class="value" id="balSTOKS">0.00</span></span>
@@ -557,18 +581,28 @@
                     <span data-i18n="total_estimado">Total estimado</span>
                     <span class="value" id="totalEst">0.00 MXN</span>
                 </div>
-                <div class="gas-info">
-                    ⛽ <span data-i18n="gas_estimado">Costo de gas estimado:</span> <span id="gasEst">-- MATIC</span>
+
+                <!-- ===== COMISIÓN (Art. 3.4) ===== -->
+                <div class="commission-info">
+                    💸 <span data-i18n="comision">Comisión de transacción:</span> <strong>50%</strong> <span data-i18n="articulo_34">(Art. 3.4)</span>
                 </div>
+
+                <!-- ===== TÉRMINOS CON ADVERTENCIA (Art. 3.5) ===== -->
                 <div class="terms-check">
                     <input type="checkbox" id="acceptTerms" />
                     <label for="acceptTerms" data-i18n="aceptar_terminos">He leído y acepto los <a href="../../terminos-completos.html" style="color:var(--gold-cosmic);text-decoration:underline;">Términos y Condiciones</a></label>
                 </div>
+
                 <button class="btn btn-execute buy" onclick="ejecutarOrden()" id="btnExecute" data-i18n="comprar_stoks">🚀 COMPRAR STOKS</button>
                 <div class="trade-status" id="tradeStatus"></div>
                 <div style="display:flex; gap:6px; margin-top:4px;">
                     <button class="btn btn-success btn-sm" style="flex:1;justify-content:center;" onclick="setTradeMode('buy')"><span data-i18n="comprar">Comprar</span></button>
                     <button class="btn btn-danger btn-sm" style="flex:1;justify-content:center;" onclick="setTradeMode('sell')"><span data-i18n="vender">Vender</span></button>
+                </div>
+
+                <!-- ===== ADVERTENCIA DE RIESGO (Art. 3.5) ===== -->
+                <div class="risk-warning">
+                    ⚠️ <span data-i18n="riesgo_especulacion">Art. 3.5: La especulación y el riesgo de pérdida son responsabilidad exclusiva del Usuario.</span>
                 </div>
             </div>
         </div>
@@ -589,11 +623,13 @@
             </div>
         </div>
 
-        <!-- AVISO LEGAL -->
+        <!-- ===== AVISO LEGAL (Art. 5.5 y 5.10) ===== -->
         <div class="legal-notice">
-            ⚠️ Aviso Legal y Términos (resumen): El trading de STOKS implica riesgos. Csariel's no ofrece asesoría financiera.
-            Las transacciones son irreversibles. Jurisdicción: Puebla, México.
-            <a href="../../terminos-completos.html">Términos completos (81 artículos)</a>
+            ⚠️ <span data-i18n="aviso_legal_resumen">Aviso Legal y Términos (resumen): El trading de STOKS implica riesgos. Csariel's no ofrece asesoría financiera. Las transacciones son irreversibles.</span>
+            <br>
+            📍 <span data-i18n="jurisdiccion">Jurisdicción:</span> <span class="jurisdiction">Puebla, México</span> <span data-i18n="articulo_510">(Art. 5.10)</span>
+            <br>
+            <a href="../../terminos-completos.html" data-i18n="terminos_completos">📜 Términos completos (81 artículos)</a>
         </div>
 
         <!-- FOOTER CON TODOS LOS ENLACES -->
@@ -692,16 +728,22 @@
                         'cantidad_placeholder': '0.00',
                         'precio_unitario': 'Precio unitario (referencia)',
                         'total_estimado': 'Total estimado',
-                        'gas_estimado': 'Costo de gas estimado:',
+                        'comision': 'Comisión de transacción:',
+                        'articulo_34': '(Art. 3.4)',
                         'aceptar_terminos': 'He leído y acepto los Términos y Condiciones',
                         'comprar_stoks': '🚀 COMPRAR STOKS',
                         'comprar': 'Comprar',
                         'vender': 'Vender',
+                        'riesgo_especulacion': 'Art. 3.5: La especulación y el riesgo de pérdida son responsabilidad exclusiva del Usuario.',
                         'ordenes_abiertas': '📋 Órdenes Abiertas',
                         'historial': '📜 Historial',
                         'conecta_wallet': 'Conecta tu wallet para ver tus órdenes.',
                         'conecta_wallet_historial': 'Conecta tu wallet para ver tu historial.',
-                        'footer_trading': 'STOKS Trading · Utility Token'
+                        'footer_trading': 'STOKS Trading · Utility Token',
+                        'aviso_legal_resumen': 'Aviso Legal y Términos (resumen): El trading de STOKS implica riesgos. Csariel\'s no ofrece asesoría financiera. Las transacciones son irreversibles.',
+                        'jurisdiccion': 'Jurisdicción:',
+                        'articulo_510': '(Art. 5.10)',
+                        'terminos_completos': '📜 Términos completos (81 artículos)'
                     },
                     en: {
                         'titulo_trading': 'Csariel\'s STOKS · Trading',
@@ -722,16 +764,22 @@
                         'cantidad_placeholder': '0.00',
                         'precio_unitario': 'Unit price (reference)',
                         'total_estimado': 'Estimated total',
-                        'gas_estimado': 'Estimated gas cost:',
+                        'comision': 'Transaction fee:',
+                        'articulo_34': '(Art. 3.4)',
                         'aceptar_terminos': 'I have read and accept the Terms and Conditions',
                         'comprar_stoks': '🚀 BUY STOKS',
                         'comprar': 'Buy',
                         'vender': 'Sell',
+                        'riesgo_especulacion': 'Art. 3.5: Speculation and risk of loss are the sole responsibility of the User.',
                         'ordenes_abiertas': '📋 Open Orders',
                         'historial': '📜 History',
                         'conecta_wallet': 'Connect your wallet to see your orders.',
                         'conecta_wallet_historial': 'Connect your wallet to see your history.',
-                        'footer_trading': 'STOKS Trading · Utility Token'
+                        'footer_trading': 'STOKS Trading · Utility Token',
+                        'aviso_legal_resumen': 'Legal Notice and Terms (summary): STOKS trading involves risks. Csariel\'s does not offer financial advice. Transactions are irreversible.',
+                        'jurisdiccion': 'Jurisdiction:',
+                        'articulo_510': '(Art. 5.10)',
+                        'terminos_completos': '📜 Full Terms (81 articles)'
                     },
                     fr: {
                         'titulo_trading': 'Csariel\'s STOKS · Trading',
@@ -752,16 +800,22 @@
                         'cantidad_placeholder': '0.00',
                         'precio_unitario': 'Prix unitaire (référence)',
                         'total_estimado': 'Total estimé',
-                        'gas_estimado': 'Coût estimé du gaz:',
+                        'comision': 'Frais de transaction :',
+                        'articulo_34': '(Art. 3.4)',
                         'aceptar_terminos': 'J\'ai lu et j\'accepte les Termes et Conditions',
                         'comprar_stoks': '🚀 ACHETER STOKS',
                         'comprar': 'Acheter',
                         'vender': 'Vendre',
+                        'riesgo_especulacion': 'Art. 3.5 : La spéculation et le risque de perte sont la seule responsabilité de l\'Utilisateur.',
                         'ordenes_abiertas': '📋 Ordres Ouverts',
                         'historial': '📜 Historique',
                         'conecta_wallet': 'Connectez votre portefeuille pour voir vos ordres.',
                         'conecta_wallet_historial': 'Connectez votre portefeuille pour voir votre historique.',
-                        'footer_trading': 'STOKS Trading · Jeton Utilitaire'
+                        'footer_trading': 'STOKS Trading · Jeton Utilitaire',
+                        'aviso_legal_resumen': 'Avis légal et Conditions (résumé) : Le trading de STOKS implique des risques. Csariel\'s ne fournit pas de conseils financiers. Les transactions sont irréversibles.',
+                        'jurisdiccion': 'Juridiction :',
+                        'articulo_510': '(Art. 5.10)',
+                        'terminos_completos': '📜 Conditions complètes (81 articles)'
                     }
                 };
                 this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
@@ -787,7 +841,6 @@
                     const key = el.getAttribute('data-i18n-placeholder');
                     if (this.traducciones[key]) el.placeholder = this.traducciones[key];
                 });
-                // Actualizar opciones del select si existen
             },
 
             actualizarBotones: function() {
@@ -871,7 +924,6 @@
         const tradeAmount = document.getElementById('tradeAmount');
         const priceRef = document.getElementById('priceRef');
         const totalEst = document.getElementById('totalEst');
-        const gasEst = document.getElementById('gasEst');
         const tradeStatus = document.getElementById('tradeStatus');
         const btnExecute = document.getElementById('btnExecute');
 
@@ -1074,8 +1126,6 @@
             el.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
             el.className = `change ${change >= 0 ? 'positive' : 'negative'}`;
             priceRef.textContent = price.toFixed(4);
-            const gas = (price * 0.001).toFixed(4);
-            gasEst.textContent = gas + ' MATIC';
             calcTotal();
         }
 
@@ -1140,8 +1190,6 @@
             const amount = parseFloat(tradeAmount.value) || 0;
             const total = amount * currentPrice;
             totalEst.textContent = total.toFixed(2) + ' MXN';
-            const gas = (amount * 0.001).toFixed(4);
-            gasEst.textContent = gas + ' MATIC';
         }
 
         // ================================================================
@@ -1206,7 +1254,7 @@
             }
 
             setInterval(simularActualizacion, 3000);
-            console.log('📈 Csariel\'s STOKS Trading - Pantalla Ancha');
+            console.log('📈 Csariel\'s STOKS Trading - Pantalla Ancha (Versión Legal)');
 
             // Escuchar cambios de idioma
             window.addEventListener('storage', (e) => {
