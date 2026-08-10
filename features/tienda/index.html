@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏰 Tienda | Csariel's</title>
+    <title data-i18n="titulo_tienda">🏰 Tienda CMT | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
 
     <!-- 🔒 CSP -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
-        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com 'unsafe-inline';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
         img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
         frame-src 'self';
         media-src 'self';
         object-src 'none';
@@ -24,12 +24,11 @@
     <!-- ===== RECURSOS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* ================================================================
-           PLANTILLA IDÉNTICA A CSARIEL'S (Mi Red, Live, Trading, etc.)
+           PLANTILLA IDÉNTICA A CSARIEL'S
            ================================================================ */
         :root {
             --space-deep: #05080f;
@@ -293,8 +292,33 @@
             50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
         }
 
+        /* ===== SELECTOR DE IDIOMA ===== */
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212,175,55,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212,175,55,0.08);
+        }
+        .language-selector .lang-icon { font-size: 0.7rem; margin-right: 2px; }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover { color: var(--text-secondary); background: rgba(212,175,55,0.05); }
+        .lang-btn.active { border-color: var(--gold-cosmic); background: rgba(212,175,55,0.1); color: var(--gold-cosmic); }
+
         /* ================================================================
-           ESTILOS PROPIOS DE LA TIENDA
+           ESTILOS PROPIOS DE LA TIENDA (SIN WEB3)
            ================================================================ */
         .shop-container {
             background: rgba(15,45,26,0.25);
@@ -325,38 +349,6 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
-        .token-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .token-card {
-            background: rgba(11,61,46,0.2);
-            border: 1px solid var(--gold-dim);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            transition: var(--transition);
-        }
-        .token-card:hover { border-color: var(--border-glow); transform: translateY(-3px); }
-        .token-card .emoji { font-size: 3rem; }
-        .token-card .name { font-family: 'Orbitron', monospace; color: var(--gold-cosmic); }
-        .token-card .price { font-size: 1.2rem; font-weight: 700; }
-        .token-card .btn-comprar {
-            margin-top: 10px;
-            padding: 8px 20px;
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-family: 'Orbitron', monospace;
-            width: 100%;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .token-card .btn-comprar:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(212,175,55,0.3); }
 
         .shop-header {
             display: flex;
@@ -401,35 +393,38 @@
             font-weight: 700;
         }
 
-        /* Dialog */
-        #dialogBubble {
-            display: none;
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(11,61,46,0.95);
-            border: 2px solid var(--gold-dim);
-            border-radius: 20px;
-            padding: 20px 30px;
-            max-width: 500px;
-            text-align: center;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
+        .token-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
         }
-        #dialogBubble .avatar { font-size: 3rem; margin-bottom: 8px; }
-        #dialogBubble .text { font-size: 1rem; }
-        #dialogBubble .btn-dialog {
-            margin-top: 12px;
-            padding: 8px 24px;
+        .token-card {
+            background: rgba(11,61,46,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .token-card:hover { border-color: var(--border-glow); transform: translateY(-3px); }
+        .token-card .emoji { font-size: 3rem; }
+        .token-card .name { font-family: 'Orbitron', monospace; color: var(--gold-cosmic); }
+        .token-card .price { font-size: 1.2rem; font-weight: 700; }
+        .token-card .btn-comprar {
+            margin-top: 10px;
+            padding: 8px 20px;
             background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
             border: none;
             border-radius: 30px;
-            color: #0a0c10;
             font-weight: 700;
             font-family: 'Orbitron', monospace;
+            width: 100%;
             cursor: pointer;
+            transition: var(--transition);
+            color: #000;
         }
+        .token-card .btn-comprar:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(212,175,55,0.3); }
 
         /* ===== FOOTER ===== */
         .footer {
@@ -526,94 +521,215 @@
 
     <div class="app">
 
-        <!-- HEADER CON TODOS LOS ENLACES -->
+        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA (SIN WEB3) -->
         <header class="header">
-            <a href="#" class="logo" onclick="event.preventDefault()">
+            <a href="../../index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Tienda</span>
+                <span class="logo-badge" data-i18n="tienda">Tienda</span>
             </a>
             <div class="header-actions">
-                <a href="../../index.html" class="btn btn-primary btn-sm">
-                    <i class="fas fa-home"></i> Inicio
+                <!-- ===== SELECTOR DE IDIOMA ===== -->
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
+                </div>
+
+                <a href="../../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
                 </a>
                 <a href="../red/index.html" class="btn btn-primary btn-sm">
-                    <i class="fas fa-users"></i> Mi Red
+                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
                 </a>
                 <a href="../live/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-rss"></i> Muro Live
+                    <i class="fas fa-video"></i> <span data-i18n="live">Live</span>
                 </a>
-                <a href="../memes/index.html" class="btn btn-danger btn-sm">
-                    <i class="fas fa-mask"></i> Memes
+                <a href="../foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
                 </a>
                 <a href="../trading/index.html" class="btn btn-trading btn-sm">
-                    <i class="fas fa-chart-line"></i> Trading
+                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
                 </a>
                 <a href="../servicios/index.html" class="btn btn-gold btn-sm">
-                    <i class="fas fa-tools"></i> Servicios
+                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
                 </a>
                 <a href="../internet/index.html" class="btn btn-internet btn-sm">
-                    <i class="fas fa-satellite-dish"></i> Internet
+                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
                 </a>
                 <a href="../wallet/index.html" class="btn btn-wallet btn-sm">
-                    <i class="fas fa-wallet"></i> Wallet
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
                 </a>
                 <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-file-contract"></i> Términos
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
                 </a>
             </div>
         </header>
 
-        <!-- ===== CONTENIDO DE LA TIENDA ===== -->
+        <!-- ===== CONTENIDO DE LA TIENDA (SIN WEB3) ===== -->
         <div class="shop-container">
             <div class="shop-header">
                 <div>
-                    <div class="title">🏰 Tienda Csariel's <small>— Panadería de Tokens</small></div>
-                    <div class="sub">🍞 Cada token es horneado con dedicación</div>
+                    <div class="title">🏰 Tienda Csariel's <small>— Fichas del Ecosistema</small></div>
+                    <div class="sub">🪙 Recarga CMT para usar en Lives y Trading</div>
                 </div>
                 <div class="saldo-box">
-                    <div class="label">💰 Tu Saldo</div>
+                    <div class="label">💰 Tu Saldo CMT</div>
                     <div class="balance" id="userBalance">0 CMT</div>
                 </div>
             </div>
 
-            <!-- Grid de tokens -->
+            <!-- Grid de productos -->
             <div class="token-grid" id="tokenGrid"></div>
         </div>
 
-        <!-- ===== DIALOG ===== -->
-        <div id="dialogBubble">
-            <div class="avatar" id="dialogAvatar">👩‍🍳</div>
-            <div class="text" id="dialogText"></div>
-            <button class="btn-dialog" onclick="closeDialog()">Entendido</button>
-        </div>
-
-        <!-- ===== FOOTER (TODOS LOS ENLACES) ===== -->
+        <!-- ===== FOOTER ===== -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Tienda de Tokens · Panadería Web3
+                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_tienda">Tienda de Fichas · Recarga CMT</span>
             </span>
             <div class="footer-links">
-                <a href="../../index.html">🏠 Inicio</a>
-                <a href="../red/index.html">👥 Mi Red</a>
-                <a href="../live/index.html">📱 Muro Live</a>
-                <a href="../memes/index.html" style="color:var(--danger);">😂 Memes</a>
-                <a href="../trading/index.html" style="color:#00e5ff;">📈 Trading</a>
-                <a href="../servicios/index.html" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
-                <a href="../internet/index.html" style="color:#00d68f;">🌐 Internet</a>
-                <a href="../wallet/index.html" style="color:#00d4ff;">◈ Wallet</a>
-                <a href="../../terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
+                <a href="../red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="../live/index.html" data-i18n="live">📹 Live</a>
+                <a href="../foro/index.html" data-i18n="foro">💬 Foro</a>
+                <a href="../trading/index.html" data-i18n="trading">📈 Trading</a>
+                <a href="../servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="../internet/index.html" data-i18n="internet">🌐 Internet</a>
+                <a href="../wallet/index.html" data-i18n="wallet">◈ Wallet</a>
+                <a href="../../terminos-completos.html" data-i18n="terminos">📜 Términos</a>
                 <span class="footer-hex">◈</span>
             </div>
         </footer>
     </div>
 
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS DE LA TIENDA (INTACTO) + ESTRELLAS -->
+    <!-- 🔥 SCRIPTS (SIN WEB3 - SOLO CMT) -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
-        // ESTRELLAS
+        // 🌐 SISTEMA DE IDIOMAS (COMPARTIDO)
+        // ================================================================
+        const CSARIELS_IDIOMA = {
+            actual: 'es',
+            traducciones: {},
+
+            init: async function() {
+                this.actual = localStorage.getItem('csariels_idioma') || 'es';
+                await this.cargarTraducciones(this.actual);
+                this.aplicarTraducciones();
+                this.actualizarBotones();
+                console.log(`🌐 Tienda - Idioma: ${this.actual}`);
+                return this.actual;
+            },
+
+            cargarTraducciones: async function(idioma) {
+                const traduccionesInline = {
+                    es: {
+                        'titulo_tienda': '🏰 Tienda CMT | Csariel\'s',
+                        'tienda': 'Tienda',
+                        'inicio': 'Inicio',
+                        'mi_red': 'Mi Red',
+                        'live': 'Live',
+                        'foro': 'Foro',
+                        'trading': 'Trading',
+                        'servicios': 'Servicios',
+                        'internet': 'Internet',
+                        'wallet': 'Wallet',
+                        'terminos': 'Términos',
+                        'footer_tienda': 'Tienda de Fichas · Recarga CMT'
+                    },
+                    en: {
+                        'titulo_tienda': '🏰 CMT Store | Csariel\'s',
+                        'tienda': 'Store',
+                        'inicio': 'Home',
+                        'mi_red': 'My Network',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'wallet': 'Wallet',
+                        'terminos': 'Terms',
+                        'footer_tienda': 'Token Store · CMT Recharge'
+                    },
+                    fr: {
+                        'titulo_tienda': '🏰 Boutique CMT | Csariel\'s',
+                        'tienda': 'Boutique',
+                        'inicio': 'Accueil',
+                        'mi_red': 'Mon Réseau',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'wallet': 'Portefeuille',
+                        'terminos': 'Termes',
+                        'footer_tienda': 'Boutique de Jetons · Recharge CMT'
+                    }
+                };
+                this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
+            },
+
+            cambiar: function(idioma) {
+                if (!idioma || idioma === this.actual) return;
+                this.actual = idioma;
+                localStorage.setItem('csariels_idioma', idioma);
+                this.cargarTraducciones(idioma).then(() => {
+                    this.aplicarTraducciones();
+                    this.actualizarBotones();
+                    this.notificarCambio(idioma);
+                });
+            },
+
+            aplicarTraducciones: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (this.traducciones[key]) el.textContent = this.traducciones[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (this.traducciones[key]) el.placeholder = this.traducciones[key];
+                });
+            },
+
+            actualizarBotones: function() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    btn.classList.toggle('active', lang === this.actual);
+                });
+            },
+
+            notificarCambio: function(idioma) {
+                localStorage.setItem('csariels_idioma', idioma);
+                try {
+                    window.dispatchEvent(new CustomEvent('idioma-cambiado', { detail: { idioma: idioma } }));
+                } catch (e) { console.warn(e); }
+                const nombres = { es: 'Español 🌎', en: 'English 🌍', fr: 'Français 🌏' };
+                mostrarToast(`🌐 ${nombres[idioma] || idioma.toUpperCase()}`);
+            }
+        };
+
+        // ================================================================
+        // 🔐 TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
         // ================================================================
         function initStars() {
             const canvas = document.getElementById('stars-canvas');
@@ -667,14 +783,23 @@
         }
 
         // ================================================================
-        // TIENDA (CÓDIGO ORIGINAL INTACTO)
+        // TIENDA (SIN WEB3 - SOLO CMT)
         // ================================================================
         const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let userId = localStorage.getItem('csariels_wallet') || 'usuario_prueba_001';
+        let supabaseClient = null;
 
-        const tokens = [
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            window.supabase = supabaseClient;
+        } catch (e) {
+            console.warn('⚠️ Supabase no disponible, usando localStorage');
+        }
+
+        let userId = localStorage.getItem('csariels_user_id') || 'usuario_prueba_001';
+        let balanceCMT = 0;
+
+        const productos = [
             { id: 'PLATA', nombre: 'Cubo Plata', emoji: '🥈', code: 'CUBO-PLATA-001', price: 1 },
             { id: 'BRONCE', nombre: 'Cubo Bronce', emoji: '🪙', code: 'CUBO-BRONCE-005', price: 5 },
             { id: 'ORO', nombre: 'Cubo Oro', emoji: '🥇', code: 'CUBO-ORO-010', price: 10 },
@@ -682,60 +807,115 @@
             { id: 'LEGENDARIO', nombre: 'Cubo Legendario', emoji: '⭐', code: 'CUBO-LEGENDARIO-500', price: 500 }
         ];
 
-        function renderizarTokens() {
-            document.getElementById('tokenGrid').innerHTML = tokens.map(t => `
+        function renderizarProductos() {
+            document.getElementById('tokenGrid').innerHTML = productos.map(t => `
                 <div class="token-card">
                     <div class="emoji">${t.emoji}</div>
                     <div class="name">${t.nombre}</div>
                     <div class="price">${t.price} CMT</div>
-                    <button class="btn-comprar" onclick="comprarToken('${t.id}')">Comprar</button>
+                    <button class="btn-comprar" onclick="comprarProducto('${t.id}')">
+                        <span data-i18n="comprar">Comprar</span>
+                    </button>
                 </div>
             `).join('');
         }
 
         async function cargarSaldo() {
+            const userId = localStorage.getItem('csariels_user_id') || 'usuario_default';
+            const saved = localStorage.getItem(`csariels_cmt_balance_${userId}`);
+            if (saved) {
+                balanceCMT = parseFloat(saved);
+            } else {
+                balanceCMT = 1000; // Saldo inicial
+                localStorage.setItem(`csariels_cmt_balance_${userId}`, '1000');
+            }
+            document.getElementById('userBalance').textContent = balanceCMT.toFixed(0) + ' CMT';
+        }
+
+        async function comprarProducto(productoId) {
+            const producto = productos.find(p => p.id === productoId);
+            if (!producto) {
+                mostrarToast('❌ Producto no encontrado', 'error');
+                return;
+            }
+
+            if (balanceCMT < producto.price) {
+                mostrarToast(`⚠️ Saldo insuficiente. Tienes ${balanceCMT} CMT y necesitas ${producto.price}`, 'error');
+                return;
+            }
+
+            // Confirmar compra
+            if (!confirm(`¿Comprar ${producto.nombre} por ${producto.price} CMT?`)) return;
+
             try {
-                const { data } = await supabaseClient.rpc('obtener_saldo_commit', { p_user_id: userId });
-                if (data && data.length > 0) {
-                    document.getElementById('userBalance').textContent = data[0].balance_commit + ' CMT';
+                // Descontar saldo
+                balanceCMT -= producto.price;
+                const userId = localStorage.getItem('csariels_user_id') || 'usuario_default';
+                localStorage.setItem(`csariels_cmt_balance_${userId}`, balanceCMT.toString());
+
+                // Registrar compra en localStorage
+                const compras = JSON.parse(localStorage.getItem(`csariels_compras_${userId}`) || '[]');
+                compras.push({
+                    id: Date.now(),
+                    producto: producto.nombre,
+                    precio: producto.price,
+                    fecha: new Date().toISOString()
+                });
+                localStorage.setItem(`csariels_compras_${userId}`, JSON.stringify(compras));
+
+                // Guardar en Supabase si está disponible
+                if (supabaseClient) {
+                    try {
+                        await supabaseClient.from('tienda_orders').insert([{
+                            user_id: userId,
+                            producto: producto.nombre,
+                            precio: producto.price,
+                            fecha: new Date().toISOString()
+                        }]);
+                    } catch (e) {
+                        console.warn('⚠️ No se pudo guardar en Supabase:', e);
+                    }
                 }
-            } catch (e) {
-                console.error('Error cargando saldo:', e);
+
+                // Actualizar UI
+                document.getElementById('userBalance').textContent = balanceCMT.toFixed(0) + ' CMT';
+                mostrarToast(`✅ ${producto.nombre} comprado por ${producto.price} CMT`);
+            } catch (error) {
+                console.error('Error en compra:', error);
+                mostrarToast('❌ Error al procesar la compra', 'error');
             }
         }
 
-        window.comprarToken = async function(tokenId) {
-            const token = tokens.find(t => t.id === tokenId);
-            if (!confirm(`${token.nombre} ${token.price} CMT?`)) return;
-            try {
-                const { data, error } = await supabaseClient.rpc('procesar_transaccion_commit', {
-                    p_sender_id: userId,
-                    p_receiver_id: 'sistema_tienda',
-                    p_amount: token.price,
-                    p_asset_type: 'compra_token',
-                    p_description: `Compra ${token.nombre}`
-                });
-                if (error) throw error;
-                alert('✅ Comprado!');
-                cargarSaldo();
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
-        };
-
-        window.closeDialog = function() {
-            document.getElementById('dialogBubble').style.display = 'none';
-        };
-
         // ================================================================
-        // INICIO
+        // 🚀 INICIALIZAR
         // ================================================================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             initStars();
-            renderizarTokens();
-            cargarSaldo();
-            console.log('🏰 Csariel\'s - Tienda (conectada al ecosistema)');
+            await CSARIELS_IDIOMA.init();
+            await cargarSaldo();
+            renderizarProductos();
+
+            console.log('🏰 Csariel\'s - Tienda CMT (SIN WEB3)');
+            console.log(`👤 Usuario: ${userId}`);
+            console.log(`💰 Saldo: ${balanceCMT} CMT`);
+
+            // Escuchar cambios de idioma
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
         });
+
+        window.comprarProducto = comprarProducto;
+        window.mostrarToast = mostrarToast;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
     </script>
 </body>
 </html>
