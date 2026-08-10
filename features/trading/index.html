@@ -8,11 +8,11 @@
 
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
         style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
         img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
         frame-src 'self';
         media-src 'self';
         object-src 'none';
@@ -255,7 +255,7 @@
         .indicators-bar .ind-btn:hover { border-color:var(--gold-cosmic); color:white; }
         .indicators-bar .ind-btn.active { background:rgba(212,175,55,0.1); border-color:var(--gold-cosmic); color:var(--gold-cosmic); }
 
-        /* ===== PANEL DE TRADING - VERSIÓN LEGAL ===== */
+        /* ===== PANEL DE TRADING - VERSIÓN LEGAL (SIN GAS) ===== */
         .trade-panel {
             background:rgba(15,45,26,0.2);
             border:1px solid var(--gold-dim);
@@ -409,10 +409,6 @@
             color:var(--text-secondary);
             font-weight:600;
         }
-        .legal-notice .highlight-text {
-            color:var(--warning);
-            font-weight:600;
-        }
 
         /* ===== FOOTER ===== */
         .footer {
@@ -446,7 +442,7 @@
         .toast.active { opacity:1; transform:translateX(-50%) translateY(0); }
         .toast.error { background:var(--danger); color:white; }
 
-        /* ===== MODALES ===== */
+        /* ===== MODALES (SOLO PARA POSICIÓN Y RECIBIR - SIN AVISO LEGAL) ===== */
         .modal-overlay {
             position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);
             display:none; align-items:center; justify-content:center;
@@ -484,7 +480,7 @@
     <div class="nebula nebula-3"></div>
 
     <div class="app">
-        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA -->
+        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA (SIN WEB3) -->
         <header class="header">
             <a href="../../index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
@@ -529,9 +525,9 @@
                 <a href="../wallet/index.html" class="btn btn-wallet btn-sm">
                     <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
                 </a>
-                <button class="btn btn-gold btn-sm" onclick="conectarWallet()" id="btnConnectWallet">
-                    <i class="fas fa-plug"></i> <span data-i18n="conectar">Conectar</span>
-                </button>
+                <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
+                </a>
             </div>
         </header>
 
@@ -539,7 +535,7 @@
         <div class="trading-header">
             <div class="left">
                 <span class="symbol">STOKS</span>
-                <span class="address" id="walletDisplay">0x00000...00000</span>
+                <span class="address" id="userDisplay">Usuario</span>
                 <div class="timeframes">
                     <button class="tf active" data-tf="1m" onclick="setTimeframe('1m')">1m</button>
                     <button class="tf" data-tf="5m" onclick="setTimeframe('5m')">5m</button>
@@ -573,11 +569,11 @@
                 <div id="chart-container"></div>
             </div>
 
-            <!-- COLUMNA DERECHA: PANEL DE TRADING (VERSIÓN LEGAL) -->
+            <!-- COLUMNA DERECHA: PANEL DE TRADING (SIN GAS) -->
             <div class="trade-panel" id="tradePanel">
                 <div class="balance-row">
                     <span class="item">STOKS: <span class="value" id="balSTOKS">0.00</span></span>
-                    <span class="item">MXN: <span class="value" id="balMXN">0.00</span></span>
+                    <span class="item">CMT: <span class="value" id="balCMT">0.00</span></span>
                 </div>
                 <div class="input-group">
                     <label data-i18n="cantidad_stoks">Cantidad de STOKS</label>
@@ -589,7 +585,7 @@
                 </div>
                 <div class="price-info">
                     <span data-i18n="total_estimado">Total estimado</span>
-                    <span class="value" id="totalEst">0.00 MXN</span>
+                    <span class="value" id="totalEst">0.00 CMT</span>
                 </div>
 
                 <!-- ===== COMISIÓN 1% (Art. 3.4) - ALERTA AMARILLA ===== -->
@@ -622,13 +618,13 @@
             <div class="order-card">
                 <h4 data-i18n="ordenes_abiertas">📋 Órdenes Abiertas</h4>
                 <div id="openOrders">
-                    <div class="order-item" data-i18n="conecta_wallet">Conecta tu wallet para ver tus órdenes.</div>
+                    <div class="order-item" data-i18n="sin_ordenes">No tienes órdenes abiertas.</div>
                 </div>
             </div>
             <div class="order-card">
                 <h4 data-i18n="historial">📜 Historial</h4>
                 <div id="historyOrders">
-                    <div class="order-item" data-i18n="conecta_wallet_historial">Conecta tu wallet para ver tu historial.</div>
+                    <div class="order-item" data-i18n="sin_historial">Aún no tienes operaciones.</div>
                 </div>
             </div>
         </div>
@@ -671,8 +667,8 @@
                     <span class="text-white font-bold" id="posSTOKS">0.00</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-[rgba(255,255,255,0.05)]">
-                    <span class="text-[#8ba3c7]">Valor en MXN</span>
-                    <span class="text-[#D4AF37] font-bold" id="posMXN">0.00</span>
+                    <span class="text-[#8ba3c7]">Valor en CMT</span>
+                    <span class="text-[#D4AF37] font-bold" id="posCMT">0.00</span>
                 </div>
                 <div class="flex justify-between py-2">
                     <span class="text-[#8ba3c7]">Precio promedio</span>
@@ -687,18 +683,18 @@
         <div class="modal-content" style="position:relative;">
             <button class="modal-close" onclick="cerrarRecibir()">✕</button>
             <h3 class="modal-title">📥 Recibir STOKS</h3>
-            <p class="text-[#8ba3c7] text-sm mb-3">Deposita STOKS a esta dirección:</p>
+            <p class="text-[#8ba3c7] text-sm mb-3">Deposita STOKS a tu cuenta interna:</p>
             <div style="background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;padding:12px;word-break:break-all;font-family:monospace;font-size:0.7rem;color:var(--text-secondary);">
-                0x45c6455aa01356609d96b659c6eb880b7e1d046d
+                📱 ID: <span id="internalUserId">usuario_123</span>
             </div>
-            <button class="btn btn-gold" onclick="copiarDireccion()" style="width:100%;justify-content:center;margin-top:12px;"><i class="fas fa-copy"></i> Copiar dirección</button>
+            <button class="btn btn-gold" onclick="copiarUserId()" style="width:100%;justify-content:center;margin-top:12px;"><i class="fas fa-copy"></i> Copiar ID</button>
         </div>
     </div>
 
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS -->
+    <!-- 🔥 SCRIPTS (SIN WEB3 - SIN GAS) -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
@@ -732,8 +728,7 @@
                         'tienda': 'Tienda',
                         'wallet': 'Wallet',
                         'terminos': 'Términos',
-                        'conectar': 'Conectar',
-                        'precio_stoks': 'Precio STOKS / MXN',
+                        'precio_stoks': 'Precio STOKS / CMT',
                         'cantidad_stoks': 'Cantidad de STOKS',
                         'cantidad_placeholder': '0.00',
                         'precio_unitario': 'Precio unitario (referencia)',
@@ -747,8 +742,8 @@
                         'riesgo_especulacion': 'Art. 3.5: La especulación y el riesgo de pérdida son responsabilidad exclusiva del Usuario.',
                         'ordenes_abiertas': '📋 Órdenes Abiertas',
                         'historial': '📜 Historial',
-                        'conecta_wallet': 'Conecta tu wallet para ver tus órdenes.',
-                        'conecta_wallet_historial': 'Conecta tu wallet para ver tu historial.',
+                        'sin_ordenes': 'No tienes órdenes abiertas.',
+                        'sin_historial': 'Aún no tienes operaciones.',
                         'footer_trading': 'STOKS Trading · Utility Token',
                         'aviso_legal_resumen': 'Aviso Legal y Términos (resumen): El trading de STOKS implica riesgos. Csariel\'s no ofrece asesoría financiera. Las transacciones son irreversibles. Comisión: 1% (Art. 3.4).',
                         'jurisdiccion': 'Jurisdicción:',
@@ -768,8 +763,7 @@
                         'tienda': 'Store',
                         'wallet': 'Wallet',
                         'terminos': 'Terms',
-                        'conectar': 'Connect',
-                        'precio_stoks': 'STOKS / MXN Price',
+                        'precio_stoks': 'STOKS / CMT Price',
                         'cantidad_stoks': 'STOKS Amount',
                         'cantidad_placeholder': '0.00',
                         'precio_unitario': 'Unit price (reference)',
@@ -783,8 +777,8 @@
                         'riesgo_especulacion': 'Art. 3.5: Speculation and risk of loss are the sole responsibility of the User.',
                         'ordenes_abiertas': '📋 Open Orders',
                         'historial': '📜 History',
-                        'conecta_wallet': 'Connect your wallet to see your orders.',
-                        'conecta_wallet_historial': 'Connect your wallet to see your history.',
+                        'sin_ordenes': 'You have no open orders.',
+                        'sin_historial': 'You have no operations yet.',
                         'footer_trading': 'STOKS Trading · Utility Token',
                         'aviso_legal_resumen': 'Legal Notice and Terms (summary): STOKS trading involves risks. Csariel\'s does not offer financial advice. Transactions are irreversible. Fee: 1% (Art. 3.4).',
                         'jurisdiccion': 'Jurisdiction:',
@@ -804,8 +798,7 @@
                         'tienda': 'Magasin',
                         'wallet': 'Portefeuille',
                         'terminos': 'Termes',
-                        'conectar': 'Connecter',
-                        'precio_stoks': 'Prix STOKS / MXN',
+                        'precio_stoks': 'Prix STOKS / CMT',
                         'cantidad_stoks': 'Quantité de STOKS',
                         'cantidad_placeholder': '0.00',
                         'precio_unitario': 'Prix unitaire (référence)',
@@ -819,8 +812,8 @@
                         'riesgo_especulacion': 'Art. 3.5 : La spéculation et le risque de perte sont la seule responsabilité de l\'Utilisateur.',
                         'ordenes_abiertas': '📋 Ordres Ouverts',
                         'historial': '📜 Historique',
-                        'conecta_wallet': 'Connectez votre portefeuille pour voir vos ordres.',
-                        'conecta_wallet_historial': 'Connectez votre portefeuille pour voir votre historique.',
+                        'sin_ordenes': 'Vous n\'avez pas d\'ordres ouverts.',
+                        'sin_historial': 'Vous n\'avez pas encore d\'opérations.',
                         'footer_trading': 'STOKS Trading · Jeton Utilitaire',
                         'aviso_legal_resumen': 'Avis légal et Conditions (résumé) : Le trading de STOKS implique des risques. Csariel\'s ne fournit pas de conseils financiers. Les transactions sont irréversibles. Frais : 1% (Art. 3.4).',
                         'jurisdiccion': 'Juridiction :',
@@ -911,10 +904,10 @@
         }
 
         // ================================================================
-        // 🔥 LÓGICA DE TRADING (ORIGINAL, MANTENIDA)
+        // 🔥 LÓGICA DE TRADING (SIN WEB3 - SIN GAS)
         // ================================================================
         let supabaseClient = null;
-        let walletAddress = localStorage.getItem('csariels_wallet') || '0x00000...00000';
+        let userId = localStorage.getItem('csariels_user_id') || 'user_' + Date.now();
         let currentPrice = 1.37;
         let tradeMode = 'buy';
         let chart = null;
@@ -928,14 +921,17 @@
         // DOM refs
         const priceDisplay = document.getElementById('currentPrice');
         const changeDisplay = document.getElementById('priceChange');
-        const walletDisplay = document.getElementById('walletDisplay');
+        const userDisplay = document.getElementById('userDisplay');
         const balSTOKS = document.getElementById('balSTOKS');
-        const balMXN = document.getElementById('balMXN');
+        const balCMT = document.getElementById('balCMT');
         const tradeAmount = document.getElementById('tradeAmount');
         const priceRef = document.getElementById('priceRef');
         const totalEst = document.getElementById('totalEst');
         const tradeStatus = document.getElementById('tradeStatus');
         const btnExecute = document.getElementById('btnExecute');
+
+        // Mostrar usuario
+        userDisplay.textContent = localStorage.getItem('csariels_user_name') || 'Usuario';
 
         // ================================================================
         // 🔒 INICIALIZAR
@@ -954,88 +950,64 @@
         }
 
         // ================================================================
-        // 🦊 CONECTAR WALLET
-        // ================================================================
-        async function conectarWallet() {
-            if (typeof window.ethereum === 'undefined') { mostrarToast('❌ Instala MetaMask', 'error'); return; }
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                walletAddress = accounts[0];
-                localStorage.setItem('csariels_wallet', walletAddress);
-                document.getElementById('btnConnectWallet').innerHTML = `<i class="fas fa-check"></i> ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
-                document.getElementById('btnConnectWallet').classList.add('btn-success');
-                walletDisplay.textContent = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
-                mostrarToast('🦊 Wallet conectada');
-                cargarBalances();
-                cargarOrdenes();
-                cargarHistorial();
-            } catch (e) { mostrarToast('❌ Error al conectar', 'error'); }
-        }
-
-        // ================================================================
-        // 💰 CARGAR BALANCES
+        // 💰 CARGAR BALANCES (INTERNOS)
         // ================================================================
         async function cargarBalances() {
-            if (!supabaseClient || walletAddress === '0x00000...00000') {
-                balSTOKS.textContent = '1250.00';
-                balMXN.textContent = '5000.00';
-                return;
-            }
             try {
-                const { data } = await supabaseClient.from('user_balances').select('tok, usdt').eq('user_id', walletAddress).maybeSingle();
-                if (data) {
-                    balSTOKS.textContent = data.tok?.toFixed(2) || '0.00';
-                    balMXN.textContent = data.usdt?.toFixed(2) || '0.00';
+                // Cargar desde localStorage (o Supabase)
+                const userId = localStorage.getItem('csariels_user_id') || 'user_default';
+                const saved = localStorage.getItem(`csariels_balance_${userId}`);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    balSTOKS.textContent = (data.stoks || 0).toFixed(2);
+                    balCMT.textContent = (data.cmt || 0).toFixed(2);
                 } else {
-                    balSTOKS.textContent = '1000.00';
-                    balMXN.textContent = '1000.00';
+                    // Balance inicial
+                    const initial = { stoks: 1000, cmt: 1000 };
+                    localStorage.setItem(`csariels_balance_${userId}`, JSON.stringify(initial));
+                    balSTOKS.textContent = initial.stoks.toFixed(2);
+                    balCMT.textContent = initial.cmt.toFixed(2);
                 }
             } catch (e) { console.error(e); }
         }
 
         // ================================================================
-        // 📊 CARGAR ÓRDENES E HISTORIAL
+        // 📊 CARGAR ÓRDENES E HISTORIAL (INTERNO)
         // ================================================================
-        async function cargarOrdenes() {
-            if (!supabaseClient || walletAddress === '0x00000...00000') {
-                document.getElementById('openOrders').innerHTML = '<div class="order-item" data-i18n="conecta_wallet">Conecta tu wallet para ver tus órdenes.</div>';
-                return;
+        function cargarOrdenes() {
+            const userId = localStorage.getItem('csariels_user_id') || 'user_default';
+            const orders = JSON.parse(localStorage.getItem(`csariels_orders_${userId}`) || '[]');
+            const openOrders = orders.filter(o => o.status === 'open');
+            
+            if (openOrders.length > 0) {
+                document.getElementById('openOrders').innerHTML = openOrders.map(o => `
+                    <div class="order-item">
+                        <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
+                        <span>${o.amount} STOKS @ $${o.price}</span>
+                        <span class="status-open">${o.status}</span>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('openOrders').innerHTML = '<div class="order-item" data-i18n="sin_ordenes">No tienes órdenes abiertas.</div>';
             }
-            try {
-                const { data } = await supabaseClient.from('orders').select('*').eq('user_id', walletAddress).eq('status', 'open').order('created_at', { ascending: false });
-                if (data && data.length > 0) {
-                    document.getElementById('openOrders').innerHTML = data.map(o => `
-                        <div class="order-item">
-                            <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
-                            <span>${o.amount} STOKS @ $${o.price}</span>
-                            <span class="status-open">${o.status}</span>
-                        </div>
-                    `).join('');
-                } else {
-                    document.getElementById('openOrders').innerHTML = '<div class="order-item">No tienes órdenes abiertas.</div>';
-                }
-            } catch (e) { console.error(e); }
         }
 
-        async function cargarHistorial() {
-            if (!supabaseClient || walletAddress === '0x00000...00000') {
-                document.getElementById('historyOrders').innerHTML = '<div class="order-item" data-i18n="conecta_wallet_historial">Conecta tu wallet para ver tu historial.</div>';
-                return;
+        function cargarHistorial() {
+            const userId = localStorage.getItem('csariels_user_id') || 'user_default';
+            const orders = JSON.parse(localStorage.getItem(`csariels_orders_${userId}`) || '[]');
+            const history = orders.filter(o => o.status === 'filled').slice(0, 10);
+            
+            if (history.length > 0) {
+                document.getElementById('historyOrders').innerHTML = history.map(o => `
+                    <div class="order-item">
+                        <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
+                        <span>${o.amount} STOKS @ $${o.price}</span>
+                        <span class="status-filled">${o.status}</span>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('historyOrders').innerHTML = '<div class="order-item" data-i18n="sin_historial">Aún no tienes operaciones.</div>';
             }
-            try {
-                const { data } = await supabaseClient.from('orders').select('*').eq('user_id', walletAddress).order('created_at', { ascending: false }).limit(20);
-                if (data && data.length > 0) {
-                    document.getElementById('historyOrders').innerHTML = data.map(o => `
-                        <div class="order-item">
-                            <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
-                            <span>${o.amount} STOKS @ $${o.price}</span>
-                            <span class="${o.status === 'filled' ? 'status-filled' : 'status-open'}">${o.status}</span>
-                        </div>
-                    `).join('');
-                } else {
-                    document.getElementById('historyOrders').innerHTML = '<div class="order-item">Aún no tienes operaciones.</div>';
-                }
-            } catch (e) { console.error(e); }
         }
 
         // ================================================================
@@ -1199,48 +1171,89 @@
         function calcTotal() {
             const amount = parseFloat(tradeAmount.value) || 0;
             const total = amount * currentPrice;
-            totalEst.textContent = total.toFixed(2) + ' MXN';
+            totalEst.textContent = total.toFixed(2) + ' CMT';
         }
 
         // ================================================================
-        // 🚀 EJECUTAR ORDEN
+        // 🚀 EJECUTAR ORDEN (INTERNA - SIN WEB3)
         // ================================================================
         async function ejecutarOrden() {
-            if (walletAddress === '0x00000...00000') { tradeStatus.textContent = '❌ Conecta tu wallet.'; return; }
             if (!document.getElementById('acceptTerms').checked) { tradeStatus.textContent = '⚠️ Acepta los términos.'; return; }
             const amount = parseFloat(tradeAmount.value);
             if (!amount || amount <= 0) { tradeStatus.textContent = '⚠️ Cantidad válida.'; return; }
             const price = currentPrice; const total = amount * price;
+            
+            // Obtener balances actuales
+            const userId = localStorage.getItem('csariels_user_id') || 'user_default';
+            const saved = JSON.parse(localStorage.getItem(`csariels_balance_${userId}`) || '{"stoks":1000,"cmt":1000}');
+            let stoks = saved.stoks || 0;
+            let cmt = saved.cmt || 0;
+            
+            // Validar saldo
+            if (tradeMode === 'buy' && cmt < total) {
+                tradeStatus.textContent = '⚠️ Saldo insuficiente. Tienes ' + cmt.toFixed(2) + ' CMT';
+                return;
+            }
+            if (tradeMode === 'sell' && stoks < amount) {
+                tradeStatus.textContent = '⚠️ No tienes suficientes STOKS. Tienes ' + stoks.toFixed(2) + ' STOKS';
+                return;
+            }
+            
             tradeStatus.textContent = '⏳ Procesando...';
+            
             try {
-                if (supabaseClient) {
-                    const { error } = await supabaseClient.from('orders').insert([{
-                        user_id: walletAddress, type: tradeMode, amount, price, total, status: 'filled'
-                    }]);
-                    if (error) throw error;
-                    const { data: balance } = await supabaseClient.from('user_balances').select('tok, usdt').eq('user_id', walletAddress).maybeSingle();
-                    if (balance) {
-                        let newTok = balance.tok || 0, newUsdt = balance.usdt || 0;
-                        if (tradeMode === 'buy') { newTok += amount; newUsdt -= total; } else { newTok -= amount; newUsdt += total; }
-                        await supabaseClient.from('user_balances').update({ tok: newTok, usdt: newUsdt }).eq('user_id', walletAddress);
-                    }
+                // Calcular comisión 1%
+                const comision = total * 0.01;
+                const totalConComision = total + comision;
+                
+                // Actualizar balances
+                if (tradeMode === 'buy') {
+                    stoks += amount;
+                    cmt -= totalConComision;
                 } else {
-                    let tok = parseFloat(balSTOKS.textContent) || 0, mxn = parseFloat(balMXN.textContent) || 0;
-                    if (tradeMode === 'buy') { tok += amount; mxn -= total; } else { tok -= amount; mxn += total; }
-                    balSTOKS.textContent = tok.toFixed(2); balMXN.textContent = mxn.toFixed(2);
+                    stoks -= amount;
+                    cmt += total - comision; // Restar comisión
                 }
-                tradeStatus.textContent = `✅ ${amount} STOKS ${tradeMode === 'buy' ? 'comprados' : 'vendidos'}`;
-                tradeAmount.value = ''; totalEst.textContent = '0.00 MXN';
-                cargarBalances(); cargarOrdenes(); cargarHistorial();
+                
+                // Guardar balances
+                localStorage.setItem(`csariels_balance_${userId}`, JSON.stringify({ stoks, cmt }));
+                
+                // Guardar orden
+                const orders = JSON.parse(localStorage.getItem(`csariels_orders_${userId}`) || '[]');
+                orders.push({
+                    id: Date.now(),
+                    type: tradeMode,
+                    amount: amount,
+                    price: price,
+                    total: total,
+                    comision: comision,
+                    status: 'filled',
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem(`csariels_orders_${userId}`, JSON.stringify(orders));
+                
+                // Actualizar UI
+                balSTOKS.textContent = stoks.toFixed(2);
+                balCMT.textContent = cmt.toFixed(2);
+                tradeStatus.textContent = `✅ ${amount} STOKS ${tradeMode === 'buy' ? 'comprados' : 'vendidos'} (comisión: ${comision.toFixed(2)} CMT)`;
+                tradeAmount.value = '';
+                totalEst.textContent = '0.00 CMT';
+                
+                cargarOrdenes();
+                cargarHistorial();
                 mostrarToast('✅ Orden ejecutada');
-            } catch (e) { tradeStatus.textContent = '❌ Error: ' + e.message; }
+            } catch (e) {
+                tradeStatus.textContent = '❌ Error: ' + e.message;
+                mostrarToast('❌ Error al ejecutar orden', 'error');
+            }
         }
 
         function cerrarPosicion() { document.getElementById('positionModal').classList.remove('active'); }
         function cerrarRecibir() { document.getElementById('receiveModal').classList.remove('active'); }
-        function copiarDireccion() {
-            navigator.clipboard.writeText('0x45c6455aa01356609d96b659c6eb880b7e1d046d');
-            mostrarToast('📋 Dirección copiada');
+        function copiarUserId() {
+            const userId = localStorage.getItem('csariels_user_id') || 'user_' + Date.now();
+            navigator.clipboard.writeText(userId);
+            mostrarToast('📋 ID copiado: ' + userId);
         }
 
         // ================================================================
@@ -1253,18 +1266,14 @@
             await CSARIELS_IDIOMA.init();
 
             initChart();
-
-            if (walletAddress && walletAddress !== '0x00000...00000') {
-                document.getElementById('btnConnectWallet').innerHTML = `<i class="fas fa-check"></i> ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
-                document.getElementById('btnConnectWallet').classList.add('btn-success');
-                walletDisplay.textContent = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
-                cargarBalances();
-                cargarOrdenes();
-                cargarHistorial();
-            }
+            await cargarBalances();
+            cargarOrdenes();
+            cargarHistorial();
 
             setInterval(simularActualizacion, 3000);
-            console.log('📈 Csariel\'s STOKS Trading - Pantalla Ancha (1% comisión - 26 artículos)');
+            console.log('📈 Csariel\'s STOKS Trading - SIN WEB3 - SIN GAS');
+            console.log('💰 Comisión: 1% (Art. 3.4)');
+            console.log('📍 Jurisdicción: Puebla, México (Art. 5.10)');
 
             // Escuchar cambios de idioma
             window.addEventListener('storage', (e) => {
@@ -1281,7 +1290,6 @@
         });
 
         // Exponer funciones globales
-        window.conectarWallet = conectarWallet;
         window.setTimeframe = setTimeframe;
         window.toggleIndicator = toggleIndicator;
         window.setTradeMode = setTradeMode;
@@ -1290,7 +1298,7 @@
         window.mostrarToast = mostrarToast;
         window.cerrarPosicion = cerrarPosicion;
         window.cerrarRecibir = cerrarRecibir;
-        window.copiarDireccion = copiarDireccion;
+        window.copiarUserId = copiarUserId;
         window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
     </script>
 </body>
