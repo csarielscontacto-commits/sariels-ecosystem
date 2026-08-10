@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Términos Servicios | Csariel's</title>
+    <title data-i18n="titulo_terminos_servicios">🔧 Términos Servicios | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
 
     <!-- 🔒 CSP -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
         style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
         img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
         frame-src 'self';
         media-src 'self';
         object-src 'none';
@@ -289,10 +289,35 @@
             50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
         }
 
+        /* ===== SELECTOR DE IDIOMA ===== */
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212,175,55,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212,175,55,0.08);
+        }
+        .language-selector .lang-icon { font-size: 0.7rem; margin-right: 2px; }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover { color: var(--text-secondary); background: rgba(212,175,55,0.05); }
+        .lang-btn.active { border-color: var(--gold-cosmic); background: rgba(212,175,55,0.1); color: var(--gold-cosmic); }
+
         /* ================================================================
-           ESTILOS PROPIOS DE TÉRMINOS DE SERVICIOS
+           ESTILOS PROPIOS DE TÉRMINOS SERVICIOS
            ================================================================ */
-        .legal-container {
+        .terminos-container {
             background: rgba(15,45,26,0.25);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
@@ -302,7 +327,7 @@
             overflow: hidden;
             margin-bottom: 16px;
         }
-        .legal-container::before {
+        .terminos-container::before {
             content: '';
             position: absolute;
             top: -2px;
@@ -322,43 +347,59 @@
             100% { background-position: 0% 50%; }
         }
 
-        .legal-container h1 {
+        .terminos-container h1 {
             font-family: 'Orbitron', monospace;
             color: var(--gold-cosmic);
             font-size: 1.8rem;
             margin-bottom: 4px;
         }
-        .legal-container .sub {
+        .terminos-container .sub {
             color: var(--text-secondary);
             font-size: 0.9rem;
             margin-bottom: 24px;
         }
-        .legal-container .content {
+        .terminos-container .content {
             color: var(--text-secondary);
             font-size: 0.95rem;
             line-height: 1.8;
         }
-        .legal-container .content strong {
+        .terminos-container .content strong {
             color: var(--gold-cosmic);
         }
-        .legal-container .content ul {
+        .terminos-container .content ul {
             padding-left: 24px;
         }
-        .legal-container .content ul li {
+        .terminos-container .content ul li {
             margin-bottom: 8px;
         }
-        .legal-container .volver {
+
+        .terminos-container .content .highlight-box {
+            background: rgba(0,255,136,0.08);
+            border-left: 4px solid #00ff88;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+        .terminos-container .content .warning-box {
+            background: rgba(255,235,59,0.08);
+            border-left: 4px solid var(--gold-cosmic);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+
+        .terminos-container .volver {
             text-align: center;
             margin-top: 20px;
         }
-        .legal-container .volver a {
+        .terminos-container .volver a {
             color: var(--gold-cosmic);
             text-decoration: none;
             font-family: 'Orbitron', monospace;
             font-size: 0.9rem;
             transition: var(--transition);
         }
-        .legal-container .volver a:hover {
+        .terminos-container .volver a:hover {
             text-decoration: underline;
         }
 
@@ -413,11 +454,34 @@
             font-family: 'Orbitron', monospace;
         }
 
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: flex-start; }
             .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-            .legal-container { padding: 16px; }
-            .legal-container h1 { font-size: 1.4rem; }
+            .terminos-container { padding: 16px; }
+            .terminos-container h1 { font-size: 1.4rem; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.45rem; padding: 4px 8px; }
@@ -433,108 +497,447 @@
 
     <div class="app">
 
-        <!-- HEADER CON TODOS LOS ENLACES -->
+        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA -->
         <header class="header">
-            <a href="#" class="logo" onclick="event.preventDefault()">
+            <a href="../../index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">Servicios</span>
+                <span class="logo-badge" data-i18n="terminos_servicios">Términos</span>
             </a>
             <div class="header-actions">
-                <a href="index.html" class="btn btn-primary btn-sm"><i class="fas fa-home"></i> Inicio</a>
-                <a href="features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
-                <a href="features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-rss"></i> Muro Live</a>
-                <a href="features/memes/index.html" class="btn btn-danger btn-sm"><i class="fas fa-mask"></i> Memes</a>
-                <a href="features/trading/index.html" class="btn btn-trading btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
-                <a href="features/servicios/index.html" class="btn btn-gold btn-sm"><i class="fas fa-tools"></i> Servicios</a>
-                <a href="features/internet/index.html" class="btn btn-internet btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
-                <a href="features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
-                <a href="features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
-                <a href="terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+                <!-- ===== SELECTOR DE IDIOMA ===== -->
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
+                </div>
+
+                <a href="../../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
+                </a>
+                <a href="../red/index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
+                </a>
+                <a href="../live/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-video"></i> <span data-i18n="live">Live</span>
+                </a>
+                <a href="../foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
+                </a>
+                <a href="../trading/index.html" class="btn btn-trading btn-sm">
+                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
+                </a>
+                <a href="../servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
+                </a>
+                <a href="../internet/index.html" class="btn btn-internet btn-sm">
+                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
+                </a>
+                <a href="../tienda/index.html" class="btn btn-tienda btn-sm">
+                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
+                </a>
+                <a href="../wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
+                </a>
+                <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
+                </a>
             </div>
         </header>
 
-        <!-- ===== CONTENIDO ===== -->
-        <div class="legal-container">
-            <h1>🔧 Términos de Servicios Comunitarios</h1>
-            <div class="sub">Muro Talachas · Csariel's Ecosystem · Puebla, México</div>
+        <!-- ===== TÉRMINOS SERVICIOS ===== -->
+        <div class="terminos-container">
+            <h1>🔧 <span data-i18n="terminos_servicios_titulo">Términos de Servicios Comunitarios</span></h1>
+            <div class="sub" data-i18n="terminos_servicios_sub">Csariel's Ecosystem · Puebla, México · Actualizado 2026</div>
 
             <div class="content">
-                <p><strong>1. ¿Qué son los Servicios Comunitarios?</strong></p>
+
+                <!-- Sección 1 -->
+                <h2 data-i18n="seccion_1">1. Objeto</h2>
+                <p data-i18n="objeto">El presente documento regula el uso del módulo de Servicios Comunitarios de Csariel's, donde los usuarios pueden ofrecer y contratar servicios locales.</p>
+
+                <!-- Sección 2 -->
+                <h2 data-i18n="seccion_2">2. Tipos de Servicios</h2>
                 <ul>
-                    <li>Espacio para ofrecer y contratar servicios entre usuarios de Csariel's.</li>
-                    <li>Categorías: mecánico, plomero, electricista, albañil, técnico, limpieza, transporte, comida, médico, farmacia, profesor, cerrajero, jardinería, entre otros.</li>
-                    <li>Los servicios se publican de forma voluntaria y bajo responsabilidad del usuario.</li>
+                    <li data-i18n="servicio_1"><strong>Mecánico:</strong> Reparación y mantenimiento de vehículos.</li>
+                    <li data-i18n="servicio_2"><strong>Llantera:</strong> Cambio y reparación de llantas.</li>
+                    <li data-i18n="servicio_3"><strong>Plomero:</strong> Instalación y reparación de tuberías.</li>
+                    <li data-i18n="servicio_4"><strong>Electricista:</strong> Instalaciones y reparaciones eléctricas.</li>
+                    <li data-i18n="servicio_5"><strong>Albañil:</strong> Construcción y reparaciones estructurales.</li>
+                    <li data-i18n="servicio_6"><strong>Técnico:</strong> Reparación de dispositivos electrónicos.</li>
+                    <li data-i18n="servicio_7"><strong>Limpieza:</strong> Servicios de limpieza profesional.</li>
+                    <li data-i18n="servicio_8"><strong>Otros:</strong> Cualquier otro servicio no clasificado.</li>
                 </ul>
 
-                <p style="margin-top:16px;"><strong>2. Costos y Comisiones</strong></p>
+                <!-- Sección 3 -->
+                <h2 data-i18n="seccion_3">3. Registro de Servicios</h2>
                 <ul>
-                    <li><strong>Publicación:</strong> $50 CMT por 6 meses.</li>
-                    <li><strong>Comisión por transacción:</strong> 10% del valor acordado entre las partes.</li>
-                    <li>Los pagos se realizan en <strong>CMT</strong> (token del ecosistema).</li>
-                    <li>Csariel's actúa como intermediario técnico, no como responsable de la calidad del servicio.</li>
+                    <li data-i18n="registro_1">Los usuarios pueden registrar sus servicios de forma gratuita.</li>
+                    <li data-i18n="registro_2">Cada servicio debe incluir: nombre, categoría, descripción, teléfono y correo electrónico.</li>
+                    <li data-i18n="registro_3">Csariel's se reserva el derecho de verificar la autenticidad de los servicios registrados.</li>
                 </ul>
 
-                <p style="margin-top:16px;"><strong>3. Responsabilidades del Usuario</strong></p>
+                <!-- Sección 4 -->
+                <h2 data-i18n="seccion_4">4. Responsabilidades del Prestador</h2>
+                <div class="warning-box">
+                    <strong data-i18n="responsabilidades_prestador">📌 Responsabilidades:</strong>
+                    <ul>
+                        <li data-i18n="resp_prestador_1">El prestador es responsable de la calidad y seguridad de su servicio.</li>
+                        <li data-i18n="resp_prestador_2">El prestador debe responder a las solicitudes de los clientes de manera oportuna.</li>
+                        <li data-i18n="resp_prestador_3">El prestador no debe publicar información falsa o engañosa.</li>
+                    </ul>
+                </div>
+
+                <!-- Sección 5 -->
+                <h2 data-i18n="seccion_5">5. Responsabilidades del Cliente</h2>
                 <ul>
-                    <li>Proporcionar información veraz sobre el servicio ofrecido.</li>
-                    <li>Cumplir con los acuerdos y plazos establecidos.</li>
-                    <li>No publicar contenido ilegal, fraudulento o engañoso.</li>
-                    <li>Responder a los mensajes de los usuarios interesados.</li>
+                    <li data-i18n="resp_cliente_1">El cliente debe proporcionar información veraz al contratar un servicio.</li>
+                    <li data-i18n="resp_cliente_2">El cliente debe realizar el pago acordado por el servicio.</li>
+                    <li data-i18n="resp_cliente_3">El cliente debe tratar al prestador con respeto y cortesía.</li>
                 </ul>
 
-                <p style="margin-top:16px;"><strong>4. Protección y Moderación</strong></p>
+                <!-- Sección 6 -->
+                <h2 data-i18n="seccion_6">6. Precios y Pagos</h2>
                 <ul>
-                    <li>Csariel's se reserva el derecho de eliminar servicios que violen estas políticas.</li>
-                    <li>Los usuarios pueden reportar servicios fraudulentos o inapropiados.</li>
-                    <li>Se recomienda verificar la identidad y referencias del prestador.</li>
+                    <li data-i18n="precios_1">Los precios son acordados directamente entre el prestador y el cliente.</li>
+                    <li data-i18n="precios_2">Csariel's no participa en las transacciones económicas entre las partes.</li>
+                    <li data-i18n="precios_3">Los pagos pueden realizarse en efectivo, transferencia bancaria o CMT.</li>
                 </ul>
 
-                <p style="margin-top:16px;"><strong>5. Jurisdicción y Ley Aplicable</strong></p>
+                <!-- Sección 7 -->
+                <h2 data-i18n="seccion_7">7. Calificaciones y Reseñas</h2>
                 <ul>
-                    <li>Este acuerdo se rige por las leyes de los Estados Unidos Mexicanos.</li>
-                    <li>Cualquier controversia será resuelta en los tribunales de la Ciudad de Puebla, México.</li>
+                    <li data-i18n="calificacion_1">Los clientes pueden calificar los servicios recibidos.</li>
+                    <li data-i18n="calificacion_2">Las calificaciones ayudan a la comunidad a tomar decisiones informadas.</li>
+                    <li data-i18n="calificacion_3">Csariel's se reserva el derecho de eliminar reseñas falsas o malintencionadas.</li>
                 </ul>
 
-                <p style="margin-top:16px; color:var(--text-muted); font-size:0.85rem;">
-                    <strong style="color:var(--gold-cosmic);">📌 Importante:</strong> Csariel's no es responsable por la calidad, seguridad o cumplimiento de los servicios contratados a través de la plataforma. Los usuarios actúan bajo su propia responsabilidad. Para cualquier duda, contáctanos en <strong style="color:var(--gold-cosmic);">csarielscontacto@gmail.com</strong>.
-                </p>
+                <!-- Sección 8 -->
+                <h2 data-i18n="seccion_8">8. Verificación de Servicios</h2>
+                <div class="highlight-box">
+                    <strong data-i18n="verificacion">✅ Verificación:</strong>
+                    <ul>
+                        <li data-i18n="verificacion_1">Csariel's puede verificar los servicios mediante contacto telefónico o correo electrónico.</li>
+                        <li data-i18n="verificacion_2">Los servicios verificados reciben una insignia de verificación en su perfil.</li>
+                    </ul>
+                </div>
 
-                <p style="margin-top:16px; color:var(--text-muted); font-size:0.85rem;">
-                    <strong style="color:var(--gold-cosmic);">💰 Wallet oficial para pagos:</strong> 0x45c6455aa01356609d96b659c6eb880b7e1d046d (Polygon)
-                </p>
+                <!-- Sección 9 -->
+                <h2 data-i18n="seccion_9">9. Prohibiciones</h2>
+                <ul>
+                    <li data-i18n="prohibicion_1">No se permite publicar servicios ilegales o fraudulentos.</li>
+                    <li data-i18n="prohibicion_2">No se permite la discriminación por razones de género, raza, religión u orientación sexual.</li>
+                    <li data-i18n="prohibicion_3">No se permite la publicación de contenido ofensivo o inapropiado.</li>
+                </ul>
+
+                <!-- Sección 10 -->
+                <h2 data-i18n="seccion_10">10. Modificaciones</h2>
+                <p data-i18n="modificaciones">Csariel's se reserva el derecho de modificar estos términos en cualquier momento. Las modificaciones serán publicadas en la plataforma.</p>
+
+                <!-- Sección 11 -->
+                <h2 data-i18n="seccion_11">11. Contacto</h2>
+                <p data-i18n="contacto">Para cualquier consulta relacionada con los Servicios Comunitarios, contáctanos en <strong style="color:var(--gold-cosmic);">csarielscontacto@gmail.com</strong></p>
+
             </div>
 
             <div class="volver">
-                <a href="index.html"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+                <a href="../../index.html"><i class="fas fa-arrow-left"></i> <span data-i18n="volver_inicio">Volver al Inicio</span></a>
             </div>
         </div>
 
-        <!-- FOOTER (TODOS LOS ENLACES) -->
+        <!-- ===== FOOTER ===== -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Términos de Servicios Comunitarios
+                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_terminos_servicios">Términos Servicios · Comunidad Local</span>
             </span>
             <div class="footer-links">
-                <a href="index.html">🏠 Inicio</a>
-                <a href="features/red/index.html">👥 Mi Red</a>
-                <a href="features/live/index.html">📱 Muro Live</a>
-                <a href="features/memes/index.html" style="color:var(--danger);">😂 Memes</a>
-                <a href="features/trading/index.html" style="color:#00e5ff;">📈 Trading</a>
-                <a href="features/servicios/index.html" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
-                <a href="features/internet/index.html" style="color:#00d68f;">🌐 Internet</a>
-                <a href="features/tienda/index.html" style="color:#a855f7;">🏰 Tienda</a>
-                <a href="features/wallet/index.html" style="color:#00d4ff;">◈ Wallet</a>
-                <a href="terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
+                <a href="../red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="../live/index.html" data-i18n="live">📹 Live</a>
+                <a href="../foro/index.html" data-i18n="foro">💬 Foro</a>
+                <a href="../trading/index.html" data-i18n="trading">📈 Trading</a>
+                <a href="../servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="../internet/index.html" data-i18n="internet">🌐 Internet</a>
+                <a href="../tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
+                <a href="../wallet/index.html" data-i18n="wallet">◈ Wallet</a>
+                <a href="../../terminos-completos.html" data-i18n="terminos">📜 Términos</a>
                 <span class="footer-hex">◈</span>
             </div>
         </footer>
     </div>
 
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS + ESTRELLAS -->
+    <!-- 🔥 SCRIPTS (SIN WEB3) -->
     <!-- ================================================================ -->
     <script>
+        // ================================================================
+        // 🌐 SISTEMA DE IDIOMAS (COMPARTIDO)
+        // ================================================================
+        const CSARIELS_IDIOMA = {
+            actual: 'es',
+            traducciones: {},
+
+            init: async function() {
+                this.actual = localStorage.getItem('csariels_idioma') || 'es';
+                await this.cargarTraducciones(this.actual);
+                this.aplicarTraducciones();
+                this.actualizarBotones();
+                console.log(`🌐 Términos Servicios - Idioma: ${this.actual}`);
+                return this.actual;
+            },
+
+            cargarTraducciones: async function(idioma) {
+                const traduccionesInline = {
+                    es: {
+                        'titulo_terminos_servicios': '🔧 Términos Servicios | Csariel\'s',
+                        'terminos_servicios': 'Términos',
+                        'inicio': 'Inicio',
+                        'mi_red': 'Mi Red',
+                        'live': 'Live',
+                        'foro': 'Foro',
+                        'trading': 'Trading',
+                        'servicios': 'Servicios',
+                        'internet': 'Internet',
+                        'tienda': 'Tienda',
+                        'wallet': 'Wallet',
+                        'terminos': 'Términos',
+                        'footer_terminos_servicios': 'Términos Servicios · Comunidad Local',
+                        'terminos_servicios_titulo': 'Términos de Servicios Comunitarios',
+                        'terminos_servicios_sub': 'Csariel\'s Ecosystem · Puebla, México · Actualizado 2026',
+                        'seccion_1': '1. Objeto',
+                        'objeto': 'El presente documento regula el uso del módulo de Servicios Comunitarios de Csariel\'s, donde los usuarios pueden ofrecer y contratar servicios locales.',
+                        'seccion_2': '2. Tipos de Servicios',
+                        'servicio_1': 'Mecánico: Reparación y mantenimiento de vehículos.',
+                        'servicio_2': 'Llantera: Cambio y reparación de llantas.',
+                        'servicio_3': 'Plomero: Instalación y reparación de tuberías.',
+                        'servicio_4': 'Electricista: Instalaciones y reparaciones eléctricas.',
+                        'servicio_5': 'Albañil: Construcción y reparaciones estructurales.',
+                        'servicio_6': 'Técnico: Reparación de dispositivos electrónicos.',
+                        'servicio_7': 'Limpieza: Servicios de limpieza profesional.',
+                        'servicio_8': 'Otros: Cualquier otro servicio no clasificado.',
+                        'seccion_3': '3. Registro de Servicios',
+                        'registro_1': 'Los usuarios pueden registrar sus servicios de forma gratuita.',
+                        'registro_2': 'Cada servicio debe incluir: nombre, categoría, descripción, teléfono y correo electrónico.',
+                        'registro_3': 'Csariel\'s se reserva el derecho de verificar la autenticidad de los servicios registrados.',
+                        'seccion_4': '4. Responsabilidades del Prestador',
+                        'responsabilidades_prestador': '📌 Responsabilidades:',
+                        'resp_prestador_1': 'El prestador es responsable de la calidad y seguridad de su servicio.',
+                        'resp_prestador_2': 'El prestador debe responder a las solicitudes de los clientes de manera oportuna.',
+                        'resp_prestador_3': 'El prestador no debe publicar información falsa o engañosa.',
+                        'seccion_5': '5. Responsabilidades del Cliente',
+                        'resp_cliente_1': 'El cliente debe proporcionar información veraz al contratar un servicio.',
+                        'resp_cliente_2': 'El cliente debe realizar el pago acordado por el servicio.',
+                        'resp_cliente_3': 'El cliente debe tratar al prestador con respeto y cortesía.',
+                        'seccion_6': '6. Precios y Pagos',
+                        'precios_1': 'Los precios son acordados directamente entre el prestador y el cliente.',
+                        'precios_2': 'Csariel\'s no participa en las transacciones económicas entre las partes.',
+                        'precios_3': 'Los pagos pueden realizarse en efectivo, transferencia bancaria o CMT.',
+                        'seccion_7': '7. Calificaciones y Reseñas',
+                        'calificacion_1': 'Los clientes pueden calificar los servicios recibidos.',
+                        'calificacion_2': 'Las calificaciones ayudan a la comunidad a tomar decisiones informadas.',
+                        'calificacion_3': 'Csariel\'s se reserva el derecho de eliminar reseñas falsas o malintencionadas.',
+                        'seccion_8': '8. Verificación de Servicios',
+                        'verificacion': '✅ Verificación:',
+                        'verificacion_1': 'Csariel\'s puede verificar los servicios mediante contacto telefónico o correo electrónico.',
+                        'verificacion_2': 'Los servicios verificados reciben una insignia de verificación en su perfil.',
+                        'seccion_9': '9. Prohibiciones',
+                        'prohibicion_1': 'No se permite publicar servicios ilegales o fraudulentos.',
+                        'prohibicion_2': 'No se permite la discriminación por razones de género, raza, religión u orientación sexual.',
+                        'prohibicion_3': 'No se permite la publicación de contenido ofensivo o inapropiado.',
+                        'seccion_10': '10. Modificaciones',
+                        'modificaciones': 'Csariel\'s se reserva el derecho de modificar estos términos en cualquier momento. Las modificaciones serán publicadas en la plataforma.',
+                        'seccion_11': '11. Contacto',
+                        'contacto': 'Para cualquier consulta relacionada con los Servicios Comunitarios, contáctanos en csarielscontacto@gmail.com',
+                        'volver_inicio': 'Volver al Inicio'
+                    },
+                    en: {
+                        'titulo_terminos_servicios': '🔧 Services Terms | Csariel\'s',
+                        'terminos_servicios': 'Terms',
+                        'inicio': 'Home',
+                        'mi_red': 'My Network',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Store',
+                        'wallet': 'Wallet',
+                        'terminos': 'Terms',
+                        'footer_terminos_servicios': 'Services Terms · Local Community',
+                        'terminos_servicios_titulo': 'Community Services Terms',
+                        'terminos_servicios_sub': 'Csariel\'s Ecosystem · Puebla, Mexico · Updated 2026',
+                        'seccion_1': '1. Purpose',
+                        'objeto': 'This document regulates the use of the Community Services module of Csariel\'s, where users can offer and hire local services.',
+                        'seccion_2': '2. Types of Services',
+                        'servicio_1': 'Mechanic: Vehicle repair and maintenance.',
+                        'servicio_2': 'Tire Shop: Tire change and repair.',
+                        'servicio_3': 'Plumber: Plumbing installation and repair.',
+                        'servicio_4': 'Electrician: Electrical installations and repairs.',
+                        'servicio_5': 'Mason: Construction and structural repairs.',
+                        'servicio_6': 'Technician: Electronic device repair.',
+                        'servicio_7': 'Cleaning: Professional cleaning services.',
+                        'servicio_8': 'Others: Any other unclassified service.',
+                        'seccion_3': '3. Service Registration',
+                        'registro_1': 'Users can register their services for free.',
+                        'registro_2': 'Each service must include: name, category, description, phone and email.',
+                        'registro_3': 'Csariel\'s reserves the right to verify the authenticity of registered services.',
+                        'seccion_4': '4. Provider Responsibilities',
+                        'responsabilidades_prestador': '📌 Responsibilities:',
+                        'resp_prestador_1': 'The provider is responsible for the quality and safety of their service.',
+                        'resp_prestador_2': 'The provider must respond to client requests promptly.',
+                        'resp_prestador_3': 'The provider must not publish false or misleading information.',
+                        'seccion_5': '5. Client Responsibilities',
+                        'resp_cliente_1': 'The client must provide truthful information when hiring a service.',
+                        'resp_cliente_2': 'The client must make the agreed payment for the service.',
+                        'resp_cliente_3': 'The client must treat the provider with respect and courtesy.',
+                        'seccion_6': '6. Prices and Payments',
+                        'precios_1': 'Prices are agreed directly between the provider and the client.',
+                        'precios_2': 'Csariel\'s does not participate in the financial transactions between parties.',
+                        'precios_3': 'Payments can be made in cash, bank transfer or CMT.',
+                        'seccion_7': '7. Ratings and Reviews',
+                        'calificacion_1': 'Clients can rate the services received.',
+                        'calificacion_2': 'Ratings help the community make informed decisions.',
+                        'calificacion_3': 'Csariel\'s reserves the right to remove false or malicious reviews.',
+                        'seccion_8': '8. Service Verification',
+                        'verificacion': '✅ Verification:',
+                        'verificacion_1': 'Csariel\'s may verify services via phone or email contact.',
+                        'verificacion_2': 'Verified services receive a verification badge on their profile.',
+                        'seccion_9': '9. Prohibitions',
+                        'prohibicion_1': 'Publishing illegal or fraudulent services is not allowed.',
+                        'prohibicion_2': 'Discrimination based on gender, race, religion or sexual orientation is not allowed.',
+                        'prohibicion_3': 'Publishing offensive or inappropriate content is not allowed.',
+                        'seccion_10': '10. Modifications',
+                        'modificaciones': 'Csariel\'s reserves the right to modify these terms at any time. Modifications will be published on the platform.',
+                        'seccion_11': '11. Contact',
+                        'contacto': 'For any inquiries regarding Community Services, contact us at csarielscontacto@gmail.com',
+                        'volver_inicio': 'Back to Home'
+                    },
+                    fr: {
+                        'titulo_terminos_servicios': '🔧 Termes Services | Csariel\'s',
+                        'terminos_servicios': 'Termes',
+                        'inicio': 'Accueil',
+                        'mi_red': 'Mon Réseau',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Magasin',
+                        'wallet': 'Portefeuille',
+                        'terminos': 'Termes',
+                        'footer_terminos_servicios': 'Termes Services · Communauté Locale',
+                        'terminos_servicios_titulo': 'Termes des Services Communautaires',
+                        'terminos_servicios_sub': 'Écosystème Csariel\'s · Puebla, Mexique · Mis à jour 2026',
+                        'seccion_1': '1. Objet',
+                        'objeto': 'Le présent document régit l\'utilisation du module Services Communautaires de Csariel\'s, où les utilisateurs peuvent offrir et engager des services locaux.',
+                        'seccion_2': '2. Types de Services',
+                        'servicio_1': 'Mécanicien : Réparation et entretien de véhicules.',
+                        'servicio_2': 'Pneumatiques : Changement et réparation de pneus.',
+                        'servicio_3': 'Plombier : Installation et réparation de plomberie.',
+                        'servicio_4': 'Électricien : Installations et réparations électriques.',
+                        'servicio_5': 'Maçon : Construction et réparations structurelles.',
+                        'servicio_6': 'Technicien : Réparation d\'appareils électroniques.',
+                        'servicio_7': 'Nettoyage : Services de nettoyage professionnel.',
+                        'servicio_8': 'Autres : Tout autre service non classé.',
+                        'seccion_3': '3. Enregistrement des Services',
+                        'registro_1': 'Les utilisateurs peuvent enregistrer leurs services gratuitement.',
+                        'registro_2': 'Chaque service doit inclure : nom, catégorie, description, téléphone et email.',
+                        'registro_3': 'Csariel\'s se réserve le droit de vérifier l\'authenticité des services enregistrés.',
+                        'seccion_4': '4. Responsabilités du Prestataire',
+                        'responsabilidades_prestador': '📌 Responsabilités :',
+                        'resp_prestador_1': 'Le prestataire est responsable de la qualité et de la sécurité de son service.',
+                        'resp_prestador_2': 'Le prestataire doit répondre aux demandes des clients en temps utile.',
+                        'resp_prestador_3': 'Le prestataire ne doit pas publier d\'informations fausses ou trompeuses.',
+                        'seccion_5': '5. Responsabilités du Client',
+                        'resp_cliente_1': 'Le client doit fournir des informations véridiques lors de l\'engagement d\'un service.',
+                        'resp_cliente_2': 'Le client doit effectuer le paiement convenu pour le service.',
+                        'resp_cliente_3': 'Le client doit traiter le prestataire avec respect et courtoisie.',
+                        'seccion_6': '6. Prix et Paiements',
+                        'precios_1': 'Les prix sont convenus directement entre le prestataire et le client.',
+                        'precios_2': 'Csariel\'s ne participe pas aux transactions financières entre les parties.',
+                        'precios_3': 'Les paiements peuvent être effectués en espèces, virement bancaire ou CMT.',
+                        'seccion_7': '7. Évaluations et Avis',
+                        'calificacion_1': 'Les clients peuvent évaluer les services reçus.',
+                        'calificacion_2': 'Les évaluations aident la communauté à prendre des décisions éclairées.',
+                        'calificacion_3': 'Csariel\'s se réserve le droit de supprimer les avis faux ou malveillants.',
+                        'seccion_8': '8. Vérification des Services',
+                        'verificacion': '✅ Vérification :',
+                        'verificacion_1': 'Csariel\'s peut vérifier les services par contact téléphonique ou email.',
+                        'verificacion_2': 'Les services vérifiés reçoivent un badge de vérification sur leur profil.',
+                        'seccion_9': '9. Interdictions',
+                        'prohibicion_1': 'La publication de services illégaux ou frauduleux est interdite.',
+                        'prohibicion_2': 'La discrimination basée sur le genre, la race, la religion ou l\'orientation sexuelle est interdite.',
+                        'prohibicion_3': 'La publication de contenu offensant ou inapproprié est interdite.',
+                        'seccion_10': '10. Modifications',
+                        'modificaciones': 'Csariel\'s se réserve le droit de modifier ces termes à tout moment. Les modifications seront publiées sur la plateforme.',
+                        'seccion_11': '11. Contact',
+                        'contacto': 'Pour toute question concernant les Services Communautaires, contactez-nous à csarielscontacto@gmail.com',
+                        'volver_inicio': 'Retour à l\'Accueil'
+                    }
+                };
+                this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
+            },
+
+            cambiar: function(idioma) {
+                if (!idioma || idioma === this.actual) return;
+                this.actual = idioma;
+                localStorage.setItem('csariels_idioma', idioma);
+                this.cargarTraducciones(idioma).then(() => {
+                    this.aplicarTraducciones();
+                    this.actualizarBotones();
+                    this.notificarCambio(idioma);
+                });
+            },
+
+            aplicarTraducciones: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (this.traducciones[key]) el.textContent = this.traducciones[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (this.traducciones[key]) el.placeholder = this.traducciones[key];
+                });
+            },
+
+            actualizarBotones: function() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    btn.classList.toggle('active', lang === this.actual);
+                });
+            },
+
+            notificarCambio: function(idioma) {
+                localStorage.setItem('csariels_idioma', idioma);
+                try {
+                    window.dispatchEvent(new CustomEvent('idioma-cambiado', { detail: { idioma: idioma } }));
+                } catch (e) { console.warn(e); }
+                const nombres = { es: 'Español 🌎', en: 'English 🌍', fr: 'Français 🌏' };
+                mostrarToast(`🌐 ${nombres[idioma] || idioma.toUpperCase()}`);
+            }
+        };
+
+        // ================================================================
+        // 🔐 TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
         function initStars() {
             const canvas = document.getElementById('stars-canvas');
             if (!canvas) return;
@@ -586,16 +989,30 @@
             window.addEventListener('resize', () => { resize(); createStars(); });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
             initStars();
-            console.log('🔧 Csariel\'s - Términos de Servicios Comunitarios (raíz)');
+            await CSARIELS_IDIOMA.init();
+            console.log('🔧 Csariel\'s - Términos Servicios (SIN WEB3)');
+
+            // Escuchar cambios de idioma
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
         });
+
+        window.mostrarToast = mostrarToast;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
     </script>
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </body>
 </html>
