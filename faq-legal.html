@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ Legal | Csariel's</title>
+    <title data-i18n="titulo_faq">❓ FAQ Legal | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
 
     <!-- 🔒 CSP -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co https://*.polygon.technology;
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
         style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
         img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.polygon.technology;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
         frame-src 'self';
         media-src 'self';
         object-src 'none';
@@ -289,6 +289,31 @@
             50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
         }
 
+        /* ===== SELECTOR DE IDIOMA ===== */
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212,175,55,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212,175,55,0.08);
+        }
+        .language-selector .lang-icon { font-size: 0.7rem; margin-right: 2px; }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover { color: var(--text-secondary); background: rgba(212,175,55,0.05); }
+        .lang-btn.active { border-color: var(--gold-cosmic); background: rgba(212,175,55,0.1); color: var(--gold-cosmic); }
+
         /* ================================================================
            ESTILOS PROPIOS DE FAQ LEGAL
            ================================================================ */
@@ -337,51 +362,69 @@
         .faq-item {
             background: rgba(0,0,0,0.2);
             border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            margin-bottom: 12px;
             overflow: hidden;
             transition: var(--transition);
         }
         .faq-item:hover {
             border-color: var(--border-glow);
         }
-        .faq-item .question {
+        .faq-item .faq-question {
             padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            transition: var(--transition);
             font-weight: 600;
             color: var(--text-primary);
-            font-size: 0.9rem;
-            transition: var(--transition);
+            font-size: 0.95rem;
         }
-        .faq-item .question:hover {
-            background: rgba(212,175,55,0.05);
+        .faq-item .faq-question:hover {
+            background: rgba(212,175,55,0.03);
         }
-        .faq-item .question .icon {
+        .faq-item .faq-question .icon {
             color: var(--gold-cosmic);
-            font-size: 1.1rem;
+            font-size: 0.8rem;
             transition: var(--transition);
         }
-        .faq-item .question .icon.open {
+        .faq-item .faq-question .icon.open {
             transform: rotate(180deg);
         }
-        .faq-item .answer {
-            max-height: 0;
-            overflow: hidden;
-            padding: 0 18px;
+        .faq-item .faq-answer {
+            padding: 0 18px 18px 18px;
             color: var(--text-secondary);
             font-size: 0.85rem;
-            line-height: 1.6;
-            transition: max-height 0.4s ease, padding 0.3s ease;
+            line-height: 1.7;
+            display: none;
         }
-        .faq-item .answer.open {
-            max-height: 500px;
-            padding: 0 18px 16px 18px;
+        .faq-item .faq-answer.open {
+            display: block;
         }
-        .faq-item .answer strong {
+        .faq-item .faq-answer strong {
             color: var(--gold-cosmic);
+        }
+        .faq-item .faq-answer .highlight-box {
+            background: rgba(0,255,136,0.08);
+            border-left: 4px solid #00ff88;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+        .faq-item .faq-answer .warning-box {
+            background: rgba(255,235,59,0.08);
+            border-left: 4px solid var(--gold-cosmic);
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+        .faq-item .faq-answer .danger-box {
+            background: rgba(255,51,102,0.06);
+            border-left: 4px solid var(--danger);
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin: 8px 0;
         }
 
         .faq-container .volver {
@@ -450,16 +493,38 @@
             font-family: 'Orbitron', monospace;
         }
 
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: flex-start; }
             .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
             .faq-container { padding: 16px; }
             .faq-container h1 { font-size: 1.4rem; }
+            .faq-item .faq-question { font-size: 0.85rem; padding: 12px 14px; }
         }
         @media (max-width: 480px) {
             .btn { font-size: 0.45rem; padding: 4px 8px; }
-            .faq-item .question { font-size: 0.8rem; padding: 12px 14px; }
-            .faq-item .answer { font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -472,179 +537,519 @@
 
     <div class="app">
 
-        <!-- HEADER CON TODOS LOS ENLACES -->
+        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA -->
         <header class="header">
-            <a href="#" class="logo" onclick="event.preventDefault()">
+            <a href="../../index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">FAQ Legal</span>
+                <span class="logo-badge" data-i18n="faq_legal">FAQ Legal</span>
             </a>
             <div class="header-actions">
-                <a href="index.html" class="btn btn-primary btn-sm"><i class="fas fa-home"></i> Inicio</a>
-                <a href="features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
-                <a href="features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-rss"></i> Muro Live</a>
-                <a href="features/memes/index.html" class="btn btn-danger btn-sm"><i class="fas fa-mask"></i> Memes</a>
-                <a href="features/trading/index.html" class="btn btn-trading btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
-                <a href="features/servicios/index.html" class="btn btn-gold btn-sm"><i class="fas fa-tools"></i> Servicios</a>
-                <a href="features/internet/index.html" class="btn btn-internet btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
-                <a href="features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
-                <a href="features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
-                <a href="terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+                <!-- ===== SELECTOR DE IDIOMA ===== -->
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
+                </div>
+
+                <a href="../../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
+                </a>
+                <a href="../red/index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
+                </a>
+                <a href="../live/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-video"></i> <span data-i18n="live">Live</span>
+                </a>
+                <a href="../foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
+                </a>
+                <a href="../trading/index.html" class="btn btn-trading btn-sm">
+                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
+                </a>
+                <a href="../servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
+                </a>
+                <a href="../internet/index.html" class="btn btn-internet btn-sm">
+                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
+                </a>
+                <a href="../tienda/index.html" class="btn btn-tienda btn-sm">
+                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
+                </a>
+                <a href="../wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
+                </a>
+                <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
+                </a>
             </div>
         </header>
 
-        <!-- ===== CONTENIDO ===== -->
+        <!-- ===== FAQ LEGAL ===== -->
         <div class="faq-container">
-            <h1>❓ Preguntas Frecuentes</h1>
-            <div class="sub">Respuestas a tus dudas legales · Csariel's Ecosystem</div>
+            <h1>❓ <span data-i18n="faq_titulo">Preguntas Frecuentes Legales</span></h1>
+            <div class="sub" data-i18n="faq_sub">Csariel's Ecosystem · Puebla, México · Actualizado 2026</div>
 
             <!-- FAQ 1 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Csariel's es una institución financiera?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_1_pregunta">📋 ¿Qué son los Términos y Condiciones?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    <strong>No.</strong> Csariel's no es una institución bancaria, casa de bolsa, transmisor de dinero, entidad financiera, casa de cambio, fondo de inversión, ni cualquier otra entidad sujeta a regulación financiera. Operamos como una plataforma técnica descentralizada que facilita la interacción entre usuarios.
+                <div class="faq-answer">
+                    <p data-i18n="faq_1_respuesta">Los Términos y Condiciones son el contrato legal que regula el uso de la plataforma Csariel's. Establecen las reglas, derechos y obligaciones de los usuarios, así como las políticas de privacidad, propiedad intelectual y responsabilidades. Puedes consultarlos en <strong style="color:var(--gold-cosmic);">terminos-completos.html</strong>.</p>
                 </div>
             </div>
 
             <!-- FAQ 2 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Qué son los TOK y CMT?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_2_pregunta">🔒 ¿Cómo protege Csariel's mis datos personales?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    <strong>TOK</strong> es un token de utilidad digital para fidelización dentro del ecosistema. <strong>CMT</strong> es la moneda interna de Csariel's para transacciones. Ambos <strong>no son valores financieros</strong> ni instrumentos de inversión. Su valor es determinado exclusivamente por la oferta y la demanda entre usuarios.
+                <div class="faq-answer">
+                    <p data-i18n="faq_2_respuesta">Csariel's protege tus datos personales mediante:</p>
+                    <ul>
+                        <li data-i18n="faq_2_respuesta_1">Cifrado de datos sensibles en tránsito y almacenamiento.</li>
+                        <li data-i18n="faq_2_respuesta_2">Acceso restringido a personal autorizado.</li>
+                        <li data-i18n="faq_2_respuesta_3">Cumplimiento con la legislación mexicana de protección de datos (LFPDPPP).</li>
+                    </ul>
+                    <p data-i18n="faq_2_respuesta_4">Consulta nuestro <strong style="color:var(--gold-cosmic);">Aviso de Privacidad</strong> para más detalles.</p>
                 </div>
             </div>
 
             <!-- FAQ 3 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Cómo protege Csariel's mis datos personales?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_3_pregunta">💰 ¿Cómo funciona el sistema de comisiones?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    Csariel's cumple con la <strong>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</strong>. Tus datos se usan exclusivamente para la operación de la plataforma, no se venden a terceros y puedes ejercer tus derechos ARCO escribiendo a <strong>csarielscontacto@gmail.com</strong>.
+                <div class="faq-answer">
+                    <div class="highlight-box">
+                        <strong data-i18n="faq_3_respuesta_titulo">📊 Sistema de comisiones:</strong>
+                        <ul>
+                            <li data-i18n="faq_3_respuesta_1"><strong>Comisión de Trading:</strong> 1% sobre cada transacción (Art. 3.4).</li>
+                            <li data-i18n="faq_3_respuesta_2"><strong>Comisión de Creadores:</strong> 50% para el creador, 50% para la plataforma.</li>
+                            <li data-i18n="faq_3_respuesta_3"><strong>Sin comisiones ocultas:</strong> Todas las comisiones son transparentes y se muestran antes de cada operación.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
             <!-- FAQ 4 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Qué pasa si pierdo acceso a mi wallet?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_4_pregunta">🚨 ¿Qué hago si encuentro contenido inapropiado?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    Csariel's opera bajo un modelo <strong>no custodial</strong>. No tenemos acceso a tus claves privadas o frase semilla. La pérdida de acceso a tu wallet es responsabilidad exclusiva del usuario. <strong>Nunca compartas tu frase semilla con nadie.</strong>
+                <div class="faq-answer">
+                    <div class="danger-box">
+                        <strong data-i18n="faq_4_respuesta_titulo">📌 Reporte de contenido:</strong>
+                        <ol>
+                            <li data-i18n="faq_4_respuesta_1">Utiliza el botón de "Reportar" en la publicación o perfil del usuario.</li>
+                            <li data-i18n="faq_4_respuesta_2">Los reportes son revisados por moderadores humanos en un plazo de 24-48 horas.</li>
+                            <li data-i18n="faq_4_respuesta_3">En casos graves, Csariel's tomará acciones inmediatas como la suspensión de la cuenta.</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
 
             <!-- FAQ 5 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Cómo funciona la comisión del 1% en el trading?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_5_pregunta">©️ ¿Quién es dueño del contenido que publico?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    La comisión del <strong>1%</strong> se aplica exclusivamente a las transacciones de <strong>venta de TOK</strong>. Se deduce automáticamente del monto total de la venta. Esta comisión está destinada al mantenimiento del ecosistema, incluyendo minting de tokens, NFTs, gastos operativos y desarrollo continuo.
+                <div class="faq-answer">
+                    <p data-i18n="faq_5_respuesta_1">El creador retiene todos los derechos de autor sobre su contenido original. Csariel's obtiene una licencia no exclusiva para distribuir y promocionar el contenido dentro de la plataforma.</p>
+                    <div class="warning-box">
+                        <strong data-i18n="faq_5_respuesta_2">📌 Importante:</strong>
+                        <p data-i18n="faq_5_respuesta_3">No puedes publicar contenido que viole los derechos de autor de terceros. Si lo haces, Csariel's eliminará el contenido y podrá suspender tu cuenta.</p>
+                    </div>
                 </div>
             </div>
 
             <!-- FAQ 6 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Qué hago si encuentro contenido que infringe mis derechos de autor?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_6_pregunta">🤝 ¿Cómo funciona el Contrato de Creador?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    Puedes enviar una notificación de <strong>takedown</strong> a <strong>csarielscontacto@gmail.com</strong> con la descripción de la obra, la URL del contenido infractor y tu información de contacto. Csariel's responde en un plazo máximo de <strong>15 días hábiles</strong> conforme a la <strong>LFDA</strong> y <strong>DMCA</strong>.
+                <div class="faq-answer">
+                    <p data-i18n="faq_6_respuesta_1">El <strong style="color:var(--gold-cosmic);">Contrato de Creador</strong> establece los términos entre Csariel's y los creadores de contenido:</p>
+                    <ul>
+                        <li data-i18n="faq_6_respuesta_2"><strong>Reparto:</strong> 50% para el creador, 50% para la plataforma.</li>
+                        <li data-i18n="faq_6_respuesta_3"><strong>Duración:</strong> Indefinida, con terminación por 15 días de anticipación.</li>
+                        <li data-i18n="faq_6_respuesta_4"><strong>Terminación:</strong> Csariel's puede terminar el contrato si se violan las políticas de contenido.</li>
+                    </ul>
                 </div>
             </div>
 
             <!-- FAQ 7 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Cuál es la jurisdicción aplicable?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_7_pregunta">🌐 ¿Qué es el sistema de CMT?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    Cualquier controversia se resuelve en los <strong>tribunales competentes de la Ciudad de Puebla, Estado de Puebla, México</strong>, renunciando a cualquier otro fuero. La ley aplicable es la de los <strong>Estados Unidos Mexicanos</strong>.
+                <div class="faq-answer">
+                    <div class="highlight-box">
+                        <strong data-i18n="faq_7_respuesta_titulo">💎 CMT (Commit Token):</strong>
+                        <ul>
+                            <li data-i18n="faq_7_respuesta_1">Es la ficha interna del ecosistema Csariel's.</li>
+                            <li data-i18n="faq_7_respuesta_2">Se usa para: Trading, donaciones en Lives, compras en la Tienda.</li>
+                            <li data-i18n="faq_7_respuesta_3">No es una criptomoneda pública, es un registro digital en nuestro ledger privado.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
             <!-- FAQ 8 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Qué es el sistema de moderación de Csariel's?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_8_pregunta">⚖️ ¿Qué jurisdicción aplica?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    Csariel's cuenta con un sistema de moderación <strong>IA + Humana</strong>. Se prohíbe contenido violento, de odio, sexual explícito, y promoción de actividades ilegales. El sistema maneja un esquema de <strong>3 advertencias</strong> antes de medidas más severas.
+                <div class="faq-answer">
+                    <p data-i18n="faq_8_respuesta_1">Csariel's opera bajo la jurisdicción de <strong style="color:var(--gold-cosmic);">México</strong>, específicamente en el estado de <strong style="color:var(--gold-cosmic);">Puebla</strong>.</p>
+                    <div class="warning-box">
+                        <strong data-i18n="faq_8_respuesta_2">📌 Art. 5.10:</strong>
+                        <p data-i18n="faq_8_respuesta_3">Cualquier disputa será resuelta ante los tribunales competentes de <strong style="color:var(--gold-cosmic);">Puebla, México</strong>.</p>
+                    </div>
                 </div>
             </div>
 
             <!-- FAQ 9 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Dónde puedo ver los Términos y Condiciones completos?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_9_pregunta">📧 ¿Cómo contacto al equipo legal?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    Puedes consultar los <strong>Términos y Condiciones completos</strong> en <a href="terminos-completos.html" style="color:var(--gold-cosmic);">este enlace</a> o visitando el <strong>Legal Hub</strong> en el menú principal.
+                <div class="faq-answer">
+                    <p data-i18n="faq_9_respuesta_1">Puedes contactar al equipo legal de Csariel's a través de los siguientes medios:</p>
+                    <ul>
+                        <li data-i18n="faq_9_respuesta_2"><strong>Correo electrónico:</strong> <a href="mailto:csarielscontacto@gmail.com" style="color:var(--gold-cosmic);">csarielscontacto@gmail.com</a></li>
+                        <li data-i18n="faq_9_respuesta_3"><strong>Formulario Takedown:</strong> Disponible en la sección de Legal Hub.</li>
+                        <li data-i18n="faq_9_respuesta_4"><strong>Dirección:</strong> Puebla, México.</li>
+                    </ul>
                 </div>
             </div>
 
             <!-- FAQ 10 -->
             <div class="faq-item">
-                <div class="question" onclick="toggleFaq(this)">
-                    ¿Cómo puedo contactar a Csariel's?
-                    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span data-i18n="faq_10_pregunta">🔄 ¿Cómo se actualizan los documentos legales?</span>
+                    <span class="icon">▼</span>
                 </div>
-                <div class="answer">
-                    Puedes contactarnos a través de <strong>csarielscontacto@gmail.com</strong>. También puedes usar el chat de Talaverín o el formulario de contacto en la sección de soporte de la plataforma.
+                <div class="faq-answer">
+                    <p data-i18n="faq_10_respuesta_1">Csariel's actualiza sus documentos legales de forma periódica para cumplir con la legislación aplicable y mejorar la transparencia.</p>
+                    <div class="warning-box">
+                        <strong data-i18n="faq_10_respuesta_2">📌 Notificación:</strong>
+                        <p data-i18n="faq_10_respuesta_3">Los cambios significativos se notificarán por correo electrónico a todos los usuarios registrados.</p>
+                    </div>
                 </div>
-            </div>
-
-            <div style="margin-top:16px; background:rgba(0,0,0,0.2); border-radius:8px; padding:12px; border:1px solid var(--gold-dim);">
-                <p style="color:var(--text-muted); font-size:0.75rem; text-align:center;">
-                    <i class="fas fa-info-circle" style="color:var(--gold-cosmic);"></i>
-                    ¿No encontraste tu pregunta? Escríbenos a <strong style="color:var(--gold-cosmic);">csarielscontacto@gmail.com</strong> y te responderemos en breve.
-                </p>
             </div>
 
             <div class="volver">
-                <a href="index.html"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
+                <a href="../../index.html"><i class="fas fa-arrow-left"></i> <span data-i18n="volver_inicio">Volver al Inicio</span></a>
             </div>
         </div>
 
-        <!-- FOOTER (TODOS LOS ENLACES) -->
+        <!-- ===== FOOTER ===== -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — FAQ Legal · Preguntas Frecuentes
+                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_faq">FAQ Legal · Preguntas Frecuentes</span>
             </span>
             <div class="footer-links">
-                <a href="index.html">🏠 Inicio</a>
-                <a href="features/red/index.html">👥 Mi Red</a>
-                <a href="features/live/index.html">📱 Muro Live</a>
-                <a href="features/memes/index.html" style="color:var(--danger);">😂 Memes</a>
-                <a href="features/trading/index.html" style="color:#00e5ff;">📈 Trading</a>
-                <a href="features/servicios/index.html" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
-                <a href="features/internet/index.html" style="color:#00d68f;">🌐 Internet</a>
-                <a href="features/tienda/index.html" style="color:#a855f7;">🏰 Tienda</a>
-                <a href="features/wallet/index.html" style="color:#00d4ff;">◈ Wallet</a>
-                <a href="terminos-completos.html" style="color:var(--gold-cosmic);">📜 Términos</a>
+                <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
+                <a href="../red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="../live/index.html" data-i18n="live">📹 Live</a>
+                <a href="../foro/index.html" data-i18n="foro">💬 Foro</a>
+                <a href="../trading/index.html" data-i18n="trading">📈 Trading</a>
+                <a href="../servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="../internet/index.html" data-i18n="internet">🌐 Internet</a>
+                <a href="../tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
+                <a href="../wallet/index.html" data-i18n="wallet">◈ Wallet</a>
+                <a href="../../terminos-completos.html" data-i18n="terminos">📜 Términos</a>
                 <span class="footer-hex">◈</span>
             </div>
         </footer>
     </div>
 
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS + ESTRELLAS -->
+    <!-- 🔥 SCRIPTS (SIN WEB3) -->
     <!-- ================================================================ -->
     <script>
+        // ================================================================
+        // 🌐 SISTEMA DE IDIOMAS (COMPARTIDO)
+        // ================================================================
+        const CSARIELS_IDIOMA = {
+            actual: 'es',
+            traducciones: {},
+
+            init: async function() {
+                this.actual = localStorage.getItem('csariels_idioma') || 'es';
+                await this.cargarTraducciones(this.actual);
+                this.aplicarTraducciones();
+                this.actualizarBotones();
+                console.log(`🌐 FAQ Legal - Idioma: ${this.actual}`);
+                return this.actual;
+            },
+
+            cargarTraducciones: async function(idioma) {
+                const traduccionesInline = {
+                    es: {
+                        'titulo_faq': '❓ FAQ Legal | Csariel\'s',
+                        'faq_legal': 'FAQ Legal',
+                        'inicio': 'Inicio',
+                        'mi_red': 'Mi Red',
+                        'live': 'Live',
+                        'foro': 'Foro',
+                        'trading': 'Trading',
+                        'servicios': 'Servicios',
+                        'internet': 'Internet',
+                        'tienda': 'Tienda',
+                        'wallet': 'Wallet',
+                        'terminos': 'Términos',
+                        'footer_faq': 'FAQ Legal · Preguntas Frecuentes',
+                        'faq_titulo': 'Preguntas Frecuentes Legales',
+                        'faq_sub': 'Csariel\'s Ecosystem · Puebla, México · Actualizado 2026',
+                        'faq_1_pregunta': '📋 ¿Qué son los Términos y Condiciones?',
+                        'faq_1_respuesta': 'Los Términos y Condiciones son el contrato legal que regula el uso de la plataforma Csariel\'s. Establecen las reglas, derechos y obligaciones de los usuarios, así como las políticas de privacidad, propiedad intelectual y responsabilidades. Puedes consultarlos en terminos-completos.html.',
+                        'faq_2_pregunta': '🔒 ¿Cómo protege Csariel\'s mis datos personales?',
+                        'faq_2_respuesta': 'Csariel\'s protege tus datos personales mediante:',
+                        'faq_2_respuesta_1': 'Cifrado de datos sensibles en tránsito y almacenamiento.',
+                        'faq_2_respuesta_2': 'Acceso restringido a personal autorizado.',
+                        'faq_2_respuesta_3': 'Cumplimiento con la legislación mexicana de protección de datos (LFPDPPP).',
+                        'faq_2_respuesta_4': 'Consulta nuestro Aviso de Privacidad para más detalles.',
+                        'faq_3_pregunta': '💰 ¿Cómo funciona el sistema de comisiones?',
+                        'faq_3_respuesta_titulo': '📊 Sistema de comisiones:',
+                        'faq_3_respuesta_1': 'Comisión de Trading: 1% sobre cada transacción (Art. 3.4).',
+                        'faq_3_respuesta_2': 'Comisión de Creadores: 50% para el creador, 50% para la plataforma.',
+                        'faq_3_respuesta_3': 'Sin comisiones ocultas: Todas las comisiones son transparentes y se muestran antes de cada operación.',
+                        'faq_4_pregunta': '🚨 ¿Qué hago si encuentro contenido inapropiado?',
+                        'faq_4_respuesta_titulo': '📌 Reporte de contenido:',
+                        'faq_4_respuesta_1': 'Utiliza el botón de "Reportar" en la publicación o perfil del usuario.',
+                        'faq_4_respuesta_2': 'Los reportes son revisados por moderadores humanos en un plazo de 24-48 horas.',
+                        'faq_4_respuesta_3': 'En casos graves, Csariel\'s tomará acciones inmediatas como la suspensión de la cuenta.',
+                        'faq_5_pregunta': '©️ ¿Quién es dueño del contenido que publico?',
+                        'faq_5_respuesta_1': 'El creador retiene todos los derechos de autor sobre su contenido original. Csariel\'s obtiene una licencia no exclusiva para distribuir y promocionar el contenido dentro de la plataforma.',
+                        'faq_5_respuesta_2': '📌 Importante:',
+                        'faq_5_respuesta_3': 'No puedes publicar contenido que viole los derechos de autor de terceros. Si lo haces, Csariel\'s eliminará el contenido y podrá suspender tu cuenta.',
+                        'faq_6_pregunta': '🤝 ¿Cómo funciona el Contrato de Creador?',
+                        'faq_6_respuesta_1': 'El Contrato de Creador establece los términos entre Csariel\'s y los creadores de contenido:',
+                        'faq_6_respuesta_2': 'Reparto: 50% para el creador, 50% para la plataforma.',
+                        'faq_6_respuesta_3': 'Duración: Indefinida, con terminación por 15 días de anticipación.',
+                        'faq_6_respuesta_4': 'Terminación: Csariel\'s puede terminar el contrato si se violan las políticas de contenido.',
+                        'faq_7_pregunta': '🌐 ¿Qué es el sistema de CMT?',
+                        'faq_7_respuesta_titulo': '💎 CMT (Commit Token):',
+                        'faq_7_respuesta_1': 'Es la ficha interna del ecosistema Csariel\'s.',
+                        'faq_7_respuesta_2': 'Se usa para: Trading, donaciones en Lives, compras en la Tienda.',
+                        'faq_7_respuesta_3': 'No es una criptomoneda pública, es un registro digital en nuestro ledger privado.',
+                        'faq_8_pregunta': '⚖️ ¿Qué jurisdicción aplica?',
+                        'faq_8_respuesta_1': 'Csariel\'s opera bajo la jurisdicción de México, específicamente en el estado de Puebla.',
+                        'faq_8_respuesta_2': '📌 Art. 5.10:',
+                        'faq_8_respuesta_3': 'Cualquier disputa será resuelta ante los tribunales competentes de Puebla, México.',
+                        'faq_9_pregunta': '📧 ¿Cómo contacto al equipo legal?',
+                        'faq_9_respuesta_1': 'Puedes contactar al equipo legal de Csariel\'s a través de los siguientes medios:',
+                        'faq_9_respuesta_2': 'Correo electrónico: csarielscontacto@gmail.com',
+                        'faq_9_respuesta_3': 'Formulario Takedown: Disponible en la sección de Legal Hub.',
+                        'faq_9_respuesta_4': 'Dirección: Puebla, México.',
+                        'faq_10_pregunta': '🔄 ¿Cómo se actualizan los documentos legales?',
+                        'faq_10_respuesta_1': 'Csariel\'s actualiza sus documentos legales de forma periódica para cumplir con la legislación aplicable y mejorar la transparencia.',
+                        'faq_10_respuesta_2': '📌 Notificación:',
+                        'faq_10_respuesta_3': 'Los cambios significativos se notificarán por correo electrónico a todos los usuarios registrados.',
+                        'volver_inicio': 'Volver al Inicio'
+                    },
+                    en: {
+                        'titulo_faq': '❓ Legal FAQ | Csariel\'s',
+                        'faq_legal': 'Legal FAQ',
+                        'inicio': 'Home',
+                        'mi_red': 'My Network',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Store',
+                        'wallet': 'Wallet',
+                        'terminos': 'Terms',
+                        'footer_faq': 'Legal FAQ · Frequently Asked Questions',
+                        'faq_titulo': 'Frequently Asked Legal Questions',
+                        'faq_sub': 'Csariel\'s Ecosystem · Puebla, Mexico · Updated 2026',
+                        'faq_1_pregunta': '📋 What are the Terms and Conditions?',
+                        'faq_1_respuesta': 'The Terms and Conditions are the legal contract that regulates the use of the Csariel\'s platform. They establish the rules, rights and obligations of users, as well as privacy policies, intellectual property and responsibilities.',
+                        'faq_2_pregunta': '🔒 How does Csariel\'s protect my personal data?',
+                        'faq_2_respuesta': 'Csariel\'s protects your personal data through:',
+                        'faq_2_respuesta_1': 'Encryption of sensitive data in transit and storage.',
+                        'faq_2_respuesta_2': 'Restricted access to authorized personnel.',
+                        'faq_2_respuesta_3': 'Compliance with Mexican data protection legislation (LFPDPPP).',
+                        'faq_2_respuesta_4': 'Check our Privacy Notice for more details.',
+                        'faq_3_pregunta': '💰 How does the commission system work?',
+                        'faq_3_respuesta_titulo': '📊 Commission system:',
+                        'faq_3_respuesta_1': 'Trading Commission: 1% on each transaction (Art. 3.4).',
+                        'faq_3_respuesta_2': 'Creator Commission: 50% for the creator, 50% for the platform.',
+                        'faq_3_respuesta_3': 'No hidden commissions: All commissions are transparent and shown before each operation.',
+                        'faq_4_pregunta': '🚨 What do I do if I find inappropriate content?',
+                        'faq_4_respuesta_titulo': '📌 Content reporting:',
+                        'faq_4_respuesta_1': 'Use the "Report" button on the post or user profile.',
+                        'faq_4_respuesta_2': 'Reports are reviewed by human moderators within 24-48 hours.',
+                        'faq_4_respuesta_3': 'In serious cases, Csariel\'s will take immediate action such as suspending the account.',
+                        'faq_5_pregunta': '©️ Who owns the content I publish?',
+                        'faq_5_respuesta_1': 'The creator retains all copyright over their original content. Csariel\'s obtains a non-exclusive license to distribute and promote the content within the platform.',
+                        'faq_5_respuesta_2': '📌 Important:',
+                        'faq_5_respuesta_3': 'You cannot publish content that violates third-party copyrights. If you do, Csariel\'s will remove the content and may suspend your account.',
+                        'faq_6_pregunta': '🤝 How does the Creator Contract work?',
+                        'faq_6_respuesta_1': 'The Creator Contract establishes the terms between Csariel\'s and content creators:',
+                        'faq_6_respuesta_2': 'Split: 50% for the creator, 50% for the platform.',
+                        'faq_6_respuesta_3': 'Duration: Indefinite, with termination by 15 days notice.',
+                        'faq_6_respuesta_4': 'Termination: Csariel\'s may terminate the contract if content policies are violated.',
+                        'faq_7_pregunta': '🌐 What is the CMT system?',
+                        'faq_7_respuesta_titulo': '💎 CMT (Commit Token):',
+                        'faq_7_respuesta_1': 'It is the internal token of the Csariel\'s ecosystem.',
+                        'faq_7_respuesta_2': 'Used for: Trading, Live donations, Store purchases.',
+                        'faq_7_respuesta_3': 'It is not a public cryptocurrency, it is a digital record in our private ledger.',
+                        'faq_8_pregunta': '⚖️ What jurisdiction applies?',
+                        'faq_8_respuesta_1': 'Csariel\'s operates under the jurisdiction of Mexico, specifically in the state of Puebla.',
+                        'faq_8_respuesta_2': '📌 Art. 5.10:',
+                        'faq_8_respuesta_3': 'Any dispute will be resolved before the competent courts of Puebla, Mexico.',
+                        'faq_9_pregunta': '📧 How do I contact the legal team?',
+                        'faq_9_respuesta_1': 'You can contact Csariel\'s legal team through the following means:',
+                        'faq_9_respuesta_2': 'Email: csarielscontacto@gmail.com',
+                        'faq_9_respuesta_3': 'Takedown Form: Available in the Legal Hub section.',
+                        'faq_9_respuesta_4': 'Address: Puebla, Mexico.',
+                        'faq_10_pregunta': '🔄 How are legal documents updated?',
+                        'faq_10_respuesta_1': 'Csariel\'s updates its legal documents periodically to comply with applicable legislation and improve transparency.',
+                        'faq_10_respuesta_2': '📌 Notification:',
+                        'faq_10_respuesta_3': 'Significant changes will be notified by email to all registered users.',
+                        'volver_inicio': 'Back to Home'
+                    },
+                    fr: {
+                        'titulo_faq': '❓ FAQ Juridique | Csariel\'s',
+                        'faq_legal': 'FAQ Juridique',
+                        'inicio': 'Accueil',
+                        'mi_red': 'Mon Réseau',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'trading': 'Trading',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Magasin',
+                        'wallet': 'Portefeuille',
+                        'terminos': 'Termes',
+                        'footer_faq': 'FAQ Juridique · Questions Fréquentes',
+                        'faq_titulo': 'Questions Juridiques Fréquentes',
+                        'faq_sub': 'Écosystème Csariel\'s · Puebla, Mexique · Mis à jour 2026',
+                        'faq_1_pregunta': '📋 Que sont les Termes et Conditions ?',
+                        'faq_1_respuesta': 'Les Termes et Conditions sont le contrat juridique qui régit l\'utilisation de la plateforme Csariel\'s. Ils établissent les règles, droits et obligations des utilisateurs, ainsi que les politiques de confidentialité, de propriété intellectuelle et de responsabilités.',
+                        'faq_2_pregunta': '🔒 Comment Csariel\'s protège-t-il mes données personnelles ?',
+                        'faq_2_respuesta': 'Csariel\'s protège vos données personnelles via :',
+                        'faq_2_respuesta_1': 'Chiffrement des données sensibles en transit et au stockage.',
+                        'faq_2_respuesta_2': 'Accès restreint au personnel autorisé.',
+                        'faq_2_respuesta_3': 'Conformité avec la législation mexicaine sur la protection des données (LFPDPPP).',
+                        'faq_2_respuesta_4': 'Consultez notre Avis de Confidentialité pour plus de détails.',
+                        'faq_3_pregunta': '💰 Comment fonctionne le système de commissions ?',
+                        'faq_3_respuesta_titulo': '📊 Système de commissions :',
+                        'faq_3_respuesta_1': 'Commission de Trading : 1% sur chaque transaction (Art. 3.4).',
+                        'faq_3_respuesta_2': 'Commission Créateur : 50% pour le créateur, 50% pour la plateforme.',
+                        'faq_3_respuesta_3': 'Aucune commission cachée : Toutes les commissions sont transparentes et affichées avant chaque opération.',
+                        'faq_4_pregunta': '🚨 Que faire si je trouve du contenu inapproprié ?',
+                        'faq_4_respuesta_titulo': '📌 Signalement de contenu :',
+                        'faq_4_respuesta_1': 'Utilisez le bouton "Signaler" sur la publication ou le profil de l\'utilisateur.',
+                        'faq_4_respuesta_2': 'Les signalements sont examinés par des modérateurs humains sous 24-48 heures.',
+                        'faq_4_respuesta_3': 'Dans les cas graves, Csariel\'s prendra des mesures immédiates telles que la suspension du compte.',
+                        'faq_5_pregunta': '©️ À qui appartient le contenu que je publie ?',
+                        'faq_5_respuesta_1': 'Le créateur conserve tous les droits d\'auteur sur son contenu original. Csariel\'s obtient une licence non exclusive pour distribuer et promouvoir le contenu au sein de la plateforme.',
+                        'faq_5_respuesta_2': '📌 Important :',
+                        'faq_5_respuesta_3': 'Vous ne pouvez pas publier de contenu qui viole les droits d\'auteur de tiers. Si vous le faites, Csariel\'s supprimera le contenu et pourra suspendre votre compte.',
+                        'faq_6_pregunta': '🤝 Comment fonctionne le Contrat de Créateur ?',
+                        'faq_6_respuesta_1': 'Le Contrat de Créateur établit les termes entre Csariel\'s et les créateurs de contenu :',
+                        'faq_6_respuesta_2': 'Partage : 50% pour le créateur, 50% pour la plateforme.',
+                        'faq_6_respuesta_3': 'Durée : Indéterminée, avec résiliation par préavis de 15 jours.',
+                        'faq_6_respuesta_4': 'Résiliation : Csariel\'s peut résilier le contrat en cas de violation des politiques de contenu.',
+                        'faq_7_pregunta': '🌐 Qu\'est-ce que le système CMT ?',
+                        'faq_7_respuesta_titulo': '💎 CMT (Commit Token) :',
+                        'faq_7_respuesta_1': 'C\'est le jeton interne de l\'écosystème Csariel\'s.',
+                        'faq_7_respuesta_2': 'Utilisé pour : Trading, dons dans Lives, achats dans la Boutique.',
+                        'faq_7_respuesta_3': 'Ce n\'est pas une cryptomonnaie publique, c\'est un enregistrement numérique dans notre registre privé.',
+                        'faq_8_pregunta': '⚖️ Quelle juridiction s\'applique ?',
+                        'faq_8_respuesta_1': 'Csariel\'s opère sous la juridiction du Mexique, spécifiquement dans l\'état de Puebla.',
+                        'faq_8_respuesta_2': '📌 Art. 5.10 :',
+                        'faq_8_respuesta_3': 'Tout litige sera résolu devant les tribunaux compétents de Puebla, Mexique.',
+                        'faq_9_pregunta': '📧 Comment contacter l\'équipe juridique ?',
+                        'faq_9_respuesta_1': 'Vous pouvez contacter l\'équipe juridique de Csariel\'s via les moyens suivants :',
+                        'faq_9_respuesta_2': 'Email : csarielscontacto@gmail.com',
+                        'faq_9_respuesta_3': 'Formulaire Takedown : Disponible dans la section Legal Hub.',
+                        'faq_9_respuesta_4': 'Adresse : Puebla, Mexique.',
+                        'faq_10_pregunta': '🔄 Comment les documents juridiques sont-ils mis à jour ?',
+                        'faq_10_respuesta_1': 'Csariel\'s met à jour ses documents juridiques périodiquement pour se conformer à la législation applicable et améliorer la transparence.',
+                        'faq_10_respuesta_2': '📌 Notification :',
+                        'faq_10_respuesta_3': 'Les changements significatifs seront notifiés par email à tous les utilisateurs enregistrés.',
+                        'volver_inicio': 'Retour à l\'Accueil'
+                    }
+                };
+                this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
+            },
+
+            cambiar: function(idioma) {
+                if (!idioma || idioma === this.actual) return;
+                this.actual = idioma;
+                localStorage.setItem('csariels_idioma', idioma);
+                this.cargarTraducciones(idioma).then(() => {
+                    this.aplicarTraducciones();
+                    this.actualizarBotones();
+                    this.notificarCambio(idioma);
+                });
+            },
+
+            aplicarTraducciones: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (this.traducciones[key]) el.textContent = this.traducciones[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (this.traducciones[key]) el.placeholder = this.traducciones[key];
+                });
+            },
+
+            actualizarBotones: function() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    btn.classList.toggle('active', lang === this.actual);
+                });
+            },
+
+            notificarCambio: function(idioma) {
+                localStorage.setItem('csariels_idioma', idioma);
+                try {
+                    window.dispatchEvent(new CustomEvent('idioma-cambiado', { detail: { idioma: idioma } }));
+                } catch (e) { console.warn(e); }
+                const nombres = { es: 'Español 🌎', en: 'English 🌍', fr: 'Français 🌏' };
+                mostrarToast(`🌐 ${nombres[idioma] || idioma.toUpperCase()}`);
+            }
+        };
+
+        // ================================================================
+        // 🔐 TOAST
+        // ================================================================
+        let toastTimeout = null;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
         function initStars() {
             const canvas = document.getElementById('stars-canvas');
             if (!canvas) return;
@@ -696,40 +1101,53 @@
             window.addEventListener('resize', () => { resize(); createStars(); });
         }
 
+        // ================================================================
+        // FAQ - TOGGLE
+        // ================================================================
         function toggleFaq(element) {
             const answer = element.nextElementSibling;
-            const icon = element.querySelector('.icon i');
-
-            // Cerrar otros FAQs abiertos
-            document.querySelectorAll('.faq-item .answer').forEach(el => {
-                if (el !== answer && el.classList.contains('open')) {
+            const icon = element.querySelector('.icon');
+            const isOpen = answer.classList.contains('open');
+            
+            // Cerrar todos los demás
+            document.querySelectorAll('.faq-answer').forEach(el => {
+                if (el !== answer) {
                     el.classList.remove('open');
-                    el.previousElementSibling.querySelector('.icon i').classList.remove('fa-chevron-up');
-                    el.previousElementSibling.querySelector('.icon i').classList.add('fa-chevron-down');
+                    el.previousElementSibling.querySelector('.icon').classList.remove('open');
                 }
             });
-
-            // Alternar el actual
+            
             answer.classList.toggle('open');
-            if (answer.classList.contains('open')) {
-                icon.classList.remove('fa-chevron-down');
-                icon.classList.add('fa-chevron-up');
-            } else {
-                icon.classList.remove('fa-chevron-up');
-                icon.classList.add('fa-chevron-down');
+            if (icon) {
+                icon.classList.toggle('open');
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
             initStars();
-            console.log('❓ Csariel\'s - FAQ Legal (raíz)');
+            await CSARIELS_IDIOMA.init();
+            console.log('❓ Csariel\'s - FAQ Legal (SIN WEB3)');
+
+            // Escuchar cambios de idioma
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
         });
+
+        window.toggleFaq = toggleFaq;
+        window.mostrarToast = mostrarToast;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
     </script>
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </body>
 </html>
