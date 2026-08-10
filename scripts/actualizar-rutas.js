@@ -2,11 +2,10 @@
  * ================================================================
  * 🔧 ACTUALIZADOR DE RUTAS - Csariel's Ecosystem
  * ================================================================
- * Script para actualizar automáticamente las rutas de los 19
- * archivos features, asegurando que todos estén entrelazados.
+ * Script para actualizar automáticamente las rutas de los archivos features.
  * 
  * Hecho en Puebla, México 🇲🇽
- * Versión: 2.1.0
+ * Versión: 2.1.0 (SIN MEMES)
  * ================================================================
  */
 
@@ -14,14 +13,13 @@ const fs = require('fs');
 const path = require('path');
 
 // ================================================================
-// 📋 CONFIGURACIÓN
+// 📋 CONFIGURACIÓN (ACTUALIZADO - SIN MEMES)
 // ================================================================
 
 const FEATURES_DIR = './features';
 const ARCHIVOS = [
     'red/index.html',
     'live/index.html',
-    'memes/index.html',
     'trading/index.html',
     'servicios/index.html',
     'internet/index.html',
@@ -31,7 +29,6 @@ const ARCHIVOS = [
     'contrato-creador/index.html',
     'derechos-autor/index.html',
     'legal-hub/index.html',
-    'privacidad/index.html',
     'moderacion/index.html',
     'talaverin/index.html',
     'rewards/index.html',
@@ -45,7 +42,7 @@ const ARCHIVOS = [
 // ================================================================
 
 const REPLACEMENTS = [
-    // === ENLACES A FEATURES (CORREGIDOS) ===
+    // === ENLACES A FEATURES ===
     { 
         find: /href="\.\.\/usuario\/index\.html"/g, 
         replace: 'href="../red/index.html"' 
@@ -53,6 +50,14 @@ const REPLACEMENTS = [
     { 
         find: /href="\.\.\/mired\/index\.html"/g, 
         replace: 'href="../red/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/memes\/index\.html"/g, 
+        replace: 'href="../foro/index.html"' 
+    },
+    { 
+        find: /href="memes\/index\.html"/g, 
+        replace: 'href="foro/index.html"' 
     },
     { 
         find: /href="\.\.\/terminos-uso\/index\.html"/g, 
@@ -135,7 +140,7 @@ const REPLACEMENTS = [
         replace: 'href="../../index.html"' 
     },
 
-    // === RUTAS DE JS (PLUGINS) ===
+    // === RUTAS DE JS ===
     { 
         find: /src="\.\.\/\.\.\/js\//g, 
         replace: 'src="../../js/"' 
@@ -220,3 +225,4 @@ for (const archivo of ARCHIVOS) {
 console.log('');
 console.log(`✅ Proceso completado. ${totalModificados} de ${ARCHIVOS.length} archivos modificados.`);
 console.log('📍 Hecho en Puebla, México 🇲🇽');
+console.log('📌 MEMES eliminado del ecosistema');
