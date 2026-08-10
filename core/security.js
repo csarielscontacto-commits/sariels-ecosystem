@@ -1,49 +1,9 @@
 // ================================================================
-// SECURITY.JS - PROTECCIÓN CONTRA HACKEOS Y VACIADO DE CARTERAS
+// SECURITY.JS - PROTECCIÓN CONTRA HACKEOS
 // ================================================================
 
 // ================================================================
-// 1. CONTRATOS OFICIALES DE CSARIEL'S
-// ================================================================
-const CONTRATOS_OFICIALES = {
-    TOK: '0x...',  // ⚠️ REEMPLAZA CON LA DIRECCIÓN REAL
-    NFT: '0x...',  // ⚠️ REEMPLAZA CON LA DIRECCIÓN REAL
-    STOK: '0x...'  // ⚠️ REEMPLAZA CON LA DIRECCIÓN REAL
-};
-
-// ================================================================
-// 2. VALIDAR CONTRATO OFICIAL
-// ================================================================
-function validarContrato(direccion) {
-    const valores = Object.values(CONTRATOS_OFICIALES);
-    if (!valores.includes(direccion.toLowerCase())) {
-        throw new Error('❌ Contrato no autorizado: ' + direccion);
-    }
-    return true;
-}
-
-// ================================================================
-// 3. VERIFICAR RED CORRECTA (Polygon Amoy)
-// ================================================================
-const RED_CORRECTA = '0x13882'; // Polygon Amoy
-
-async function verificarRed() {
-    if (!window.ethereum) return false;
-    try {
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        if (chainId !== RED_CORRECTA) {
-            mostrarToastSeguridad('⚠️ Cambia a Polygon Amoy', 'error');
-            return false;
-        }
-        return true;
-    } catch (error) {
-        console.error('Error verificando red:', error);
-        return false;
-    }
-}
-
-// ================================================================
-// 4. VERIFICAR SCRIPTS EXTERNOS (anti-inyección)
+// 1. VERIFICAR SCRIPTS EXTERNOS (anti-inyección)
 // ================================================================
 const SCRIPTS_PERMITIDOS = [
     'cdnjs.cloudflare.com',
@@ -51,7 +11,7 @@ const SCRIPTS_PERMITIDOS = [
     'unpkg.com',
     'fonts.googleapis.com',
     'cdn.tailwindcss.com',
-    'polygon.technology'
+    'supabase.co'
 ];
 
 function verificarScriptsSeguridad() {
@@ -77,18 +37,18 @@ function verificarScriptsSeguridad() {
 }
 
 // ================================================================
-// 5. VERIFICAR CONSOLA (detección de inyecciones)
+// 2. PROTEGER CONSOLA (detección de inyecciones)
 // ================================================================
 function protegerConsola() {
     const originalLog = console.log;
     const originalWarn = console.warn;
     const originalError = console.error;
     
-    // Prevenir que scripts maliciosos usen console para robar datos
     console.log = function(...args) {
         if (args.length > 0 && typeof args[0] === 'string') {
-            // Bloquear intentos de robo de claves
-            if (args[0].includes('private') || args[0].includes('mnemonic') || args[0].includes('seed')) {
+            // Bloquear intentos de robo de datos sensibles
+            const palabrasProhibidas = ['private', 'mnemonic', 'seed', 'password', 'token', 'key', 'secret'];
+            if (palabrasProhibidas.some(p => args[0].toLowerCase().includes(p))) {
                 console.warn('🛡️ Intento de acceso a datos sensibles bloqueado');
                 return;
             }
@@ -98,64 +58,31 @@ function protegerConsola() {
 }
 
 // ================================================================
-// 6. EJECUTAR TRANSACCIÓN SEGURA
+// 3. PROTEGER localStorage
 // ================================================================
-const LIMITES = {
-    MAX_TOK_POR_TRANSACCION: 1000,
-    MAX_USDT_POR_TRANSACCION: 500,
-    MAX_PRECIO_IMPACTO: 0.10
-};
+function protegerLocalStorage() {
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+        // Bloquear intentos de inyección de scripts en localStorage
+        if (typeof value === 'string' && (value.includes('<script') || value.includes('javascript:'))) {
+            console.warn('🛡️ Intento de inyección en localStorage bloqueado');
+            return;
+        }
+        originalSetItem.call(this, key, value);
+    };
+}
 
-async function ejecutarTransaccionSegura(contrato, metodo, args, tipo, cantidad, precio) {
-    try {
-        // 1. Verificar red
-        const redOk = await verificarRed();
-        if (!redOk) {
-            throw new Error('Red incorrecta');
-        }
-        
-        // 2. Validar contrato
-        validarContrato(contrato.address);
-        
-        // 3. Verificar límites
-        if (tipo && cantidad) {
-            if (cantidad > LIMITES.MAX_TOK_POR_TRANSACCION) {
-                throw new Error(`⚠️ Límite excedido: máximo ${LIMITES.MAX_TOK_POR_TRANSACCION} TOK`);
-            }
-        }
-        
-        // 4. Confirmación del usuario (anti-blind signing)
-        const confirmar = confirm(
-            `⚠️ CONFIRMA ESTA TRANSACCIÓN\n\n` +
-            `📝 Acción: ${metodo}\n` +
-            `📦 Cantidad: ${cantidad || 'N/A'}\n` +
-            `💰 Precio: ${precio || 'N/A'}\n\n` +
-            `🔒 Esta acción es irreversible.\n` +
-            `✅ ¿Estás seguro de continuar?`
-        );
-        
-        if (!confirmar) {
-            mostrarToastSeguridad('⛔ Transacción cancelada', 'warning');
-            return null;
-        }
-        
-        // 5. Ejecutar
-        const tx = await contrato[metodo](...args);
-        mostrarToastSeguridad('⏳ Transacción enviada...', 'info');
-        
-        const receipt = await tx.wait();
-        mostrarToastSeguridad('✅ Transacción confirmada!', 'success');
-        return receipt;
-        
-    } catch (error) {
-        console.error('❌ Error en transacción segura:', error);
-        mostrarToastSeguridad('❌ ' + error.message, 'error');
-        throw error;
+// ================================================================
+// 4. VERIFICAR HTTPS
+// ================================================================
+function verificarHTTPS() {
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        console.warn('⚠️ No estás usando HTTPS. Recomendado para seguridad.');
     }
 }
 
 // ================================================================
-// 7. TOAST DE SEGURIDAD
+// 5. TOAST DE SEGURIDAD
 // ================================================================
 function mostrarToastSeguridad(mensaje, tipo = 'info') {
     const toast = document.getElementById('toast');
@@ -208,23 +135,14 @@ function mostrarToastSeguridad(mensaje, tipo = 'info') {
 }
 
 // ================================================================
-// 8. INICIALIZAR SEGURIDAD
+// 6. INICIALIZAR SEGURIDAD
 // ================================================================
 function initSeguridad() {
-    // Verificar scripts maliciosos
     verificarScriptsSeguridad();
-    
-    // Proteger consola
     protegerConsola();
-    
-    // Verificar conexiones HTTPS
-    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-        console.warn('⚠️ No estás usando HTTPS. Recomendado para seguridad.');
-    }
-    
-    console.log('🛡️ Csariel\'s Security activada');
-    console.log('🔒 Contratos oficiales validados');
-    console.log('🚫 Blind signing prevenido');
+    protegerLocalStorage();
+    verificarHTTPS();
+    console.log('🛡️ Csariel\'s Security activada (modo local)');
     console.log('✅ Sistema seguro');
 }
 
@@ -232,14 +150,15 @@ function initSeguridad() {
 // EXPORTAR FUNCIONES
 // ================================================================
 window.Security = {
-    validarContrato,
-    verificarRed,
-    ejecutarTransaccionSegura,
-    mostrarToastSeguridad,
     initSeguridad,
-    CONTRATOS_OFICIALES,
-    LIMITES,
-    RED_CORRECTA
+    mostrarToastSeguridad
 };
 
-console.log('🛡️ Security.js cargado correctamente');
+// ================================================================
+// AUTO-INICIALIZAR
+// ================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    initSeguridad();
+});
+
+console.log('🛡️ Security.js cargado (modo local - SIN WEB3)');
