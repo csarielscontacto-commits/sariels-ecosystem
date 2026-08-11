@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estadísticas | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ================================================================
+           ESTILOS CSARIEL'S - ESTADÍSTICAS
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 {
+            width: 700px;
+            height: 700px;
+            background: var(--verde-bosque);
+            top: -15%;
+            right: -15%;
+        }
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--gold-cosmic);
+            bottom: -15%;
+            left: -15%;
+            animation-delay: -8s;
+            opacity: 0.05;
+        }
+        .nebula-3 {
+            width: 500px;
+            height: 500px;
+            background: var(--quantum);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -15s;
+            opacity: 0.04;
+        }
+
+        @keyframes nebula-drift {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(40px, -30px) scale(1.15);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--space-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--gold-cosmic), var(--verde-bosque));
+            border-radius: 3px;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
+            }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(15, 45, 26, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212, 175, 55, 0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            border-color: var(--border-glow);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15, 45, 26, 0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--gold-cosmic);
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.55rem;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212, 175, 55, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212, 175, 55, 0.08);
+        }
+        .language-selector .lang-icon {
+            font-size: 0.7rem;
+            margin-right: 2px;
+        }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            color: var(--text-secondary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .lang-btn.active {
+            border-color: var(--gold-cosmic);
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-cosmic);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
+        }
+        @keyframes quantum-pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        /* ===== ESTADÍSTICAS ===== */
+        .estadisticas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .estadisticas-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        .estadisticas-header h2 i {
+            color: var(--gold-cosmic);
+        }
+
+        .periodo-selector {
+            display: flex;
+            gap: 4px;
+        }
+        .periodo-btn {
+            padding: 3px 12px;
+            border: 1px solid var(--gold-dim);
+            border-radius: 16px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .periodo-btn:hover {
+            border-color: var(--gold-cosmic);
+            color: var(--text-secondary);
+        }
+        .periodo-btn.active {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== RESÚMEN ===== */
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .resumen-card {
+            background: rgba(15, 45, 26, 0.1);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .resumen-card:hover {
+            border-color: var(--border-glow);
+        }
+        .resumen-card .numero {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+        }
+        .resumen-card .label {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .resumen-card .icono {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        /* ===== GRÁFICOS ===== */
+        .graficos-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .grafico-card {
+            background: rgba(15, 45, 26, 0.08);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .grafico-card .titulo {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        /* ===== BARRAS ===== */
+        .barra-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .barra-container .label {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            width: 60px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .barra-container .barra-bg {
+            flex: 1;
+            height: 12px;
+            background: var(--gold-dim);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .barra-container .barra-bg .fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+        }
+        .barra-container .barra-bg .fill.gold {
+            background: linear-gradient(90deg, var(--gold-cosmic), #b8923a);
+        }
+        .barra-container .barra-bg .fill.quantum {
+            background: linear-gradient(90deg, var(--quantum), #0099ff);
+        }
+        .barra-container .barra-bg .fill.success {
+            background: linear-gradient(90deg, var(--success), #00e676);
+        }
+        .barra-container .barra-bg .fill.danger {
+            background: linear-gradient(90deg, var(--danger), #ff6b6b);
+        }
+        .barra-container .barra-bg .fill.purple {
+            background: linear-gradient(90deg, #9c27b0, #ce93d8);
+        }
+        .barra-container .valor {
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+            width: 40px;
+            flex-shrink: 0;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ===== ACTIVIDAD RECIENTE ===== */
+        .actividad-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .actividad-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            background: rgba(15, 45, 26, 0.05);
+            border-radius: 8px;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+        .actividad-item .icono {
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .actividad-item .texto {
+            flex: 1;
+        }
+        .actividad-item .texto strong {
+            color: var(--text-primary);
+        }
+        .actividad-item .hora {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand {
+            color: var(--gold-cosmic);
+        }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover {
+            color: var(--gold-cosmic);
+        }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .resumen-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .graficos-grid {
+                grid-template-columns: 1fr;
+            }
+            .periodo-selector {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                font-size: 0.45rem;
+                padding: 4px 8px;
+            }
+            .resumen-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .resumen-card .numero {
+                font-size: 1.2rem;
+            }
+            .periodo-btn {
+                font-size: 0.4rem;
+                padding: 2px 10px;
+            }
+            .barra-container .label {
+                width: 40px;
+                font-size: 0.4rem;
+            }
+            .barra-container .valor {
+                width: 30px;
+                font-size: 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Estadísticas</span>
+            </a>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn active" onclick="cambiarIdioma('es')">ES</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('en')">EN</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('fr')">FR</button>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>En línea</span>
+                </div>
+
+                <a href="../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="actualizarEstadisticas()">
+                    <i class="fas fa-sync"></i> Actualizar
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== ESTADÍSTICAS ===== -->
+        <div class="estadisticas-header">
+            <h2><i class="fas fa-chart-bar"></i> Mis Estadísticas</h2>
+            <div class="periodo-selector">
+                <button class="periodo-btn active" data-periodo="semana" onclick="cambiarPeriodo('semana')">Semana</button>
+                <button class="periodo-btn" data-periodo="mes" onclick="cambiarPeriodo('mes')">Mes</button>
+                <button class="periodo-btn" data-periodo="año" onclick="cambiarPeriodo('año')">Año</button>
+                <button class="periodo-btn" data-periodo="todo" onclick="cambiarPeriodo('todo')">Todo</button>
+            </div>
+        </div>
+
+        <!-- ===== RESÚMEN ===== -->
+        <div class="resumen-grid">
+            <div class="resumen-card">
+                <span class="icono">📝</span>
+                <div class="numero" id="statPublicaciones">42</div>
+                <div class="label">Publicaciones</div>
+            </div>
+            <div class="resumen-card">
+                <span class="icono">❤️</span>
+                <div class="numero" id="statLikes">1,284</div>
+                <div class="label">Likes recibidos</div>
+            </div>
+            <div class="resumen-card">
+                <span class="icono">👥</span>
+                <div class="numero" id="statAmigos">156</div>
+                <div class="label">Amigos</div>
+            </div>
+            <div class="resumen-card">
+                <span class="icono">👁️</span>
+                <div class="numero" id="statVisitas">8,432</div>
+                <div class="label">Visitas al perfil</div>
+            </div>
+        </div>
+
+        <!-- ===== GRÁFICOS ===== -->
+        <div class="graficos-grid">
+            <!-- Actividad por tipo -->
+            <div class="grafico-card">
+                <div class="titulo"><i class="fas fa-chart-simple" style="color:var(--gold-cosmic);"></i> Actividad por tipo</div>
+                <div class="barra-container">
+                    <span class="label">Publicaciones</span>
+                    <div class="barra-bg"><div class="fill gold" style="width:100%;"></div></div>
+                    <span class="valor">42</span>
+                </div>
+                <div class="barra-container">
+                    <span class="label">Comentarios</span>
+                    <div class="barra-bg"><div class="fill quantum" style="width:85%;"></div></div>
+                    <span class="valor">138</span>
+                </div>
+                <div class="barra-container">
+                    <span class="label">Likes</span>
+                    <div class="barra-bg"><div class="fill danger" style="width:95%;"></div></div>
+                    <span class="valor">1,284</span>
+                </div>
+                <div class="barra-container">
+                    <span class="label">Compartidos</span>
+                    <div class="barra-bg"><div class="fill purple" style="width:45%;"></div></div>
+                    <span class="valor">67</span>
+                </div>
+            </div>
+
+            <!-- Interacción -->
+            <div class="grafico-card">
+                <div class="titulo"><i class="fas fa-rocket" style="color:var(--quantum);"></i> Crecimiento</div>
+                <div style="text-align:center;padding:10px 0;">
+                    <div style="font-family:'Orbitron',monospace;font-size:2.5rem;color:var(--gold-cosmic);">+18%</div>
+                    <div style="font-size:0.55rem;color:var(--text-muted);">vs mes anterior</div>
+                    <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+                        <div style="background:rgba(15,45,26,0.15);border-radius:8px;padding:8px;">
+                            <div style="font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--gold-cosmic);">+12</div>
+                            <div style="font-size:0.4rem;color:var(--text-muted);">Amigos</div>
+                        </div>
+                        <div style="background:rgba(15,45,26,0.15);border-radius:8px;padding:8px;">
+                            <div style="font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--quantum);">+8</div>
+                            <div style="font-size:0.4rem;color:var(--text-muted);">Posts</div>
+                        </div>
+                        <div style="background:rgba(15,45,26,0.15);border-radius:8px;padding:8px;">
+                            <div style="font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--success);">+234</div>
+                            <div style="font-size:0.4rem;color:var(--text-muted);">Likes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ACTIVIDAD RECIENTE ===== -->
+        <div class="grafico-card" style="background:rgba(15,45,26,0.06);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:16px;">
+            <div class="titulo"><i class="fas fa-clock" style="color:var(--gold-cosmic);"></i> Actividad reciente</div>
+            <div class="actividad-list">
+                <div class="actividad-item">
+                    <span class="icono">❤️</span>
+                    <span class="texto"><strong>María</strong> le dio like a tu publicación</span>
+                    <span class="hora">Hace 2 min</span>
+                </div>
+                <div class="actividad-item">
+                    <span class="icono">💬</span>
+                    <span class="texto"><strong>Javier</strong> comentó en tu publicación</span>
+                    <span class="hora">Hace 15 min</span>
+                </div>
+                <div class="actividad-item">
+                    <span class="icono">👥</span>
+                    <span class="texto"><strong>Laura</strong> aceptó tu solicitud de amistad</span>
+                    <span class="hora">Hace 1 hora</span>
+                </div>
+                <div class="actividad-item">
+                    <span class="icono">📝</span>
+                    <span class="texto"><strong>Tú</strong> publicaste una nueva actualización</span>
+                    <span class="hora">Hace 3 horas</span>
+                </div>
+                <div class="actividad-item">
+                    <span class="icono">📶</span>
+                    <span class="texto"><strong>Tú</strong> recargaste 100 MB de datos eSIM</span>
+                    <span class="hora">Hace 5 horas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Estadísticas · Métricas · Crecimiento
+            </span>
+            <div class="footer-links">
+                <a href="../index.html">🏠 Red</a>
+                <a href="../logros/index.html">🏆 Logros</a>
+                <a href="../historial/index.html">📜 Historial</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        (function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resize();
+
+            const stars = Array.from({ length: 200 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 0.8 + 0.2,
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.005 + 0.002,
+                phase: Math.random() * Math.PI * 2
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                    ctx.fill();
+                    s.y += s.speed;
+                    s.phase += 0.01;
+                    if (s.y > h) { s.y = 0;
+                        s.x = Math.random() * w; }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+
+            window.addEventListener('resize', () => {
+                resize();
+                stars.forEach(s => { s.x = Math.random() * w;
+                    s.y = Math.random() * h; });
+            });
+        })();
+
+        // ================================================================
+        // 🌐 IDIOMAS
+        // ================================================================
+        const traducciones = {
+            es: {
+                'estadisticas': 'Estadísticas',
+                'en_linea': 'En línea',
+                'volver': 'Volver',
+                'actualizar': 'Actualizar',
+                'mis_estadisticas': 'Mis Estadísticas',
+                'semana': 'Semana',
+                'mes': 'Mes',
+                'año': 'Año',
+                'todo': 'Todo',
+                'publicaciones': 'Publicaciones',
+                'likes': 'Likes recibidos',
+                'amigos': 'Amigos',
+                'visitas': 'Visitas al perfil',
+                'actividad_tipo': 'Actividad por tipo',
+                'comentarios': 'Comentarios',
+                'compartidos': 'Compartidos',
+                'crecimiento': 'Crecimiento',
+                'vs_mes_anterior': 'vs mes anterior',
+                'actividad_reciente': 'Actividad reciente',
+                'actualizado': '✅ Estadísticas actualizadas',
+                'hace': 'hace'
+            },
+            en: {
+                'estadisticas': 'Statistics',
+                'en_linea': 'Online',
+                'volver': 'Back',
+                'actualizar': 'Refresh',
+                'mis_estadisticas': 'My Statistics',
+                'semana': 'Week',
+                'mes': 'Month',
+                'año': 'Year',
+                'todo': 'All',
+                'publicaciones': 'Posts',
+                'likes': 'Likes received',
+                'amigos': 'Friends',
+                'visitas': 'Profile views',
+                'actividad_tipo': 'Activity by type',
+                'comentarios': 'Comments',
+                'compartidos': 'Shares',
+                'crecimiento': 'Growth',
+                'vs_mes_anterior': 'vs previous month',
+                'actividad_reciente': 'Recent activity',
+                'actualizado': '✅ Statistics updated',
+                'hace': 'ago'
+            },
+            fr: {
+                'estadisticas': 'Statistiques',
+                'en_linea': 'En ligne',
+                'volver': 'Retour',
+                'actualizar': 'Actualiser',
+                'mis_estadisticas': 'Mes Statistiques',
+                'semana': 'Semaine',
+                'mes': 'Mois',
+                'año': 'Année',
+                'todo': 'Tout',
+                'publicaciones': 'Publications',
+                'likes': 'J\'aime reçus',
+                'amigos': 'Amis',
+                'visitas': 'Vues du profil',
+                'actividad_tipo': 'Activité par type',
+                'comentarios': 'Commentaires',
+                'compartidos': 'Partages',
+                'crecimiento': 'Croissance',
+                'vs_mes_anterior': 'vs mois précédent',
+                'actividad_reciente': 'Activité récente',
+                'actualizado': '✅ Statistiques actualisées',
+                'hace': 'il y a'
+            }
+        };
+
+        let idiomaActual = localStorage.getItem('csariels_idioma') || 'es';
+        let periodoActual = 'semana';
+
+        function aplicarIdioma(idioma) {
+            const t = traducciones[idioma] || traducciones.es;
+            document.querySelector('.logo-badge').textContent = t.estadisticas;
+            document.querySelector('.status-badge span:last-child').textContent = t.en_linea;
+            document.querySelector('.estadisticas-header h2').innerHTML =
+                `<i class="fas fa-chart-bar"></i> ${t.mis_estadisticas}`;
+            document.querySelector('.header-actions .btn-primary span:last-child').textContent = t.actualizar;
+
+            document.querySelectorAll('.periodo-btn').forEach(b => {
+                const key = b.dataset.periodo;
+                if (key === 'semana') b.textContent = t.semana;
+                else if (key === 'mes') b.textContent = t.mes;
+                else if (key === 'año') b.textContent = t.año;
+                else if (key === 'todo') b.textContent = t.todo;
+            });
+
+            // Resumen
+            const resumenLabels = document.querySelectorAll('.resumen-card .label');
+            const resumenTextos = [t.publicaciones, t.likes, t.amigos, t.visitas];
+            resumenLabels.forEach((el, i) => {
+                if (i < resumenTextos.length) el.textContent = resumenTextos[i];
+            });
+
+            // Gráficos
+            const graficoTitulos = document.querySelectorAll('.grafico-card .titulo');
+            if (graficoTitulos.length >= 2) {
+                graficoTitulos[0].innerHTML =
+                    `<i class="fas fa-chart-simple" style="color:var(--gold-cosmic);"></i> ${t.actividad_tipo}`;
+                graficoTitulos[1].innerHTML =
+                    `<i class="fas fa-rocket" style="color:var(--quantum);"></i> ${t.crecimiento}`;
+            }
+
+            const barrasLabels = document.querySelectorAll('.barra-container .label');
+            const barrasTextos = [t.publicaciones, t.comentarios, t.likes, t.compartidos];
+            barrasLabels.forEach((el, i) => {
+                if (i < barrasTextos.length) el.textContent = barrasTextos[i];
+            });
+
+            // Crecimiento
+            const crecimientoLabels = document.querySelectorAll('.grafico-card:last-child .grid > div > div:last-child');
+            if (crecimientoLabels.length >= 3) {
+                crecimientoLabels[0].textContent = t.amigos;
+                crecimientoLabels[1].textContent = t.publicaciones;
+                crecimientoLabels[2].textContent = t.likes;
+            }
+
+            // Actividad reciente
+            const actividadTitulo = document.querySelector('.grafico-card:last-child .titulo');
+            if (actividadTitulo) {
+                actividadTitulo.innerHTML =
+                    `<i class="fas fa-clock" style="color:var(--gold-cosmic);"></i> ${t.actividad_reciente}`;
+            }
+
+            // Actualizar tiempos en actividad reciente
+            document.querySelectorAll('.actividad-item .hora').forEach(el => {
+                const texto = el.textContent;
+                if (texto.includes('min') || texto.includes('hora') || texto.includes('horas')) {
+                    const num = texto.match(/\d+/);
+                    if (num) {
+                        const unidad = texto.includes('min') ? 'min' : texto.includes('hora') ? 'horas' : 'días';
+                        el.textContent = `${num[0]} ${t.hace} ${unidad}`;
+                    }
+                }
+            });
+        }
+
+        function cambiarIdioma(idioma) {
+            idiomaActual = idioma;
+            localStorage.setItem('csariels_idioma', idioma);
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="cambiarIdioma('${idioma}')"]`).classList.add('active');
+            aplicarIdioma(idioma);
+            mostrarToast(`🌐 ${idioma.toUpperCase()}`);
+        }
+
+        // ================================================================
+        // 🎯 ACCIONES
+        // ================================================================
+        function cambiarPeriodo(periodo) {
+            periodoActual = periodo;
+            document.querySelectorAll('.periodo-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.periodo-btn[data-periodo="${periodo}"]`).classList.add('active');
+            mostrarToast(`📊 Período: ${periodo.charAt(0).toUpperCase() + periodo.slice(1)}`);
+        }
+
+        function actualizarEstadisticas() {
+            const t = traducciones[idiomaActual] || traducciones.es;
+            mostrarToast(t.actualizado);
+
+            // Simular cambio en números
+            const stats = {
+                publicaciones: Math.floor(Math.random() * 20) + 35,
+                likes: Math.floor(Math.random() * 500) + 1000,
+                amigos: Math.floor(Math.random() * 50) + 130,
+                visitas: Math.floor(Math.random() * 2000) + 7000
+            };
+
+            document.getElementById('statPublicaciones').textContent = stats.publicaciones;
+            document.getElementById('statLikes').textContent = stats.likes.toLocaleString();
+            document.getElementById('statAmigos').textContent = stats.amigos;
+            document.getElementById('statVisitas').textContent = stats.visitas.toLocaleString();
+        }
+
+        // ================================================================
+        // 🔔 TOAST
+        // ================================================================
+        let toastTimeout;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            if (tipo === 'error') toast.classList.add('error');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarIdioma(idiomaActual);
+            console.log('📊 Csariel\'s - Estadísticas cargado');
+        });
+
+        // Exponer funciones globales
+        window.cambiarIdioma = cambiarIdioma;
+        window.cambiarPeriodo = cambiarPeriodo;
+        window.actualizarEstadisticas = actualizarEstadisticas;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
