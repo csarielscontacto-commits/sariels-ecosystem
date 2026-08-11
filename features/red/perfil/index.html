@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
+    <!-- ===== SUPABASE ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
     <style>
         /* ================================================================
            ESTILOS CSARIEL'S - PERFIL
@@ -372,7 +375,6 @@
             margin-top: 10px;
         }
 
-        /* ===== TARJETA DE PERFIL ===== */
         .perfil-card {
             background: rgba(15, 45, 26, 0.2);
             border: 1px solid var(--gold-dim);
@@ -424,6 +426,7 @@
             border: 3px solid var(--gold-cosmic);
             box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
             position: relative;
+            overflow: hidden;
         }
         .perfil-avatar .edit-avatar {
             position: absolute;
@@ -541,7 +544,6 @@
             color: var(--success);
         }
 
-        /* ===== CONTENIDO DEL PERFIL ===== */
         .perfil-content {
             display: flex;
             flex-direction: column;
@@ -601,7 +603,6 @@
             }
         }
 
-        /* ===== PUBLICACIONES ===== */
         .panel-publicacion {
             background: rgba(15, 45, 26, 0.15);
             border: 1px solid var(--gold-dim);
@@ -677,7 +678,6 @@
             color: var(--text-primary);
         }
 
-        /* ===== AMIGOS ===== */
         .amigo-item {
             display: flex;
             align-items: center;
@@ -722,7 +722,6 @@
             gap: 4px;
         }
 
-        /* ===== FOTOS ===== */
         .fotos-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -750,7 +749,6 @@
             opacity: 0.3;
         }
 
-        /* ===== LOGROS ===== */
         .logros-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -778,7 +776,6 @@
             font-family: 'Orbitron', monospace;
         }
 
-        /* ===== FOOTER ===== */
         .footer {
             margin-top: 24px;
             padding-top: 14px;
@@ -914,7 +911,6 @@
     </style>
 </head>
 <body>
-    <!-- ===== FONDO ESTELAR ===== -->
     <canvas id="stars-canvas"></canvas>
     <div class="nebula nebula-1"></div>
     <div class="nebula nebula-2"></div>
@@ -922,7 +918,6 @@
 
     <div class="app">
 
-        <!-- ===== HEADER ===== -->
         <header class="header">
             <a href="../index.html" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
@@ -951,10 +946,8 @@
             </div>
         </header>
 
-        <!-- ===== PERFIL ===== -->
         <div class="perfil-container">
 
-            <!-- ===== TARJETA DE PERFIL ===== -->
             <div class="perfil-card">
                 <div class="perfil-avatar" id="perfilAvatar">
                     C
@@ -965,7 +958,7 @@
                 <div class="perfil-nombre" id="perfilNombre">Csariel</div>
                 <div class="perfil-usuario" id="perfilUsuario">@csariel</div>
                 <div class="perfil-bio" id="perfilBio">
-                    🚀 Explorador digital | Creador de Csariel's | Apasionado por la tecnología y el espacio.
+                    Cargando biografía...
                     <span class="edit-bio" onclick="editarBio()"><i class="fas fa-pen"></i></span>
                 </div>
 
@@ -980,15 +973,15 @@
 
                 <div class="perfil-estadisticas">
                     <div class="stat">
-                        <span class="numero" id="statAmigos">156</span>
+                        <span class="numero" id="statAmigos">--</span>
                         <span class="label">Amigos</span>
                     </div>
                     <div class="stat">
-                        <span class="numero" id="statPublicaciones">42</span>
+                        <span class="numero" id="statPublicaciones">--</span>
                         <span class="label">Publicaciones</span>
                     </div>
                     <div class="stat">
-                        <span class="numero" id="statLogros">8</span>
+                        <span class="numero" id="statLogros">--</span>
                         <span class="label">Logros</span>
                     </div>
                 </div>
@@ -1003,10 +996,8 @@
                 </div>
             </div>
 
-            <!-- ===== CONTENIDO DEL PERFIL ===== -->
             <div class="perfil-content">
 
-                <!-- ===== TABS ===== -->
                 <div class="seccion-tabs">
                     <button class="tab active" data-tab="publicaciones" onclick="cambiarTab('publicaciones')">
                         <i class="fas fa-newspaper"></i> Publicaciones
@@ -1022,7 +1013,7 @@
                     </button>
                 </div>
 
-                <!-- ===== PANEL PUBLICACIONES ===== -->
+                <!-- ⚠️ Publicaciones, Fotos y Logros siguen simulados: aún no conectados -->
                 <div class="seccion-panel active" id="panel-publicaciones">
                     <div class="panel-publicacion">
                         <div class="pub-header">
@@ -1040,72 +1031,23 @@
                         </div>
                     </div>
 
-                    <div class="panel-publicacion">
-                        <div class="pub-header">
-                            <div class="pub-avatar">C</div>
-                            <span class="pub-autor">Csariel</span>
-                            <span class="pub-fecha">Hace 5 horas</span>
-                        </div>
-                        <div class="pub-contenido">
-                            🌌 Explorando nuevas fronteras en Csariel's. ¡La comunidad está creciendo increíblemente!
-                        </div>
-                        <div class="pub-acciones">
-                            <button onclick="darLike(this)"><i class="fas fa-heart"></i> <span>18</span></button>
-                            <button onclick="mostrarToast('💬 Abriendo comentarios...')"><i class="fas fa-comment"></i> 5</button>
-                            <button onclick="mostrarToast('📤 Compartiendo...')"><i class="fas fa-share"></i> Compartir</button>
-                        </div>
-                    </div>
-
                     <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:4px;" onclick="mostrarToast('📝 Nueva publicación...')">
                         <i class="fas fa-plus"></i> Crear publicación
                     </button>
                 </div>
 
-                <!-- ===== PANEL AMIGOS ===== -->
+                <!-- ===== PANEL AMIGOS (CONECTADO A SUPABASE) ===== -->
                 <div class="seccion-panel" id="panel-amigos">
-                    <div class="amigo-item">
-                        <div class="amigo-avatar">M</div>
-                        <div class="amigo-info">
-                            <div class="amigo-nombre">María</div>
-                            <div class="amigo-username">@maria_tech</div>
-                        </div>
-                        <div class="amigo-acciones">
-                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('💬 Chat con María')"><i class="fas fa-comment"></i></button>
-                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('👤 Perfil de María')"><i class="fas fa-user"></i></button>
-                        </div>
-                    </div>
-                    <div class="amigo-item">
-                        <div class="amigo-avatar">J</div>
-                        <div class="amigo-info">
-                            <div class="amigo-nombre">Javier</div>
-                            <div class="amigo-username">@javi_astro</div>
-                        </div>
-                        <div class="amigo-acciones">
-                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('💬 Chat con Javier')"><i class="fas fa-comment"></i></button>
-                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('👤 Perfil de Javier')"><i class="fas fa-user"></i></button>
-                        </div>
-                    </div>
-                    <div class="amigo-item">
-                        <div class="amigo-avatar">L</div>
-                        <div class="amigo-info">
-                            <div class="amigo-nombre">Laura</div>
-                            <div class="amigo-username">@laura_cosmic</div>
-                        </div>
-                        <div class="amigo-acciones">
-                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('💬 Chat con Laura')"><i class="fas fa-comment"></i></button>
-                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('👤 Perfil de Laura')"><i class="fas fa-user"></i></button>
-                        </div>
+                    <div id="listaAmigos">
+                        <p style="font-size:0.65rem;color:var(--text-muted);text-align:center;padding:16px 0;">Selecciona esta pestaña para cargar tus amigos.</p>
                     </div>
                     <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:4px;" onclick="window.location.href='../contactos/index.html'">
                         <i class="fas fa-users"></i> Ver todos los amigos
                     </button>
                 </div>
 
-                <!-- ===== PANEL FOTOS ===== -->
                 <div class="seccion-panel" id="panel-fotos">
                     <div class="fotos-grid">
-                        <div class="foto-item"><i class="fas fa-image"></i></div>
-                        <div class="foto-item"><i class="fas fa-image"></i></div>
                         <div class="foto-item"><i class="fas fa-image"></i></div>
                         <div class="foto-item"><i class="fas fa-image"></i></div>
                         <div class="foto-item"><i class="fas fa-image"></i></div>
@@ -1113,32 +1055,11 @@
                     </div>
                 </div>
 
-                <!-- ===== PANEL LOGROS ===== -->
                 <div class="seccion-panel" id="panel-logros">
                     <div class="logros-grid">
-                        <div class="logro-item">
-                            <div class="icono">🏆</div>
-                            <div class="nombre">Explorador</div>
-                        </div>
-                        <div class="logro-item">
-                            <div class="icono">⭐</div>
-                            <div class="nombre">Creador</div>
-                        </div>
-                        <div class="logro-item">
-                            <div class="icono">🚀</div>
-                            <div class="nombre">Pionero</div>
-                        </div>
                         <div class="logro-item" style="opacity:0.3;">
                             <div class="icono">🔒</div>
-                            <div class="nombre">Bloqueado</div>
-                        </div>
-                        <div class="logro-item" style="opacity:0.3;">
-                            <div class="icono">🔒</div>
-                            <div class="nombre">Bloqueado</div>
-                        </div>
-                        <div class="logro-item" style="opacity:0.3;">
-                            <div class="icono">🔒</div>
-                            <div class="nombre">Bloqueado</div>
+                            <div class="nombre">Próximamente</div>
                         </div>
                     </div>
                 </div>
@@ -1146,7 +1067,6 @@
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
         <footer class="footer">
             <span class="footer-text">
                 <span class="brand">◈ Csariel's</span> — Mi Perfil · Conecta · Comparte
@@ -1161,7 +1081,6 @@
         </footer>
     </div>
 
-    <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
@@ -1220,55 +1139,22 @@
         // ================================================================
         const traducciones = {
             es: {
-                'perfil': 'Mi Perfil',
-                'en_linea': 'En línea',
-                'volver': 'Volver',
-                'configuracion': 'Configuración',
-                'editar': 'Editar',
-                'compartir': 'Compartir',
-                'publicaciones': 'Publicaciones',
-                'amigos': 'Amigos',
-                'fotos': 'Fotos',
-                'logros': 'Logros',
-                'no_verificado': 'No verificado',
-                'verificar': 'Verificar',
-                'crear_publicacion': 'Crear publicación',
-                'ver_todos': 'Ver todos los amigos',
-                'subir_foto': 'Subir foto'
+                'perfil': 'Mi Perfil', 'en_linea': 'En línea', 'volver': 'Volver', 'configuracion': 'Configuración',
+                'editar': 'Editar', 'compartir': 'Compartir', 'publicaciones': 'Publicaciones', 'amigos': 'Amigos',
+                'fotos': 'Fotos', 'logros': 'Logros', 'no_verificado': 'No verificado', 'verificar': 'Verificar',
+                'crear_publicacion': 'Crear publicación', 'ver_todos': 'Ver todos los amigos', 'subir_foto': 'Subir foto'
             },
             en: {
-                'perfil': 'My Profile',
-                'en_linea': 'Online',
-                'volver': 'Back',
-                'configuracion': 'Settings',
-                'editar': 'Edit',
-                'compartir': 'Share',
-                'publicaciones': 'Posts',
-                'amigos': 'Friends',
-                'fotos': 'Photos',
-                'logros': 'Achievements',
-                'no_verificado': 'Not verified',
-                'verificar': 'Verify',
-                'crear_publicacion': 'Create post',
-                'ver_todos': 'View all friends',
-                'subir_foto': 'Upload photo'
+                'perfil': 'My Profile', 'en_linea': 'Online', 'volver': 'Back', 'configuracion': 'Settings',
+                'editar': 'Edit', 'compartir': 'Share', 'publicaciones': 'Posts', 'amigos': 'Friends',
+                'fotos': 'Photos', 'logros': 'Achievements', 'no_verificado': 'Not verified', 'verificar': 'Verify',
+                'crear_publicacion': 'Create post', 'ver_todos': 'View all friends', 'subir_foto': 'Upload photo'
             },
             fr: {
-                'perfil': 'Mon Profil',
-                'en_linea': 'En ligne',
-                'volver': 'Retour',
-                'configuracion': 'Paramètres',
-                'editar': 'Modifier',
-                'compartir': 'Partager',
-                'publicaciones': 'Publications',
-                'amigos': 'Amis',
-                'fotos': 'Photos',
-                'logros': 'Succès',
-                'no_verificado': 'Non vérifié',
-                'verificar': 'Vérifier',
-                'crear_publicacion': 'Créer une publication',
-                'ver_todos': 'Voir tous les amis',
-                'subir_foto': 'Télécharger une photo'
+                'perfil': 'Mon Profil', 'en_linea': 'En ligne', 'volver': 'Retour', 'configuracion': 'Paramètres',
+                'editar': 'Modifier', 'compartir': 'Partager', 'publicaciones': 'Publications', 'amigos': 'Amis',
+                'fotos': 'Photos', 'logros': 'Succès', 'no_verificado': 'Non vérifié', 'verificar': 'Vérifier',
+                'crear_publicacion': 'Créer une publication', 'ver_todos': 'Voir tous les amis', 'subir_foto': 'Télécharger une photo'
             }
         };
 
@@ -1278,8 +1164,7 @@
             const t = traducciones[idioma] || traducciones.es;
             document.querySelector('.logo-badge').textContent = t.perfil;
             document.querySelector('.status-badge span:last-child').textContent = t.en_linea;
-            document.querySelector('.perfil-acciones .btn-primary span:last-child').textContent = t.editar;
-            document.querySelector('.perfil-acciones .btn-outline span:last-child').textContent = t.compartir;
+            document.querySelector('.perfil-acciones .btn-primary span:last-child')?.replaceWith(document.createTextNode(''));
             document.querySelectorAll('.seccion-tabs .tab').forEach(el => {
                 const key = el.dataset.tab;
                 if (key === 'publicaciones') el.innerHTML = `<i class="fas fa-newspaper"></i> ${t.publicaciones}`;
@@ -1287,14 +1172,6 @@
                 if (key === 'fotos') el.innerHTML = `<i class="fas fa-images"></i> ${t.fotos}`;
                 if (key === 'logros') el.innerHTML = `<i class="fas fa-trophy"></i> ${t.logros}`;
             });
-            document.querySelector('.perfil-verificacion .badge-unverified').innerHTML =
-                `<i class="fas fa-times-circle"></i> ${t.no_verificado}`;
-            document.querySelector('.perfil-verificacion .btn').innerHTML =
-                `<i class="fas fa-check-circle"></i> ${t.verificar}`;
-            const crearPub = document.querySelector('.panel-publicacion:last-child + .btn');
-            if (crearPub) crearPub.innerHTML = `<i class="fas fa-plus"></i> ${t.crear_publicacion}`;
-            const verTodos = document.querySelector('#panel-amigos .btn:last-child');
-            if (verTodos) verTodos.innerHTML = `<i class="fas fa-users"></i> ${t.ver_todos}`;
         }
 
         function cambiarIdioma(idioma) {
@@ -1307,49 +1184,48 @@
         }
 
         // ================================================================
-        // 📋 FUNCIONES DEL PERFIL
+        // 📋 TABS
         // ================================================================
         function cambiarTab(tab) {
             document.querySelectorAll('.seccion-tabs .tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.seccion-panel').forEach(p => p.classList.remove('active'));
-
             document.querySelector(`.seccion-tabs .tab[data-tab="${tab}"]`).classList.add('active');
             document.getElementById(`panel-${tab}`).classList.add('active');
+
+            // Carga perezosa de amigos reales al entrar a esa pestaña
+            if (tab === 'amigos') renderAmigosReal();
         }
 
-        function editarAvatar() {
-            mostrarToast('🖼️ Función de cambio de avatar (próximamente)');
-        }
-
-        function editarBio() {
-            const bio = prompt('✏️ Edita tu biografía:', document.getElementById('perfilBio').textContent.replace('✏️', '').trim());
-            if (bio !== null) {
-                document.getElementById('perfilBio').innerHTML = bio +
-                    ' <span class="edit-bio" onclick="editarBio()"><i class="fas fa-pen"></i></span>';
-                mostrarToast('✅ Biografía actualizada');
+        // ================================================================
+        // 👥 AMIGOS REALES (Supabase)
+        // ================================================================
+        async function renderAmigosReal() {
+            const cont = document.getElementById('listaAmigos');
+            if (!cont || !window.PerfilConnector) return;
+            cont.innerHTML = '<p style="font-size:0.65rem;color:var(--text-muted);text-align:center;padding:16px 0;">Cargando amigos...</p>';
+            try {
+                const contactos = await window.PerfilConnector.obtenerContactos();
+                if (contactos.length === 0) {
+                    cont.innerHTML = '<p style="font-size:0.65rem;color:var(--text-muted);text-align:center;padding:16px 0;">Aún no tienes amigos agregados.</p>';
+                    return;
+                }
+                cont.innerHTML = contactos.map(c => `
+                    <div class="amigo-item">
+                        <div class="amigo-avatar">${(c.nombre || 'U').charAt(0).toUpperCase()}</div>
+                        <div class="amigo-info">
+                            <div class="amigo-nombre">${c.nombre}${c.verificado ? ' <i class="fas fa-check-circle" style="color:var(--success);font-size:0.5rem;"></i>' : ''}</div>
+                            <div class="amigo-username">${c.online ? '🟢 En línea' : '⚪ Desconectado'}</div>
+                        </div>
+                        <div class="amigo-acciones">
+                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('💬 Chat con ${c.nombre}')"><i class="fas fa-comment"></i></button>
+                            <button class="btn btn-outline btn-sm" onclick="mostrarToast('👤 Perfil de ${c.nombre}')"><i class="fas fa-user"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+                cont.innerHTML = '<p style="font-size:0.65rem;color:var(--danger);text-align:center;padding:16px 0;">Error cargando amigos.</p>';
             }
-        }
-
-        function editarPerfil() {
-            mostrarToast('✏️ Modo edición de perfil activado');
-        }
-
-        function compartirPerfil() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Perfil de Csariel',
-                    text: '¡Mira mi perfil en Csariel\'s! 🚀',
-                    url: window.location.href
-                }).catch(() => {});
-            } else {
-                navigator.clipboard.writeText(window.location.href).then(() => {
-                    mostrarToast('✅ Enlace copiado al portapapeles');
-                });
-            }
-        }
-
-        function verificarPerfil() {
-            mostrarToast('📧 Función de verificación (próximamente)');
         }
 
         function darLike(btn) {
@@ -1370,7 +1246,6 @@
         // 🔔 TOAST
         // ================================================================
         let toastTimeout;
-
         function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
             toast.textContent = mensaje;
@@ -1380,24 +1255,23 @@
             toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
         }
 
-        // ================================================================
-        // 🚀 INICIALIZAR
-        // ================================================================
         document.addEventListener('DOMContentLoaded', () => {
             aplicarIdioma(idiomaActual);
             console.log('👤 Csariel\'s - Perfil cargado');
         });
 
-        // Exponer funciones globales
         window.cambiarIdioma = cambiarIdioma;
         window.cambiarTab = cambiarTab;
-        window.editarAvatar = editarAvatar;
-        window.editarBio = editarBio;
-        window.editarPerfil = editarPerfil;
-        window.compartirPerfil = compartirPerfil;
-        window.verificarPerfil = verificarPerfil;
         window.darLike = darLike;
         window.mostrarToast = mostrarToast;
+        window.renderAmigosReal = renderAmigosReal;
     </script>
+
+    <!-- ================================================================ -->
+    <!-- 🔌 CONEXIÓN A SUPABASE — orden importa, no cambiar -->
+    <!-- ================================================================ -->
+    <script src="../../../js/client-config-loader.js"></script>
+    <script src="../../../js/perfil-connector.js"></script>
+    <script src="perfil.js"></script>
 </body>
 </html>
