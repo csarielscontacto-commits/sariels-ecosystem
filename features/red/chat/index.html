@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ================================================================
+           ESTILOS CSARIEL'S - CHAT
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 {
+            width: 700px;
+            height: 700px;
+            background: var(--verde-bosque);
+            top: -15%;
+            right: -15%;
+        }
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--gold-cosmic);
+            bottom: -15%;
+            left: -15%;
+            animation-delay: -8s;
+            opacity: 0.05;
+        }
+        .nebula-3 {
+            width: 500px;
+            height: 500px;
+            background: var(--quantum);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -15s;
+            opacity: 0.04;
+        }
+
+        @keyframes nebula-drift {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(40px, -30px) scale(1.15);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--space-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--gold-cosmic), var(--verde-bosque));
+            border-radius: 3px;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
+            }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(15, 45, 26, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212, 175, 55, 0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            border-color: var(--border-glow);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15, 45, 26, 0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--gold-cosmic);
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.55rem;
+        }
+        .btn-danger {
+            background: rgba(255, 51, 102, 0.15);
+            border-color: rgba(255, 51, 102, 0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 51, 102, 0.25);
+        }
+        .btn-success {
+            background: rgba(0, 184, 148, 0.15);
+            border-color: rgba(0, 184, 148, 0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) {
+            background: rgba(0, 184, 148, 0.25);
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212, 175, 55, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212, 175, 55, 0.08);
+        }
+        .language-selector .lang-icon {
+            font-size: 0.7rem;
+            margin-right: 2px;
+        }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            color: var(--text-secondary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .lang-btn.active {
+            border-color: var(--gold-cosmic);
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-cosmic);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
+        }
+        @keyframes quantum-pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        /* ===== CHAT ===== */
+        .chat-container {
+            display: flex;
+            flex: 1;
+            gap: 12px;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* ===== LISTA DE CONTACTOS ===== */
+        .chat-lista {
+            width: 280px;
+            background: rgba(15, 45, 26, 0.15);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .chat-lista-header {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            gap: 8px;
+        }
+        .chat-lista-header h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+        .chat-lista-header .btn {
+            padding: 2px 10px;
+            font-size: 0.45rem;
+        }
+
+        .chat-buscar {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--gold-dim);
+            flex-shrink: 0;
+        }
+        .chat-buscar input {
+            width: 100%;
+            padding: 5px 12px;
+            border-radius: 30px;
+            border: 1px solid var(--gold-dim);
+            background: rgba(15, 45, 26, 0.2);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.6rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .chat-buscar input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .chat-buscar input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .chat-contactos {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 0;
+        }
+        .chat-contacto {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+        .chat-contacto:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .chat-contacto.active {
+            background: rgba(212, 175, 55, 0.08);
+            border-left-color: var(--gold-cosmic);
+        }
+        .chat-contacto-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .chat-contacto-avatar .estado-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid var(--space-deep);
+        }
+        .chat-contacto-avatar .estado-dot.online {
+            background: var(--success);
+        }
+        .chat-contacto-avatar .estado-dot.offline {
+            background: var(--text-muted);
+        }
+
+        .chat-contacto-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-contacto-nombre {
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: var(--text-primary);
+        }
+        .chat-contacto-ultimo {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-contacto-tiempo {
+            font-size: 0.4rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            align-self: flex-start;
+            margin-top: 2px;
+        }
+        .chat-contacto-noti {
+            background: var(--gold-cosmic);
+            color: var(--space-deep);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.45rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ===== ÁREA DE CHAT ===== */
+        .chat-area {
+            flex: 1;
+            background: rgba(15, 45, 26, 0.15);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .chat-area-header {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--gold-dim);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .chat-area-header .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+        .chat-area-header .info {
+            flex: 1;
+        }
+        .chat-area-header .info .nombre {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+        .chat-area-header .info .estado {
+            font-size: 0.5rem;
+            color: var(--success);
+        }
+        .chat-area-header .acciones {
+            display: flex;
+            gap: 4px;
+        }
+        .chat-area-header .acciones .btn {
+            padding: 4px 8px;
+            font-size: 0.5rem;
+        }
+
+        .chat-mensajes {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .mensaje {
+            max-width: 75%;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            line-height: 1.5;
+            animation: mensaje-entrada 0.3s ease;
+        }
+        .mensaje.enviado {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border: 1px solid var(--gold-dim);
+            color: var(--text-primary);
+            border-bottom-right-radius: 4px;
+        }
+        .mensaje.recibido {
+            align-self: flex-start;
+            background: rgba(15, 45, 26, 0.3);
+            border: 1px solid var(--gold-dim);
+            color: var(--text-secondary);
+            border-bottom-left-radius: 4px;
+        }
+        .mensaje .hora {
+            font-size: 0.4rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+            text-align: right;
+        }
+
+        @keyframes mensaje-entrada {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .chat-input-area {
+            padding: 10px 16px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 8px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--gold-dim);
+            background: rgba(15, 45, 26, 0.2);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.7rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .chat-input-area input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .chat-input-area input::placeholder {
+            color: var(--text-muted);
+        }
+        .chat-input-area .btn {
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+        }
+
+        .chat-vacio {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            color: var(--text-muted);
+            gap: 8px;
+        }
+        .chat-vacio i {
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+        .chat-vacio p {
+            font-size: 0.7rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand {
+            color: var(--gold-cosmic);
+        }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover {
+            color: var(--gold-cosmic);
+        }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .chat-lista {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chat-container {
+                flex-direction: column;
+            }
+            .chat-lista {
+                width: 100%;
+                height: 200px;
+                flex-shrink: 0;
+            }
+            .chat-area {
+                flex: 1;
+            }
+            .btn {
+                font-size: 0.45rem;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Chat</span>
+            </a>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn active" onclick="cambiarIdioma('es')">ES</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('en')">EN</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('fr')">FR</button>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>En línea</span>
+                </div>
+
+                <a href="../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <a href="../contactos/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-users"></i> Contactos
+                </a>
+            </div>
+        </header>
+
+        <!-- ===== CHAT ===== -->
+        <div class="chat-container">
+
+            <!-- ===== LISTA DE CONTACTOS ===== -->
+            <div class="chat-lista">
+                <div class="chat-lista-header">
+                    <h3><i class="fas fa-comment-dots" style="color:var(--gold-cosmic);"></i> Conversaciones</h3>
+                    <button class="btn btn-primary btn-sm" onclick="mostrarToast('📝 Nueva conversación')">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="chat-buscar">
+                    <input type="text" id="buscarChat" placeholder="🔍 Buscar..." oninput="filtrarChat()" />
+                </div>
+                <div class="chat-contactos" id="listaChatContactos">
+                    <!-- Renderizado con JS -->
+                </div>
+            </div>
+
+            <!-- ===== ÁREA DE CHAT ===== -->
+            <div class="chat-area">
+                <div class="chat-area-header">
+                    <div class="avatar" id="chatAvatar">M</div>
+                    <div class="info">
+                        <div class="nombre" id="chatNombre">María</div>
+                        <div class="estado" id="chatEstado">🟢 En línea</div>
+                    </div>
+                    <div class="acciones">
+                        <button class="btn btn-outline btn-sm" onclick="mostrarToast('📞 Llamando...')">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="mostrarToast('📹 Videollamada...')">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="mostrarToast('📎 Adjuntar archivo')">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-mensajes" id="chatMensajes">
+                    <!-- Renderizado con JS -->
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="mensajeInput" placeholder="Escribe un mensaje..." onkeydown="enviarMensaje(event)" />
+                    <button class="btn btn-primary" onclick="enviarMensaje()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Chat · Conecta · Comunica
+            </span>
+            <div class="footer-links">
+                <a href="../index.html">🏠 Red</a>
+                <a href="../contactos/index.html">👥 Contactos</a>
+                <a href="../perfil/index.html">👤 Perfil</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        (function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resize();
+
+            const stars = Array.from({ length: 200 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 0.8 + 0.2,
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.005 + 0.002,
+                phase: Math.random() * Math.PI * 2
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                    ctx.fill();
+                    s.y += s.speed;
+                    s.phase += 0.01;
+                    if (s.y > h) { s.y = 0;
+                        s.x = Math.random() * w; }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+
+            window.addEventListener('resize', () => {
+                resize();
+                stars.forEach(s => { s.x = Math.random() * w;
+                    s.y = Math.random() * h; });
+            });
+        })();
+
+        // ================================================================
+        // 🌐 IDIOMAS
+        // ================================================================
+        const traducciones = {
+            es: {
+                'chat': 'Chat',
+                'en_linea': 'En línea',
+                'volver': 'Volver',
+                'contactos': 'Contactos',
+                'conversaciones': 'Conversaciones',
+                'buscar': '🔍 Buscar...',
+                'escribe': 'Escribe un mensaje...',
+                'sin_mensajes': '💬 Sin mensajes',
+                'sin_mensajes_desc': 'Envía un mensaje para empezar la conversación.',
+                'nueva_conv': '📝 Nueva conversación',
+                'llamar': '📞 Llamando...',
+                'video': '📹 Videollamada...',
+                'adjuntar': '📎 Adjuntar archivo'
+            },
+            en: {
+                'chat': 'Chat',
+                'en_linea': 'Online',
+                'volver': 'Back',
+                'contactos': 'Contacts',
+                'conversaciones': 'Conversations',
+                'buscar': '🔍 Search...',
+                'escribe': 'Type a message...',
+                'sin_mensajes': '💬 No messages',
+                'sin_mensajes_desc': 'Send a message to start the conversation.',
+                'nueva_conv': '📝 New conversation',
+                'llamar': '📞 Calling...',
+                'video': '📹 Video call...',
+                'adjuntar': '📎 Attach file'
+            },
+            fr: {
+                'chat': 'Chat',
+                'en_linea': 'En ligne',
+                'volver': 'Retour',
+                'contactos': 'Contacts',
+                'conversaciones': 'Conversations',
+                'buscar': '🔍 Rechercher...',
+                'escribe': 'Écrivez un message...',
+                'sin_mensajes': '💬 Aucun message',
+                'sin_mensajes_desc': 'Envoyez un message pour démarrer la conversation.',
+                'nueva_conv': '📝 Nouvelle conversation',
+                'llamar': '📞 Appel...',
+                'video': '📹 Visioconférence...',
+                'adjuntar': '📎 Joindre un fichier'
+            }
+        };
+
+        let idiomaActual = localStorage.getItem('csariels_idioma') || 'es';
+
+        function aplicarIdioma(idioma) {
+            const t = traducciones[idioma] || traducciones.es;
+            document.querySelector('.logo-badge').textContent = t.chat;
+            document.querySelector('.status-badge span:last-child').textContent = t.en_linea;
+            document.querySelector('.chat-lista-header h3').innerHTML =
+                `<i class="fas fa-comment-dots" style="color:var(--gold-cosmic);"></i> ${t.conversaciones}`;
+            document.querySelector('.chat-buscar input').placeholder = t.buscar;
+            document.querySelector('.chat-input-area input').placeholder = t.escribe;
+        }
+
+        function cambiarIdioma(idioma) {
+            idiomaActual = idioma;
+            localStorage.setItem('csariels_idioma', idioma);
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="cambiarIdioma('${idioma}')"]`).classList.add('active');
+            aplicarIdioma(idioma);
+            renderChatContactos();
+            mostrarToast(`🌐 ${idioma.toUpperCase()}`);
+        }
+
+        // ================================================================
+        // 📋 DATOS
+        // ================================================================
+        let contactosChat = [
+            { id: 1, nombre: 'María', online: true, ultimo: 'Hola, ¿cómo estás?', hora: '10:30' },
+            { id: 2, nombre: 'Javier', online: false, ultimo: 'Nos vemos mañana', hora: 'Ayer' },
+            { id: 3, nombre: 'Laura', online: true, ultimo: '¡Excelente!', hora: '9:15' },
+            { id: 4, nombre: 'Carlos', online: false, ultimo: 'Estoy trabajando', hora: 'Ayer' },
+            { id: 5, nombre: 'Ana', online: true, ultimo: 'Gracias 👍', hora: '8:45' },
+        ];
+
+        let mensajes = [
+            { id: 1, contactoId: 1, texto: '¡Hola María! ¿Cómo estás?', enviado: true, hora: '10:00' },
+            { id: 2, contactoId: 1, texto: 'Hola, estoy bien, ¿y tú?', enviado: false, hora: '10:05' },
+            { id: 3, contactoId: 1, texto: 'Muy bien, gracias por preguntar 😊', enviado: true, hora: '10:10' },
+            { id: 4, contactoId: 1, texto: '¿Qué tal el proyecto?', enviado: false, hora: '10:20' },
+            { id: 5, contactoId: 1, texto: 'Va muy bien, casi terminamos 🚀', enviado: true, hora: '10:30' },
+            { id: 6, contactoId: 3, texto: 'Hola Laura, ¿todo bien?', enviado: true, hora: '9:00' },
+            { id: 7, contactoId: 3, texto: '¡Sí! Todo excelente por aquí', enviado: false, hora: '9:05' },
+            { id: 8, contactoId: 3, texto: 'Nos vemos en la reunión', enviado: true, hora: '9:10' },
+        ];
+
+        let contactoActivo = 1;
+
+        // ================================================================
+        // 🖥️ RENDERIZAR
+        // ================================================================
+        function renderChatContactos() {
+            const cont = document.getElementById('listaChatContactos');
+            const busqueda = document.getElementById('buscarChat').value.toLowerCase();
+
+            let filtrados = contactosChat;
+            if (busqueda) {
+                filtrados = filtrados.filter(c => c.nombre.toLowerCase().includes(busqueda));
+            }
+
+            if (filtrados.length === 0) {
+                cont.innerHTML = `
+                    <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.6rem;">
+                        <i class="fas fa-search" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:6px;"></i>
+                        Sin resultados
+                    </div>
+                `;
+                return;
+            }
+
+            cont.innerHTML = filtrados.map(c => `
+                <div class="chat-contacto ${c.id === contactoActivo ? 'active' : ''}" onclick="seleccionarContacto(${c.id})">
+                    <div class="chat-contacto-avatar">
+                        ${c.nombre.charAt(0)}
+                        <span class="estado-dot ${c.online ? 'online' : 'offline'}"></span>
+                    </div>
+                    <div class="chat-contacto-info">
+                        <div class="chat-contacto-nombre">${c.nombre}</div>
+                        <div class="chat-contacto-ultimo">${c.ultimo}</div>
+                    </div>
+                    <div class="chat-contacto-tiempo">${c.hora}</div>
+                    ${c.id === 1 ? '<div class="chat-contacto-noti">3</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderMensajes() {
+            const cont = document.getElementById('chatMensajes');
+            const filtrados = mensajes.filter(m => m.contactoId === contactoActivo);
+
+            if (filtrados.length === 0) {
+                const t = traducciones[idiomaActual] || traducciones.es;
+                cont.innerHTML = `
+                    <div class="chat-vacio">
+                        <i class="fas fa-comment"></i>
+                        <p>${t.sin_mensajes}</p>
+                        <p style="font-size:0.55rem;opacity:0.5;">${t.sin_mensajes_desc}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cont.innerHTML = filtrados.map(m => `
+                <div class="mensaje ${m.enviado ? 'enviado' : 'recibido'}">
+                    ${m.texto}
+                    <span class="hora">${m.hora}</span>
+                </div>
+            `).join('');
+
+            // Scroll al final
+            cont.scrollTop = cont.scrollHeight;
+        }
+
+        function renderChatCompleto() {
+            renderChatContactos();
+
+            const contacto = contactosChat.find(c => c.id === contactoActivo);
+            if (contacto) {
+                document.getElementById('chatAvatar').textContent = contacto.nombre.charAt(0);
+                document.getElementById('chatNombre').textContent = contacto.nombre;
+                document.getElementById('chatEstado').textContent = contacto.online ? '🟢 En línea' : '⚪ Desconectado';
+                document.getElementById('chatEstado').style.color = contacto.online ? 'var(--success)' : 'var(--text-muted)';
+            }
+
+            renderMensajes();
+        }
+
+        // ================================================================
+        // 🎯 ACCIONES
+        // ================================================================
+        function seleccionarContacto(id) {
+            contactoActivo = id;
+            renderChatCompleto();
+        }
+
+        function filtrarChat() {
+            renderChatContactos();
+        }
+
+        function enviarMensaje(e) {
+            if (e && e.key !== 'Enter') return;
+
+            const input = document.getElementById('mensajeInput');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            const nuevo = {
+                id: mensajes.length + 1,
+                contactoId: contactoActivo,
+                texto: texto,
+                enviado: true,
+                hora: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            mensajes.push(nuevo);
+            input.value = '';
+
+            // Actualizar último mensaje en la lista
+            const contacto = contactosChat.find(c => c.id === contactoActivo);
+            if (contacto) {
+                contacto.ultimo = texto;
+                contacto.hora = 'Ahora';
+            }
+
+            renderChatCompleto();
+        }
+
+        // ================================================================
+        // 🔔 TOAST
+        // ================================================================
+        let toastTimeout;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            if (tipo === 'error') toast.classList.add('error');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarIdioma(idiomaActual);
+            renderChatCompleto();
+            console.log('💬 Csariel\'s - Chat cargado');
+        });
+
+        // Exponer funciones globales
+        window.cambiarIdioma = cambiarIdioma;
+        window.seleccionarContacto = seleccionarContacto;
+        window.filtrarChat = filtrarChat;
+        window.enviarMensaje = enviarMensaje;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
