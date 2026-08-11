@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notificaciones | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ================================================================
+           ESTILOS CSARIEL'S - NOTIFICACIONES
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 {
+            width: 700px;
+            height: 700px;
+            background: var(--verde-bosque);
+            top: -15%;
+            right: -15%;
+        }
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--gold-cosmic);
+            bottom: -15%;
+            left: -15%;
+            animation-delay: -8s;
+            opacity: 0.05;
+        }
+        .nebula-3 {
+            width: 500px;
+            height: 500px;
+            background: var(--quantum);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -15s;
+            opacity: 0.04;
+        }
+
+        @keyframes nebula-drift {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(40px, -30px) scale(1.15);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--space-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--gold-cosmic), var(--verde-bosque));
+            border-radius: 3px;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
+            }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(15, 45, 26, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212, 175, 55, 0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            border-color: var(--border-glow);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15, 45, 26, 0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--gold-cosmic);
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.55rem;
+        }
+        .btn-success {
+            background: rgba(0, 184, 148, 0.15);
+            border-color: rgba(0, 184, 148, 0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) {
+            background: rgba(0, 184, 148, 0.25);
+        }
+        .btn-danger {
+            background: rgba(255, 51, 102, 0.15);
+            border-color: rgba(255, 51, 102, 0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 51, 102, 0.25);
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212, 175, 55, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212, 175, 55, 0.08);
+        }
+        .language-selector .lang-icon {
+            font-size: 0.7rem;
+            margin-right: 2px;
+        }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            color: var(--text-secondary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .lang-btn.active {
+            border-color: var(--gold-cosmic);
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-cosmic);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
+        }
+        @keyframes quantum-pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        /* ===== NOTIFICACIONES ===== */
+        .notificaciones-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .notificaciones-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        .notificaciones-header h2 i {
+            color: var(--gold-cosmic);
+        }
+        .notificaciones-header .badge-total {
+            background: var(--danger);
+            color: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .filtros-bar {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .filtro-btn {
+            padding: 4px 14px;
+            border: 1px solid var(--gold-dim);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filtro-btn:hover {
+            border-color: var(--gold-cosmic);
+            color: var(--text-secondary);
+        }
+        .filtro-btn.active {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        .notificaciones-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .notificacion-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: rgba(15, 45, 26, 0.1);
+            border-radius: var(--radius);
+            border-left: 3px solid transparent;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .notificacion-item:hover {
+            background: rgba(15, 45, 26, 0.2);
+        }
+        .notificacion-item.no-leida {
+            border-left-color: var(--gold-cosmic);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .notificacion-item .icono {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .notificacion-item .icono.like {
+            background: rgba(255, 51, 102, 0.15);
+            color: var(--danger);
+        }
+        .notificacion-item .icono.comment {
+            background: rgba(0, 229, 255, 0.15);
+            color: var(--quantum);
+        }
+        .notificacion-item .icono.follow {
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--success);
+        }
+        .notificacion-item .icono.request {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold-cosmic);
+        }
+        .notificacion-item .icono.system {
+            background: rgba(100, 100, 255, 0.15);
+            color: #6464ff;
+        }
+        .notificacion-item .icono.event {
+            background: rgba(255, 165, 0, 0.15);
+            color: #ffa500;
+        }
+        .notificacion-item .icono.group {
+            background: rgba(156, 39, 176, 0.15);
+            color: #9c27b0;
+        }
+
+        .notificacion-item .contenido {
+            flex: 1;
+            min-width: 0;
+        }
+        .notificacion-item .contenido .texto {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .notificacion-item .contenido .texto strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .notificacion-item .contenido .texto .highlight {
+            color: var(--gold-cosmic);
+            font-weight: 500;
+        }
+        .notificacion-item .contenido .tiempo {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .notificacion-item .accion {
+            flex-shrink: 0;
+        }
+        .notificacion-item .accion .btn {
+            padding: 2px 12px;
+            font-size: 0.45rem;
+            border-radius: 20px;
+        }
+        .notificacion-item .accion .btn-accion {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.6rem;
+            padding: 4px;
+            transition: var(--transition);
+        }
+        .notificacion-item .accion .btn-accion:hover {
+            color: var(--text-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 8px;
+        }
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .empty-state p {
+            font-size: 0.65rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand {
+            color: var(--gold-cosmic);
+        }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover {
+            color: var(--gold-cosmic);
+        }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .notificaciones-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .notificacion-item {
+                flex-wrap: wrap;
+            }
+            .notificacion-item .accion {
+                width: 100%;
+                margin-top: 4px;
+                text-align: right;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                font-size: 0.45rem;
+                padding: 4px 8px;
+            }
+            .notificacion-item .icono {
+                width: 32px;
+                height: 32px;
+                font-size: 0.7rem;
+            }
+            .notificacion-item .contenido .texto {
+                font-size: 0.65rem;
+            }
+            .filtro-btn {
+                font-size: 0.4rem;
+                padding: 3px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Notificaciones</span>
+            </a>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn active" onclick="cambiarIdioma('es')">ES</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('en')">EN</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('fr')">FR</button>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>En línea</span>
+                </div>
+
+                <a href="../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="marcarTodasLeidas()">
+                    <i class="fas fa-check-double"></i> Marcar todas
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== NOTIFICACIONES ===== -->
+        <div class="notificaciones-header">
+            <h2><i class="fas fa-bell"></i> Notificaciones <span class="badge-total" id="totalNotificaciones">5</span></h2>
+        </div>
+
+        <div class="filtros-bar">
+            <button class="filtro-btn active" data-filtro="todas" onclick="aplicarFiltro('todas')">🌟 Todas</button>
+            <button class="filtro-btn" data-filtro="no-leidas" onclick="aplicarFiltro('no-leidas')">🔔 No leídas</button>
+            <button class="filtro-btn" data-filtro="likes" onclick="aplicarFiltro('likes')">❤️ Likes</button>
+            <button class="filtro-btn" data-filtro="comentarios" onclick="aplicarFiltro('comentarios')">💬 Comentarios</button>
+            <button class="filtro-btn" data-filtro="solicitudes" onclick="aplicarFiltro('solicitudes')">📬 Solicitudes</button>
+            <button class="filtro-btn" data-filtro="sistema" onclick="aplicarFiltro('sistema')">⚙️ Sistema</button>
+        </div>
+
+        <div class="notificaciones-list" id="notificacionesList">
+            <!-- Renderizado con JavaScript -->
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Notificaciones · Alerta · Conecta
+            </span>
+            <div class="footer-links">
+                <a href="../index.html">🏠 Red</a>
+                <a href="../publicaciones/index.html">📝 Publicaciones</a>
+                <a href="../solicitudes/index.html">📬 Solicitudes</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        (function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resize();
+
+            const stars = Array.from({ length: 200 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 0.8 + 0.2,
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.005 + 0.002,
+                phase: Math.random() * Math.PI * 2
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                    ctx.fill();
+                    s.y += s.speed;
+                    s.phase += 0.01;
+                    if (s.y > h) { s.y = 0;
+                        s.x = Math.random() * w; }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+
+            window.addEventListener('resize', () => {
+                resize();
+                stars.forEach(s => { s.x = Math.random() * w;
+                    s.y = Math.random() * h; });
+            });
+        })();
+
+        // ================================================================
+        // 🌐 IDIOMAS
+        // ================================================================
+        const traducciones = {
+            es: {
+                'notificaciones': 'Notificaciones',
+                'en_linea': 'En línea',
+                'volver': 'Volver',
+                'marcar_todas': 'Marcar todas',
+                'todas': '🌟 Todas',
+                'no_leidas': '🔔 No leídas',
+                'likes': '❤️ Likes',
+                'comentarios': '💬 Comentarios',
+                'solicitudes': '📬 Solicitudes',
+                'sistema': '⚙️ Sistema',
+                'sin_notificaciones': '🔕 Sin notificaciones',
+                'sin_notificaciones_desc': 'No tienes notificaciones nuevas.',
+                'marcadas_leidas': '✅ Todas marcadas como leídas',
+                'marcar_leida': 'Marcar como leída',
+                'eliminar': 'Eliminar',
+                'hace': 'hace'
+            },
+            en: {
+                'notificaciones': 'Notifications',
+                'en_linea': 'Online',
+                'volver': 'Back',
+                'marcar_todas': 'Mark all read',
+                'todas': '🌟 All',
+                'no_leidas': '🔔 Unread',
+                'likes': '❤️ Likes',
+                'comentarios': '💬 Comments',
+                'solicitudes': '📬 Requests',
+                'sistema': '⚙️ System',
+                'sin_notificaciones': '🔕 No notifications',
+                'sin_notificaciones_desc': 'You have no new notifications.',
+                'marcadas_leidas': '✅ All marked as read',
+                'marcar_leida': 'Mark as read',
+                'eliminar': 'Delete',
+                'hace': 'ago'
+            },
+            fr: {
+                'notificaciones': 'Notifications',
+                'en_linea': 'En ligne',
+                'volver': 'Retour',
+                'marcar_todas': 'Tout marquer lu',
+                'todas': '🌟 Toutes',
+                'no_leidas': '🔔 Non lues',
+                'likes': '❤️ J\'aime',
+                'comentarios': '💬 Commentaires',
+                'solicitudes': '📬 Demandes',
+                'sistema': '⚙️ Système',
+                'sin_notificaciones': '🔕 Aucune notification',
+                'sin_notificaciones_desc': 'Vous n\'avez pas de nouvelles notifications.',
+                'marcadas_leidas': '✅ Toutes marquées comme lues',
+                'marcar_leida': 'Marquer comme lu',
+                'eliminar': 'Supprimer',
+                'hace': 'il y a'
+            }
+        };
+
+        let idiomaActual = localStorage.getItem('csariels_idioma') || 'es';
+        let filtroActual = 'todas';
+
+        function aplicarIdioma(idioma) {
+            const t = traducciones[idioma] || traducciones.es;
+            document.querySelector('.logo-badge').textContent = t.notificaciones;
+            document.querySelector('.status-badge span:last-child').textContent = t.en_linea;
+            document.querySelector('.notificaciones-header h2').innerHTML =
+                `<i class="fas fa-bell"></i> ${t.notificaciones} <span class="badge-total" id="totalNotificaciones">5</span>`;
+            document.querySelector('.header-actions .btn-primary span:last-child').textContent = t.marcar_todas;
+
+            document.querySelectorAll('.filtro-btn').forEach(b => {
+                const key = b.dataset.filtro;
+                if (key === 'todas') b.textContent = t.todas;
+                else if (key === 'no-leidas') b.textContent = t.no_leidas;
+                else if (key === 'likes') b.textContent = t.likes;
+                else if (key === 'comentarios') b.textContent = t.comentarios;
+                else if (key === 'solicitudes') b.textContent = t.solicitudes;
+                else if (key === 'sistema') b.textContent = t.sistema;
+            });
+        }
+
+        function cambiarIdioma(idioma) {
+            idiomaActual = idioma;
+            localStorage.setItem('csariels_idioma', idioma);
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="cambiarIdioma('${idioma}')"]`).classList.add('active');
+            aplicarIdioma(idioma);
+            renderNotificaciones();
+            mostrarToast(`🌐 ${idioma.toUpperCase()}`);
+        }
+
+        // ================================================================
+        // 📋 DATOS DE NOTIFICACIONES
+        // ================================================================
+        let notificaciones = [{
+            id: 1,
+            tipo: 'like',
+            icono: '❤️',
+            usuario: 'María',
+            texto: 'le dio like a tu publicación',
+            enlace: '../publicaciones/index.html',
+            leida: false,
+            fecha: new Date(Date.now() - 600000),
+            accion: null
+        }, {
+            id: 2,
+            tipo: 'comment',
+            icono: '💬',
+            usuario: 'Javier',
+            texto: 'comentó en tu publicación: "¡Increíble! 🚀"',
+            enlace: '../publicaciones/index.html',
+            leida: false,
+            fecha: new Date(Date.now() - 1800000),
+            accion: null
+        }, {
+            id: 3,
+            tipo: 'request',
+            icono: '📬',
+            usuario: 'Laura',
+            texto: 'te envió una solicitud de amistad',
+            enlace: '../solicitudes/index.html',
+            leida: false,
+            fecha: new Date(Date.now() - 3600000),
+            accion: { tipo: 'aceptar', texto: 'Aceptar' }
+        }, {
+            id: 4,
+            tipo: 'follow',
+            icono: '👤',
+            usuario: 'Carlos',
+            texto: 'comenzó a seguirte',
+            enlace: '../perfil/index.html?user=Carlos',
+            leida: true,
+            fecha: new Date(Date.now() - 7200000),
+            accion: null
+        }, {
+            id: 5,
+            tipo: 'system',
+            icono: '⚙️',
+            usuario: 'Sistema',
+            texto: 'Tu perfil ha sido verificado ✅',
+            enlace: '../perfil/index.html',
+            leida: true,
+            fecha: new Date(Date.now() - 86400000),
+            accion: null
+        }, {
+            id: 6,
+            tipo: 'event',
+            icono: '📅',
+            usuario: 'Evento',
+            texto: '¡Nuevo evento próximo! "Tech Meetup 2026"',
+            enlace: '../eventos/index.html',
+            leida: true,
+            fecha: new Date(Date.now() - 172800000),
+            accion: null
+        }, {
+            id: 7,
+            tipo: 'group',
+            icono: '👥',
+            usuario: 'Grupo',
+            texto: 'Nuevo mensaje en "Exploradores Digitales"',
+            enlace: '../grupos/index.html?id=1',
+            leida: true,
+            fecha: new Date(Date.now() - 259200000),
+            accion: null
+        }];
+
+        // ================================================================
+        // 🖥️ RENDERIZAR NOTIFICACIONES
+        // ================================================================
+        function renderNotificaciones() {
+            const container = document.getElementById('notificacionesList');
+            const t = traducciones[idiomaActual] || traducciones.es;
+
+            let filtradas = [...notificaciones];
+
+            if (filtroActual === 'no-leidas') {
+                filtradas = filtradas.filter(n => !n.leida);
+            } else if (filtroActual === 'likes') {
+                filtradas = filtradas.filter(n => n.tipo === 'like');
+            } else if (filtroActual === 'comentarios') {
+                filtradas = filtradas.filter(n => n.tipo === 'comment');
+            } else if (filtroActual === 'solicitudes') {
+                filtradas = filtradas.filter(n => n.tipo === 'request');
+            } else if (filtroActual === 'sistema') {
+                filtradas = filtradas.filter(n => n.tipo === 'system' || n.tipo === 'event' || n.tipo === 'group');
+            }
+
+            // Ordenar por fecha (más reciente primero)
+            filtradas.sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
+
+            // Actualizar contador
+            const noLeidas = notificaciones.filter(n => !n.leida).length;
+            document.getElementById('totalNotificaciones').textContent = noLeidas;
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔕</div>
+                        <h3>${t.sin_notificaciones}</h3>
+                        <p>${t.sin_notificaciones_desc}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtradas.map(n => {
+                const tiempo = calcularTiempo(n.fecha, t);
+                const clasesIcono = {
+                    'like': 'like',
+                    'comment': 'comment',
+                    'follow': 'follow',
+                    'request': 'request',
+                    'system': 'system',
+                    'event': 'event',
+                    'group': 'group'
+                };
+
+                return `
+                    <div class="notificacion-item ${!n.leida ? 'no-leida' : ''}" onclick="irEnlace('${n.enlace}')">
+                        <div class="icono ${clasesIcono[n.tipo] || 'system'}">
+                            ${n.icono}
+                        </div>
+                        <div class="contenido">
+                            <div class="texto">
+                                <strong>${n.usuario}</strong> ${n.texto}
+                            </div>
+                            <div class="tiempo">${tiempo}</div>
+                        </div>
+                        <div class="accion">
+                            ${n.accion ? `<button class="btn btn-success btn-sm" onclick="event.stopPropagation();accionNotificacion(${n.id})">${n.accion.texto}</button>` : ''}
+                            ${!n.leida ? `<button class="btn-accion" onclick="event.stopPropagation();marcarLeida(${n.id})" title="${t.marcar_leida}"><i class="fas fa-check-circle"></i></button>` : ''}
+                            <button class="btn-accion" onclick="event.stopPropagation();eliminarNotificacion(${n.id})" title="${t.eliminar}"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================================================================
+        // 🔍 FILTROS
+        // ================================================================
+        function aplicarFiltro(filtro) {
+            filtroActual = filtro;
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.filtro-btn[data-filtro="${filtro}"]`).classList.add('active');
+            renderNotificaciones();
+        }
+
+        // ================================================================
+        // 🎯 ACCIONES
+        // ================================================================
+        function calcularTiempo(fecha, t) {
+            const diff = Date.now() - fecha.getTime();
+            const minutos = Math.floor(diff / 60000);
+            const horas = Math.floor(diff / 3600000);
+            const dias = Math.floor(diff / 86400000);
+
+            if (minutos < 1) return 'Ahora';
+            if (minutos < 60) return `${minutos} ${t.hace || 'minutos'}`;
+            if (horas < 24) return `${horas} ${t.hace || 'horas'}`;
+            if (dias < 7) return `${dias} ${t.hace || 'días'}`;
+            return fecha.toLocaleDateString();
+        }
+
+        function marcarLeida(id) {
+            const noti = notificaciones.find(n => n.id === id);
+            if (noti) {
+                noti.leida = true;
+                renderNotificaciones();
+            }
+        }
+
+        function marcarTodasLeidas() {
+            const t = traducciones[idiomaActual] || traducciones.es;
+            notificaciones.forEach(n => n.leida = true);
+            renderNotificaciones();
+            mostrarToast(t.marcadas_leidas);
+        }
+
+        function eliminarNotificacion(id) {
+            notificaciones = notificaciones.filter(n => n.id !== id);
+            renderNotificaciones();
+        }
+
+        function accionNotificacion(id) {
+            const noti = notificaciones.find(n => n.id === id);
+            if (!noti) return;
+            if (noti.tipo === 'request') {
+                mostrarToast(`✅ Solicitud de ${noti.usuario} aceptada`);
+                noti.leida = true;
+                renderNotificaciones();
+            }
+        }
+
+        function irEnlace(enlace) {
+            if (enlace) {
+                window.location.href = enlace;
+            }
+        }
+
+        // ================================================================
+        // 🔔 TOAST
+        // ================================================================
+        let toastTimeout;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            if (tipo === 'error') toast.classList.add('error');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarIdioma(idiomaActual);
+            renderNotificaciones();
+            console.log('🔔 Csariel\'s - Notificaciones cargado');
+        });
+
+        // Exponer funciones globales
+        window.cambiarIdioma = cambiarIdioma;
+        window.aplicarFiltro = aplicarFiltro;
+        window.marcarLeida = marcarLeida;
+        window.marcarTodasLeidas = marcarTodasLeidas;
+        window.eliminarNotificacion = eliminarNotificacion;
+        window.accionNotificacion = accionNotificacion;
+        window.irEnlace = irEnlace;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
