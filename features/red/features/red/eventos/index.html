@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eventos | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ================================================================
+           ESTILOS CSARIEL'S - EVENTOS
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 {
+            width: 700px;
+            height: 700px;
+            background: var(--verde-bosque);
+            top: -15%;
+            right: -15%;
+        }
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--gold-cosmic);
+            bottom: -15%;
+            left: -15%;
+            animation-delay: -8s;
+            opacity: 0.05;
+        }
+        .nebula-3 {
+            width: 500px;
+            height: 500px;
+            background: var(--quantum);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -15s;
+            opacity: 0.04;
+        }
+
+        @keyframes nebula-drift {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(40px, -30px) scale(1.15);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--space-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--gold-cosmic), var(--verde-bosque));
+            border-radius: 3px;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
+            }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(15, 45, 26, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212, 175, 55, 0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            border-color: var(--border-glow);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15, 45, 26, 0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--gold-cosmic);
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.55rem;
+        }
+        .btn-success {
+            background: rgba(0, 184, 148, 0.15);
+            border-color: rgba(0, 184, 148, 0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) {
+            background: rgba(0, 184, 148, 0.25);
+        }
+        .btn-danger {
+            background: rgba(255, 51, 102, 0.15);
+            border-color: rgba(255, 51, 102, 0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 51, 102, 0.25);
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212, 175, 55, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212, 175, 55, 0.08);
+        }
+        .language-selector .lang-icon {
+            font-size: 0.7rem;
+            margin-right: 2px;
+        }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            color: var(--text-secondary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .lang-btn.active {
+            border-color: var(--gold-cosmic);
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-cosmic);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
+        }
+        @keyframes quantum-pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        /* ===== EVENTOS ===== */
+        .eventos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .eventos-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        .eventos-header h2 i {
+            color: var(--gold-cosmic);
+        }
+        .eventos-header .badge-total {
+            background: var(--gold-cosmic);
+            color: var(--space-deep);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .filtros-bar {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .filtro-btn {
+            padding: 4px 14px;
+            border: 1px solid var(--gold-dim);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filtro-btn:hover {
+            border-color: var(--gold-cosmic);
+            color: var(--text-secondary);
+        }
+        .filtro-btn.active {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        .eventos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .evento-card {
+            background: rgba(15, 45, 26, 0.12);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .evento-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+        .evento-card .evento-banner {
+            padding: 20px 16px 14px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            position: relative;
+        }
+        .evento-card .evento-banner .icono {
+            font-size: 2.5rem;
+        }
+        .evento-card .evento-banner .estado {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.4rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+        }
+        .evento-card .evento-banner .estado.proximo {
+            background: rgba(0, 229, 255, 0.15);
+            color: var(--quantum);
+        }
+        .evento-card .evento-banner .estado.activo {
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--success);
+        }
+        .evento-card .evento-banner .estado.finalizado {
+            background: rgba(255, 51, 102, 0.15);
+            color: var(--danger);
+        }
+
+        .evento-card .evento-info {
+            padding: 12px 16px;
+        }
+        .evento-card .evento-info .titulo {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+        .evento-card .evento-info .descripcion {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            margin: 4px 0 8px;
+            line-height: 1.4;
+        }
+        .evento-card .evento-info .detalles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+        }
+        .evento-card .evento-info .detalles span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .evento-card .evento-info .detalles i {
+            color: var(--gold-cosmic);
+            font-size: 0.4rem;
+        }
+
+        .evento-card .evento-acciones {
+            padding: 8px 16px 16px;
+            display: flex;
+            gap: 6px;
+        }
+        .evento-card .evento-acciones .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 4px 12px;
+            font-size: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            grid-column: 1/-1;
+        }
+        .empty-state .icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+            margin-bottom: 6px;
+        }
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .empty-state p {
+            font-size: 0.6rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand {
+            color: var(--gold-cosmic);
+        }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover {
+            color: var(--gold-cosmic);
+        }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .eventos-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                font-size: 0.45rem;
+                padding: 4px 8px;
+            }
+            .eventos-grid {
+                grid-template-columns: 1fr;
+            }
+            .evento-card .evento-banner .icono {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Eventos</span>
+            </a>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn active" onclick="cambiarIdioma('es')">ES</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('en')">EN</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('fr')">FR</button>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>En línea</span>
+                </div>
+
+                <a href="../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="crearEvento()">
+                    <i class="fas fa-plus"></i> Crear evento
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== EVENTOS ===== -->
+        <div class="eventos-header">
+            <h2><i class="fas fa-calendar-alt"></i> Eventos <span class="badge-total" id="totalEventos">5</span></h2>
+            <span style="font-size:0.55rem;color:var(--text-muted);">Próximos eventos y actividades</span>
+        </div>
+
+        <div class="filtros-bar">
+            <button class="filtro-btn active" data-filtro="todos" onclick="aplicarFiltro('todos')">🌟 Todos</button>
+            <button class="filtro-btn" data-filtro="proximos" onclick="aplicarFiltro('proximos')">⏳ Próximos</button>
+            <button class="filtro-btn" data-filtro="activos" onclick="aplicarFiltro('activos')">🟢 Activos</button>
+            <button class="filtro-btn" data-filtro="finalizados" onclick="aplicarFiltro('finalizados')">✅ Finalizados</button>
+            <button class="filtro-btn" data-filtro="mis-eventos" onclick="aplicarFiltro('mis-eventos')">👤 Mis eventos</button>
+        </div>
+
+        <div class="eventos-grid" id="eventosGrid">
+            <!-- Renderizado con JavaScript -->
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Eventos · Comunidad · Participa
+            </span>
+            <div class="footer-links">
+                <a href="../index.html">🏠 Red</a>
+                <a href="../grupos/index.html">👥 Grupos</a>
+                <a href="../publicaciones/index.html">📝 Publicaciones</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        (function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resize();
+
+            const stars = Array.from({ length: 200 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 0.8 + 0.2,
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.005 + 0.002,
+                phase: Math.random() * Math.PI * 2
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                    ctx.fill();
+                    s.y += s.speed;
+                    s.phase += 0.01;
+                    if (s.y > h) { s.y = 0;
+                        s.x = Math.random() * w; }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+
+            window.addEventListener('resize', () => {
+                resize();
+                stars.forEach(s => { s.x = Math.random() * w;
+                    s.y = Math.random() * h; });
+            });
+        })();
+
+        // ================================================================
+        // 🌐 IDIOMAS
+        // ================================================================
+        const traducciones = {
+            es: {
+                'eventos': 'Eventos',
+                'en_linea': 'En línea',
+                'volver': 'Volver',
+                'crear_evento': 'Crear evento',
+                'todos': '🌟 Todos',
+                'proximos': '⏳ Próximos',
+                'activos': '🟢 Activos',
+                'finalizados': '✅ Finalizados',
+                'mis_eventos': '👤 Mis eventos',
+                'detalles': 'Ver detalles',
+                'asistir': 'Asistir',
+                'cancelar': 'Cancelar',
+                'evento_creado': '✅ Evento creado',
+                'evento_creado_desc': 'Tu evento ha sido creado exitosamente.',
+                'sin_eventos': '📅 Sin eventos',
+                'sin_eventos_desc': 'No hay eventos disponibles en este momento.'
+            },
+            en: {
+                'eventos': 'Events',
+                'en_linea': 'Online',
+                'volver': 'Back',
+                'crear_evento': 'Create event',
+                'todos': '🌟 All',
+                'proximos': '⏳ Upcoming',
+                'activos': '🟢 Active',
+                'finalizados': '✅ Finished',
+                'mis_eventos': '👤 My events',
+                'detalles': 'View details',
+                'asistir': 'Attend',
+                'cancelar': 'Cancel',
+                'evento_creado': '✅ Event created',
+                'evento_creado_desc': 'Your event has been created successfully.',
+                'sin_eventos': '📅 No events',
+                'sin_eventos_desc': 'No events available at this time.'
+            },
+            fr: {
+                'eventos': 'Événements',
+                'en_linea': 'En ligne',
+                'volver': 'Retour',
+                'crear_evento': 'Créer un événement',
+                'todos': '🌟 Tous',
+                'proximos': '⏳ À venir',
+                'activos': '🟢 Actifs',
+                'finalizados': '✅ Terminés',
+                'mis_eventos': '👤 Mes événements',
+                'detalles': 'Voir les détails',
+                'asistir': 'Participer',
+                'cancelar': 'Annuler',
+                'evento_creado': '✅ Événement créé',
+                'evento_creado_desc': 'Votre événement a été créé avec succès.',
+                'sin_eventos': '📅 Aucun événement',
+                'sin_eventos_desc': 'Aucun événement disponible pour le moment.'
+            }
+        };
+
+        let idiomaActual = localStorage.getItem('csariels_idioma') || 'es';
+        let filtroActual = 'todos';
+
+        function aplicarIdioma(idioma) {
+            const t = traducciones[idioma] || traducciones.es;
+            document.querySelector('.logo-badge').textContent = t.eventos;
+            document.querySelector('.status-badge span:last-child').textContent = t.en_linea;
+            document.querySelector('.eventos-header h2').innerHTML =
+                `<i class="fas fa-calendar-alt"></i> ${t.eventos} <span class="badge-total" id="totalEventos">5</span>`;
+            document.querySelector('.header-actions .btn-primary span:last-child').textContent = t.crear_evento;
+
+            document.querySelectorAll('.filtro-btn').forEach(b => {
+                const key = b.dataset.filtro;
+                if (key === 'todos') b.textContent = t.todos;
+                else if (key === 'proximos') b.textContent = t.proximos;
+                else if (key === 'activos') b.textContent = t.activos;
+                else if (key === 'finalizados') b.textContent = t.finalizados;
+                else if (key === 'mis-eventos') b.textContent = t.mis_eventos;
+            });
+        }
+
+        function cambiarIdioma(idioma) {
+            idiomaActual = idioma;
+            localStorage.setItem('csariels_idioma', idioma);
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="cambiarIdioma('${idioma}')"]`).classList.add('active');
+            aplicarIdioma(idioma);
+            renderEventos();
+            mostrarToast(`🌐 ${idioma.toUpperCase()}`);
+        }
+
+        // ================================================================
+        // 📋 DATOS DE EVENTOS
+        // ================================================================
+        let eventos = [{
+            id: 1,
+            titulo: 'Tech Meetup 2026',
+            descripcion: 'Encuentro de entusiastas de la tecnología. Networking, charlas y workshops.',
+            icono: '💻',
+            estado: 'activo',
+            fecha: '15 de Agosto, 2026',
+            hora: '18:00 - 21:00',
+            ubicacion: 'Centro de Convenciones',
+            asistentes: 45,
+            maxAsistentes: 100,
+            esCreador: true
+        }, {
+            id: 2,
+            titulo: 'Taller de Fotografía',
+            descripcion: 'Aprende técnicas avanzadas de fotografía con profesionales.',
+            icono: '📷',
+            estado: 'proximo',
+            fecha: '22 de Agosto, 2026',
+            hora: '10:00 - 14:00',
+            ubicacion: 'Estudio Creativo',
+            asistentes: 12,
+            maxAsistentes: 20,
+            esCreador: false
+        }, {
+            id: 3,
+            titulo: 'Concierto Acústico',
+            descripcion: 'Noche de música en vivo con artistas locales.',
+            icono: '🎵',
+            estado: 'proximo',
+            fecha: '28 de Agosto, 2026',
+            hora: '20:00 - 23:00',
+            ubicacion: 'Teatro Municipal',
+            asistentes: 78,
+            maxAsistentes: 150,
+            esCreador: false
+        }, {
+            id: 4,
+            titulo: 'Hackathon Csariel\'s',
+            descripcion: 'Competencia de programación de 24 horas. ¡Premios increíbles!',
+            icono: '🚀',
+            estado: 'finalizado',
+            fecha: '5 de Agosto, 2026',
+            hora: '09:00 - 09:00',
+            ubicacion: 'Coworking Space',
+            asistentes: 35,
+            maxAsistentes: 50,
+            esCreador: true
+        }, {
+            id: 5,
+            titulo: 'Club de Lectura',
+            descripcion: 'Discusión sobre el libro del mes: "El arte de la guerra"',
+            icono: '📚',
+            estado: 'activo',
+            fecha: '12 de Agosto, 2026',
+            hora: '17:00 - 19:00',
+            ubicacion: 'Biblioteca Pública',
+            asistentes: 8,
+            maxAsistentes: 15,
+            esCreador: false
+        }];
+
+        // ================================================================
+        // 🖥️ RENDERIZAR EVENTOS
+        // ================================================================
+        function renderEventos() {
+            const grid = document.getElementById('eventosGrid');
+            const t = traducciones[idiomaActual] || traducciones.es;
+
+            let filtrados = [...eventos];
+
+            if (filtroActual === 'proximos') {
+                filtrados = filtrados.filter(e => e.estado === 'proximo');
+            } else if (filtroActual === 'activos') {
+                filtrados = filtrados.filter(e => e.estado === 'activo');
+            } else if (filtroActual === 'finalizados') {
+                filtrados = filtrados.filter(e => e.estado === 'finalizado');
+            } else if (filtroActual === 'mis-eventos') {
+                filtrados = filtrados.filter(e => e.esCreador);
+            }
+
+            document.getElementById('totalEventos').textContent = filtrados.length;
+
+            if (filtrados.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📅</div>
+                        <h3>${t.sin_eventos}</h3>
+                        <p>${t.sin_eventos_desc}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtrados.map(e => {
+                const estadoText = {
+                    'proximo': '⏳ Próximo',
+                    'activo': '🟢 Activo',
+                    'finalizado': '✅ Finalizado'
+                };
+                const estadoClass = {
+                    'proximo': 'proximo',
+                    'activo': 'activo',
+                    'finalizado': 'finalizado'
+                };
+
+                return `
+                    <div class="evento-card" onclick="verEvento(${e.id})">
+                        <div class="evento-banner">
+                            <span class="icono">${e.icono}</span>
+                            <span class="estado ${estadoClass[e.estado]}">${estadoText[e.estado]}</span>
+                        </div>
+                        <div class="evento-info">
+                            <div class="titulo">${e.titulo}</div>
+                            <div class="descripcion">${e.descripcion}</div>
+                            <div class="detalles">
+                                <span><i class="fas fa-calendar-day"></i> ${e.fecha}</span>
+                                <span><i class="fas fa-clock"></i> ${e.hora}</span>
+                                <span><i class="fas fa-map-marker-alt"></i> ${e.ubicacion}</span>
+                                <span><i class="fas fa-users"></i> ${e.asistentes}/${e.maxAsistentes}</span>
+                            </div>
+                        </div>
+                        <div class="evento-acciones">
+                            ${e.estado !== 'finalizado' ? `
+                                <button class="btn ${e.esCreador ? 'btn-danger' : 'btn-success'}" onclick="event.stopPropagation();${e.esCreador ? `cancelarEvento(${e.id})` : `asistirEvento(${e.id})`}">
+                                    <i class="fas ${e.esCreador ? 'fa-times' : 'fa-check'}"></i> ${e.esCreador ? t.cancelar : t.asistir}
+                                </button>
+                            ` : ''}
+                            <button class="btn btn-outline" onclick="event.stopPropagation();verEvento(${e.id})">
+                                <i class="fas fa-eye"></i> ${t.detalles}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================================================================
+        // 🔍 FILTROS
+        // ================================================================
+        function aplicarFiltro(filtro) {
+            filtroActual = filtro;
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.filtro-btn[data-filtro="${filtro}"]`).classList.add('active');
+            renderEventos();
+        }
+
+        // ================================================================
+        // 🎯 ACCIONES
+        // ================================================================
+        function crearEvento() {
+            const t = traducciones[idiomaActual] || traducciones.es;
+            const titulo = prompt('📅 Título del evento:');
+            if (!titulo) return;
+            const descripcion = prompt('📝 Descripción:');
+            if (descripcion === null) return;
+            const fecha = prompt('📆 Fecha (ej. 25 de Agosto, 2026):', '25 de Agosto, 2026');
+            if (!fecha) return;
+
+            const nuevoEvento = {
+                id: eventos.length + 1,
+                titulo: titulo,
+                descripcion: descripcion || 'Sin descripción',
+                icono: '📅',
+                estado: 'proximo',
+                fecha: fecha,
+                hora: '18:00 - 21:00',
+                ubicacion: 'Por definir',
+                asistentes: 1,
+                maxAsistentes: 50,
+                esCreador: true
+            };
+
+            eventos.push(nuevoEvento);
+            renderEventos();
+            mostrarToast(`${t.evento_creado} - ${t.evento_creado_desc}`);
+        }
+
+        function verEvento(id) {
+            const e = eventos.find(e => e.id === id);
+            if (!e) return;
+            mostrarToast(`📅 ${e.titulo} - ${e.fecha} · ${e.ubicacion}`);
+        }
+
+        function asistirEvento(id) {
+            const e = eventos.find(e => e.id === id);
+            if (!e) return;
+            e.asistentes += 1;
+            renderEventos();
+            mostrarToast(`✅ Te has registrado en "${e.titulo}"`);
+        }
+
+        function cancelarEvento(id) {
+            const e = eventos.find(e => e.id === id);
+            if (!e) return;
+            if (confirm(`¿Cancelar el evento "${e.titulo}"?`)) {
+                eventos = eventos.filter(ev => ev.id !== id);
+                renderEventos();
+                mostrarToast(`🗑️ Evento "${e.titulo}" cancelado`);
+            }
+        }
+
+        // ================================================================
+        // 🔔 TOAST
+        // ================================================================
+        let toastTimeout;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            if (tipo === 'error') toast.classList.add('error');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarIdioma(idiomaActual);
+            renderEventos();
+            console.log('📅 Csariel\'s - Eventos cargado');
+        });
+
+        // Exponer funciones globales
+        window.cambiarIdioma = cambiarIdioma;
+        window.aplicarFiltro = aplicarFiltro;
+        window.crearEvento = crearEvento;
+        window.verEvento = verEvento;
+        window.asistirEvento = asistirEvento;
+        window.cancelarEvento = cancelarEvento;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
