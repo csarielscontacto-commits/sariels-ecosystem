@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Noticias | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ================================================================
+           ESTILOS CSARIEL'S - NOTICIAS
+           ================================================================ */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 {
+            width: 700px;
+            height: 700px;
+            background: var(--verde-bosque);
+            top: -15%;
+            right: -15%;
+        }
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--gold-cosmic);
+            bottom: -15%;
+            left: -15%;
+            animation-delay: -8s;
+            opacity: 0.05;
+        }
+        .nebula-3 {
+            width: 500px;
+            height: 500px;
+            background: var(--quantum);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -15s;
+            opacity: 0.04;
+        }
+
+        @keyframes nebula-drift {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(40px, -30px) scale(1.15);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--space-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--gold-cosmic), var(--verde-bosque));
+            border-radius: 3px;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
+            }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(15, 45, 26, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212, 175, 55, 0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            border-color: var(--border-glow);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15, 45, 26, 0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--gold-cosmic);
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.55rem;
+        }
+        .btn-success {
+            background: rgba(0, 184, 148, 0.15);
+            border-color: rgba(0, 184, 148, 0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) {
+            background: rgba(0, 184, 148, 0.25);
+        }
+        .btn-danger {
+            background: rgba(255, 51, 102, 0.15);
+            border-color: rgba(255, 51, 102, 0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 51, 102, 0.25);
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(212, 175, 55, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(212, 175, 55, 0.08);
+        }
+        .language-selector .lang-icon {
+            font-size: 0.7rem;
+            margin-right: 2px;
+        }
+        .lang-btn {
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            color: var(--text-secondary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .lang-btn.active {
+            border-color: var(--gold-cosmic);
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-cosmic);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            backdrop-filter: blur(10px);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: quantum-pulse 1.5s ease-in-out infinite;
+        }
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
+        }
+        @keyframes quantum-pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        /* ===== NOTICIAS ===== */
+        .noticias-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .noticias-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        .noticias-header h2 i {
+            color: var(--gold-cosmic);
+        }
+
+        .destacada {
+            background: rgba(15, 45, 26, 0.1);
+            border: 2px solid var(--gold-cosmic);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .destacada .badge {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: var(--gold-cosmic);
+            color: var(--space-deep);
+            padding: 2px 14px;
+            border-radius: 12px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+        }
+        .destacada .categoria {
+            font-size: 0.5rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .destacada .titulo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 4px 0 8px;
+        }
+        .destacada .resumen {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        .destacada .meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+        .destacada .meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .destacada .btn {
+            margin-top: 8px;
+        }
+
+        .noticias-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .noticia-item {
+            background: rgba(15, 45, 26, 0.06);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .noticia-item:hover {
+            border-color: var(--border-glow);
+            background: rgba(15, 45, 26, 0.1);
+        }
+        .noticia-item .categoria {
+            font-size: 0.45rem;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .noticia-item .titulo {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            margin: 2px 0 4px;
+        }
+        .noticia-item .resumen {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        .noticia-item .meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+        .noticia-item .meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .noticia-item .meta i {
+            font-size: 0.4rem;
+            color: var(--gold-cosmic);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+            margin-bottom: 6px;
+        }
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .empty-state p {
+            font-size: 0.6rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand {
+            color: var(--gold-cosmic);
+        }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover {
+            color: var(--gold-cosmic);
+        }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .destacada .badge {
+                position: relative;
+                top: auto;
+                right: auto;
+                display: inline-block;
+                margin-bottom: 6px;
+            }
+            .destacada .titulo {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                font-size: 0.45rem;
+                padding: 4px 8px;
+            }
+            .destacada {
+                padding: 14px 16px;
+            }
+            .destacada .titulo {
+                font-size: 0.8rem;
+            }
+            .noticia-item .titulo {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Noticias</span>
+            </a>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <span class="lang-icon">🌐</span>
+                    <button class="lang-btn active" onclick="cambiarIdioma('es')">ES</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('en')">EN</button>
+                    <button class="lang-btn" onclick="cambiarIdioma('fr')">FR</button>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>En línea</span>
+                </div>
+
+                <a href="../index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="actualizarNoticias()">
+                    <i class="fas fa-sync"></i> Actualizar
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== NOTICIAS ===== -->
+        <div class="noticias-header">
+            <h2><i class="fas fa-newspaper"></i> Noticias de la Comunidad</h2>
+            <span style="font-size:0.55rem;color:var(--text-muted);">Últimas novedades</span>
+        </div>
+
+        <!-- ===== NOTICIA DESTACADA ===== -->
+        <div class="destacada" id="noticiaDestacada">
+            <span class="badge">✦ DESTACADA</span>
+            <div class="categoria">📢 Anuncio</div>
+            <div class="titulo">¡Csariel's 2.0 ya está aquí!</div>
+            <div class="resumen">Nueva versión de la plataforma con mejoras en eSIM, chat en tiempo real y una experiencia completamente renovada. Descubre todas las novedades.</div>
+            <div class="meta">
+                <span><i class="far fa-calendar-alt"></i> 15 de Agosto, 2026</span>
+                <span><i class="far fa-clock"></i> 10:00 AM</span>
+                <span><i class="fas fa-eye"></i> 1,284 vistas</span>
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="leerNoticia(1)"><i class="fas fa-book-open"></i> Leer más</button>
+        </div>
+
+        <!-- ===== LISTA DE NOTICIAS ===== -->
+        <div class="noticias-grid" id="noticiasGrid">
+            <!-- Renderizado con JavaScript -->
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Noticias · Comunidad · Actualidad
+            </span>
+            <div class="footer-links">
+                <a href="../index.html">🏠 Red</a>
+                <a href="../eventos/index.html">📅 Eventos</a>
+                <a href="../publicaciones/index.html">📝 Publicaciones</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        (function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resize();
+
+            const stars = Array.from({ length: 200 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 0.8 + 0.2,
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.005 + 0.002,
+                phase: Math.random() * Math.PI * 2
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                    ctx.fill();
+                    s.y += s.speed;
+                    s.phase += 0.01;
+                    if (s.y > h) { s.y = 0;
+                        s.x = Math.random() * w; }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+
+            window.addEventListener('resize', () => {
+                resize();
+                stars.forEach(s => { s.x = Math.random() * w;
+                    s.y = Math.random() * h; });
+            });
+        })();
+
+        // ================================================================
+        // 🌐 IDIOMAS
+        // ================================================================
+        const traducciones = {
+            es: {
+                'noticias': 'Noticias',
+                'en_linea': 'En línea',
+                'volver': 'Volver',
+                'actualizar': 'Actualizar',
+                'comunidad': 'Noticias de la Comunidad',
+                'ultimas': 'Últimas novedades',
+                'destacada': '✦ DESTACADA',
+                'leer_mas': 'Leer más',
+                'sin_noticias': '📰 Sin noticias',
+                'sin_noticias_desc': 'No hay noticias disponibles en este momento.',
+                'actualizado': '🔄 Noticias actualizadas'
+            },
+            en: {
+                'noticias': 'News',
+                'en_linea': 'Online',
+                'volver': 'Back',
+                'actualizar': 'Refresh',
+                'comunidad': 'Community News',
+                'ultimas': 'Latest updates',
+                'destacada': '✦ FEATURED',
+                'leer_mas': 'Read more',
+                'sin_noticias': '📰 No news',
+                'sin_noticias_desc': 'No news available at this time.',
+                'actualizado': '🔄 News updated'
+            },
+            fr: {
+                'noticias': 'Actualités',
+                'en_linea': 'En ligne',
+                'volver': 'Retour',
+                'actualizar': 'Actualiser',
+                'comunidad': 'Actualités de la Communauté',
+                'ultimas': 'Dernières nouvelles',
+                'destacada': '✦ À LA UNE',
+                'leer_mas': 'Lire la suite',
+                'sin_noticias': '📰 Aucune actualité',
+                'sin_noticias_desc': 'Aucune actualité disponible pour le moment.',
+                'actualizado': '🔄 Actualités actualisées'
+            }
+        };
+
+        let idiomaActual = localStorage.getItem('csariels_idioma') || 'es';
+
+        function aplicarIdioma(idioma) {
+            const t = traducciones[idioma] || traducciones.es;
+            document.querySelector('.logo-badge').textContent = t.noticias;
+            document.querySelector('.status-badge span:last-child').textContent = t.en_linea;
+            document.querySelector('.noticias-header h2').innerHTML =
+                `<i class="fas fa-newspaper"></i> ${t.comunidad}`;
+            document.querySelector('.noticias-header span').textContent = t.ultimas;
+            document.querySelector('.destacada .badge').textContent = t.destacada;
+            document.querySelector('.destacada .btn').innerHTML =
+                `<i class="fas fa-book-open"></i> ${t.leer_mas}`;
+            document.querySelector('.header-actions .btn-primary span:last-child').textContent = t.actualizar;
+
+            // Actualizar categorías y textos de noticias
+            const noticias = document.querySelectorAll('.noticia-item');
+            noticias.forEach(n => {
+                const btn = n.querySelector('.btn');
+                if (btn) btn.innerHTML = `<i class="fas fa-book-open"></i> ${t.leer_mas}`;
+            });
+        }
+
+        function cambiarIdioma(idioma) {
+            idiomaActual = idioma;
+            localStorage.setItem('csariels_idioma', idioma);
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="cambiarIdioma('${idioma}')"]`).classList.add('active');
+            aplicarIdioma(idioma);
+            renderNoticias();
+            mostrarToast(`🌐 ${idioma.toUpperCase()}`);
+        }
+
+        // ================================================================
+        // 📋 DATOS DE NOTICIAS
+        // ================================================================
+        let noticias = [{
+            id: 2,
+            categoria: '🚀 Actualización',
+            titulo: 'Nuevo sistema de eSIM disponible',
+            resumen: 'Ahora puedes activar tu eSIM directamente desde la plataforma con planes flexibles y cobertura global.',
+            fecha: '14 de Agosto, 2026',
+            vistas: 856
+        }, {
+            id: 3,
+            categoria: '💬 Comunidad',
+            titulo: 'Foro de discusión abierto',
+            resumen: 'Lanzamos el nuevo foro para que la comunidad pueda compartir ideas, resolver dudas y conectar.',
+            fecha: '12 de Agosto, 2026',
+            vistas: 432
+        }, {
+            id: 4,
+            categoria: '🎨 Diseño',
+            titulo: 'Nuevos temas y personalización',
+            resumen: 'Ahora puedes personalizar tu experiencia con temas oscuro, claro y colores personalizados.',
+            fecha: '10 de Agosto, 2026',
+            vistas: 312
+        }, {
+            id: 5,
+            categoria: '🔒 Seguridad',
+            titulo: 'Verificación en 2 pasos activa',
+            resumen: 'Añadimos una capa extra de seguridad para proteger tu cuenta. Actívala desde Configuración.',
+            fecha: '08 de Agosto, 2026',
+            vistas: 567
+        }, {
+            id: 6,
+            categoria: '📱 Móvil',
+            titulo: 'App Csariel\'s en desarrollo',
+            resumen: 'Estamos trabajando en la versión móvil de Csariel\'s para iOS y Android. Próximamente.',
+            fecha: '05 de Agosto, 2026',
+            vistas: 1, 023
+        }];
+
+        // ================================================================
+        // 🖥️ RENDERIZAR NOTICIAS
+        // ================================================================
+        function renderNoticias() {
+            const grid = document.getElementById('noticiasGrid');
+            const t = traducciones[idiomaActual] || traducciones.es;
+
+            if (noticias.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📰</div>
+                        <h3>${t.sin_noticias}</h3>
+                        <p>${t.sin_noticias_desc}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = noticias.map(n => `
+                <div class="noticia-item" onclick="leerNoticia(${n.id})">
+                    <div class="categoria">${n.categoria}</div>
+                    <div class="titulo">${n.titulo}</div>
+                    <div class="resumen">${n.resumen}</div>
+                    <div class="meta">
+                        <span><i class="far fa-calendar-alt"></i> ${n.fecha}</span>
+                        <span><i class="fas fa-eye"></i> ${n.vistas} vistas</span>
+                    </div>
+                    <button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="event.stopPropagation();leerNoticia(${n.id})">
+                        <i class="fas fa-book-open"></i> ${t.leer_mas}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // 🎯 ACCIONES
+        // ================================================================
+        function leerNoticia(id) {
+            let noticia;
+            if (id === 1) {
+                // Noticia destacada
+                const titulo = document.querySelector('.destacada .titulo').textContent;
+                const resumen = document.querySelector('.destacada .resumen').textContent;
+                mostrarToast(`📰 ${titulo} - ${resumen.substring(0, 60)}...`);
+            } else {
+                noticia = noticias.find(n => n.id === id);
+                if (noticia) {
+                    mostrarToast(`📰 ${noticia.titulo} - ${noticia.resumen.substring(0, 60)}...`);
+                }
+            }
+        }
+
+        function actualizarNoticias() {
+            const t = traducciones[idiomaActual] || traducciones.es;
+            mostrarToast(t.actualizado);
+            // Simular cambio
+            const nuevas = [
+                { id: 7, categoria: '⚡ Novedad', titulo: 'Nueva función: Directos en vivo', resumen: 'Ahora puedes iniciar transmisiones en vivo desde la plataforma.', fecha: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }), vistas: Math.floor(Math.random() * 500) + 100 },
+                { id: 8, categoria: '🎮 Gaming', titulo: 'Torneo Csariel\'s 2026', resumen: 'Inscripciones abiertas para el torneo de gaming. ¡Premios increíbles!', fecha: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }), vistas: Math.floor(Math.random() * 800) + 200 }
+            ];
+            noticias = [...nuevas, ...noticias];
+            renderNoticias();
+        }
+
+        // ================================================================
+        // 🔔 TOAST
+        // ================================================================
+        let toastTimeout;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            if (tipo === 'error') toast.classList.add('error');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarIdioma(idiomaActual);
+            renderNoticias();
+            console.log('📰 Csariel\'s - Noticias cargado');
+        });
+
+        // Exponer funciones globales
+        window.cambiarIdioma = cambiarIdioma;
+        window.leerNoticia = leerNoticia;
+        window.actualizarNoticias = actualizarNoticias;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
