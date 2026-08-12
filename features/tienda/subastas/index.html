@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔨 Subastas | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+            --subasta-oro: #FFD700;
+            --subasta-plata: #C0C0C0;
+            --subasta-bronce: #CD7F32;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-success {
+            background: rgba(0,184,148,0.15);
+            border-color: rgba(0,184,148,0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) { background: rgba(0,184,148,0.25); }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover { box-shadow: 0 0 40px rgba(168,85,247,0.4); transform: scale(1.03); }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover { box-shadow: 0 0 40px rgba(0,212,255,0.4); transform: scale(1.03); }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        /* ===== TIENDA - SUBASTAS ===== */
+        .shop-container {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .shop-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.08;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-dim);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .shop-header .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--gold-cosmic);
+        }
+        .shop-header .title small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .shop-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .shop-nav .btn.active {
+            background: rgba(212,175,55,0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== FILTROS ===== */
+        .filtros {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 12px;
+            border: 1px solid var(--gold-dim);
+        }
+        .filtros select,
+        .filtros input {
+            padding: 8px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            min-width: 140px;
+        }
+        .filtros select:focus,
+        .filtros input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .filtros input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* ===== SUBASTAS ===== */
+        .subastas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .subasta-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 16px;
+            padding: 16px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .subasta-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+
+        .subasta-card .tipo-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+        }
+        .subasta-card .tipo-badge.nft {
+            background: rgba(168,85,247,0.3);
+            color: #a855f7;
+            border: 1px solid rgba(168,85,247,0.2);
+        }
+        .subasta-card .tipo-badge.token {
+            background: rgba(212,175,55,0.3);
+            color: var(--gold-cosmic);
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+        .subasta-card .tipo-badge.cmt {
+            background: rgba(0,212,255,0.3);
+            color: #00d4ff;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+        .subasta-card .tipo-badge.membresia {
+            background: rgba(0,184,148,0.3);
+            color: var(--success);
+            border: 1px solid rgba(0,184,148,0.2);
+        }
+
+        .subasta-card .imagen {
+            width: 100%;
+            height: 160px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin-bottom: 12px;
+            border: 1px solid var(--gold-dim);
+        }
+        .subasta-card .imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .subasta-card .nombre {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .subasta-card .descripcion {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .subasta-card .precios {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-top: 1px solid var(--gold-dim);
+            border-bottom: 1px solid var(--gold-dim);
+            margin-bottom: 8px;
+        }
+        .subasta-card .precios .actual {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .subasta-card .precios .actual .monto {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1rem;
+        }
+        .subasta-card .precios .puja {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+        .subasta-card .precios .puja .monto {
+            font-family: 'Orbitron', monospace;
+            color: var(--success);
+            font-size: 1rem;
+        }
+
+        .subasta-card .tiempo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-family: 'Orbitron', monospace;
+        }
+        .subasta-card .tiempo .urgente {
+            color: var(--danger);
+            animation: pulse-urgente 1s infinite;
+        }
+        @keyframes pulse-urgente {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .subasta-card .pujas {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .subasta-card .pujas input {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            min-width: 80px;
+        }
+        .subasta-card .pujas input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .subasta-card .pujas input::placeholder {
+            color: var(--text-muted);
+            font-size: 0.6rem;
+        }
+
+        .subasta-card .vendedor {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .subasta-card .vendedor .nombre {
+            color: var(--gold-cosmic);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* ===== CREAR SUBASTA ===== */
+        .crear-subasta {
+            background: rgba(0,0,0,0.15);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .crear-subasta .titulo {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 12px;
+        }
+        .crear-subasta .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+        .crear-subasta .form-group {
+            margin-bottom: 12px;
+        }
+        .crear-subasta .form-group label {
+            display: block;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .crear-subasta .form-group input,
+        .crear-subasta .form-group select,
+        .crear-subasta .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .crear-subasta .form-group input:focus,
+        .crear-subasta .form-group select:focus,
+        .crear-subasta .form-group textarea:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .crear-subasta .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .shop-header { flex-direction: column; align-items: flex-start; }
+            .crear-subasta .form-row { grid-template-columns: 1fr; }
+            .filtros { flex-direction: column; }
+            .filtros select, .filtros input { width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+            .subastas-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+        .toast.success { background: var(--success); color: white; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            background: rgba(15,45,26,0.1);
+            border-radius: var(--radius);
+            border: 1px dashed var(--gold-dim);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="app">
+
+        <!-- HEADER -->
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Subastas</span>
+            </a>
+            <div class="header-actions">
+                <a href="/" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-video"></i> Live</a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm"><i class="fas fa-comments"></i> Foro</a>
+                <a href="/features/trading/index.html" class="btn btn-outline btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
+                <a href="/features/servicios/index.html" class="btn btn-outline btn-sm"><i class="fas fa-tools"></i> Servicios</a>
+                <a href="/features/internet/index.html" class="btn btn-outline btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+            </div>
+        </header>
+
+        <!-- ===== TIENDA - SUBASTAS ===== -->
+        <div class="shop-container">
+            <div class="shop-header">
+                <div>
+                    <div class="title">🔨 Subastas <small>— NFTs · Tokens · Activos del Ecosistema</small></div>
+                </div>
+                <div>
+                    <button class="btn btn-gold btn-sm" onclick="toggleCrearSubasta()">
+                        <i class="fas fa-plus-circle"></i> Crear Subasta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navegación -->
+            <div class="shop-nav">
+                <a href="/features/tienda/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-store"></i> Catálogo
+                </a>
+                <a href="/features/tienda/comprar/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-shopping-cart"></i> Comprar
+                </a>
+                <a href="/features/tienda/vender/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-tag"></i> Vender
+                </a>
+                <a href="/features/tienda/subastas/index.html" class="btn btn-gold btn-sm active">
+                    <i class="fas fa-gavel"></i> Subastas
+                </a>
+                <a href="/features/tienda/nft/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-image"></i> Galería
+                </a>
+                <a href="/features/tienda/lealtad/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gift"></i> Lealtad
+                </a>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros">
+                <select id="filtroTipo" onchange="aplicarFiltros()">
+                    <option value="todos">Todos los tipos</option>
+                    <option value="nft">NFTs</option>
+                    <option value="token">Tokens de Lealtad</option>
+                    <option value="cmt">CMT</option>
+                    <option value="membresia">Membresías</option>
+                </select>
+                <select id="filtroEstado" onchange="aplicarFiltros()">
+                    <option value="activas">Activas</option>
+                    <option value="finalizadas">Finalizadas</option>
+                    <option value="todas">Todas</option>
+                </select>
+                <input type="text" id="filtroBusqueda" placeholder="🔍 Buscar subasta..." oninput="aplicarFiltros()" />
+            </div>
+
+            <!-- Grid de Subastas -->
+            <div class="subastas-grid" id="subastasGrid">
+                <div class="loading"><i class="fas fa-spinner"></i><br />Cargando subastas...</div>
+            </div>
+
+            <!-- Crear Subasta (colapsable) -->
+            <div class="crear-subasta" id="crearSubasta" style="display:none;">
+                <div class="titulo"><i class="fas fa-hammer"></i> Crear Nueva Subasta</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo de activo *</label>
+                        <select id="subastaTipo">
+                            <option value="nft">NFT</option>
+                            <option value="token">Token de Lealtad</option>
+                            <option value="cmt">CMT</option>
+                            <option value="membresia">Membresía</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del activo *</label>
+                        <input type="text" id="subastaNombre" placeholder="Ej: CyberPunk #001" />
+                    </div>
+                    <div class="form-group">
+                        <label>Precio inicial (CMT) *</label>
+                        <input type="number" id="subastaPrecioInicial" placeholder="100" min="1" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Puja mínima (CMT)</label>
+                        <input type="number" id="subastaPujaMinima" placeholder="10" min="1" />
+                    </div>
+                    <div class="form-group">
+                        <label>Duración (horas) *</label>
+                        <select id="subastaDuracion">
+                            <option value="1">1 hora</option>
+                            <option value="3">3 horas</option>
+                            <option value="6">6 horas</option>
+                            <option value="12">12 horas</option>
+                            <option value="24" selected>24 horas</option>
+                            <option value="48">48 horas</option>
+                            <option value="72">72 horas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen (URL)</label>
+                        <input type="text" id="subastaImagen" placeholder="https://... o deja vacío" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="subastaDescripcion" placeholder="Describe el activo que estás subastando..."></textarea>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button class="btn btn-gold" onclick="crearSubasta()">
+                        <i class="fas fa-hammer"></i> Publicar Subasta
+                    </button>
+                    <button class="btn btn-outline" onclick="toggleCrearSubasta()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Subastas · NFTs · Tokens · Web3
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/red/index.html">👥 Mi Red</a>
+                <a href="/features/live/index.html">📹 Live</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/servicios/index.html">🛠️ Servicios</a>
+                <a href="/features/internet/index.html">🌐 Internet</a>
+                <a href="/features/wallet/index.html">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔥 SCRIPTS - SUBASTAS -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🔌 ESPERAR SUPABASE
+        // ================================================================
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        // ================================================================
+        // 👤 OBTENER USUARIO
+        // ================================================================
+        async function obtenerUsuario() {
+            try {
+                const client = await esperarSupabase();
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await client.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    return data.user;
+                }
+                return user;
+            } catch (e) {
+                console.error('Error de autenticación:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 📊 DATOS DE SUBASTAS (SIMULACIÓN - CONECTAR CON SUPABASE)
+        // ================================================================
+        let subastas = [];
+        let subastasFiltradas = [];
+
+        // Datos de ejemplo
+        function generarSubastasEjemplo() {
+            const ahora = Date.now();
+            const activos = [
+                {
+                    id: 's1',
+                    tipo: 'nft',
+                    nombre: 'CyberPunk #1337',
+                    descripcion: 'NFT único de la colección CyberPunk. Edición limitada.',
+                    emoji: '🤖',
+                    precio_inicial: 500,
+                    puja_minima: 50,
+                    precio_actual: 750,
+                    duracion: 24,
+                    creado: ahora - 1000 * 60 * 60 * 2,
+                    vendedor: 'Csariel',
+                    imagen: '',
+                    estado: 'activa',
+                    pujas: 12
+                },
+                {
+                    id: 's2',
+                    tipo: 'token',
+                    nombre: 'Token Legendario',
+                    descripcion: 'Token de lealtad de la máxima categoría. Acceso VIP.',
+                    emoji: '⭐',
+                    precio_inicial: 200,
+                    puja_minima: 20,
+                    precio_actual: 320,
+                    duracion: 12,
+                    creado: ahora - 1000 * 60 * 60 * 5,
+                    vendedor: 'Valeria',
+                    imagen: '',
+                    estado: 'activa',
+                    pujas: 8
+                },
+                {
+                    id: 's3',
+                    tipo: 'cmt',
+                    nombre: 'Lote de 1,000 CMT',
+                    descripcion: 'Paquete de 1,000 CMT para usar en el ecosistema.',
+                    emoji: '💰',
+                    precio_inicial: 1000,
+                    puja_minima: 100,
+                    precio_actual: 1300,
+                    duracion: 6,
+                    creado: ahora - 1000 * 60 * 60 * 1,
+                    vendedor: 'Marquinhos AI',
+                    imagen: '',
+                    estado: 'activa',
+                    pujas: 5
+                },
+                {
+                    id: 's4',
+                    tipo: 'membresia',
+                    nombre: 'Membresía Premium',
+                    descripcion: 'Acceso a contenido exclusivo y eventos especiales por 1 año.',
+                    emoji: '👑',
+                    precio_inicial: 300,
+                    puja_minima: 30,
+                    precio_actual: 450,
+                    duracion: 48,
+                    creado: ahora - 1000 * 60 * 60 * 20,
+                    vendedor: 'Carlos M.',
+                    imagen: '',
+                    estado: 'activa',
+                    pujas: 15
+                },
+                {
+                    id: 's5',
+                    tipo: 'nft',
+                    nombre: 'Pixel Art #042',
+                    descripcion: 'Arte digital coleccionable. Edición de 100 unidades.',
+                    emoji: '🎨',
+                    precio_inicial: 80,
+                    puja_minima: 10,
+                    precio_actual: 120,
+                    duracion: 72,
+                    creado: ahora - 1000 * 60 * 60 * 30,
+                    vendedor: 'La Cabina',
+                    imagen: '',
+                    estado: 'activa',
+                    pujas: 3
+                }
+            ];
+            return activos;
+        }
+
+        // ================================================================
+        // 🖥️ RENDERIZAR SUBASTAS
+        // ================================================================
+        function renderizarSubastas(lista) {
+            const grid = document.getElementById('subastasGrid');
+
+            if (!lista || lista.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <i class="fas fa-gavel"></i>
+                        <p>No hay subastas disponibles</p>
+                        <p style="font-size:0.7rem;color:var(--text-muted);">Sé el primero en crear una subasta</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = lista.map(s => {
+                const tiempoRestante = calcularTiempoRestante(s.creado, s.duracion);
+                const esUrgente = tiempoRestante.horas < 1 && tiempoRestante.minutos < 30;
+                const badges = {
+                    nft: '<span class="tipo-badge nft">NFT</span>',
+                    token: '<span class="tipo-badge token">Token</span>',
+                    cmt: '<span class="tipo-badge cmt">CMT</span>',
+                    membresia: '<span class="tipo-badge membresia">Membresía</span>',
+                    otro: '<span class="tipo-badge" style="background:rgba(255,255,255,0.1);color:var(--text-secondary);">Otro</span>'
+                };
+
+                return `
+                    <div class="subasta-card">
+                        ${badges[s.tipo] || badges.otro}
+                        <div class="imagen">${s.emoji || '📦'}</div>
+                        <div class="nombre">${s.nombre}</div>
+                        <div class="descripcion">${s.descripcion}</div>
+                        <div class="precios">
+                            <div class="actual">
+                                💰 Actual<br />
+                                <span class="monto">${s.precio_actual || s.precio_inicial} CMT</span>
+                            </div>
+                            <div class="puja">
+                                🏷️ Puja mín.<br />
+                                <span class="monto">${s.puja_minima || 10} CMT</span>
+                            </div>
+                        </div>
+                        <div class="tiempo">
+                            <i class="fas fa-clock ${esUrgente ? 'urgente' : ''}"></i>
+                            ${tiempoRestante.horas > 0 ? `${tiempoRestante.horas}h` : ''} 
+                            ${tiempoRestante.minutos}m ${tiempoRestante.segundos}s
+                            ${esUrgente ? ' ⚠️ ¡Últimas pujas!' : ''}
+                            <span style="margin-left:auto;">${s.pujas || 0} pujas</span>
+                        </div>
+                        <div class="pujas">
+                            <input type="number" id="puja_${s.id}" placeholder="Cantidad" min="${s.puja_minima || 10}" />
+                            <button class="btn btn-gold btn-sm" onclick="pujar('${s.id}')">
+                                <i class="fas fa-gavel"></i> Pujar
+                            </button>
+                        </div>
+                        <div class="vendedor">
+                            👤 Vendedor: <span class="nombre">${s.vendedor || 'Anónimo'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================================================================
+        // ⏱️ CALCULAR TIEMPO RESTANTE
+        // ================================================================
+        function calcularTiempoRestante(creado, duracionHoras) {
+            const ahora = Date.now();
+            const fin = creado + (duracionHoras * 60 * 60 * 1000);
+            const diff = Math.max(0, fin - ahora);
+
+            const horas = Math.floor(diff / (60 * 60 * 1000));
+            const minutos = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+            const segundos = Math.floor((diff % (60 * 1000)) / 1000);
+
+            return { horas, minutos, segundos, diff };
+        }
+
+        // ================================================================
+        // 🏷️ PUJAR
+        // ================================================================
+        async function pujar(subastaId) {
+            const input = document.getElementById(`puja_${subastaId}`);
+            if (!input) return;
+
+            const monto = parseFloat(input.value);
+            if (!monto || monto <= 0) {
+                mostrarToast('⚠️ Ingresa un monto válido para la puja.', 'error');
+                return;
+            }
+
+            // Validar que el monto sea mayor o igual a la puja mínima
+            const subasta = subastas.find(s => s.id === subastaId);
+            if (!subasta) {
+                mostrarToast('❌ Subasta no encontrada.', 'error');
+                return;
+            }
+
+            if (monto < (subasta.puja_minima || 10)) {
+                mostrarToast(`⚠️ La puja mínima es de ${subasta.puja_minima || 10} CMT.`, 'error');
+                return;
+            }
+
+            // Verificar Rate Limiting
+            const user = await obtenerUsuario();
+            if (!user) {
+                mostrarToast('❌ Error de autenticación.', 'error');
+                return;
+            }
+
+            try {
+                // Actualizar precio actual
+                subasta.precio_actual = (subasta.precio_actual || subasta.precio_inicial) + monto;
+                subasta.pujas = (subasta.pujas || 0) + 1;
+
+                // Guardar en Supabase (simulado)
+                mostrarToast(`✅ ¡Puja de ${monto} CMT registrada! Nuevo precio: ${subasta.precio_actual} CMT`, 'success');
+                input.value = '';
+                renderizarSubastas(subastasFiltradas);
+            } catch (e) {
+                console.error('Error al pujar:', e);
+                mostrarToast('❌ Error al registrar la puja.', 'error');
+            }
+        }
+
+        // ================================================================
+        // 🆕 CREAR SUBASTA
+        // ================================================================
+        function toggleCrearSubasta() {
+            const panel = document.getElementById('crearSubasta');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function crearSubasta() {
+            const tipo = document.getElementById('subastaTipo').value;
+            const nombre = document.getElementById('subastaNombre').value.trim();
+            const precioInicial = parseFloat(document.getElementById('subastaPrecioInicial').value);
+            const pujaMinima = parseFloat(document.getElementById('subastaPujaMinima').value) || Math.round(precioInicial * 0.1);
+            const duracion = parseInt(document.getElementById('subastaDuracion').value);
+            const imagen = document.getElementById('subastaImagen').value.trim();
+            const descripcion = document.getElementById('subastaDescripcion').value.trim();
+
+            if (!nombre) {
+                mostrarToast('❌ Ingresa un nombre para el activo.', 'error');
+                return;
+            }
+            if (!precioInicial || precioInicial <= 0) {
+                mostrarToast('❌ Ingresa un precio inicial válido.', 'error');
+                return;
+            }
+
+            const user = await obtenerUsuario();
+            if (!user) {
+                mostrarToast('❌ Error de autenticación.', 'error');
+                return;
+            }
+
+            const emojis = {
+                nft: '🖼️',
+                token: '🪙',
+                cmt: '💰',
+                membresia: '👑',
+                otro: '📦'
+            };
+
+            const nuevaSubasta = {
+                id: 's_' + Date.now(),
+                tipo: tipo,
+                nombre: nombre,
+                descripcion: descripcion || 'Sin descripción',
+                emoji: emojis[tipo] || '📦',
+                precio_inicial: precioInicial,
+                puja_minima: pujaMinima,
+                precio_actual: precioInicial,
+                duracion: duracion,
+                creado: Date.now(),
+                vendedor: 'Usuario',
+                imagen: imagen,
+                estado: 'activa',
+                pujas: 0
+            };
+
+            subastas.push(nuevaSubasta);
+            subastasFiltradas = [...subastas];
+            renderizarSubastas(subastasFiltradas);
+
+            mostrarToast(`✅ Subasta "${nombre}" creada exitosamente!`, 'success');
+            toggleCrearSubasta();
+
+            // Limpiar formulario
+            document.getElementById('subastaNombre').value = '';
+            document.getElementById('subastaPrecioInicial').value = '';
+            document.getElementById('subastaPujaMinima').value = '';
+            document.getElementById('subastaImagen').value = '';
+            document.getElementById('subastaDescripcion').value = '';
+        }
+
+        // ================================================================
+        // 🔍 FILTRAR SUBASTAS
+        // ================================================================
+        function aplicarFiltros() {
+            const tipo = document.getElementById('filtroTipo').value;
+            const estado = document.getElementById('filtroEstado').value;
+            const busqueda = document.getElementById('filtroBusqueda').value.toLowerCase().trim();
+
+            subastasFiltradas = subastas.filter(s => {
+                const matchTipo = tipo === 'todos' || s.tipo === tipo;
+                const matchEstado = estado === 'todas' || s.estado === estado;
+                const matchBusqueda = !busqueda || 
+                    s.nombre.toLowerCase().includes(busqueda) || 
+                    s.descripcion.toLowerCase().includes(busqueda);
+                return matchTipo && matchEstado && matchBusqueda;
+            });
+
+            renderizarSubastas(subastasFiltradas);
+        }
+
+        // ================================================================
+        // ⏱️ ACTUALIZAR TIEMPOS EN VIVO
+        // ================================================================
+        function actualizarTiempos() {
+            if (subastasFiltradas && subastasFiltradas.length > 0) {
+                renderizarSubastas(subastasFiltradas);
+            }
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+
+            // Cargar subastas de ejemplo
+            subastas = generarSubastasEjemplo();
+            subastasFiltradas = [...subastas];
+            renderizarSubastas(subastasFiltradas);
+
+            // Actualizar tiempos cada 10 segundos
+            setInterval(actualizarTiempos, 10000);
+
+            console.log('🔨 Csariel\'s - Subastas (NFTs, Tokens, CMT, Membresías)');
+        });
+
+        // Exponer funciones globales
+        window.pujar = pujar;
+        window.crearSubasta = crearSubasta;
+        window.toggleCrearSubasta = toggleCrearSubasta;
+        window.aplicarFiltros = aplicarFiltros;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
