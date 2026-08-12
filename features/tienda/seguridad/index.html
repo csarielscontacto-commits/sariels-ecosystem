@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Seguridad 4x4 | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-success {
+            background: rgba(0,184,148,0.15);
+            border-color: rgba(0,184,148,0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) { background: rgba(0,184,148,0.25); }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover { box-shadow: 0 0 40px rgba(168,85,247,0.4); transform: scale(1.03); }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover { box-shadow: 0 0 40px rgba(0,212,255,0.4); transform: scale(1.03); }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        .shop-container {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .shop-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.08;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-dim);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .shop-header .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--gold-cosmic);
+        }
+        .shop-header .title small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .shop-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .shop-nav .btn.active {
+            background: rgba(212,175,55,0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== SEGURIDAD 4x4 ===== */
+        .security-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .security-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .security-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 16px;
+            padding: 20px;
+            transition: var(--transition);
+        }
+        .security-card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .security-card .header-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .security-card .header-card .icono {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .security-card .header-card .icono.green {
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+        }
+        .security-card .header-card .icono.blue {
+            background: rgba(0,212,255,0.15);
+            color: var(--quantum);
+        }
+        .security-card .header-card .icono.gold {
+            background: rgba(212,175,55,0.15);
+            color: var(--gold-cosmic);
+        }
+        .security-card .header-card .icono.red {
+            background: rgba(255,51,102,0.15);
+            color: var(--danger);
+        }
+
+        .security-card .header-card .titulo {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+        }
+        .security-card .header-card .estado {
+            margin-left: auto;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+        }
+        .security-card .header-card .estado.on {
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+        }
+        .security-card .header-card .estado.off {
+            background: rgba(255,51,102,0.15);
+            color: var(--danger);
+        }
+
+        .security-card .descripcion {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .security-card .metricas {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .security-card .metricas .item {
+            text-align: center;
+        }
+        .security-card .metricas .item .numero {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            color: var(--gold-cosmic);
+        }
+        .security-card .metricas .item .label {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+        }
+
+        .security-card .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .security-card .toggle-row .label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+        .security-card .toggle-row .switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .security-card .toggle-row .switch.active {
+            background: rgba(0,184,148,0.3);
+        }
+        .security-card .toggle-row .switch .slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .security-card .toggle-row .switch.active .slider {
+            left: 20px;
+            background: var(--success);
+        }
+
+        /* ===== LOGS ===== */
+        .logs-section {
+            margin-top: 20px;
+            border-top: 1px solid var(--gold-dim);
+            padding-top: 16px;
+        }
+        .logs-section .titulo {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--gold-dim);
+            font-size: 0.65rem;
+        }
+        .log-item .hora {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+        }
+        .log-item .evento {
+            color: var(--text-secondary);
+        }
+        .log-item .evento .danger {
+            color: var(--danger);
+        }
+        .log-item .evento .success {
+            color: var(--success);
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+        .toast.success { background: var(--success); color: white; }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .shop-header { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="app">
+
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Seguridad</span>
+            </a>
+            <div class="header-actions">
+                <a href="/" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-video"></i> Live</a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm"><i class="fas fa-comments"></i> Foro</a>
+                <a href="/features/trading/index.html" class="btn btn-outline btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
+                <a href="/features/servicios/index.html" class="btn btn-outline btn-sm"><i class="fas fa-tools"></i> Servicios</a>
+                <a href="/features/internet/index.html" class="btn btn-outline btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+            </div>
+        </header>
+
+        <div class="shop-container">
+            <div class="shop-header">
+                <div>
+                    <div class="title">🛡️ Seguridad 4x4 <small>— Protección avanzada del ecosistema</small></div>
+                </div>
+                <div>
+                    <button class="btn btn-success btn-sm" onclick="ejecutarEscaneo()">
+                        <i class="fas fa-shield-alt"></i> Escanear ahora
+                    </button>
+                </div>
+            </div>
+
+            <div class="shop-nav">
+                <a href="/features/tienda/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-store"></i> Catálogo
+                </a>
+                <a href="/features/tienda/comprar/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-shopping-cart"></i> Comprar
+                </a>
+                <a href="/features/tienda/comprar-cmt/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-coins"></i> CMT
+                </a>
+                <a href="/features/tienda/vender/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-tag"></i> Vender
+                </a>
+                <a href="/features/tienda/subastas/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gavel"></i> Subastas
+                </a>
+                <a href="/features/tienda/nft/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-image"></i> Galería
+                </a>
+                <a href="/features/tienda/lealtad/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gift"></i> Lealtad
+                </a>
+                <a href="/features/tienda/panel/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-chart-pie"></i> Panel
+                </a>
+                <a href="/features/tienda/seguridad/index.html" class="btn btn-gold btn-sm active">
+                    <i class="fas fa-shield-alt"></i> Seguridad
+                </a>
+            </div>
+
+            <!-- Security Grid 4x4 -->
+            <div class="security-grid">
+
+                <!-- Capa 1: Validación de Cartera -->
+                <div class="security-card">
+                    <div class="header-card">
+                        <div class="icono green"><i class="fas fa-wallet"></i></div>
+                        <div class="titulo">Capa 1: Cartera</div>
+                        <span class="estado on" id="capa1Status">ACTIVA</span>
+                    </div>
+                    <div class="descripcion">Valida direcciones de wallet antes de cualquier transacción. Previene envíos a direcciones inválidas.</div>
+                    <div class="metricas">
+                        <div class="item">
+                            <div class="numero" id="capa1Validaciones">0</div>
+                            <div class="label">Validaciones</div>
+                        </div>
+                        <div class="item">
+                            <div class="numero" id="capa1Rechazos">0</div>
+                            <div class="label">Rechazos</div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <span class="label">Activar / Desactivar</span>
+                        <div class="switch active" onclick="toggleCapa('capa1')">
+                            <div class="slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capa 2: Rate Limiting -->
+                <div class="security-card">
+                    <div class="header-card">
+                        <div class="icono blue"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="titulo">Capa 2: Rate Limiting</div>
+                        <span class="estado on" id="capa2Status">ACTIVA</span>
+                    </div>
+                    <div class="descripcion">Limita el número de operaciones por minuto. Previene ataques de fuerza bruta y spam.</div>
+                    <div class="metricas">
+                        <div class="item">
+                            <div class="numero" id="capa2Operaciones">0</div>
+                            <div class="label">Operaciones</div>
+                        </div>
+                        <div class="item">
+                            <div class="numero" id="capa2Bloqueos">0</div>
+                            <div class="label">Bloqueos</div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <span class="label">Activar / Desactivar</span>
+                        <div class="switch active" onclick="toggleCapa('capa2')">
+                            <div class="slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capa 3: Validación de Precios -->
+                <div class="security-card">
+                    <div class="header-card">
+                        <div class="icono gold"><i class="fas fa-coins"></i></div>
+                        <div class="titulo">Capa 3: Precios</div>
+                        <span class="estado on" id="capa3Status">ACTIVA</span>
+                    </div>
+                    <div class="descripcion">Valida que los precios sean razonables. Previene manipulación de precios y estafas.</div>
+                    <div class="metricas">
+                        <div class="item">
+                            <div class="numero" id="capa3Precios">0</div>
+                            <div class="label">Precios revisados</div>
+                        </div>
+                        <div class="item">
+                            <div class="numero" id="capa3Alertas">0</div>
+                            <div class="label">Alertas</div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <span class="label">Activar / Desactivar</span>
+                        <div class="switch active" onclick="toggleCapa('capa3')">
+                            <div class="slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capa 4: Escrow y Firma -->
+                <div class="security-card">
+                    <div class="header-card">
+                        <div class="icono red"><i class="fas fa-signature"></i></div>
+                        <div class="titulo">Capa 4: Firma</div>
+                        <span class="estado on" id="capa4Status">ACTIVA</span>
+                    </div>
+                    <div class="descripcion">Requiere firma digital para transacciones. Previene transacciones no autorizadas.</div>
+                    <div class="metricas">
+                        <div class="item">
+                            <div class="numero" id="capa4Firmas">0</div>
+                            <div class="label">Firmas</div>
+                        </div>
+                        <div class="item">
+                            <div class="numero" id="capa4Rechazadas">0</div>
+                            <div class="label">Rechazadas</div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <span class="label">Activar / Desactivar</span>
+                        <div class="switch active" onclick="toggleCapa('capa4')">
+                            <div class="slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Logs de Seguridad -->
+            <div class="logs-section">
+                <div class="titulo"><i class="fas fa-list"></i> Registro de Seguridad</div>
+                <div id="logsContainer">
+                    <div class="log-item">
+                        <span class="hora">12:34</span>
+                        <span class="evento"><span class="success">✅</span> Sistema de seguridad activado</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="hora">12:30</span>
+                        <span class="evento"><span class="success">✅</span> Capa 1: Cartera validada correctamente</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="hora">12:15</span>
+                        <span class="evento"><span class="danger">⚠️</span> Intento de acceso no autorizado bloqueado (IP: 192.168.1.100)</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="hora">12:00</span>
+                        <span class="evento"><span class="success">✅</span> Escaneo completo completado: 0 amenazas</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="hora">11:45</span>
+                        <span class="evento"><span class="danger">⚠️</span> Precio sospechoso detectado: 10,000 CMT por NFT (bloqueado)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Seguridad 4x4 · Protección Avanzada
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/red/index.html">👥 Mi Red</a>
+                <a href="/features/live/index.html">📹 Live</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/servicios/index.html">🛠️ Servicios</a>
+                <a href="/features/internet/index.html">🌐 Internet</a>
+                <a href="/features/wallet/index.html">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        // ================================================================
+        // 🔐 SEGURIDAD 4x4 - ESTADO
+        // ================================================================
+        const seguridadEstado = {
+            capa1: { activa: true, validaciones: 156, rechazos: 3 },
+            capa2: { activa: true, operaciones: 234, bloqueos: 7 },
+            capa3: { activa: true, precios: 89, alertas: 2 },
+            capa4: { activa: true, firmas: 45, rechazadas: 1 }
+        };
+
+        // ================================================================
+        // 🖥️ RENDERIZAR ESTADÍSTICAS
+        // ================================================================
+        function renderizarEstadisticas() {
+            document.getElementById('capa1Validaciones').textContent = seguridadEstado.capa1.validaciones;
+            document.getElementById('capa1Rechazos').textContent = seguridadEstado.capa1.rechazos;
+
+            document.getElementById('capa2Operaciones').textContent = seguridadEstado.capa2.operaciones;
+            document.getElementById('capa2Bloqueos').textContent = seguridadEstado.capa2.bloqueos;
+
+            document.getElementById('capa3Precios').textContent = seguridadEstado.capa3.precios;
+            document.getElementById('capa3Alertas').textContent = seguridadEstado.capa3.alertas;
+
+            document.getElementById('capa4Firmas').textContent = seguridadEstado.capa4.firmas;
+            document.getElementById('capa4Rechazadas').textContent = seguridadEstado.capa4.rechazadas;
+        }
+
+        // ================================================================
+        // 🔄 TOGGLE CAPA
+        // ================================================================
+        function toggleCapa(capa) {
+            const map = {
+                capa1: { estado: 'capa1Status', switch: '.switch[onclick*="capa1"]' },
+                capa2: { estado: 'capa2Status', switch: '.switch[onclick*="capa2"]' },
+                capa3: { estado: 'capa3Status', switch: '.switch[onclick*="capa3"]' },
+                capa4: { estado: 'capa4Status', switch: '.switch[onclick*="capa4"]' }
+            };
+
+            const info = map[capa];
+            if (!info) return;
+
+            const estado = seguridadEstado[capa];
+            estado.activa = !estado.activa;
+
+            // Actualizar UI
+            const statusEl = document.getElementById(info.estado);
+            if (statusEl) {
+                statusEl.textContent = estado.activa ? 'ACTIVA' : 'INACTIVA';
+                statusEl.className = `estado ${estado.activa ? 'on' : 'off'}`;
+            }
+
+            const switchEl = document.querySelector(info.switch);
+            if (switchEl) {
+                switchEl.classList.toggle('active', estado.activa);
+            }
+
+            const nombre = {
+                capa1: 'Cartera',
+                capa2: 'Rate Limiting',
+                capa3: 'Precios',
+                capa4: 'Firma'
+            };
+
+            mostrarToast(`${estado.activa ? '✅' : '❌'} Capa ${capa.slice(-1)} (${nombre[capa]}) ${estado.activa ? 'activada' : 'desactivada'}`);
+        }
+
+        // ================================================================
+        // 🛡️ ESCANEAR
+        // ================================================================
+        function ejecutarEscaneo() {
+            mostrarToast('🔄 Ejecutando escaneo de seguridad...', 'info');
+
+            setTimeout(() => {
+                const amenazas = Math.floor(Math.random() * 3);
+                if (amenazas === 0) {
+                    mostrarToast('✅ Escaneo completado: 0 amenazas encontradas', 'success');
+                } else {
+                    mostrarToast(`⚠️ Escaneo completado: ${amenazas} amenazas detectadas y bloqueadas`, 'warning');
+                }
+
+                // Simular logs
+                const container = document.getElementById('logsContainer');
+                const hora = new Date().toLocaleTimeString();
+                const log = document.createElement('div');
+                log.className = 'log-item';
+                log.innerHTML = `
+                    <span class="hora">${hora}</span>
+                    <span class="evento"><span class="success">✅</span> Escaneo completado: ${amenazas} amenazas</span>
+                `;
+                container.insertBefore(log, container.firstChild);
+
+            }, 2000);
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+            renderizarEstadisticas();
+
+            console.log('🛡️ Csariel\'s - Seguridad 4x4');
+            console.log('✅ Sistema de seguridad activo');
+        });
+
+        window.toggleCapa = toggleCapa;
+        window.ejecutarEscaneo = ejecutarEscaneo;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
