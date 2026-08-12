@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Logs del Sistema | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-success {
+            background: rgba(0,184,148,0.15);
+            border-color: rgba(0,184,148,0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) { background: rgba(0,184,148,0.25); }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover { box-shadow: 0 0 40px rgba(168,85,247,0.4); transform: scale(1.03); }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover { box-shadow: 0 0 40px rgba(0,212,255,0.4); transform: scale(1.03); }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        .shop-container {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .shop-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.08;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-dim);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .shop-header .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--gold-cosmic);
+        }
+        .shop-header .title small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .shop-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .shop-nav .btn.active {
+            background: rgba(212,175,55,0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== LOGS ===== */
+        .filtros-logs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 12px;
+            border: 1px solid var(--gold-dim);
+        }
+        .filtros-logs select,
+        .filtros-logs input {
+            padding: 8px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            min-width: 140px;
+        }
+        .filtros-logs select:focus,
+        .filtros-logs input:focus {
+            border-color: var(--gold-cosmic);
+        }
+
+        .logs-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .logs-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .logs-container::-webkit-scrollbar-track {
+            background: var(--space-deep);
+        }
+        .logs-container::-webkit-scrollbar-thumb {
+            background: var(--gold-cosmic);
+            border-radius: 3px;
+        }
+
+        .log-entry {
+            display: grid;
+            grid-template-columns: 120px 100px 1fr 80px;
+            gap: 8px;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--gold-dim);
+            font-size: 0.7rem;
+            align-items: center;
+            transition: var(--transition);
+        }
+        .log-entry:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .log-entry .fecha {
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+        }
+        .log-entry .tipo {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            font-weight: 700;
+        }
+        .log-entry .tipo.info {
+            color: var(--quantum);
+        }
+        .log-entry .tipo.success {
+            color: var(--success);
+        }
+        .log-entry .tipo.warning {
+            color: var(--warning);
+        }
+        .log-entry .tipo.danger {
+            color: var(--danger);
+        }
+        .log-entry .mensaje {
+            color: var(--text-secondary);
+            word-break: break-word;
+        }
+        .log-entry .usuario {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            text-align: right;
+        }
+
+        .log-entry .badge-seguridad {
+            display: inline-block;
+            padding: 1px 10px;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+        }
+        .log-entry .badge-seguridad.capa1 {
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+        }
+        .log-entry .badge-seguridad.capa2 {
+            background: rgba(0,212,255,0.15);
+            color: var(--quantum);
+        }
+        .log-entry .badge-seguridad.capa3 {
+            background: rgba(212,175,55,0.15);
+            color: var(--gold-cosmic);
+        }
+        .log-entry .badge-seguridad.capa4 {
+            background: rgba(255,51,102,0.15);
+            color: var(--danger);
+        }
+
+        .log-entry .accion-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .log-entry .accion-btn:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+        .toast.success { background: var(--success); color: white; }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .shop-header { flex-direction: column; align-items: flex-start; }
+            .log-entry {
+                grid-template-columns: 80px 70px 1fr;
+            }
+            .log-entry .usuario {
+                display: none;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+            .log-entry {
+                grid-template-columns: 1fr;
+                gap: 4px;
+                padding: 10px 12px;
+            }
+            .log-entry .fecha {
+                font-size: 0.45rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="app">
+
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Logs</span>
+            </a>
+            <div class="header-actions">
+                <a href="/" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-video"></i> Live</a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm"><i class="fas fa-comments"></i> Foro</a>
+                <a href="/features/trading/index.html" class="btn btn-outline btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
+                <a href="/features/servicios/index.html" class="btn btn-outline btn-sm"><i class="fas fa-tools"></i> Servicios</a>
+                <a href="/features/internet/index.html" class="btn btn-outline btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+            </div>
+        </header>
+
+        <div class="shop-container">
+            <div class="shop-header">
+                <div>
+                    <div class="title">📋 Logs del Sistema <small>— Registro completo de eventos</small></div>
+                </div>
+                <div>
+                    <button class="btn btn-success btn-sm" onclick="exportarLogs()">
+                        <i class="fas fa-file-download"></i> Exportar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="limpiarLogs()">
+                        <i class="fas fa-trash"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <div class="shop-nav">
+                <a href="/features/tienda/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-store"></i> Catálogo
+                </a>
+                <a href="/features/tienda/comprar/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-shopping-cart"></i> Comprar
+                </a>
+                <a href="/features/tienda/comprar-cmt/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-coins"></i> CMT
+                </a>
+                <a href="/features/tienda/vender/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-tag"></i> Vender
+                </a>
+                <a href="/features/tienda/subastas/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gavel"></i> Subastas
+                </a>
+                <a href="/features/tienda/nft/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-image"></i> Galería
+                </a>
+                <a href="/features/tienda/lealtad/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gift"></i> Lealtad
+                </a>
+                <a href="/features/tienda/panel/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-chart-pie"></i> Panel
+                </a>
+                <a href="/features/tienda/seguridad/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-shield-alt"></i> Seguridad
+                </a>
+                <a href="/features/tienda/logs/index.html" class="btn btn-gold btn-sm active">
+                    <i class="fas fa-list"></i> Logs
+                </a>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros-logs">
+                <select id="filtroTipo" onchange="aplicarFiltros()">
+                    <option value="todos">Todos los tipos</option>
+                    <option value="info">ℹ️ Info</option>
+                    <option value="success">✅ Éxito</option>
+                    <option value="warning">⚠️ Advertencia</option>
+                    <option value="danger">❌ Error</option>
+                    <option value="seguridad">🛡️ Seguridad</option>
+                </select>
+                <select id="filtroCapa" onchange="aplicarFiltros()">
+                    <option value="todas">Todas las capas</option>
+                    <option value="capa1">Capa 1: Cartera</option>
+                    <option value="capa2">Capa 2: Rate Limiting</option>
+                    <option value="capa3">Capa 3: Precios</option>
+                    <option value="capa4">Capa 4: Firma</option>
+                </select>
+                <input type="text" id="filtroBusqueda" placeholder="🔍 Buscar en logs..." oninput="aplicarFiltros()" />
+            </div>
+
+            <!-- Logs -->
+            <div class="logs-container" id="logsContainer">
+                <!-- Se llena con JavaScript -->
+            </div>
+        </div>
+
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Logs del Sistema · Auditoría · Seguridad
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/red/index.html">👥 Mi Red</a>
+                <a href="/features/live/index.html">📹 Live</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/servicios/index.html">🛠️ Servicios</a>
+                <a href="/features/internet/index.html">🌐 Internet</a>
+                <a href="/features/wallet/index.html">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        // ================================================================
+        // 📋 GENERAR LOGS DE EJEMPLO
+        // ================================================================
+        let logs = [];
+        let logsFiltrados = [];
+
+        function generarLogsEjemplo() {
+            const ahora = Date.now();
+            const tipos = ['info', 'success', 'warning', 'danger', 'seguridad'];
+            const mensajesInfo = [
+                'Usuario inició sesión',
+                'Página cargada correctamente',
+                'Sesión renovada',
+                'Conexión establecida con Supabase'
+            ];
+            const mensajesSuccess = [
+                'Compra realizada con éxito',
+                'NFT publicado correctamente',
+                'Token regalado exitosamente',
+                'Perfil actualizado'
+            ];
+            const mensajesWarning = [
+                'Intento de acceso no autorizado bloqueado',
+                'Precio sospechoso detectado',
+                'Límite de operaciones alcanzado',
+                'IP sospechosa detectada'
+            ];
+            const mensajesDanger = [
+                'Error al conectar con Supabase',
+                'Transacción fallida',
+                'Firma rechazada',
+                'Error al publicar NFT'
+            ];
+            const mensajesSeguridad = [
+                'Capa 1: Cartera validada',
+                'Capa 2: Rate Limiting activo',
+                'Capa 3: Precio validado',
+                'Capa 4: Firma requerida'
+            ];
+
+            const usuarios = ['Csariel', 'Valeria', 'Marquinhos', 'Carlos', 'Usuario'];
+
+            const logsGenerados = [];
+            for (let i = 0; i < 50; i++) {
+                const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+                let mensaje;
+                let capa = null;
+
+                if (tipo === 'info') {
+                    mensaje = mensajesInfo[Math.floor(Math.random() * mensajesInfo.length)];
+                } else if (tipo === 'success') {
+                    mensaje = mensajesSuccess[Math.floor(Math.random() * mensajesSuccess.length)];
+                } else if (tipo === 'warning') {
+                    mensaje = mensajesWarning[Math.floor(Math.random() * mensajesWarning.length)];
+                } else if (tipo === 'danger') {
+                    mensaje = mensajesDanger[Math.floor(Math.random() * mensajesDanger.length)];
+                } else if (tipo === 'seguridad') {
+                    mensaje = mensajesSeguridad[Math.floor(Math.random() * mensajesSeguridad.length)];
+                    capa = `capa${Math.floor(Math.random() * 4) + 1}`;
+                }
+
+                logsGenerados.push({
+                    id: i + 1,
+                    fecha: new Date(ahora - (i * 60000)).toISOString(),
+                    tipo: tipo,
+                    mensaje: mensaje,
+                    usuario: usuarios[Math.floor(Math.random() * usuarios.length)],
+                    capa: capa,
+                    ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
+                });
+            }
+
+            // Ordenar por fecha descendente
+            logsGenerados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            return logsGenerados;
+        }
+
+        // ================================================================
+        // 🖥️ RENDERIZAR LOGS
+        // ================================================================
+        function renderizarLogs(lista) {
+            const container = document.getElementById('logsContainer');
+
+            if (!lista || lista.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:40px;color:var(--text-muted);">
+                        <i class="fas fa-list" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:12px;"></i>
+                        No hay logs para mostrar
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = lista.map(log => {
+                const fecha = new Date(log.fecha);
+                const hora = fecha.toLocaleTimeString();
+                const dia = fecha.toLocaleDateString();
+
+                const capaBadges = {
+                    capa1: '<span class="badge-seguridad capa1">Capa 1</span>',
+                    capa2: '<span class="badge-seguridad capa2">Capa 2</span>',
+                    capa3: '<span class="badge-seguridad capa3">Capa 3</span>',
+                    capa4: '<span class="badge-seguridad capa4">Capa 4</span>'
+                };
+
+                const tipoIcons = {
+                    info: 'ℹ️',
+                    success: '✅',
+                    warning: '⚠️',
+                    danger: '❌',
+                    seguridad: '🛡️'
+                };
+
+                return `
+                    <div class="log-entry">
+                        <span class="fecha">${dia} ${hora}</span>
+                        <span class="tipo ${log.tipo}">${tipoIcons[log.tipo] || '📋'} ${log.tipo.toUpperCase()}</span>
+                        <span class="mensaje">
+                            ${log.mensaje}
+                            ${log.capa ? capaBadges[log.capa] || '' : ''}
+                        </span>
+                        <span class="usuario">${log.usuario}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================================================================
+        // 🔍 FILTRAR LOGS
+        // ================================================================
+        function aplicarFiltros() {
+            const tipo = document.getElementById('filtroTipo').value;
+            const capa = document.getElementById('filtroCapa').value;
+            const busqueda = document.getElementById('filtroBusqueda').value.toLowerCase().trim();
+
+            logsFiltrados = logs.filter(log => {
+                const matchTipo = tipo === 'todos' || log.tipo === tipo;
+                const matchCapa = capa === 'todas' || log.capa === capa;
+                const matchBusqueda = !busqueda ||
+                    log.mensaje.toLowerCase().includes(busqueda) ||
+                    log.usuario.toLowerCase().includes(busqueda);
+                return matchTipo && matchCapa && matchBusqueda;
+            });
+
+            renderizarLogs(logsFiltrados);
+        }
+
+        // ================================================================
+        // 📤 EXPORTAR LOGS
+        // ================================================================
+        function exportarLogs() {
+            const datos = logsFiltrados.map(log => ({
+                fecha: new Date(log.fecha).toISOString(),
+                tipo: log.tipo,
+                mensaje: log.mensaje,
+                usuario: log.usuario,
+                capa: log.capa || 'N/A',
+                ip: log.ip || 'N/A'
+            }));
+
+            const csv = [
+                ['Fecha', 'Tipo', 'Mensaje', 'Usuario', 'Capa', 'IP'],
+                ...datos.map(d => [d.fecha, d.tipo, d.mensaje, d.usuario, d.capa, d.ip])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `logs_seguridad_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            mostrarToast('📤 Logs exportados correctamente', 'success');
+        }
+
+        // ================================================================
+        // 🗑️ LIMPIAR LOGS
+        // ================================================================
+        function limpiarLogs() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los logs?')) {
+                logs = [];
+                logsFiltrados = [];
+                renderizarLogs(logsFiltrados);
+                mostrarToast('🗑️ Logs limpiados correctamente', 'info');
+            }
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+
+            logs = generarLogsEjemplo();
+            logsFiltrados = [...logs];
+            renderizarLogs(logsFiltrados);
+
+            console.log('📋 Csariel\'s - Logs del Sistema');
+            console.log(`📊 ${logs.length} logs cargados`);
+        });
+
+        window.aplicarFiltros = aplicarFiltros;
+        window.exportarLogs = exportarLogs;
+        window.limpiarLogs = limpiarLogs;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
