@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Tokens de Lealtad | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-success {
+            background: rgba(0,184,148,0.15);
+            border-color: rgba(0,184,148,0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) { background: rgba(0,184,148,0.25); }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover { box-shadow: 0 0 40px rgba(168,85,247,0.4); transform: scale(1.03); }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover { box-shadow: 0 0 40px rgba(0,212,255,0.4); transform: scale(1.03); }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        .shop-container {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .shop-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.08;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-dim);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .shop-header .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--gold-cosmic);
+        }
+        .shop-header .title small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .shop-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .shop-nav .btn.active {
+            background: rgba(212,175,55,0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== SALDO DE LEALTAD ===== */
+        .loyalty-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .loyalty-stats .stat-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .loyalty-stats .stat-card .numero {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--gold-cosmic);
+        }
+        .loyalty-stats .stat-card .label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== TOKENS ===== */
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .token-card {
+            background: rgba(0,0,0,0.2);
+            border: 2px solid var(--gold-dim);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .token-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+
+        .token-card .emoji {
+            font-size: 3rem;
+        }
+        .token-card .nombre {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin: 4px 0;
+        }
+        .token-card .valor {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .token-card .cantidad {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .token-card .acciones {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .token-card .acciones .btn {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.5rem;
+            padding: 4px 8px;
+        }
+
+        .token-card .rarity {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .token-card .rarity.comun {
+            background: rgba(192,192,192,0.2);
+            color: #C0C0C0;
+        }
+        .token-card .rarity.raro {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+        }
+        .token-card .rarity.epico {
+            background: rgba(168,85,247,0.2);
+            color: #a855f7;
+        }
+        .token-card .rarity.legendario {
+            background: rgba(212,175,55,0.2);
+            color: var(--gold-cosmic);
+        }
+        .token-card .rarity.mitico {
+            background: rgba(255,0,51,0.2);
+            color: var(--live-red);
+        }
+
+        /* ===== REGALAR TOKEN ===== */
+        .regalar-section {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 12px;
+            border: 1px solid var(--gold-dim);
+        }
+        .regalar-section .titulo {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .regalar-section .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .regalar-section .form-row select,
+        .regalar-section .form-row input {
+            padding: 8px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            min-width: 140px;
+            flex: 1;
+        }
+        .regalar-section .form-row select:focus,
+        .regalar-section .form-row input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .regalar-section .form-row input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+        .toast.success { background: var(--success); color: white; }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .shop-header { flex-direction: column; align-items: flex-start; }
+            .regalar-section .form-row { flex-direction: column; }
+            .regalar-section .form-row select,
+            .regalar-section .form-row input { width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+            .tokens-grid { grid-template-columns: 1fr 1fr; }
+            .loyalty-stats { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="app">
+
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Lealtad</span>
+            </a>
+            <div class="header-actions">
+                <a href="/" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-video"></i> Live</a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm"><i class="fas fa-comments"></i> Foro</a>
+                <a href="/features/trading/index.html" class="btn btn-outline btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
+                <a href="/features/servicios/index.html" class="btn btn-outline btn-sm"><i class="fas fa-tools"></i> Servicios</a>
+                <a href="/features/internet/index.html" class="btn btn-outline btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+            </div>
+        </header>
+
+        <div class="shop-container">
+            <div class="shop-header">
+                <div>
+                    <div class="title">🎁 Tokens de Lealtad <small>— Recompensas para la comunidad</small></div>
+                </div>
+                <div>
+                    <button class="btn btn-success btn-sm" onclick="mostrarToast('🌟 Próximamente: Canjear tokens')">
+                        <i class="fas fa-exchange-alt"></i> Canjear
+                    </button>
+                </div>
+            </div>
+
+            <div class="shop-nav">
+                <a href="/features/tienda/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-store"></i> Catálogo
+                </a>
+                <a href="/features/tienda/comprar/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-shopping-cart"></i> Comprar
+                </a>
+                <a href="/features/tienda/comprar-cmt/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-coins"></i> CMT
+                </a>
+                <a href="/features/tienda/vender/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-tag"></i> Vender
+                </a>
+                <a href="/features/tienda/subastas/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gavel"></i> Subastas
+                </a>
+                <a href="/features/tienda/nft/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-image"></i> Galería
+                </a>
+                <a href="/features/tienda/lealtad/index.html" class="btn btn-gold btn-sm active">
+                    <i class="fas fa-gift"></i> Lealtad
+                </a>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="loyalty-stats">
+                <div class="stat-card">
+                    <div class="numero" id="totalTokens">0</div>
+                    <div class="label">Tokens Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="numero" id="totalRegalados">0</div>
+                    <div class="label">Regalados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="numero" id="totalRecibidos">0</div>
+                    <div class="label">Recibidos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="numero" id="rangoLealtad">Bronce</div>
+                    <div class="label">Rango</div>
+                </div>
+            </div>
+
+            <!-- Tokens -->
+            <h3 style="font-family:'Orbitron';font-size:0.8rem;color:var(--text-secondary);margin-bottom:8px;">
+                <i class="fas fa-coins"></i> Tus Tokens de Lealtad
+            </h3>
+            <div class="tokens-grid" id="tokensGrid">
+                <!-- Se llena con JavaScript -->
+            </div>
+
+            <!-- Regalar Token -->
+            <div class="regalar-section">
+                <div class="titulo"><i class="fas fa-gift"></i> Regalar Token a un amigo</div>
+                <div class="form-row">
+                    <select id="tokenSeleccionado">
+                        <option value="plata">🪙 Token Plata</option>
+                        <option value="bronce">🪙 Token Bronce</option>
+                        <option value="oro">🥇 Token Oro</option>
+                        <option value="diamante">💎 Token Diamante</option>
+                        <option value="legendario">⭐ Token Legendario</option>
+                    </select>
+                    <input type="text" id="destinatario" placeholder="Nombre de usuario o email" />
+                    <button class="btn btn-success" onclick="regalarToken()">
+                        <i class="fas fa-paper-plane"></i> Regalar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Tokens de Lealtad · Recompensas · Comunidad
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/red/index.html">👥 Mi Red</a>
+                <a href="/features/live/index.html">📹 Live</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/servicios/index.html">🛠️ Servicios</a>
+                <a href="/features/internet/index.html">🌐 Internet</a>
+                <a href="/features/wallet/index.html">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        async function obtenerUsuario() {
+            try {
+                const client = await esperarSupabase();
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await client.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    return data.user;
+                }
+                return user;
+            } catch (e) {
+                console.error('Error de autenticación:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 📊 DATOS DE TOKENS (SIMULACIÓN - CONECTAR CON SUPABASE)
+        // ================================================================
+        let tokensUsuario = [];
+        let historialTokens = [];
+
+        const tiposTokens = [
+            { id: 'plata', nombre: 'Token Plata', emoji: '🪙', valor: 10, rarity: 'comun', color: '#C0C0C0' },
+            { id: 'bronce', nombre: 'Token Bronce', emoji: '🪙', valor: 25, rarity: 'comun', color: '#CD7F32' },
+            { id: 'oro', nombre: 'Token Oro', emoji: '🥇', valor: 50, rarity: 'raro', color: '#FFD700' },
+            { id: 'diamante', nombre: 'Token Diamante', emoji: '💎', valor: 200, rarity: 'epico', color: '#00d4ff' },
+            { id: 'legendario', nombre: 'Token Legendario', emoji: '⭐', valor: 500, rarity: 'legendario', color: '#D4AF37' },
+            { id: 'mitico', nombre: 'Token Mítico', emoji: '👑', valor: 1000, rarity: 'mitico', color: '#ff0033' }
+        ];
+
+        function generarTokensEjemplo() {
+            const userId = localStorage.getItem('csariels_user_id') || 'guest';
+            const saved = localStorage.getItem(`csariels_tokens_${userId}`);
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch (e) {
+                    console.warn('Error parseando tokens:', e);
+                }
+            }
+
+            // Tokens iniciales
+            const iniciales = [
+                { tipo: 'plata', cantidad: 5 },
+                { tipo: 'bronce', cantidad: 3 },
+                { tipo: 'oro', cantidad: 1 }
+            ];
+            localStorage.setItem(`csariels_tokens_${userId}`, JSON.stringify(iniciales));
+            return iniciales;
+        }
+
+        function cargarHistorial() {
+            const userId = localStorage.getItem('csariels_user_id') || 'guest';
+            const saved = localStorage.getItem(`csariels_historial_tokens_${userId}`);
+            if (saved) {
+                try {
+                    historialTokens = JSON.parse(saved);
+                } catch (e) {
+                    console.warn('Error parseando historial:', e);
+                }
+            }
+        }
+
+        // ================================================================
+        // 🖥️ RENDERIZAR TOKENS
+        // ================================================================
+        function renderizarTokens() {
+            const grid = document.getElementById('tokensGrid');
+
+            if (!tokensUsuario || tokensUsuario.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:20px;">
+                        <i class="fas fa-coins" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:8px;"></i>
+                        No tienes tokens de lealtad aún.
+                        <br /><span style="font-size:0.7rem;">Participa en la comunidad para ganar tokens.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = tokensUsuario.map(t => {
+                const info = tiposTokens.find(tk => tk.id === t.tipo) || tiposTokens[0];
+                return `
+                    <div class="token-card">
+                        <div class="emoji">${info.emoji}</div>
+                        <span class="rarity ${info.rarity}">${info.rarity.toUpperCase()}</span>
+                        <div class="nombre">${info.nombre}</div>
+                        <div class="valor">💰 ${info.valor} CMT c/u</div>
+                        <div class="cantidad">${t.cantidad} <span style="font-size:0.7rem;color:var(--text-muted);">unidades</span></div>
+                        <div class="acciones">
+                            <button class="btn btn-gold btn-sm" onclick="usarToken('${t.tipo}')">
+                                <i class="fas fa-exchange-alt"></i> Usar
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="regalarTokenEspecifico('${t.tipo}')">
+                                <i class="fas fa-gift"></i> Regalar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Actualizar estadísticas
+            const total = tokensUsuario.reduce((acc, t) => acc + t.cantidad, 0);
+            document.getElementById('totalTokens').textContent = total;
+
+            const regalados = historialTokens.filter(h => h.tipo === 'regalado').length;
+            document.getElementById('totalRegalados').textContent = regalados;
+
+            const recibidos = historialTokens.filter(h => h.tipo === 'recibido').length;
+            document.getElementById('totalRecibidos').textContent = recibidos;
+
+            // Rango de lealtad
+            let rango = 'Bronce';
+            if (total >= 100) rango = 'Mítico';
+            else if (total >= 50) rango = 'Legendario';
+            else if (total >= 25) rango = 'Épico';
+            else if (total >= 10) rango = 'Raro';
+            document.getElementById('rangoLealtad').textContent = rango;
+        }
+
+        // ================================================================
+        // 🎁 REGALAR TOKEN
+        // ================================================================
+        async function regalarToken() {
+            const tokenId = document.getElementById('tokenSeleccionado').value;
+            const destinatario = document.getElementById('destinatario').value.trim();
+
+            if (!destinatario) {
+                mostrarToast('⚠️ Ingresa el nombre del destinatario.', 'error');
+                return;
+            }
+
+            // Verificar que el usuario tiene el token
+            const tokenUsuario = tokensUsuario.find(t => t.tipo === tokenId);
+            if (!tokenUsuario || tokenUsuario.cantidad < 1) {
+                mostrarToast('⚠️ No tienes este token para regalar.', 'error');
+                return;
+            }
+
+            const info = tiposTokens.find(tk => tk.id === tokenId);
+            if (!confirm(`¿Regalar ${info.emoji} ${info.nombre} a "${destinatario}"?`)) return;
+
+            try {
+                // Buscar destinatario en Supabase
+                const client = await esperarSupabase();
+                const { data: perfil, error } = await client
+                    .from('perfiles')
+                    .select('user_id, nombre')
+                    .ilike('nombre', `%${destinatario}%`)
+                    .maybeSingle();
+
+                if (error || !perfil) {
+                    mostrarToast('❌ Usuario no encontrado. Verifica el nombre.', 'error');
+                    return;
+                }
+
+                const user = await obtenerUsuario();
+                if (!user) {
+                    mostrarToast('❌ Error de autenticación.', 'error');
+                    return;
+                }
+
+                if (perfil.user_id === user.id) {
+                    mostrarToast('❌ No puedes regalarte un token a ti mismo.', 'error');
+                    return;
+                }
+
+                // Restar token del usuario
+                tokenUsuario.cantidad -= 1;
+                if (tokenUsuario.cantidad === 0) {
+                    tokensUsuario = tokensUsuario.filter(t => t.tipo !== tokenId);
+                }
+                guardarTokens();
+
+                // Registrar en historial
+                const userId = localStorage.getItem('csariels_user_id') || 'guest';
+                const historial = JSON.parse(localStorage.getItem(`csariels_historial_tokens_${userId}`) || '[]');
+                historial.push({
+                    id: Date.now(),
+                    tipo: 'regalado',
+                    token: info.nombre,
+                    destinatario: perfil.nombre,
+                    fecha: new Date().toISOString()
+                });
+                localStorage.setItem(`csariels_historial_tokens_${userId}`, JSON.stringify(historial));
+
+                mostrarToast(`✅ ${info.emoji} ${info.nombre} regalado a ${perfil.nombre}!`, 'success');
+                renderizarTokens();
+
+            } catch (e) {
+                console.error('Error regalando token:', e);
+                mostrarToast('❌ Error al regalar el token.', 'error');
+            }
+        }
+
+        function regalarTokenEspecifico(tipo) {
+            document.getElementById('tokenSeleccionado').value = tipo;
+            document.getElementById('destinatario').focus();
+            mostrarToast(`💡 Ingresa el nombre del destinatario para regalar este token.`, 'info');
+        }
+
+        // ================================================================
+        // 💰 USAR TOKEN
+        // ================================================================
+        function usarToken(tipo) {
+            const info = tiposTokens.find(tk => tk.id === tipo);
+            if (!info) return;
+
+            const tokenUsuario = tokensUsuario.find(t => t.tipo === tipo);
+            if (!tokenUsuario || tokenUsuario.cantidad < 1) {
+                mostrarToast('⚠️ No tienes este token.', 'error');
+                return;
+            }
+
+            const opciones = [
+                { id: 'cmt', label: `${info.valor} CMT`, icon: '💰' },
+                { id: 'descuento', label: '10% descuento', icon: '🏷️' },
+                { id: 'vip', label: 'Acceso VIP 1 día', icon: '👑' }
+            ];
+
+            const opcionesStr = opciones.map((o, i) => `${i+1}. ${o.icon} ${o.label}`).join('\n');
+            const seleccion = prompt(
+                `¿Qué quieres hacer con tu ${info.emoji} ${info.nombre}?\n\n` +
+                `${opcionesStr}\n\n` +
+                `Elige una opción (1-3) o "cancelar":`
+            );
+
+            if (!seleccion) return;
+            const idx = parseInt(seleccion) - 1;
+            if (idx < 0 || idx >= opciones.length) {
+                mostrarToast('❌ Opción inválida.', 'error');
+                return;
+            }
+
+            const opcion = opciones[idx];
+
+            // Restar token
+            tokenUsuario.cantidad -= 1;
+            if (tokenUsuario.cantidad === 0) {
+                tokensUsuario = tokensUsuario.filter(t => t.tipo !== tipo);
+            }
+            guardarTokens();
+
+            // Registrar uso
+            const userId = localStorage.getItem('csariels_user_id') || 'guest';
+            const historial = JSON.parse(localStorage.getItem(`csariels_historial_tokens_${userId}`) || '[]');
+            historial.push({
+                id: Date.now(),
+                tipo: 'usado',
+                token: info.nombre,
+                opcion: opcion.label,
+                fecha: new Date().toISOString()
+            });
+            localStorage.setItem(`csariels_historial_tokens_${userId}`, JSON.stringify(historial));
+
+            mostrarToast(`✅ ${info.emoji} ${info.nombre} usado: ${opcion.icon} ${opcion.label}`, 'success');
+            renderizarTokens();
+        }
+
+        // ================================================================
+        // 💾 GUARDAR TOKENS
+        // ================================================================
+        function guardarTokens() {
+            const userId = localStorage.getItem('csariels_user_id') || 'guest';
+            localStorage.setItem(`csariels_tokens_${userId}`, JSON.stringify(tokensUsuario));
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+
+            const user = await obtenerUsuario();
+            if (user) {
+                localStorage.setItem('csariels_user_id', user.id);
+            }
+
+            tokensUsuario = generarTokensEjemplo();
+            cargarHistorial();
+            renderizarTokens();
+
+            console.log('🎁 Csariel\'s - Tokens de Lealtad');
+        });
+
+        window.regalarToken = regalarToken;
+        window.regalarTokenEspecifico = regalarTokenEspecifico;
+        window.usarToken = usarToken;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
