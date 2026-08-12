@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📹 Muro Live | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <!-- ===== SUPABASE SDK ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <!-- ===== CONECTORES DEL ECOSISTEMA ===== -->
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15,45,26,0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-trading {
+            background: linear-gradient(135deg, var(--quantum), #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            animation: pulse-trading 2s ease-in-out infinite;
+        }
+        .btn-trading:hover {
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-trading {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        }
+        .btn-internet {
+            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
+        }
+        .btn-internet:hover {
+            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-internet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
+        }
+
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover {
+            box-shadow: 0 0 40px rgba(168,85,247,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover {
+            box-shadow: 0 0 40px rgba(0,212,255,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        /* Botón Iniciar Live pequeño */
+        .btn-start-live {
+            background: linear-gradient(135deg, var(--live-red), #cc0033);
+            border-color: var(--live-red);
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 15px rgba(255,0,51,0.2);
+            animation: pulse-live 1.5s ease-in-out infinite;
+            padding: 5px 14px;
+            font-size: 0.55rem;
+        }
+        .btn-start-live:hover {
+            box-shadow: 0 0 30px rgba(255,0,51,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-live {
+            0%, 100% { box-shadow: 0 0 15px rgba(255,0,51,0.2); }
+            50% { box-shadow: 0 0 30px rgba(255,0,51,0.4); }
+        }
+        .btn-start-live .live-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: dot-pulse 1s infinite;
+            margin-right: 4px;
+        }
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            border-radius: 30px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .status-dot.online {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+        }
+
+        /* ===== LAYOUT PRINCIPAL ===== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-left, .sidebar-right {
+                display: none;
+            }
+        }
+
+        /* ===== SIDEBAR IZQUIERDA ===== */
+        .sidebar-left {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-left .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-left .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .sidebar-left .menu-item:hover {
+            background: rgba(212,175,55,0.05);
+            color: var(--text-primary);
+        }
+        .sidebar-left .menu-item.active {
+            background: rgba(212,175,55,0.08);
+            color: var(--gold-cosmic);
+        }
+        .sidebar-left .menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .sidebar-left .menu-item .badge {
+            margin-left: auto;
+            background: var(--live-red);
+            color: #fff;
+            font-size: 0.5rem;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-left .live-now {
+            background: rgba(255,0,51,0.08);
+            border: 1px solid rgba(255,0,51,0.15);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 12px;
+        }
+        .sidebar-left .live-now .live-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--live-red);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+        .sidebar-left .live-now .live-tag .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--live-red);
+            border-radius: 50%;
+            animation: dot-pulse 1s infinite;
+        }
+        .sidebar-left .live-now .live-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px 0 2px;
+        }
+        .sidebar-left .live-now .live-sub {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .sidebar-left .live-now .live-viewers {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .sidebar-left .categorias {
+            margin-top: 16px;
+        }
+        .sidebar-left .categoria-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--gold-dim);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .sidebar-left .categoria-item:hover {
+            color: var(--text-primary);
+        }
+        .sidebar-left .categoria-item .count {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+        .sidebar-left .ver-mas {
+            color: var(--gold-cosmic);
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 6px 0;
+            display: block;
+            text-align: center;
+        }
+
+        /* ===== COLUMNA CENTRAL (FEED) ===== */
+        .feed-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feed-column .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .feed-column .feed-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        /* ===== CREAR PUBLICACIÓN ===== */
+        .create-post {
+            background: rgba(15,45,26,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+        }
+        .create-post .post-input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .create-post .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .create-post .post-input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 30px;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .create-post .post-input:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .create-post .post-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .create-post .post-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--gold-dim);
+            flex-wrap: wrap;
+        }
+        .create-post .post-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .create-post .post-actions button:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* ===== POST INDIVIDUAL ===== */
+        .post {
+            background: rgba(15,45,26,0.15);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            transition: var(--transition);
+        }
+        .post:hover {
+            border-color: var(--border-glow);
+        }
+
+        .post .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .post .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .post .post-author {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .post .post-time {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        .post .post-content {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 4px 0 10px;
+        }
+        .post .post-content .hashtag {
+            color: var(--gold-cosmic);
+        }
+        .post .post-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            padding-top: 8px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .post .post-stats button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .post .post-stats button:hover {
+            color: var(--text-primary);
+        }
+        .post .post-stats button.liked {
+            color: var(--danger);
+        }
+
+        /* ===== POST EN VIVO ===== */
+        .post-live {
+            border-left: 3px solid var(--live-red);
+            position: relative;
+        }
+        .post-live .live-badge {
+            position: absolute;
+            top: -8px;
+            right: 10px;
+            background: var(--live-red);
+            color: #fff;
+            font-size: 0.5rem;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            letter-spacing: 1px;
+            animation: pulse-live-badge 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-live-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .post-live .live-viewers {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .post-live .live-viewers i {
+            color: var(--live-red);
+        }
+
+        /* ===== SIDEBAR DERECHA ===== */
+        .sidebar-right {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-right .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-right .story-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            transition: var(--transition);
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .sidebar-right .story-item:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .sidebar-right .story-item .story-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            border: 2px solid var(--gold-dim);
+        }
+        .sidebar-right .story-item .story-name {
+            font-size: 0.8rem;
+        }
+        .sidebar-right .story-item .story-status {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+        }
+        .sidebar-right .story-item .story-status.online {
+            color: var(--success);
+        }
+
+        .sidebar-right .search-bar {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 30px;
+            padding: 8px 14px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            outline: none;
+            width: 100%;
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 12px;
+        }
+        .sidebar-right .search-bar:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .sidebar-right .search-bar::placeholder {
+            color: var(--text-muted);
+        }
+
+        .sidebar-right .shortcut {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            padding: 4px 0;
+        }
+        .sidebar-right .shortcut kbd {
+            background: rgba(255,255,255,0.05);
+            padding: 1px 8px;
+            border-radius: 4px;
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-right .trending-item {
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gold-dim);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .sidebar-right .trending-item:hover {
+            color: var(--gold-cosmic);
+        }
+        .sidebar-right .trending-item .trend-tag {
+            font-size: 0.8rem;
+        }
+        .sidebar-right .trending-item .trend-count {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-feed {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            background: rgba(15,45,26,0.1);
+            border-radius: var(--radius);
+            border: 1px dashed var(--gold-dim);
+        }
+        .empty-feed i {
+            font-size: 3rem;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .create-post .post-input-row { flex-wrap: wrap; }
+            .main-grid { grid-template-columns: 1fr; }
+            .sidebar-left, .sidebar-right { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Live</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>Conectado</span>
+                </div>
+                <a href="/" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-users"></i> Mi Red
+                </a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> Foro
+                </a>
+                <a href="/features/trading/index.html" class="btn btn-trading btn-sm">
+                    <i class="fas fa-chart-line"></i> Trading
+                </a>
+                <a href="/features/servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> Servicios
+                </a>
+                <a href="/features/internet/index.html" class="btn btn-internet btn-sm">
+                    <i class="fas fa-satellite-dish"></i> Internet
+                </a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm">
+                    <i class="fas fa-store"></i> Tienda
+                </a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> Wallet
+                </a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> Términos
+                </a>
+                <!-- Botón Iniciar Live pequeño -->
+                <button class="btn btn-start-live btn-sm" onclick="iniciarLive()">
+                    <span class="live-dot"></span> Iniciar Live
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== MAIN GRID ===== -->
+        <div class="main-grid">
+
+            <!-- ===== SIDEBAR IZQUIERDA ===== -->
+            <aside class="sidebar-left">
+                <div class="section-title">En vivo ahora</div>
+
+                <div class="categoria-item">
+                    <span>🎵 Muro Live</span>
+                    <span class="count">1.2K</span>
+                </div>
+                <div class="categoria-item">
+                    <span>🎵 Música</span>
+                    <span class="count">532</span>
+                </div>
+                <div class="categoria-item">
+                    <span>🎮 Deportes</span>
+                    <span class="count">324</span>
+                </div>
+                <div class="categoria-item">
+                    <span>🎭 Entretenimiento</span>
+                    <span class="count">411</span>
+                </div>
+                <a class="ver-mas">Ver más →</a>
+
+                <div class="live-now">
+                    <div class="live-tag">
+                        <span class="dot"></span> EN VIVO AHORA
+                    </div>
+                    <div class="live-title">🎵 Concierto en Vivo</div>
+                    <div class="live-sub">Desde Puebla · Música</div>
+                    <div class="live-viewers">👁️ 1,256 espectadores</div>
+                </div>
+            </aside>
+
+            <!-- ===== COLUMNA CENTRAL (FEED) ===== -->
+            <main class="feed-column">
+
+                <div class="feed-header">
+                    <h2>📹 Muro Live</h2>
+                    <span style="font-size:0.6rem;color:var(--text-muted);">En vivo ahora</span>
+                </div>
+
+                <!-- Crear Publicación -->
+                <div class="create-post">
+                    <div class="post-input-row">
+                        <div class="post-avatar" id="userAvatar">U</div>
+                        <input class="post-input" id="postInput" placeholder="¿Qué estás pensando?" />
+                        <button class="btn btn-gold btn-sm" onclick="publicar()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="post-actions">
+                        <button onclick="mostrarToast('📸 Próximamente')"><i class="fas fa-image"></i> Imagen</button>
+                        <button onclick="mostrarToast('🎥 Próximamente')"><i class="fas fa-video"></i> Video</button>
+                        <button onclick="mostrarToast('📊 Próximamente')"><i class="fas fa-poll"></i> Encuesta</button>
+                        <button onclick="mostrarToast('📍 Próximamente')"><i class="fas fa-map-pin"></i> Ubicación</button>
+                        <button onclick="mostrarToast('🎵 Próximamente')"><i class="fas fa-music"></i> Música</button>
+                    </div>
+                </div>
+
+                <!-- Feed de Publicaciones -->
+                <div id="feedContainer">
+                    <div class="loading"><i class="fas fa-spinner"></i><br />Cargando publicaciones...</div>
+                </div>
+
+            </main>
+
+            <!-- ===== SIDEBAR DERECHA ===== -->
+            <aside class="sidebar-right">
+
+                <div class="section-title">Mi Red</div>
+                <p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:8px;">Conecta. Comparte. Crece.</p>
+
+                <input class="search-bar" placeholder="Buscar personas, publicaciones, grupos..." />
+                <div class="shortcut">
+                    <span>Buscar rápido</span>
+                    <kbd>⌘ K</kbd>
+                </div>
+
+                <div style="margin: 12px 0; border-bottom: 1px solid var(--gold-dim);"></div>
+
+                <div class="section-title">Mi historia</div>
+                <div class="story-item" onclick="mostrarToast('📸 Comparte algo...')">
+                    <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">+</div>
+                    <div>
+                        <div class="story-name">Comparte algo...</div>
+                        <div class="story-status">Agrega a tu historia</div>
+                    </div>
+                </div>
+
+                <div style="margin: 8px 0 12px; border-bottom: 1px solid var(--gold-dim);"></div>
+
+                <div class="section-title">Historias</div>
+                <div id="historiasContainer">
+                    <div class="story-item">
+                        <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">M</div>
+                        <div>
+                            <div class="story-name">Marquinhos AI</div>
+                            <div class="story-status online">En línea</div>
+                        </div>
+                    </div>
+                    <div class="story-item">
+                        <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">V</div>
+                        <div>
+                            <div class="story-name">Valeria</div>
+                            <div class="story-status online">En línea</div>
+                        </div>
+                    </div>
+                    <div class="story-item">
+                        <div class="story-avatar">C</div>
+                        <div>
+                            <div class="story-name">Carlos M.</div>
+                            <div class="story-status">Hace 1h</div>
+                        </div>
+                    </div>
+                    <div class="story-item">
+                        <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">L</div>
+                        <div>
+                            <div class="story-name">La Cabina</div>
+                            <div class="story-status online">Ahora</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin: 12px 0; border-bottom: 1px solid var(--gold-dim);"></div>
+
+                <div class="section-title">Tendencias</div>
+                <div id="tendenciasContainer">
+                    <div class="trending-item">
+                        <div class="trend-tag">#MuroLive</div>
+                        <div class="trend-count">1.2K publicaciones</div>
+                    </div>
+                    <div class="trending-item">
+                        <div class="trend-tag">#Web3</div>
+                        <div class="trend-count">843 publicaciones</div>
+                    </div>
+                    <div class="trending-item">
+                        <div class="trend-tag">#Csariels</div>
+                        <div class="trend-count">621 publicaciones</div>
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Muro Live · Transmisiones · Donaciones
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/red/index.html">👥 Mi Red</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/servicios/index.html" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
+                <a href="/features/internet/index.html" style="color:#00d68f;">🌐 Internet</a>
+                <a href="/features/tienda/index.html" style="color:#a855f7;">🏰 Tienda</a>
+                <a href="/features/wallet/index.html" style="color:#00d4ff;">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔥 SCRIPTS - MURO LIVE CON SUPABASE Y CONECTORES -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🔌 ESPERAR CLIENTE SUPABASE (desde client-config-loader.js)
+        // ================================================================
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó a tiempo'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        // ================================================================
+        // 👤 OBTENER USUARIO
+        // ================================================================
+        async function obtenerUsuario() {
+            try {
+                const client = await esperarSupabase();
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await client.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    return data.user;
+                }
+                return user;
+            } catch (e) {
+                console.error('Error de autenticación:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 🎯 OBTENER PERFIL (reutiliza perfil-connector.js)
+        // ================================================================
+        async function obtenerPerfilLocal(userId) {
+            try {
+                await window.PerfilConnector.init();
+                const perfil = await window.PerfilConnector.cargarPerfil();
+                if (!perfil.nombre) {
+                    await window.PerfilConnector.actualizarPerfil({ nombre: 'Usuario_' + userId.slice(0, 6) });
+                    perfil.nombre = 'Usuario_' + userId.slice(0, 6);
+                }
+                return perfil;
+            } catch (e) {
+                console.error('Error obteniendo perfil:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 📹 LIVE
+        // ================================================================
+        let liveActivo = false;
+        let mediaStream = null;
+        let transmisionId = null;
+
+        async function iniciarLive() {
+            if (liveActivo) {
+                mostrarToast('⚠️ Ya estás transmitiendo', 'error');
+                return;
+            }
+
+            const user = await obtenerUsuario();
+            if (!user) {
+                mostrarToast('❌ Error de autenticación', 'error');
+                return;
+            }
+
+            const perfil = await obtenerPerfilLocal(user.id);
+            if (!perfil) {
+                mostrarToast('❌ Error al obtener perfil', 'error');
+                return;
+            }
+
+            try {
+                const client = await esperarSupabase();
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                mediaStream = stream;
+                const video = document.getElementById('liveVideo');
+                video.srcObject = stream;
+                video.style.display = 'block';
+                document.getElementById('videoPlaceholder').style.display = 'none';
+                document.getElementById('liveOverlay').style.display = 'flex';
+
+                const { data: transmision, error: insertError } = await client
+                    .from('transmisiones')
+                    .insert({
+                        usuario_id: user.id,
+                        titulo: `Live de ${perfil.nombre || 'Usuario'}`,
+                        activa: true,
+                        espectadores: 0
+                    })
+                    .select()
+                    .single();
+
+                if (insertError) throw insertError;
+
+                transmisionId = transmision.id;
+                liveActivo = true;
+
+                document.getElementById('btnIniciarLive').style.display = 'none';
+                document.getElementById('btnDetenerLive').style.display = 'inline-flex';
+
+                mostrarToast(`🔴 Live iniciado como ${perfil.nombre}`);
+                agregarMensajeChat('🎥', `${perfil.nombre} inició una transmisión en vivo`);
+
+                let viewers = Math.floor(Math.random() * 5) + 1;
+                const interval = setInterval(async () => {
+                    if (!liveActivo) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    const change = Math.floor(Math.random() * 3) - 1;
+                    viewers = Math.max(1, Math.min(15, viewers + change));
+                    document.getElementById('liveViewers').textContent = viewers;
+                    await client.from('transmisiones').update({ espectadores: viewers }).eq('id', transmisionId);
+                }, 5000);
+
+                window._viewerInterval = interval;
+
+            } catch (err) {
+                console.error('Error:', err);
+                mostrarToast('❌ Error al iniciar live', 'error');
+            }
+        }
+
+        async function detenerLive() {
+            if (!liveActivo) return;
+
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+
+            const video = document.getElementById('liveVideo');
+            video.srcObject = null;
+            video.style.display = 'none';
+            document.getElementById('videoPlaceholder').style.display = 'flex';
+            document.getElementById('liveOverlay').style.display = 'none';
+
+            liveActivo = false;
+            document.getElementById('btnIniciarLive').style.display = 'inline-flex';
+            document.getElementById('btnDetenerLive').style.display = 'none';
+
+            if (transmisionId) {
+                const client = await esperarSupabase();
+                await client.from('transmisiones').update({
+                    activa: false,
+                    fin: new Date().toISOString()
+                }).eq('id', transmisionId);
+            }
+
+            if (window._viewerInterval) {
+                clearInterval(window._viewerInterval);
+                window._viewerInterval = null;
+            }
+
+            mostrarToast('⏹️ Live finalizado');
+            agregarMensajeChat('📢', 'El live ha finalizado');
+        }
+
+        // ⚠️ TODO: reemplazar con la función real procesar_transaccion_commit()
+        function donarLive() {
+            mostrarToast('⚠️ Donaciones CMT aún no conectadas al sistema real', 'error');
+        }
+
+        // ================================================================
+        // 💬 CHAT
+        // ================================================================
+        async function enviarMensaje() {
+            const input = document.getElementById('chatInput');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            const user = await obtenerUsuario();
+            if (!user) {
+                mostrarToast('❌ Error de autenticación', 'error');
+                return;
+            }
+
+            const perfil = await obtenerPerfilLocal(user.id);
+            const nombre = perfil?.nombre || 'Usuario';
+
+            agregarMensajeChat(nombre, texto);
+            input.value = '';
+
+            try {
+                const client = await esperarSupabase();
+                await client.from('posts_muro').insert({
+                    usuario_id: user.id,
+                    contenido: texto,
+                    tipo: 'chat_live'
+                });
+            } catch (e) {
+                console.warn('Error guardando mensaje:', e);
+            }
+        }
+
+        function agregarMensajeChat(usuario, mensaje) {
+            const chatBox = document.getElementById('chatBox');
+            const div = document.createElement('div');
+            div.className = 'chat-message';
+            div.innerHTML = `<span class="user">${usuario}:</span> ${mensaje}`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // ================================================================
+        // 📝 FEED
+        // ================================================================
+        async function cargarFeed() {
+            try {
+                const client = await esperarSupabase();
+                const { data, error } = await client
+                    .from('posts_muro')
+                    .select('id, contenido, created_at, perfiles(nombre)')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                const container = document.getElementById('feedContainer');
+                container.innerHTML = '';
+
+                data.forEach(post => {
+                    const nombre = post.perfiles?.nombre || 'Usuario';
+                    const div = document.createElement('div');
+                    div.className = 'feed-item';
+                    div.innerHTML = `
+                        <div class="feed-header">
+                            <div class="feed-avatar">${nombre.charAt(0).toUpperCase()}</div>
+                            <span class="feed-author">${nombre}</span>
+                            <span class="feed-time">${formatearFecha(post.created_at)}</span>
+                        </div>
+                        <div class="feed-content">${post.contenido}</div>
+                        <div class="feed-actions">
+                            <button><i class="fas fa-heart"></i> 0</button>
+                            <button><i class="fas fa-comment"></i> 0</button>
+                            <button><i class="fas fa-share"></i> Compartir</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                if (data.length === 0) {
+                    container.innerHTML = `
+                        <div class="feed-item" style="text-align:center;color:var(--text-muted);padding:30px;">
+                            <div style="font-size:2rem;margin-bottom:10px;">📝</div>
+                            No hay publicaciones aún
+                        </div>
+                    `;
+                }
+
+            } catch (e) {
+                console.error('Error cargando feed:', e);
+            }
+        }
+
+        function formatearFecha(fecha) {
+            const diff = Date.now() - new Date(fecha).getTime();
+            const minutos = Math.floor(diff / 60000);
+            if (minutos < 1) return 'Ahora';
+            if (minutos < 60) return `Hace ${minutos}m`;
+            const horas = Math.floor(minutos / 60);
+            if (horas < 24) return `Hace ${horas}h`;
+            return `Hace ${Math.floor(horas / 24)}d`;
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            // initStars() y mostrarToast() vienen de red-main.js
+            initStars();
+            await cargarFeed();
+
+            document.getElementById('chatInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') enviarMensaje();
+            });
+
+            console.log('📹 Csariel\'s Muro Live con Supabase');
+        });
+
+        // Exponer funciones globales
+        window.iniciarLive = iniciarLive;
+        window.detenerLive = detenerLive;
+        window.donarLive = donarLive;
+        window.enviarMensaje = enviarMensaje;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
