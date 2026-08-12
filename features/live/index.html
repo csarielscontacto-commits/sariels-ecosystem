@@ -6,14 +6,12 @@
     <title>📹 Muro Live | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
 
-    <!-- ===== SUPABASE SDK ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
     <style>
-        /* ===== TODOS LOS ESTILOS AQUÍ ===== */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -275,6 +273,39 @@
             50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
         }
 
+        /* Botón Iniciar Live pequeño */
+        .btn-start-live {
+            background: linear-gradient(135deg, var(--live-red), #cc0033);
+            border-color: var(--live-red);
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 15px rgba(255,0,51,0.2);
+            animation: pulse-live 1.5s ease-in-out infinite;
+            padding: 5px 14px;
+            font-size: 0.55rem;
+        }
+        .btn-start-live:hover {
+            box-shadow: 0 0 30px rgba(255,0,51,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-live {
+            0%, 100% { box-shadow: 0 0 15px rgba(255,0,51,0.2); }
+            50% { box-shadow: 0 0 30px rgba(255,0,51,0.4); }
+        }
+        .btn-start-live .live-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: dot-pulse 1s infinite;
+            margin-right: 4px;
+        }
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
         .status-badge {
             padding: 4px 12px;
             font-size: 0.5rem;
@@ -386,10 +417,6 @@
             border-radius: 50%;
             animation: dot-pulse 1s infinite;
         }
-        @keyframes dot-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
         .sidebar-left .live-now .live-title {
             font-size: 0.8rem;
             font-weight: 600;
@@ -439,6 +466,19 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+        }
+
+        .feed-column .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .feed-column .feed-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            color: var(--text-primary);
         }
 
         /* ===== CREAR PUBLICACIÓN ===== */
@@ -588,6 +628,7 @@
             color: var(--danger);
         }
 
+        /* ===== POST EN VIVO ===== */
         .post-live {
             border-left: 3px solid var(--live-red);
             position: relative;
@@ -609,6 +650,17 @@
         @keyframes pulse-live-badge {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
+        }
+        .post-live .live-viewers {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .post-live .live-viewers i {
+            color: var(--live-red);
         }
 
         /* ===== SIDEBAR DERECHA ===== */
@@ -879,6 +931,10 @@
                 <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
                     <i class="fas fa-file-contract"></i> Términos
                 </a>
+                <!-- Botón Iniciar Live pequeño -->
+                <button class="btn btn-start-live btn-sm" onclick="iniciarLive()">
+                    <span class="live-dot"></span> Iniciar Live
+                </button>
             </div>
         </header>
 
@@ -920,6 +976,11 @@
             <!-- ===== COLUMNA CENTRAL (FEED) ===== -->
             <main class="feed-column">
 
+                <div class="feed-header">
+                    <h2>📹 Muro Live</h2>
+                    <span style="font-size:0.6rem;color:var(--text-muted);">En vivo ahora</span>
+                </div>
+
                 <!-- Crear Publicación -->
                 <div class="create-post">
                     <div class="post-input-row">
@@ -948,7 +1009,6 @@
             <!-- ===== SIDEBAR DERECHA ===== -->
             <aside class="sidebar-right">
 
-                <!-- Mi Red -->
                 <div class="section-title">Mi Red</div>
                 <p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:8px;">Conecta. Comparte. Crece.</p>
 
@@ -960,7 +1020,6 @@
 
                 <div style="margin: 12px 0; border-bottom: 1px solid var(--gold-dim);"></div>
 
-                <!-- Mi historia -->
                 <div class="section-title">Mi historia</div>
                 <div class="story-item" onclick="mostrarToast('📸 Comparte algo...')">
                     <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">+</div>
@@ -972,7 +1031,6 @@
 
                 <div style="margin: 8px 0 12px; border-bottom: 1px solid var(--gold-dim);"></div>
 
-                <!-- Historias -->
                 <div class="section-title">Historias</div>
                 <div id="historiasContainer">
                     <div class="story-item">
@@ -1007,7 +1065,6 @@
 
                 <div style="margin: 12px 0; border-bottom: 1px solid var(--gold-dim);"></div>
 
-                <!-- Tendencias -->
                 <div class="section-title">Tendencias</div>
                 <div id="tendenciasContainer">
                     <div class="trending-item">
@@ -1052,19 +1109,15 @@
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS - CON SUPABASE DIRECTO (SIN CONECTORES EXTERNOS) -->
+    <!-- 🔥 SCRIPTS - CON SUPABASE YA CONFIGURADO -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
-        // 🔑 CONFIGURACIÓN SUPABASE (PON TUS DATOS AQUÍ)
+        // 🔑 CONFIGURACIÓN SUPABASE
         // ================================================================
-        // ⚠️ REEMPLAZA ESTOS VALORES CON LOS TUYOS
         const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI'; // <-- PON TU CLAVE AQUÍ
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc2Mzg4OTAsImV4cCI6MjA1MzIxNDg5MH0.Gx5Q3sFdKqDfCwJ3hWnG7Qn1p6rHnKbUzVr8Y2QO5tQ';
 
-        // ================================================================
-        // INICIALIZAR SUPABASE
-        // ================================================================
         let supabaseClient = null;
 
         function getSupabase() {
@@ -1308,6 +1361,12 @@
                             <span class="post-time">${tiempo}</span>
                         </div>
                         <div class="post-content">${escapeHTML(post.contenido)}</div>
+                        ${data.indexOf(post) === 0 ? `
+                        <div class="live-viewers">
+                            <i class="fas fa-circle" style="color:#ff0033;font-size:0.4rem;"></i>
+                            1,256 espectadores
+                        </div>
+                        ` : ''}
                         <div class="post-stats">
                             <button class="${liked ? 'liked' : ''}" onclick="darLike('${post.id}', this)">
                                 <i class="fas fa-heart"></i>
@@ -1340,6 +1399,13 @@
                     </div>
                 `;
             }
+        }
+
+        // ================================================================
+        // INICIAR LIVE (REDIRIGE A LA TRANSMISIÓN)
+        // ================================================================
+        function iniciarLive() {
+            window.location.href = 'transmitir.html';
         }
 
         // ================================================================
@@ -1438,7 +1504,6 @@
         document.addEventListener('DOMContentLoaded', async function() {
             initStars();
 
-            // Verificar conexión a Supabase
             try {
                 const client = getSupabase();
                 const { data, error } = await client.from('posts_muro').select('count').limit(1);
@@ -1468,7 +1533,7 @@
                 }
             });
 
-            console.log('📹 Csariel\'s - Muro Live REAL (Supabase Directo)');
+            console.log('📹 Csariel\'s - Muro Live REAL (Supabase)');
         });
 
         // Exponer funciones globales
@@ -1476,6 +1541,7 @@
         window.darLike = darLike;
         window.cargarFeed = cargarFeed;
         window.mostrarToast = mostrarToast;
+        window.iniciarLive = iniciarLive;
         window.getSupabase = getSupabase;
     </script>
 </body>
