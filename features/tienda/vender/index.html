@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Vender NFTs | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <style>
+        /* ===== ESTILOS ===== */
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-success {
+            background: rgba(0,184,148,0.15);
+            border-color: rgba(0,184,148,0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) { background: rgba(0,184,148,0.25); }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover { box-shadow: 0 0 40px rgba(168,85,247,0.4); transform: scale(1.03); }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover { box-shadow: 0 0 40px rgba(0,212,255,0.4); transform: scale(1.03); }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        /* ===== TIENDA - VENDER ===== */
+        .shop-container {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .shop-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.08;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-dim);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .shop-header .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--gold-cosmic);
+        }
+        .shop-header .title small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .shop-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .shop-nav .btn.active {
+            background: rgba(212,175,55,0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== WALLET CONNECT ===== */
+        .wallet-section {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .wallet-section .wallet-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .wallet-section .wallet-status .address {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        .wallet-section .wallet-status .network {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+        .wallet-section .wallet-status .network .polygon {
+            color: #8247E5;
+        }
+
+        /* ===== FORMULARIO ===== */
+        .form-nft {
+            background: rgba(0,0,0,0.15);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+        .form-nft .form-group {
+            margin-bottom: 14px;
+        }
+        .form-nft .form-group label {
+            display: block;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-nft .form-group input,
+        .form-nft .form-group textarea,
+        .form-nft .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .form-nft .form-group input:focus,
+        .form-nft .form-group textarea:focus,
+        .form-nft .form-group select:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .form-nft .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-nft .form-group .file-input {
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px dashed var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .form-nft .form-group .file-input:hover {
+            border-color: var(--gold-cosmic);
+        }
+        .form-nft .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ===== TOKENS DE LEALTAD ===== */
+        .loyalty-section {
+            margin-top: 24px;
+            border-top: 1px solid var(--gold-dim);
+            padding-top: 20px;
+        }
+        .loyalty-section .loyalty-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 12px;
+        }
+        .loyalty-section .token-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+        .loyalty-section .token-card {
+            background: rgba(0,184,148,0.05);
+            border: 1px solid rgba(0,184,148,0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .loyalty-section .token-card:hover {
+            border-color: rgba(0,184,148,0.3);
+        }
+        .loyalty-section .token-card .emoji { font-size: 2rem; }
+        .loyalty-section .token-card .name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-primary);
+        }
+        .loyalty-section .token-card .value {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+        .toast.success { background: var(--success); color: white; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .shop-header { flex-direction: column; align-items: flex-start; }
+            .form-nft .form-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+            .loyalty-section .token-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="app">
+
+        <!-- HEADER -->
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Tienda</span>
+            </a>
+            <div class="header-actions">
+                <a href="/" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-video"></i> Live</a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm"><i class="fas fa-comments"></i> Foro</a>
+                <a href="/features/trading/index.html" class="btn btn-outline btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
+                <a href="/features/servicios/index.html" class="btn btn-outline btn-sm"><i class="fas fa-tools"></i> Servicios</a>
+                <a href="/features/internet/index.html" class="btn btn-outline btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+            </div>
+        </header>
+
+        <!-- ===== TIENDA - VENDER ===== -->
+        <div class="shop-container">
+            <div class="shop-header">
+                <div>
+                    <div class="title">💰 Vender NFTs <small>— Sube tus NFTs al mercado</small></div>
+                </div>
+                <div>
+                    <button class="btn btn-gold btn-sm" onclick="conectarWallet()" id="btnWallet">
+                        <i class="fas fa-wallet"></i> <span id="walletText">Conectar MetaMask</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navegación -->
+            <div class="shop-nav">
+                <a href="/features/tienda/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-store"></i> Catálogo
+                </a>
+                <a href="/features/tienda/comprar/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-shopping-cart"></i> Comprar
+                </a>
+                <a href="/features/tienda/vender/index.html" class="btn btn-gold btn-sm active">
+                    <i class="fas fa-tag"></i> Vender
+                </a>
+                <a href="/features/tienda/nft/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-image"></i> Galería
+                </a>
+                <a href="/features/tienda/lealtad/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gift"></i> Lealtad
+                </a>
+            </div>
+
+            <!-- Estado de Wallet -->
+            <div class="wallet-section" id="walletSection">
+                <div class="wallet-status">
+                    <div>
+                        <span id="walletStatusIcon" style="color:var(--text-muted);">⚠️</span>
+                        <span id="walletStatusText" style="font-size:0.75rem;color:var(--text-muted);">Cartera no conectada</span>
+                    </div>
+                    <div class="address" id="walletAddress">0x0000...0000</div>
+                    <div class="network" id="walletNetwork">🌐 Red: <span class="polygon">Polygon</span></div>
+                </div>
+            </div>
+
+            <!-- Formulario de Venta -->
+            <div class="form-nft" id="formNFT">
+                <h3 style="font-family:'Orbitron';font-size:0.8rem;color:var(--gold-cosmic);margin-bottom:12px;">
+                    <i class="fas fa-upload"></i> Subir NFT para Venta
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre del NFT *</label>
+                        <input type="text" id="nftNombre" placeholder="Ej: CyberPunk #001" />
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="nftCategoria">
+                            <option value="arte">Arte Digital</option>
+                            <option value="musica">Música</option>
+                            <option value="juegos">Juegos</option>
+                            <option value="coleccionable">Coleccionable</option>
+                            <option value="utilidad">Utilidad</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="nftDescripcion" placeholder="Describe tu NFT..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio (CMT) *</label>
+                        <input type="number" id="nftPrecio" placeholder="100" min="1" />
+                    </div>
+                    <div class="form-group">
+                        <label>Precio (MATIC) opcional</label>
+                        <input type="number" id="nftPrecioMATIC" placeholder="10" min="0" step="0.01" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Imagen del NFT *</label>
+                    <div class="file-input" onclick="document.getElementById('nftFile').click()">
+                        <i class="fas fa-cloud-upload-alt"></i> <span id="fileLabel">Haz clic para seleccionar imagen</span>
+                    </div>
+                    <input type="file" id="nftFile" accept="image/*" style="display:none;" onchange="handleFileSelect(event)" />
+                </div>
+                <div class="form-group">
+                    <label>Derechos de autor</label>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <label style="font-size:0.7rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+                            <input type="radio" name="derechos" value="completo" checked /> Completo
+                        </label>
+                        <label style="font-size:0.7rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+                            <input type="radio" name="derechos" value="limitado" /> Limitado
+                        </label>
+                        <label style="font-size:0.7rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+                            <input type="radio" name="derechos" value="cc" /> Creative Commons
+                        </label>
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+                    <button class="btn btn-gold" onclick="publicarNFT()" id="btnPublicar">
+                        <i class="fas fa-rocket"></i> Publicar NFT
+                    </button>
+                    <button class="btn btn-outline" onclick="limpiarFormulario()">
+                        <i class="fas fa-undo"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== TOKENS DE LEALTAD ===== -->
+            <div class="loyalty-section">
+                <div class="loyalty-title">
+                    <i class="fas fa-gift" style="color:var(--success);"></i> Tokens de Lealtad
+                    <span style="font-size:0.6rem;color:var(--text-muted);font-family:'Space Grotesk',sans-serif;">Regala tokens a tu comunidad</span>
+                </div>
+                <div class="token-grid" id="loyaltyGrid">
+                    <div class="token-card">
+                        <div class="emoji">🪙</div>
+                        <div class="name">Token Plata</div>
+                        <div class="value">Valor: 10 CMT</div>
+                        <button class="btn btn-success btn-sm" style="margin-top:6px;width:100%;" onclick="regalarToken('plata')">
+                            <i class="fas fa-gift"></i> Regalar
+                        </button>
+                    </div>
+                    <div class="token-card">
+                        <div class="emoji">🥇</div>
+                        <div class="name">Token Oro</div>
+                        <div class="value">Valor: 50 CMT</div>
+                        <button class="btn btn-success btn-sm" style="margin-top:6px;width:100%;" onclick="regalarToken('oro')">
+                            <i class="fas fa-gift"></i> Regalar
+                        </button>
+                    </div>
+                    <div class="token-card">
+                        <div class="emoji">💎</div>
+                        <div class="name">Token Diamante</div>
+                        <div class="value">Valor: 200 CMT</div>
+                        <button class="btn btn-success btn-sm" style="margin-top:6px;width:100%;" onclick="regalarToken('diamante')">
+                            <i class="fas fa-gift"></i> Regalar
+                        </button>
+                    </div>
+                    <div class="token-card">
+                        <div class="emoji">⭐</div>
+                        <div class="name">Token Legendario</div>
+                        <div class="value">Valor: 500 CMT</div>
+                        <button class="btn btn-success btn-sm" style="margin-top:6px;width:100%;" onclick="regalarToken('legendario')">
+                            <i class="fas fa-gift"></i> Regalar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Tienda de NFTs · Lealtad · Web3
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/red/index.html">👥 Mi Red</a>
+                <a href="/features/live/index.html">📹 Live</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/servicios/index.html">🛠️ Servicios</a>
+                <a href="/features/internet/index.html">🌐 Internet</a>
+                <a href="/features/wallet/index.html">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔥 SCRIPTS - TIENDA VENDER NFTs -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🔌 ESPERAR SUPABASE
+        // ================================================================
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        // ================================================================
+        // 👤 OBTENER USUARIO
+        // ================================================================
+        async function obtenerUsuario() {
+            try {
+                const client = await esperarSupabase();
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await client.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    return data.user;
+                }
+                return user;
+            } catch (e) {
+                console.error('Error de autenticación:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 🔐 SEGURIDAD 4x4
+        // ================================================================
+        const Security4x4 = {
+            // Capa 1: Validación de cartera
+            validarWallet: function(address) {
+                if (!address || !address.startsWith('0x') || address.length !== 42) {
+                    mostrarToast('❌ Cartera inválida. Debe ser una dirección Ethereum válida.', 'error');
+                    return false;
+                }
+                return true;
+            },
+
+            // Capa 2: Rate Limiting (límite de operaciones)
+            rateLimits: {},
+
+            verificarRateLimit: function(userId, operacion, limite = 10, tiempo = 60000) {
+                const key = `${userId}_${operacion}`;
+                const ahora = Date.now();
+                if (!this.rateLimits[key]) {
+                    this.rateLimits[key] = [];
+                }
+                // Filtrar operaciones antiguas
+                this.rateLimits[key] = this.rateLimits[key].filter(t => ahora - t < tiempo);
+                if (this.rateLimits[key].length >= limite) {
+                    mostrarToast(`⚠️ Límite de ${limite} operaciones por minuto excedido.`, 'error');
+                    return false;
+                }
+                this.rateLimits[key].push(ahora);
+                return true;
+            },
+
+            // Capa 3: Validación de precio
+            validarPrecio: function(precio) {
+                if (isNaN(precio) || precio <= 0) {
+                    mostrarToast('❌ Precio inválido. Debe ser un número positivo.', 'error');
+                    return false;
+                }
+                if (precio > 999999) {
+                    mostrarToast('❌ Precio demasiado alto. Máximo 999,999 CMT.', 'error');
+                    return false;
+                }
+                return true;
+            },
+
+            // Capa 4: Escrow y firma
+            firmarTransaccion: async function(datos) {
+                try {
+                    if (!window.ethereum) {
+                        mostrarToast('❌ MetaMask no está instalada.', 'error');
+                        return false;
+                    }
+                    // Simular firma - en producción sería una firma real
+                    const mensaje = `Firmar venta de NFT: ${datos.nombre} por ${datos.precio} CMT`;
+                    const signature = await window.ethereum.request({
+                        method: 'personal_sign',
+                        params: [mensaje, window.ethereum.selectedAddress]
+                    });
+                    if (!signature) {
+                        mostrarToast('❌ Firma rechazada.', 'error');
+                        return false;
+                    }
+                    return signature;
+                } catch (e) {
+                    console.error('Error en firma:', e);
+                    mostrarToast('❌ Error al firmar transacción.', 'error');
+                    return false;
+                }
+            }
+        };
+
+        // ================================================================
+        // 🔗 CONEXIÓN CON METAMASK
+        // ================================================================
+        let walletAddress = null;
+        let walletConnected = false;
+
+        async function conectarWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    mostrarToast('❌ MetaMask no está instalada. Descárgala de metamask.io', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (accounts.length > 0) {
+                    walletAddress = accounts[0];
+                    walletConnected = true;
+                    document.getElementById('walletText').textContent = '✅ Conectado';
+                    document.getElementById('walletAddress').textContent = walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+                    document.getElementById('walletStatusIcon').textContent = '✅';
+                    document.getElementById('walletStatusText').textContent = 'Cartera conectada correctamente';
+                    document.getElementById('walletStatusText').style.color = 'var(--success)';
+                    document.getElementById('btnWallet').className = 'btn btn-success btn-sm';
+                    document.getElementById('btnPublicar').disabled = false;
+
+                    // Verificar red (Polygon)
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    if (chainId !== '0x89') { // Polygon Mainnet
+                        mostrarToast('⚠️ Cambia a la red Polygon Mainnet', 'warning');
+                    }
+
+                    mostrarToast('✅ Cartera conectada correctamente');
+                    cargarBalanceWallet();
+                }
+            } catch (e) {
+                console.error('Error conectando wallet:', e);
+                mostrarToast('❌ Error al conectar MetaMask', 'error');
+            }
+        }
+
+        async function cargarBalanceWallet() {
+            if (!walletConnected || !window.ethereum) return;
+            try {
+                const balance = await window.ethereum.request({
+                    method: 'eth_getBalance',
+                    params: [walletAddress, 'latest']
+                });
+                const ethBalance = parseInt(balance, 16) / 1e18;
+                document.getElementById('walletStatusText').textContent += ` (${ethBalance.toFixed(4)} MATIC)`;
+            } catch (e) {
+                console.warn('No se pudo cargar balance:', e);
+            }
+        }
+
+        // ================================================================
+        // 🖼️ SUBIR NFT
+        // ================================================================
+        let imagenSeleccionada = null;
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                imagenSeleccionada = file;
+                document.getElementById('fileLabel').textContent = `📷 ${file.name}`;
+                // Validar tamaño (máx 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    mostrarToast('⚠️ La imagen es muy grande. Máximo 5MB.', 'error');
+                    document.getElementById('fileLabel').textContent = 'Haz clic para seleccionar imagen';
+                    imagenSeleccionada = null;
+                    return;
+                }
+                // Validar tipo
+                if (!file.type.startsWith('image/')) {
+                    mostrarToast('⚠️ Solo se permiten imágenes.', 'error');
+                    document.getElementById('fileLabel').textContent = 'Haz clic para seleccionar imagen';
+                    imagenSeleccionada = null;
+                    return;
+                }
+            }
+        }
+
+        async function publicarNFT() {
+            // === CAPA 1: Validar wallet ===
+            if (!walletConnected) {
+                mostrarToast('❌ Conecta tu MetaMask primero.', 'error');
+                return;
+            }
+
+            // === CAPA 2: Rate Limiting ===
+            const user = await obtenerUsuario();
+            if (!user) {
+                mostrarToast('❌ Error de autenticación.', 'error');
+                return;
+            }
+            if (!Security4x4.verificarRateLimit(user.id, 'publicar_nft', 5, 60000)) {
+                return;
+            }
+
+            // === CAPA 3: Validar formulario ===
+            const nombre = document.getElementById('nftNombre').value.trim();
+            const categoria = document.getElementById('nftCategoria').value;
+            const descripcion = document.getElementById('nftDescripcion').value.trim();
+            const precioCMT = parseFloat(document.getElementById('nftPrecio').value);
+            const precioMATIC = parseFloat(document.getElementById('nftPrecioMATIC').value) || 0;
+            const derechos = document.querySelector('input[name="derechos"]:checked')?.value || 'completo';
+
+            if (!nombre) {
+                mostrarToast('❌ Ingresa un nombre para el NFT.', 'error');
+                return;
+            }
+            if (nombre.length > 50) {
+                mostrarToast('❌ El nombre es muy largo. Máximo 50 caracteres.', 'error');
+                return;
+            }
+            if (!Security4x4.validarPrecio(precioCMT)) return;
+            if (!imagenSeleccionada) {
+                mostrarToast('❌ Selecciona una imagen para el NFT.', 'error');
+                return;
+            }
+
+            // === CAPA 4: Firma ===
+            const firma = await Security4x4.firmarTransaccion({
+                nombre: nombre,
+                precio: precioCMT,
+                usuario: user.id
+            });
+            if (!firma) return;
+
+            // === PROCESAR PUBLICACIÓN ===
+            try {
+                mostrarToast('⏳ Publicando NFT... Espere un momento.', 'info');
+                document.getElementById('btnPublicar').disabled = true;
+
+                // Guardar en Supabase
+                const client = await esperarSupabase();
+                const { data, error } = await client
+                    .from('nfts')
+                    .insert({
+                        nombre: nombre,
+                        categoria: categoria,
+                        descripcion: descripcion || '',
+                        precio_cmt: precioCMT,
+                        precio_matic: precioMATIC,
+                        derechos: derechos,
+                        imagen_url: '', // Aquí iría la URL de IPFS
+                        vendedor_id: user.id,
+                        wallet_address: walletAddress,
+                        firma: firma,
+                        activo: true,
+                        created_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Error Supabase:', error);
+                    mostrarToast('❌ Error al publicar NFT: ' + error.message, 'error');
+                    return;
+                }
+
+                mostrarToast(`✅ NFT "${nombre}" publicado exitosamente!`, 'success');
+                limpiarFormulario();
+                // Registrar en lealtad (bonificación)
+                await registrarTokenLealtad(user.id, 'publicacion_nft', 10);
+
+            } catch (e) {
+                console.error('Error publicando NFT:', e);
+                mostrarToast('❌ Error al publicar NFT', 'error');
+            } finally {
+                document.getElementById('btnPublicar').disabled = false;
+            }
+        }
+
+        // ================================================================
+        // 🎁 TOKENS DE LEALTAD
+        // ================================================================
+        async function regalarToken(tipo) {
+            const user = await obtenerUsuario();
+            if (!user) {
+                mostrarToast('❌ Error de autenticación.', 'error');
+                return;
+            }
+
+            // Rate limiting
+            if (!Security4x4.verificarRateLimit(user.id, 'regalar_token', 20, 60000)) {
+                return;
+            }
+
+            const valores = {
+                plata: { valor: 10, emoji: '🪙', nombre: 'Token Plata' },
+                oro: { valor: 50, emoji: '🥇', nombre: 'Token Oro' },
+                diamante: { valor: 200, emoji: '💎', nombre: 'Token Diamante' },
+                legendario: { valor: 500, emoji: '⭐', nombre: 'Token Legendario' }
+            };
+
+            const token = valores[tipo];
+            if (!token) {
+                mostrarToast('❌ Token no válido.', 'error');
+                return;
+            }
+
+            const destinatario = prompt('Ingresa el nombre de usuario del destinatario:');
+            if (!destinatario || destinatario.trim() === '') {
+                mostrarToast('❌ Destinatario no válido.', 'error');
+                return;
+            }
+
+            if (confirm(`¿Regalar ${token.emoji} ${token.nombre} (${token.valor} CMT) a ${destinatario}?`)) {
+                try {
+                    // Buscar destinatario en Supabase
+                    const client = await esperarSupabase();
+                    const { data: perfil, error } = await client
+                        .from('perfiles')
+                        .select('user_id')
+                        .ilike('nombre', `%${destinatario.trim()}%`)
+                        .maybeSingle();
+
+                    if (error || !perfil) {
+                        mostrarToast('❌ Usuario no encontrado.', 'error');
+                        return;
+                    }
+
+                    // Verificar que no sea uno mismo
+                    if (perfil.user_id === user.id) {
+                        mostrarToast('❌ No puedes regalarte un token a ti mismo.', 'error');
+                        return;
+                    }
+
+                    await registrarTokenLealtad(perfil.user_id, tipo, token.valor);
+                    await registrarTokenLealtad(user.id, 'regalar_' + tipo, 1);
+                    mostrarToast(`✅ ¡${token.emoji} Token de ${token.nombre} regalado a ${destinatario}!`, 'success');
+
+                } catch (e) {
+                    console.error('Error regalando token:', e);
+                    mostrarToast('❌ Error al regalar token', 'error');
+                }
+            }
+        }
+
+        async function registrarTokenLealtad(userId, tipo, valor) {
+            try {
+                const client = await esperarSupabase();
+                const { error } = await client
+                    .from('lealtad_tokens')
+                    .insert({
+                        usuario_id: userId,
+                        tipo: tipo,
+                        valor: valor,
+                        fecha: new Date().toISOString()
+                    });
+
+                if (error) throw error;
+                return true;
+            } catch (e) {
+                console.warn('Error registrando token de lealtad:', e);
+                return false;
+            }
+        }
+
+        // ================================================================
+        // 🧹 LIMPIAR FORMULARIO
+        // ================================================================
+        function limpiarFormulario() {
+            document.getElementById('nftNombre').value = '';
+            document.getElementById('nftCategoria').value = 'arte';
+            document.getElementById('nftDescripcion').value = '';
+            document.getElementById('nftPrecio').value = '';
+            document.getElementById('nftPrecioMATIC').value = '';
+            document.getElementById('fileLabel').textContent = 'Haz clic para seleccionar imagen';
+            document.getElementById('nftFile').value = '';
+            imagenSeleccionada = null;
+            document.querySelector('input[name="derechos"][value="completo"]').checked = true;
+            mostrarToast('🧹 Formulario limpiado');
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+
+            // Verificar si MetaMask está instalada
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('🦊 MetaMask detectada');
+                // Detectar cambios de cuenta
+                window.ethereum.on('accountsChanged', function(accounts) {
+                    if (accounts.length === 0) {
+                        walletConnected = false;
+                        walletAddress = null;
+                        document.getElementById('walletText').textContent = 'Conectar MetaMask';
+                        document.getElementById('walletAddress').textContent = '0x0000...0000';
+                        document.getElementById('walletStatusIcon').textContent = '⚠️';
+                        document.getElementById('walletStatusText').textContent = 'Cartera desconectada';
+                        document.getElementById('walletStatusText').style.color = 'var(--text-muted)';
+                        document.getElementById('btnWallet').className = 'btn btn-gold btn-sm';
+                    } else {
+                        walletAddress = accounts[0];
+                        walletConnected = true;
+                        document.getElementById('walletAddress').textContent = walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+                    }
+                });
+            }
+
+            console.log('💰 Csariel\'s - Tienda Vender NFTs (Seguridad 4x4)');
+        });
+
+        // Exponer funciones globales
+        window.conectarWallet = conectarWallet;
+        window.publicarNFT = publicarNFT;
+        window.regalarToken = regalarToken;
+        window.limpiarFormulario = limpiarFormulario;
+        window.handleFileSelect = handleFileSelect;
+        window.mostrarToast = mostrarToast;
+        window.Security4x4 = Security4x4;
+    </script>
+</body>
+</html>
