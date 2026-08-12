@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="titulo_wallet">◈ Wallet CMT | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
 
     <!-- 🔒 CSP -->
     <meta http-equiv="Content-Security-Policy" content="
@@ -24,6 +25,13 @@
     <!-- ===== RECURSOS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <!-- ===== CONECTORES ===== -->
+    <script src="/js/client-config-loader.js"></script>
+    <script src="/js/security.js"></script>
+    <script src="/js/perfil-connector.js"></script>
+    <script src="/js/red-main.js"></script>
 
     <style>
         /* ================================================================
@@ -255,7 +263,6 @@
             50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
         }
 
-        /* ===== BOTÓN TIENDA ===== */
         .btn-tienda {
             background: linear-gradient(135deg, #a855f7, #7c3aed);
             border-color: transparent;
@@ -273,7 +280,6 @@
             50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
         }
 
-        /* ===== BOTÓN WALLET ===== */
         .btn-wallet {
             background: linear-gradient(135deg, #00d4ff, #0099ff);
             border-color: transparent;
@@ -317,7 +323,7 @@
         .lang-btn.active { border-color: var(--gold-cosmic); background: rgba(212,175,55,0.1); color: var(--gold-cosmic); }
 
         /* ================================================================
-           ESTILOS PROPIOS DE LA WALLET (SIN WEB3)
+           ESTILOS PROPIOS DE LA WALLET
            ================================================================ */
         .wallet-container {
             background: rgba(15,45,26,0.25);
@@ -516,15 +522,14 @@
 
     <div class="app">
 
-        <!-- HEADER CON TODOS LOS ENLACES Y SELECTOR DE IDIOMA (SIN WEB3) -->
+        <!-- HEADER CON TODOS LOS ENLACES -->
         <header class="header">
-            <a href="../../index.html" class="logo">
+            <a href="/" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
                 <span class="logo-badge" data-i18n="wallet">Wallet</span>
             </a>
             <div class="header-actions">
-                <!-- ===== SELECTOR DE IDIOMA ===== -->
                 <div class="language-selector">
                     <span class="lang-icon">🌐</span>
                     <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
@@ -532,37 +537,40 @@
                     <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
                 </div>
 
-                <a href="../../index.html" class="btn btn-outline btn-sm">
+                <a href="/" class="btn btn-outline btn-sm">
                     <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
                 </a>
-                <a href="../red/index.html" class="btn btn-primary btn-sm">
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm">
                     <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
                 </a>
-                <a href="../live/index.html" class="btn btn-outline btn-sm">
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm">
                     <i class="fas fa-video"></i> <span data-i18n="live">Live</span>
                 </a>
-                <a href="../foro/index.html" class="btn btn-outline btn-sm">
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm">
                     <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
                 </a>
-                <a href="../trading/index.html" class="btn btn-trading btn-sm">
+                <a href="/features/trading/index.html" class="btn btn-trading btn-sm">
                     <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
                 </a>
-                <a href="../servicios/index.html" class="btn btn-gold btn-sm">
+                <a href="/features/servicios/index.html" class="btn btn-gold btn-sm">
                     <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
                 </a>
-                <a href="../internet/index.html" class="btn btn-internet btn-sm">
+                <a href="/features/internet/index.html" class="btn btn-internet btn-sm">
                     <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
                 </a>
-                <a href="../tienda/index.html" class="btn btn-tienda btn-sm">
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm">
                     <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
                 </a>
-                <a href="../../terminos-completos.html" class="btn btn-outline btn-sm">
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
+                </a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm">
                     <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
                 </a>
             </div>
         </header>
 
-        <!-- ===== CONTENIDO DE LA WALLET (SIN WEB3) ===== -->
+        <!-- ===== CONTENIDO DE LA WALLET ===== -->
         <div class="wallet-container">
             <div class="wallet-card">
                 <div class="label">◈ SALDO CMT</div>
@@ -590,15 +598,15 @@
                 <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_wallet">Wallet · Gestión de CMT</span>
             </span>
             <div class="footer-links">
-                <a href="../../index.html" data-i18n="inicio">🏠 Inicio</a>
-                <a href="../red/index.html" data-i18n="mi_red">👥 Mi Red</a>
-                <a href="../live/index.html" data-i18n="live">📹 Live</a>
-                <a href="../foro/index.html" data-i18n="foro">💬 Foro</a>
-                <a href="../trading/index.html" data-i18n="trading">📈 Trading</a>
-                <a href="../servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
-                <a href="../internet/index.html" data-i18n="internet">🌐 Internet</a>
-                <a href="../tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
-                <a href="../../terminos-completos.html" data-i18n="terminos">📜 Términos</a>
+                <a href="/" data-i18n="inicio">🏠 Inicio</a>
+                <a href="/features/red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="/features/live/index.html" data-i18n="live">📹 Live</a>
+                <a href="/features/foro/index.html" data-i18n="foro">💬 Foro</a>
+                <a href="/features/trading/index.html" data-i18n="trading">📈 Trading</a>
+                <a href="/features/servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="/features/internet/index.html" data-i18n="internet">🌐 Internet</a>
+                <a href="/features/tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
+                <a href="/terminos-completos.html" data-i18n="terminos">📜 Términos</a>
                 <span class="footer-hex">◈</span>
             </div>
         </footer>
@@ -608,7 +616,7 @@
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS (SIN WEB3) -->
+    <!-- 🔥 SCRIPTS (CON SUPABASE) -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
@@ -786,28 +794,95 @@
         }
 
         // ================================================================
-        // WALLET (SIN WEB3 - SOLO CMT)
+        // 🔌 ESPERAR SUPABASE
         // ================================================================
-        let userId = localStorage.getItem('csariels_user_id') || 'user_' + Date.now();
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        // ================================================================
+        // 👤 OBTENER USUARIO
+        // ================================================================
+        async function obtenerUsuario() {
+            try {
+                const client = await esperarSupabase();
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await client.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    return data.user;
+                }
+                return user;
+            } catch (e) {
+                console.error('Error de autenticación:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // ◈ WALLET
+        // ================================================================
+        let userId = null;
         let balanceCMT = 0;
 
-        function cargarSaldo() {
-            // Cargar desde localStorage (o Supabase)
-            const saved = localStorage.getItem(`csariels_cmt_balance_${userId}`);
-            if (saved) {
-                balanceCMT = parseFloat(saved);
-            } else {
-                balanceCMT = 0;
-                localStorage.setItem(`csariels_cmt_balance_${userId}`, '0');
+        async function cargarSaldo() {
+            try {
+                const user = await obtenerUsuario();
+                if (user) {
+                    userId = user.id;
+                    localStorage.setItem('csariels_user_id', userId);
+                    
+                    // Intentar cargar desde Supabase
+                    try {
+                        const client = await esperarSupabase();
+                        const { data, error } = await client
+                            .from('perfiles')
+                            .select('cmt_balance')
+                            .eq('user_id', userId)
+                            .single();
+                        
+                        if (data && data.cmt_balance !== null) {
+                            balanceCMT = parseFloat(data.cmt_balance);
+                            localStorage.setItem(`csariels_cmt_balance_${userId}`, balanceCMT.toString());
+                        } else {
+                            // Fallback a localStorage
+                            const saved = localStorage.getItem(`csariels_cmt_balance_${userId}`);
+                            balanceCMT = saved ? parseFloat(saved) : 0;
+                        }
+                    } catch (e) {
+                        // Fallback a localStorage
+                        const saved = localStorage.getItem(`csariels_cmt_balance_${userId}`);
+                        balanceCMT = saved ? parseFloat(saved) : 0;
+                    }
+                } else {
+                    userId = localStorage.getItem('csariels_user_id') || 'guest';
+                    const saved = localStorage.getItem(`csariels_cmt_balance_${userId}`);
+                    balanceCMT = saved ? parseFloat(saved) : 0;
+                }
+            } catch (e) {
+                console.warn('Error cargando saldo:', e);
+                userId = localStorage.getItem('csariels_user_id') || 'guest';
+                const saved = localStorage.getItem(`csariels_cmt_balance_${userId}`);
+                balanceCMT = saved ? parseFloat(saved) : 0;
             }
+
             document.getElementById('userBalance').innerHTML = balanceCMT.toFixed(2) + ' <small>CMT</small>';
             
-            // Mostrar ID de usuario
-            const displayId = userId.length > 12 ? userId.slice(0, 8) + '...' + userId.slice(-4) : userId;
+            const displayId = userId && userId.length > 12 ? userId.slice(0, 8) + '...' + userId.slice(-4) : (userId || 'cargando...');
             document.getElementById('userIdDisplay').textContent = displayId;
         }
 
-        function recargarSaldo() {
+        async function recargarSaldo() {
             const monto = prompt('¿Cuántos CMT quieres recargar? (mínimo 1)', '10');
             if (!monto) return;
             const cantidad = parseFloat(monto);
@@ -815,13 +890,26 @@
                 mostrarToast('⚠️ Ingresa un número válido', 'error');
                 return;
             }
+            
             balanceCMT += cantidad;
             localStorage.setItem(`csariels_cmt_balance_${userId}`, balanceCMT.toString());
+            
+            // Intentar guardar en Supabase
+            try {
+                const client = await esperarSupabase();
+                await client
+                    .from('perfiles')
+                    .update({ cmt_balance: balanceCMT })
+                    .eq('user_id', userId);
+            } catch (e) {
+                console.warn('No se pudo guardar en Supabase:', e);
+            }
+            
             cargarSaldo();
             mostrarToast(`✅ Recarga exitosa! Nuevo saldo: ${balanceCMT.toFixed(2)} CMT`);
         }
 
-        function retirarSaldo() {
+        async function retirarSaldo() {
             const monto = prompt('¿Cuántos CMT quieres retirar?', '5');
             if (!monto) return;
             const cantidad = parseFloat(monto);
@@ -833,8 +921,20 @@
                 mostrarToast(`⚠️ Saldo insuficiente. Tienes ${balanceCMT.toFixed(2)} CMT`, 'error');
                 return;
             }
+            
             balanceCMT -= cantidad;
             localStorage.setItem(`csariels_cmt_balance_${userId}`, balanceCMT.toString());
+            
+            try {
+                const client = await esperarSupabase();
+                await client
+                    .from('perfiles')
+                    .update({ cmt_balance: balanceCMT })
+                    .eq('user_id', userId);
+            } catch (e) {
+                console.warn('No se pudo guardar en Supabase:', e);
+            }
+            
             cargarSaldo();
             mostrarToast(`✅ Retiro exitoso! Nuevo saldo: ${balanceCMT.toFixed(2)} CMT`);
         }
@@ -845,12 +945,12 @@
         document.addEventListener('DOMContentLoaded', async function() {
             initStars();
             await CSARIELS_IDIOMA.init();
-            cargarSaldo();
+            await cargarSaldo();
             
-            console.log('◈ Csariel\'s - Wallet CMT (SIN WEB3)');
-            console.log(`👤 Usuario: ${userId}`);
+            console.log('◈ Csariel\'s - Wallet CMT (CON SUPABASE)');
+            console.log(`👤 Usuario: ${userId || 'guest'}`);
+            console.log(`💰 Saldo: ${balanceCMT} CMT`);
 
-            // Escuchar cambios de idioma
             window.addEventListener('storage', (e) => {
                 if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
                     CSARIELS_IDIOMA.cambiar(e.newValue);
