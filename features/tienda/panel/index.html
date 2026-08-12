@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Panel Tienda | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-success {
+            background: rgba(0,184,148,0.15);
+            border-color: rgba(0,184,148,0.3);
+            color: var(--success);
+        }
+        .btn-success:hover:not(:disabled) { background: rgba(0,184,148,0.25); }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover { box-shadow: 0 0 40px rgba(168,85,247,0.4); transform: scale(1.03); }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover { box-shadow: 0 0 40px rgba(0,212,255,0.4); transform: scale(1.03); }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        .shop-container {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .shop-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.08;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-dim);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .shop-header .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--gold-cosmic);
+        }
+        .shop-header .title small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .shop-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .shop-nav .btn.active {
+            background: rgba(212,175,55,0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== PANEL STATS ===== */
+        .panel-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .panel-stats .stat-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .panel-stats .stat-card:hover {
+            border-color: var(--border-glow);
+        }
+        .panel-stats .stat-card .numero {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            color: var(--gold-cosmic);
+        }
+        .panel-stats .stat-card .label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .panel-stats .stat-card .icon {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .panel-stats .stat-card .trend {
+            font-size: 0.55rem;
+            margin-top: 4px;
+        }
+        .panel-stats .stat-card .trend.up {
+            color: var(--success);
+        }
+        .panel-stats .stat-card .trend.down {
+            color: var(--danger);
+        }
+
+        /* ===== TABLAS ===== */
+        .tabla-container {
+            margin-top: 16px;
+            overflow-x: auto;
+        }
+        .tabla-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .tabla-container table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.2);
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--gold-dim);
+        }
+        .tabla-container table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--gold-dim);
+            color: var(--text-secondary);
+        }
+        .tabla-container table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        .tabla-container table .status {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-family: 'Orbitron', monospace;
+        }
+        .tabla-container table .status.active {
+            background: rgba(0,184,148,0.15);
+            color: var(--success);
+        }
+        .tabla-container table .status.pending {
+            background: rgba(212,175,55,0.15);
+            color: var(--gold-cosmic);
+        }
+        .tabla-container table .status.canceled {
+            background: rgba(255,51,102,0.15);
+            color: var(--danger);
+        }
+
+        /* ===== TABS PANEL ===== */
+        .panel-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            background: rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 4px;
+        }
+        .panel-tabs button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .panel-tabs button:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.03);
+        }
+        .panel-tabs button.active {
+            background: rgba(212,175,55,0.1);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+        .toast.success { background: var(--success); color: white; }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .shop-header { flex-direction: column; align-items: flex-start; }
+            .panel-stats { grid-template-columns: 1fr 1fr; }
+            .panel-tabs { flex-direction: column; }
+        }
+        @media (max-width: 480px) {
+            .btn { font-size: 0.45rem; padding: 4px 8px; }
+            .panel-stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="app">
+
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Panel</span>
+            </a>
+            <div class="header-actions">
+                <a href="/" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm"><i class="fas fa-users"></i> Mi Red</a>
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm"><i class="fas fa-video"></i> Live</a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm"><i class="fas fa-comments"></i> Foro</a>
+                <a href="/features/trading/index.html" class="btn btn-outline btn-sm"><i class="fas fa-chart-line"></i> Trading</a>
+                <a href="/features/servicios/index.html" class="btn btn-outline btn-sm"><i class="fas fa-tools"></i> Servicios</a>
+                <a href="/features/internet/index.html" class="btn btn-outline btn-sm"><i class="fas fa-satellite-dish"></i> Internet</a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm"><i class="fas fa-store"></i> Tienda</a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm"><i class="fas fa-file-contract"></i> Términos</a>
+            </div>
+        </header>
+
+        <div class="shop-container">
+            <div class="shop-header">
+                <div>
+                    <div class="title">📊 Panel de Control <small>— Administra tu tienda</small></div>
+                </div>
+                <div>
+                    <button class="btn btn-success btn-sm" onclick="exportarReporte()">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div class="shop-nav">
+                <a href="/features/tienda/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-store"></i> Catálogo
+                </a>
+                <a href="/features/tienda/comprar/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-shopping-cart"></i> Comprar
+                </a>
+                <a href="/features/tienda/comprar-cmt/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-coins"></i> CMT
+                </a>
+                <a href="/features/tienda/vender/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-tag"></i> Vender
+                </a>
+                <a href="/features/tienda/subastas/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gavel"></i> Subastas
+                </a>
+                <a href="/features/tienda/nft/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-image"></i> Galería
+                </a>
+                <a href="/features/tienda/lealtad/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-gift"></i> Lealtad
+                </a>
+                <a href="/features/tienda/panel/index.html" class="btn btn-gold btn-sm active">
+                    <i class="fas fa-chart-pie"></i> Panel
+                </a>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="panel-stats">
+                <div class="stat-card">
+                    <span class="icon">💰</span>
+                    <div class="numero" id="totalVentas">$0</div>
+                    <div class="label">Ventas Totales</div>
+                    <div class="trend up">↑ 12% vs mes pasado</div>
+                </div>
+                <div class="stat-card">
+                    <span class="icon">🛒</span>
+                    <div class="numero" id="totalOrdenes">0</div>
+                    <div class="label">Órdenes</div>
+                    <div class="trend up">↑ 8% vs mes pasado</div>
+                </div>
+                <div class="stat-card">
+                    <span class="icon">👥</span>
+                    <div class="numero" id="totalUsuarios">0</div>
+                    <div class="label">Usuarios Activos</div>
+                    <div class="trend up">↑ 5% vs mes pasado</div>
+                </div>
+                <div class="stat-card">
+                    <span class="icon">🖼️</span>
+                    <div class="numero" id="totalNFTs">0</div>
+                    <div class="label">NFTs Publicados</div>
+                    <div class="trend up">↑ 15% vs mes pasado</div>
+                </div>
+                <div class="stat-card">
+                    <span class="icon">🎁</span>
+                    <div class="numero" id="totalTokens">0</div>
+                    <div class="label">Tokens Regalados</div>
+                    <div class="trend up">↑ 20% vs mes pasado</div>
+                </div>
+                <div class="stat-card">
+                    <span class="icon">🔨</span>
+                    <div class="numero" id="totalSubastas">0</div>
+                    <div class="label">Subastas Activas</div>
+                    <div class="trend down">↓ 3% vs mes pasado</div>
+                </div>
+            </div>
+
+            <!-- Tabs del Panel -->
+            <div class="panel-tabs">
+                <button class="active" onclick="cambiarTab('ventas')">📊 Ventas</button>
+                <button onclick="cambiarTab('usuarios')">👥 Usuarios</button>
+                <button onclick="cambiarTab('nfts')">🖼️ NFTs</button>
+                <button onclick="cambiarTab('subastas')">🔨 Subastas</button>
+                <button onclick="cambiarTab('tokens')">🎁 Tokens</button>
+            </div>
+
+            <!-- Contenido de tabs -->
+            <div id="panelContent">
+                <!-- Ventas -->
+                <div id="tab-ventas" class="tab-content">
+                    <div class="tabla-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Producto</th>
+                                    <th>Comprador</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ventasTable">
+                                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Cargando ventas...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Usuarios -->
+                <div id="tab-usuarios" class="tab-content" style="display:none;">
+                    <div class="tabla-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Tokens</th>
+                                    <th>Compras</th>
+                                    <th>Último acceso</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuariosTable">
+                                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Cargando usuarios...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NFTs -->
+                <div id="tab-nfts" class="tab-content" style="display:none;">
+                    <div class="tabla-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NFT</th>
+                                    <th>Artista</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="nftsTable">
+                                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Cargando NFTs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Subastas -->
+                <div id="tab-subastas" class="tab-content" style="display:none;">
+                    <div class="tabla-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Activo</th>
+                                    <th>Vendedor</th>
+                                    <th>Precio actual</th>
+                                    <th>Pujas</th>
+                                    <th>Tiempo</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subastasTable">
+                                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Cargando subastas...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tokens -->
+                <div id="tab-tokens" class="tab-content" style="display:none;">
+                    <div class="tabla-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Propietario</th>
+                                    <th>Cantidad</th>
+                                    <th>Valor</th>
+                                    <th>Último movimiento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tokensTable">
+                                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Cargando tokens...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Panel de Control · Administración
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/red/index.html">👥 Mi Red</a>
+                <a href="/features/live/index.html">📹 Live</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/servicios/index.html">🛠️ Servicios</a>
+                <a href="/features/internet/index.html">🌐 Internet</a>
+                <a href="/features/wallet/index.html">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        async function obtenerUsuario() {
+            try {
+                const client = await esperarSupabase();
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await client.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    return data.user;
+                }
+                return user;
+            } catch (e) {
+                console.error('Error de autenticación:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 📊 DATOS DE EJEMPLO
+        // ================================================================
+        function generarDatosEjemplo() {
+            // Ventas
+            const ventas = [
+                { id: '#V001', producto: 'Cubo Oro', comprador: 'Usuario1', monto: 10, fecha: '2024-01-15', estado: 'completado' },
+                { id: '#V002', producto: 'CyberPunk #1337', comprador: 'Usuario2', monto: 750, fecha: '2024-01-14', estado: 'completado' },
+                { id: '#V003', producto: 'Token Legendario', comprador: 'Usuario3', monto: 500, fecha: '2024-01-13', estado: 'pendiente' },
+                { id: '#V004', producto: 'Diamond Dragon', comprador: 'Usuario4', monto: 2000, fecha: '2024-01-12', estado: 'completado' },
+                { id: '#V005', producto: 'Cubo Plata', comprador: 'Usuario5', monto: 1, fecha: '2024-01-11', estado: 'cancelado' }
+            ];
+
+            // Usuarios
+            const usuarios = [
+                { nombre: 'Csariel', email: 'csariel@email.com', tokens: 25, compras: 12, ultimo_acceso: '2024-01-15' },
+                { nombre: 'Valeria', email: 'valeria@email.com', tokens: 8, compras: 5, ultimo_acceso: '2024-01-14' },
+                { nombre: 'Marquinhos AI', email: 'marquinhos@email.com', tokens: 15, compras: 8, ultimo_acceso: '2024-01-13' },
+                { nombre: 'Carlos M.', email: 'carlos@email.com', tokens: 3, compras: 2, ultimo_acceso: '2024-01-12' }
+            ];
+
+            // NFTs
+            const nfts = [
+                { nombre: 'CyberPunk #1337', artista: 'Csariel', precio: 750, estado: 'venta' },
+                { nombre: 'Diamond Dragon', artista: 'Valeria', precio: 2000, estado: 'subasta' },
+                { nombre: 'Pixel Art #042', artista: 'La Cabina', precio: 120, estado: 'venta' },
+                { nombre: 'Galactic Beat', artista: 'Marquinhos AI', precio: 450, estado: 'venta' }
+            ];
+
+            // Subastas
+            const subastas = [
+                { activo: 'Diamond Dragon', vendedor: 'Valeria', precio_actual: 2000, pujas: 12, tiempo: '2h 15m', estado: 'activa' },
+                { activo: 'Neon City', vendedor: 'Csariel', precio_actual: 890, pujas: 8, tiempo: '5h 30m', estado: 'activa' },
+                { activo: 'Token Legendario', vendedor: 'Marquinhos AI', precio_actual: 320, pujas: 6, tiempo: '1h 45m', estado: 'activa' }
+            ];
+
+            // Tokens
+            const tokens = [
+                { token: 'Token Oro', propietario: 'Csariel', cantidad: 5, valor: 50, ultimo_movimiento: '2024-01-15' },
+                { token: 'Token Plata', propietario: 'Valeria', cantidad: 10, valor: 10, ultimo_movimiento: '2024-01-14' },
+                { token: 'Token Diamante', propietario: 'Marquinhos AI', cantidad: 2, valor: 200, ultimo_movimiento: '2024-01-13' },
+                { token: 'Token Legendario', propietario: 'Carlos M.', cantidad: 1, valor: 500, ultimo_movimiento: '2024-01-12' }
+            ];
+
+            return { ventas, usuarios, nfts, subastas, tokens };
+        }
+
+        // ================================================================
+        // 🖥️ RENDERIZAR TABLAS
+        // ================================================================
+        function renderizarVentas(ventas) {
+            const tbody = document.getElementById('ventasTable');
+            if (!ventas || ventas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No hay ventas registradas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = ventas.map(v => `
+                <tr>
+                    <td><span style="color:var(--gold-cosmic);">${v.id}</span></td>
+                    <td>${v.producto}</td>
+                    <td>${v.comprador}</td>
+                    <td><span style="color:var(--gold-cosmic);">${v.monto} CMT</span></td>
+                    <td>${v.fecha}</td>
+                    <td><span class="status ${v.estado}">${v.estado.toUpperCase()}</span></td>
+                </tr>
+            `).join('');
+
+            // Actualizar estadísticas
+            const total = ventas.reduce((acc, v) => acc + v.monto, 0);
+            document.getElementById('totalVentas').textContent = total + ' CMT';
+            document.getElementById('totalOrdenes').textContent = ventas.length;
+        }
+
+        function renderizarUsuarios(usuarios) {
+            const tbody = document.getElementById('usuariosTable');
+            if (!usuarios || usuarios.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No hay usuarios registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = usuarios.map(u => `
+                <tr>
+                    <td><span style="color:var(--gold-cosmic);">${u.nombre}</span></td>
+                    <td>${u.email}</td>
+                    <td>${u.tokens}</td>
+                    <td>${u.compras}</td>
+                    <td>${u.ultimo_acceso}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('totalUsuarios').textContent = usuarios.length;
+        }
+
+        function renderizarNFTs(nfts) {
+            const tbody = document.getElementById('nftsTable');
+            if (!nfts || nfts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No hay NFTs publicados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = nfts.map(n => `
+                <tr>
+                    <td><span style="color:var(--gold-cosmic);">${n.nombre}</span></td>
+                    <td>${n.artista}</td>
+                    <td><span style="color:var(--gold-cosmic);">${n.precio} CMT</span></td>
+                    <td><span class="status ${n.estado === 'venta' ? 'active' : 'pending'}">${n.estado.toUpperCase()}</span></td>
+                    <td>
+                        <button class="btn btn-success btn-sm" onclick="mostrarToast('✅ NFT aprobado')"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="mostrarToast('❌ NFT eliminado')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('totalNFTs').textContent = nfts.length;
+        }
+
+        function renderizarSubastas(subastas) {
+            const tbody = document.getElementById('subastasTable');
+            if (!subastas || subastas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No hay subastas activas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = subastas.map(s => `
+                <tr>
+                    <td><span style="color:var(--gold-cosmic);">${s.activo}</span></td>
+                    <td>${s.vendedor}</td>
+                    <td><span style="color:var(--gold-cosmic);">${s.precio_actual} CMT</span></td>
+                    <td>${s.pujas}</td>
+                    <td>${s.tiempo}</td>
+                    <td><span class="status active">${s.estado.toUpperCase()}</span></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('totalSubastas').textContent = subastas.length;
+        }
+
+        function renderizarTokens(tokens) {
+            const tbody = document.getElementById('tokensTable');
+            if (!tokens || tokens.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No hay tokens registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = tokens.map(t => `
+                <tr>
+                    <td><span style="color:var(--gold-cosmic);">${t.token}</span></td>
+                    <td>${t.propietario}</td>
+                    <td>${t.cantidad}</td>
+                    <td><span style="color:var(--gold-cosmic);">${t.valor} CMT</span></td>
+                    <td>${t.ultimo_movimiento}</td>
+                </tr>
+            `).join('');
+
+            const total = tokens.reduce((acc, t) => acc + t.cantidad, 0);
+            document.getElementById('totalTokens').textContent = total;
+        }
+
+        // ================================================================
+        // 📋 CAMBIAR TAB
+        // ================================================================
+        function cambiarTab(tab) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.panel-tabs button').forEach(el => el.classList.remove('active'));
+
+            // Mostrar el tab seleccionado
+            document.getElementById(`tab-${tab}`).style.display = 'block';
+            document.querySelector(`.panel-tabs button[onclick*="${tab}"]`).classList.add('active');
+        }
+
+        // ================================================================
+        // 📤 EXPORTAR
+        // ================================================================
+        function exportarReporte() {
+            mostrarToast('📤 Reporte exportado como CSV', 'success');
+        }
+
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+            const STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) {
+                        star.y = 0;
+                        star.x = Math.random() * width;
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize(); createStars(); });
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+
+            const datos = generarDatosEjemplo();
+            renderizarVentas(datos.ventas);
+            renderizarUsuarios(datos.usuarios);
+            renderizarNFTs(datos.nfts);
+            renderizarSubastas(datos.subastas);
+            renderizarTokens(datos.tokens);
+
+            console.log('📊 Csariel\'s - Panel de Control');
+        });
+
+        window.cambiarTab = cambiarTab;
+        window.exportarReporte = exportarReporte;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
