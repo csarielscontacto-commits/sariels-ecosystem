@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Red | Csariel's</title>
+    <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
+
+    <!-- ===== SUPABASE SDK ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <!-- ===== CONECTORES DEL ECOSISTEMA ===== -->
+    <script src="../../js/client-config-loader.js"></script>
+    <script src="../../js/security.js"></script>
+    <script src="../../js/perfil-connector.js"></script>
+    <script src="../../js/red-main.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+            --quantum: #00e5ff;
+            --live-red: #ff0033;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.04; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px 30px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
+            opacity: 0.4;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
+        .logo-icon .hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: white;
+            border: 1px solid rgba(212,175,55,0.2);
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15,45,26,0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-trading {
+            background: linear-gradient(135deg, var(--quantum), #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            animation: pulse-trading 2s ease-in-out infinite;
+        }
+        .btn-trading:hover {
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-trading {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        }
+        .btn-internet {
+            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
+        }
+        .btn-internet:hover {
+            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-internet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
+        }
+
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover {
+            box-shadow: 0 0 40px rgba(168,85,247,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover {
+            box-shadow: 0 0 40px rgba(0,212,255,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
+        }
+
+        .btn-live {
+            background: linear-gradient(135deg, var(--live-red), #cc0033);
+            border-color: var(--live-red);
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(255,0,51,0.3);
+            animation: pulse-live 1.5s ease-in-out infinite;
+        }
+        .btn-live:hover {
+            box-shadow: 0 0 40px rgba(255,0,51,0.5);
+            transform: scale(1.05);
+        }
+        @keyframes pulse-live {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,0,51,0.3); }
+            50% { box-shadow: 0 0 40px rgba(255,0,51,0.6); }
+        }
+        .btn-live .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: dot-pulse 1s infinite;
+            margin-right: 4px;
+        }
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            border-radius: 30px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .status-dot.online {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+        }
+
+        /* ===== LAYOUT PRINCIPAL ===== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-left, .sidebar-right {
+                display: none;
+            }
+        }
+
+        /* ===== SIDEBAR IZQUIERDA ===== */
+        .sidebar-left {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-left .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-left .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .sidebar-left .menu-item:hover {
+            background: rgba(212,175,55,0.05);
+            color: var(--text-primary);
+        }
+        .sidebar-left .menu-item.active {
+            background: rgba(212,175,55,0.08);
+            color: var(--gold-cosmic);
+        }
+        .sidebar-left .menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .sidebar-left .menu-item .badge {
+            margin-left: auto;
+            background: var(--live-red);
+            color: #fff;
+            font-size: 0.5rem;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-left .online-friends {
+            background: rgba(0,184,148,0.05);
+            border: 1px solid rgba(0,184,148,0.1);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 12px;
+        }
+        .sidebar-left .online-friends .title {
+            font-size: 0.7rem;
+            color: var(--success);
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+        }
+        .sidebar-left .online-friends .count {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== COLUMNA CENTRAL ===== */
+        .feed-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feed-column .header-feed {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .feed-column .header-feed h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        /* ===== PERFIL CARD ===== */
+        .profile-card {
+            background: rgba(15,45,26,0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+        }
+        .profile-card .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 12px;
+            border: 3px solid var(--gold-dim);
+        }
+        .profile-card .name {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .profile-card .username {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .profile-card .bio {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 8px 0 12px;
+        }
+        .profile-card .stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gold-dim);
+        }
+        .profile-card .stats .stat {
+            text-align: center;
+        }
+        .profile-card .stats .stat .number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold-cosmic);
+        }
+        .profile-card .stats .stat .label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-family: 'Orbitron', monospace;
+        }
+        .profile-card .badge-verified {
+            display: inline-block;
+            background: rgba(0,184,148,0.1);
+            color: var(--success);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-family: 'Orbitron', monospace;
+            margin-top: 4px;
+        }
+
+        /* ===== BOTONES DE ACCIÓN ===== */
+        .profile-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .profile-actions .btn {
+            flex: none;
+        }
+
+        /* ===== AMIGOS ===== */
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(15,45,26,0.1);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .friend-item:hover {
+            border-color: var(--border-glow);
+            background: rgba(15,45,26,0.2);
+        }
+        .friend-item .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .friend-item .friend-info {
+            flex: 1;
+        }
+        .friend-item .friend-info .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .friend-item .friend-info .status {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .friend-item .friend-info .status.online {
+            color: var(--success);
+        }
+        .friend-item .friend-badge {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .friends-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* ===== SIDEBAR DERECHA ===== */
+        .sidebar-right {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-right .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-right .story-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            transition: var(--transition);
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .sidebar-right .story-item:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .sidebar-right .story-item .story-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            border: 2px solid var(--gold-dim);
+        }
+        .sidebar-right .story-item .story-name {
+            font-size: 0.8rem;
+        }
+        .sidebar-right .story-item .story-status {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+        }
+        .sidebar-right .story-item .story-status.online {
+            color: var(--success);
+        }
+        .sidebar-right .story-item .story-badge {
+            margin-left: auto;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar-right .search-bar {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 30px;
+            padding: 8px 14px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            outline: none;
+            width: 100%;
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 12px;
+        }
+        .sidebar-right .search-bar:focus {
+            border-color: var(--gold-cosmic);
+        }
+        .sidebar-right .search-bar::placeholder {
+            color: var(--text-muted);
+        }
+
+        .sidebar-right .shortcut {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            padding: 4px 0;
+        }
+        .sidebar-right .shortcut kbd {
+            background: rgba(255,255,255,0.05);
+            padding: 1px 8px;
+            border-radius: 4px;
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-right .trending-item {
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gold-dim);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .sidebar-right .trending-item:hover {
+            color: var(--gold-cosmic);
+        }
+        .sidebar-right .trending-item .trend-tag {
+            font-size: 0.8rem;
+        }
+        .sidebar-right .trending-item .trend-count {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
+            opacity: 0.2;
+        }
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+        .footer-text .brand { color: var(--gold-cosmic); }
+        .footer-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
+        .footer-hex {
+            display: inline-block;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.45rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5000;
+            pointer-events: none;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            background: rgba(15,45,26,0.1);
+            border-radius: var(--radius);
+            border: 1px dashed var(--gold-dim);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .profile-card .stats { gap: 12px; }
+            .main-grid { grid-template-columns: 1fr; }
+            .sidebar-left, .sidebar-right { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Red</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot online"></span>
+                    <span>Conectado</span>
+                </div>
+                <a href="/" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+                <a href="/features/live/index.html" class="btn btn-live btn-sm">
+                    <span class="live-dot"></span> Live
+                </a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> Foro
+                </a>
+                <a href="/features/trading/index.html" class="btn btn-trading btn-sm">
+                    <i class="fas fa-chart-line"></i> Trading
+                </a>
+                <a href="/features/servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> Servicios
+                </a>
+                <a href="/features/internet/index.html" class="btn btn-internet btn-sm">
+                    <i class="fas fa-satellite-dish"></i> Internet
+                </a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm">
+                    <i class="fas fa-store"></i> Tienda
+                </a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> Wallet
+                </a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> Términos
+                </a>
+            </div>
+        </header>
+
+        <!-- ===== MAIN GRID ===== -->
+        <div class="main-grid">
+
+            <!-- ===== SIDEBAR IZQUIERDA ===== -->
+            <aside class="sidebar-left">
+                <div class="section-title">Menú</div>
+
+                <a href="/" class="menu-item">
+                    <i class="fas fa-newspaper"></i> Inicio
+                </a>
+                <a href="/features/red/index.html" class="menu-item active">
+                    <i class="fas fa-users"></i> Mi Red
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-clock"></i> Mi historia
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-user-group"></i> Grupos
+                    <span class="badge">3</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-bookmark"></i> Guardados
+                </a>
+
+                <div class="online-friends">
+                    <div class="title">🟢 En línea ahora</div>
+                    <div class="count" id="onlineCount">0 amigos conectados</div>
+                </div>
+            </aside>
+
+            <!-- ===== COLUMNA CENTRAL ===== -->
+            <main class="feed-column">
+
+                <div class="header-feed">
+                    <h2>👥 Mi Red</h2>
+                    <span style="font-size:0.6rem;color:var(--text-muted);">Conecta. Comparte. Crece.</span>
+                </div>
+
+                <!-- Perfil -->
+                <div class="profile-card" id="profileCard">
+                    <div class="avatar" id="profileAvatar">U</div>
+                    <div class="name" id="profileName">Usuario</div>
+                    <div class="username" id="profileUsername">@usuario</div>
+                    <div class="bio" id="profileBio">Sin biografía aún</div>
+                    <div id="verificationBadge"></div>
+                    <div class="profile-actions">
+                        <button class="btn btn-gold btn-sm" onclick="editarPerfil()">
+                            <i class="fas fa-pen"></i> Editar perfil
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="compartirPerfil()">
+                            <i class="fas fa-share"></i> Compartir
+                        </button>
+                    </div>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="statAmigos">0</div>
+                            <div class="label">Amigos</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number" id="statPublicaciones">0</div>
+                            <div class="label">Publicaciones</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number" id="statLogros">0</div>
+                            <div class="label">Logros</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de amigos -->
+                <h3 style="font-family:'Orbitron';font-size:0.75rem;color:var(--text-muted);margin-top:4px;">👥 Tus amigos</h3>
+                <div class="friends-grid" id="friendsContainer">
+                    <div class="loading"><i class="fas fa-spinner"></i><br />Cargando amigos...</div>
+                </div>
+
+            </main>
+
+            <!-- ===== SIDEBAR DERECHA ===== -->
+            <aside class="sidebar-right">
+
+                <div class="section-title">Buscar</div>
+                <input class="search-bar" placeholder="Buscar personas, publicaciones, grupos..." />
+                <div class="shortcut">
+                    <span>Buscar rápido</span>
+                    <kbd>⌘ K</kbd>
+                </div>
+
+                <div style="margin: 12px 0; border-bottom: 1px solid var(--gold-dim);"></div>
+
+                <div class="section-title">Mi historia</div>
+                <div class="story-item" onclick="mostrarToast('📸 Comparte algo...')">
+                    <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">+</div>
+                    <div>
+                        <div class="story-name">Comparte algo...</div>
+                        <div class="story-status">Agrega a tu historia</div>
+                    </div>
+                </div>
+
+                <div style="margin: 8px 0 12px; border-bottom: 1px solid var(--gold-dim);"></div>
+
+                <div class="section-title">Historias</div>
+                <div id="historiasContainer">
+                    <div class="story-item">
+                        <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">M</div>
+                        <div>
+                            <div class="story-name">Marquinhos AI</div>
+                            <div class="story-status online">En línea</div>
+                        </div>
+                        <span class="story-badge">●</span>
+                    </div>
+                    <div class="story-item">
+                        <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">V</div>
+                        <div>
+                            <div class="story-name">Valeria</div>
+                            <div class="story-status online">En línea</div>
+                        </div>
+                        <span class="story-badge">●</span>
+                    </div>
+                    <div class="story-item">
+                        <div class="story-avatar">C</div>
+                        <div>
+                            <div class="story-name">Carlos M.</div>
+                            <div class="story-status">Hace 1h</div>
+                        </div>
+                    </div>
+                    <div class="story-item">
+                        <div class="story-avatar" style="border: 2px solid var(--gold-cosmic);">L</div>
+                        <div>
+                            <div class="story-name">La Cabina</div>
+                            <div class="story-status online">Ahora</div>
+                        </div>
+                        <span class="story-badge">●</span>
+                    </div>
+                </div>
+
+                <div style="margin: 12px 0; border-bottom: 1px solid var(--gold-dim);"></div>
+
+                <div class="section-title">Tendencias</div>
+                <div id="tendenciasContainer">
+                    <div class="trending-item">
+                        <div class="trend-tag">#Csariels</div>
+                        <div class="trend-count">1.2K publicaciones</div>
+                    </div>
+                    <div class="trending-item">
+                        <div class="trend-tag">#Web3</div>
+                        <div class="trend-count">843 publicaciones</div>
+                    </div>
+                    <div class="trending-item">
+                        <div class="trend-tag">#Comunidad</div>
+                        <div class="trend-count">621 publicaciones</div>
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <span class="footer-text">
+                <span class="brand">◈ Csariel's</span> — Mi Red · Conecta · Comparte · Crece
+            </span>
+            <div class="footer-links">
+                <a href="/">🏠 Inicio</a>
+                <a href="/features/trading/index.html">📈 Trading</a>
+                <a href="/features/live/index.html" style="color:var(--live-red);font-weight:700;">🔴 Live</a>
+                <a href="/features/foro/index.html">💬 Foro</a>
+                <a href="/features/servicios/index.html" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
+                <a href="/features/internet/index.html" style="color:#00d68f;">🌐 Internet</a>
+                <a href="/features/tienda/index.html" style="color:#a855f7;">🏰 Tienda</a>
+                <a href="/features/wallet/index.html" style="color:#00d4ff;">◈ Wallet</a>
+                <a href="/terminos-completos.html">📜 Términos</a>
+                <span class="footer-hex">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- 🔥 SCRIPTS - MI RED CON SUPABASE -->
+    <!-- ================================================================ -->
+    <script>
+        // ================================================================
+        // 🔌 ESPERAR CLIENTE SUPABASE
+        // ================================================================
+        function esperarSupabase(intentos = 40) {
+            return new Promise((resolve, reject) => {
+                const check = () => {
+                    if (window.supabase && typeof window.supabase.from === 'function') {
+                        return resolve(window.supabase);
+                    }
+                    if (intentos <= 0) return reject(new Error('Supabase no se inicializó a tiempo'));
+                    intentos--;
+                    setTimeout(check, 150);
+                };
+                check();
+            });
+        }
+
+        // ================================================================
+        // 👤 OBTENER USUARIO
+        // ================================================================
+        async function obtenerUsuario() {
+            try {
+                const client = await esperarSupabase();
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await client.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    return data.user;
+                }
+                return user;
+            } catch (e) {
+                console.error('Error de autenticación:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 📊 DATOS DEL PERFIL
+        // ================================================================
+        let perfilData = {
+            nombre: 'Usuario',
+            usuario: '',
+            bio: '',
+            avatar: null,
+            amigos: 0,
+            publicaciones: 0,
+            logros: 0,
+            verificado: false
+        };
+
+        // ================================================================
+        // 🖥️ RENDERIZAR PERFIL
+        // ================================================================
+        function renderPerfil() {
+            const avatarEl = document.getElementById('profileAvatar');
+            if (avatarEl) {
+                if (perfilData.avatar) {
+                    avatarEl.innerHTML = `<img src="${perfilData.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                } else {
+                    avatarEl.textContent = (perfilData.nombre || 'U').charAt(0).toUpperCase();
+                }
+            }
+
+            const nombre = document.getElementById('profileName');
+            if (nombre) nombre.textContent = perfilData.nombre;
+
+            const usuario = document.getElementById('profileUsername');
+            if (usuario) usuario.textContent = perfilData.usuario ? `@${perfilData.usuario}` : '@usuario';
+
+            const bio = document.getElementById('profileBio');
+            if (bio) bio.textContent = perfilData.bio || 'Sin biografía aún';
+
+            const statAmigos = document.getElementById('statAmigos');
+            if (statAmigos) statAmigos.textContent = perfilData.amigos;
+
+            const statPublicaciones = document.getElementById('statPublicaciones');
+            if (statPublicaciones) statPublicaciones.textContent = perfilData.publicaciones;
+
+            const statLogros = document.getElementById('statLogros');
+            if (statLogros) statLogros.textContent = perfilData.logros;
+
+            const badge = document.getElementById('verificationBadge');
+            if (badge) {
+                if (perfilData.verificado) {
+                    badge.innerHTML = `<span class="badge-verified"><i class="fas fa-check-circle" style="color:var(--success);"></i> Verificado</span>`;
+                } else {
+                    badge.innerHTML = '';
+                }
+            }
+
+            const onlineCount = document.getElementById('onlineCount');
+            if (onlineCount) {
+                const online = perfilData.amigos > 0 ? Math.min(perfilData.amigos, 5) : 0;
+                onlineCount.textContent = `${online} amigos conectados`;
+            }
+        }
+
+        // ================================================================
+        // 🔄 CARGAR PERFIL REAL DESDE SUPABASE
+        // ================================================================
+        async function cargarPerfilReal() {
+            try {
+                await window.PerfilConnector.init();
+                const perfil = await window.PerfilConnector.cargarPerfil();
+
+                perfilData.nombre = perfil.nombre || 'Usuario';
+                perfilData.usuario = perfil.usuario || '';
+                perfilData.bio = perfil.bio || '';
+                perfilData.avatar = perfil.foto_perfil_url || null;
+                perfilData.verificado = perfil.verificado || false;
+
+                // Cargar contactos y publicaciones
+                const [contactos, publicaciones] = await Promise.all([
+                    cargarContactos(),
+                    cargarPublicaciones()
+                ]);
+
+                perfilData.amigos = contactos.length;
+                perfilData.publicaciones = publicaciones;
+                perfilData.logros = 0;
+
+                renderPerfil();
+                renderAmigos(contactos);
+
+            } catch (err) {
+                console.error('❌ Error cargando perfil real:', err);
+                mostrarToast('⚠️ No se pudo cargar tu perfil', 'error');
+                renderPerfil();
+            }
+        }
+
+        // ================================================================
+        // 👥 CARGAR CONTACTOS
+        // ================================================================
+        async function cargarContactos() {
+            try {
+                const client = await esperarSupabase();
+                const user = await obtenerUsuario();
+                if (!user) return [];
+
+                const { data, error } = await client
+                    .from('relaciones_contactos')
+                    .select(`
+                        contacto_id,
+                        estado,
+                        perfiles!relaciones_contactos_contacto_id_fkey (
+                            user_id,
+                            nombre,
+                            avatar_url
+                        )
+                    `)
+                    .eq('usuario_id', user.id)
+                    .eq('estado', 'aceptado');
+
+                if (error) throw error;
+                return data || [];
+            } catch (e) {
+                console.error('Error cargando contactos:', e);
+                return [];
+            }
+        }
+
+        // ================================================================
+        // 📝 CARGAR PUBLICACIONES
+        // ================================================================
+        async function cargarPublicaciones() {
+            try {
+                const client = await esperarSupabase();
+                const user = await obtenerUsuario();
+                if (!user) return 0;
+
+                const { count, error } = await client
+                    .from('posts_muro')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('usuario_id', user.id);
+
+                if (error) throw error;
+                return count || 0;
+            } catch (e) {
+                console.error('Error cargando publicaciones:', e);
+                return 0;
+            }
+        }
+
+        // ================================================================
+        // 🖥️ RENDERIZAR AMIGOS
+        // ================================================================
+        function renderAmigos(contactos) {
+            const container = document.getElementById('friendsContainer');
+
+            if (!contactos || contactos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-plus"></i>
+                        <p>No tienes amigos aún</p>
+                        <p style="font-size:0.7rem;color:var(--text-muted);">Conecta con otros usuarios</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            contactos.forEach(rel => {
+                const perfil = rel.perfiles;
+                if (!perfil) return;
+
+                const nombre = perfil.nombre || 'Usuario';
+                const avatar = perfil.avatar_url || null;
+                const inicial = nombre.charAt(0).toUpperCase();
+
+                const div = document.createElement('div');
+                div.className = 'friend-item';
+                div.innerHTML = `
+                    <div class="friend-avatar" style="${avatar ? `background-image:url(${avatar});background-size:cover;` : ''}">
+                        ${avatar ? '' : inicial}
+                    </div>
+                    <div class="friend-info">
+                        <div class="name">${nombre}</div>
+                        <div class="status">Miembro</div>
+                    </div>
+                    <span class="friend-badge"><i class="fas fa-circle" style="color:var(--success);font-size:0.4rem;"></i></span>
+                `;
+                div.onclick = () => mostrarToast(`👤 Perfil de ${nombre}`);
+                container.appendChild(div);
+            });
+        }
+
+        // ================================================================
+        // ✏️ EDITAR PERFIL
+        // ================================================================
+        function editarPerfil() {
+            const nuevaBio = prompt('✏️ Edita tu biografía:', perfilData.bio || '');
+            if (nuevaBio !== null && nuevaBio.trim() !== '') {
+                actualizarPerfil({ bio: nuevaBio.trim() });
+            }
+        }
+
+        async function actualizarPerfil(datos) {
+            try {
+                await window.PerfilConnector.actualizarPerfil(datos);
+                perfilData.bio = datos.bio || perfilData.bio;
+                renderPerfil();
+                mostrarToast('✅ Perfil actualizado');
+            } catch (err) {
+                console.error(err);
+                mostrarToast('❌ No se pudo guardar', 'error');
+            }
+        }
+
+        function compartirPerfil() {
+            if (navigator.share) {
+                navigator.share({
+                    title: `Perfil de ${perfilData.nombre}`,
+                    text: `¡Mira mi perfil en Csariel's! 🚀`,
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    mostrarToast('✅ Enlace copiado al portapapeles');
+                });
+            }
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+            await cargarPerfilReal();
+
+            console.log('👥 Csariel\'s - Mi Red con Supabase');
+        });
+
+        // Exponer funciones globales
+        window.cargarPerfilReal = cargarPerfilReal;
+        window.renderPerfil = renderPerfil;
+        window.editarPerfil = editarPerfil;
+        window.compartirPerfil = compartirPerfil;
+        window.mostrarToast = mostrarToast;
+    </script>
+</body>
+</html>
