@@ -14,12 +14,13 @@
     <script src="/js/client-config-loader.js"></script>
     <script src="/js/security.js"></script>
     <script src="/js/perfil-connector.js"></script>
+    <script src="/js/red-main.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
     <style>
-        /* ========== ESTILOS COSMIC (HEREDADOS) ========== */
+        /* ========== ESTILOS COSMIC (HEREDADOS DEL ECOSISTEMA) ========== */
         :root {
             --space-deep: #05080f;
             --space-mid: #0a1428;
@@ -94,7 +95,7 @@
         }
 
         /* ==========================================================
-           HEADER (heredado de Mi Red)
+           HEADER (HEREDADO DEL ECOSISTEMA)
            ========================================================== */
         .header {
             display: flex;
@@ -718,6 +719,31 @@
             font-size: 0.6rem;
         }
 
+        /* ---- EMPTY STATE CON ERROR ---- */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            background: rgba(15,45,26,0.1);
+            border-radius: var(--radius);
+            border: 1px dashed var(--gold-dim);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .empty-state.error i {
+            color: var(--danger);
+            opacity: 0.8;
+        }
+        .empty-state.error {
+            border-color: var(--danger);
+            border-style: solid;
+            border-width: 1px;
+        }
+
         /* ---- Términos y Condiciones (plegable) ---- */
         .tyc-section {
             margin-top: 24px;
@@ -875,18 +901,6 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: var(--text-muted);
-        }
-        .empty-state i {
-            font-size: 2rem;
-            opacity: 0.3;
-            display: block;
-            margin-bottom: 10px;
-        }
 
         /* ---- Responsive ---- */
         @media (max-width: 600px) {
@@ -1170,7 +1184,7 @@
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS COMPLETOS
+    <!-- 🔥 SCRIPTS COMPLETOS (CON SUPABASE Y CONECTORES)
     ================================================================ -->
     <script>
         // ================================================================
@@ -1210,7 +1224,21 @@
         }
 
         // ================================================================
-        // 📊 DATOS INICIALES
+        // 🎯 OBTENER PERFIL (reutiliza perfil-connector.js)
+        // ================================================================
+        async function obtenerPerfilLocal() {
+            try {
+                await window.PerfilConnector.init();
+                const perfil = await window.PerfilConnector.cargarPerfil();
+                return perfil;
+            } catch (e) {
+                console.error('Error obteniendo perfil:', e);
+                return null;
+            }
+        }
+
+        // ================================================================
+        // 📊 DATOS INICIALES (RESPALDO)
         // ================================================================
         const publicacionesMock = [
             { id: 1, usuario: 'María G.', avatar: 'MG', tipo: 'venta', cantidad: 150, precio: 2.30, mensaje: 'Oferta especial: $2.30 c/u. Necesito liquidez para canjear galletas.', interesados: 3, tiempo: 'Hace 2 min' },
@@ -1228,14 +1256,17 @@
 
         const volumenDiario = [320000, 280000, 410000, 390000, 450000, 380000, 220000];
 
+        let publicaciones = [];
+        let actividad = [];
+
         // ================================================================
         // 🖥️ RENDERIZAR MURO
         // ================================================================
-        function renderMuro(publicaciones) {
+        function renderMuro(lista) {
             const feed = document.getElementById('muroFeed');
             feed.innerHTML = '';
 
-            if (!publicaciones || publicaciones.length === 0) {
+            if (!lista || lista.length === 0) {
                 feed.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-inbox"></i>
@@ -1246,7 +1277,7 @@
                 return;
             }
 
-            publicaciones.forEach(pub => {
+            lista.forEach(pub => {
                 const tipoLabel = pub.tipo === 'venta' ? 'VENTA' : 'COMPRA';
                 const tipoClase = pub.tipo === 'venta' ? 'tipo-venta' : 'tipo-compra';
                 const icono = pub.tipo === 'venta' ? 'fa-arrow-down' : 'fa-arrow-up';
@@ -1287,11 +1318,11 @@
         // ================================================================
         // 🖥️ RENDERIZAR ACTIVIDAD
         // ================================================================
-        function renderActividad(actividad) {
+        function renderActividad(lista) {
             const contenedor = document.getElementById('actividadFeed');
             contenedor.innerHTML = '';
 
-            if (!actividad || actividad.length === 0) {
+            if (!lista || lista.length === 0) {
                 contenedor.innerHTML = `
                     <div style="text-align:center;padding:10px;color:var(--text-muted);font-size:0.7rem;">
                         No hay actividad reciente
@@ -1300,7 +1331,7 @@
                 return;
             }
 
-            actividad.forEach(item => {
+            lista.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'actividad-item';
                 div.innerHTML = `
@@ -1366,6 +1397,22 @@
             if (!precio) return;
             const mensaje = prompt('Mensaje para tu oferta:', 'Oferta especial');
 
+            // Crear publicación local
+            const nuevaPub = {
+                id: Date.now(),
+                usuario: localStorage.getItem('csariels_user_name') || 'Usuario',
+                avatar: 'U',
+                tipo: tipo ? 'venta' : 'compra',
+                cantidad: parseInt(cantidad),
+                precio: parseFloat(precio),
+                mensaje: mensaje || 'Oferta P2P',
+                interesados: 0,
+                tiempo: 'Ahora'
+            };
+
+            publicaciones.unshift(nuevaPub);
+            renderMuro(publicaciones);
+
             mostrarToast(`✅ Oferta de ${tipo ? 'VENTA' : 'COMPRA'} publicada: ${cantidad} Es.stoks a $${precio}`);
         }
 
@@ -1406,59 +1453,19 @@
         }
 
         // ================================================================
-        // 🌟 ESTRELLAS DE FONDO
+        // 🌟 ESTRELLAS DE FONDO (initStars viene de red-main.js)
         // ================================================================
-        function initStars() {
-            const canvas = document.getElementById('stars-canvas');
-            const ctx = canvas.getContext('2d');
-            let w, h;
-
-            function resize() {
-                w = canvas.width = window.innerWidth;
-                h = canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
-
-            const stars = [];
-            for (let i = 0; i < 300; i++) {
-                stars.push({
-                    x: Math.random() * w,
-                    y: Math.random() * h,
-                    r: Math.random() * 1.2 + 0.3,
-                    a: Math.random() * 0.8 + 0.2,
-                    speed: Math.random() * 0.005 + 0.002
-                });
-            }
-
-            function draw() {
-                ctx.clearRect(0, 0, w, h);
-                stars.forEach(s => {
-                    s.a += (Math.random() - 0.5) * 0.02;
-                    s.a = Math.max(0.1, Math.min(0.9, s.a));
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255,255,255,${s.a})`;
-                    ctx.fill();
-                });
-                requestAnimationFrame(draw);
-            }
-            draw();
-        }
 
         // ================================================================
-        // 🔌 CARGAR OFERTAS DESDE SUPABASE (conexión real)
+        // 🔌 CARGAR OFERTAS DESDE SUPABASE
         // ================================================================
         async function cargarOfertasDesdeSupabase() {
+            const feed = document.getElementById('muroFeed');
+            
             try {
                 const client = await esperarSupabase();
-                const user = await obtenerUsuario();
-                if (!user) {
-                    renderMuro(publicacionesMock);
-                    return;
-                }
-
-                // Intentar cargar desde la tabla 'ofertas_muro' o 'posts_muro'
+                
+                // Intentar cargar desde la tabla 'ofertas_muro'
                 const { data, error } = await client
                     .from('ofertas_muro')
                     .select('*')
@@ -1468,25 +1475,27 @@
                 if (error) throw error;
 
                 if (data && data.length > 0) {
-                    // Mapear datos de Supabase al formato del muro
-                    const ofertas = data.map(o => ({
+                    publicaciones = data.map(o => ({
                         id: o.id,
-                        usuario: o.usuario_nombre || 'Usuario',
+                        usuario: o.usuario_nombre || o.usuario || 'Usuario',
                         avatar: o.usuario_nombre ? o.usuario_nombre.charAt(0) : 'U',
                         tipo: o.tipo || 'venta',
                         cantidad: o.cantidad || 0,
                         precio: o.precio || 0,
                         mensaje: o.mensaje || 'Sin descripción',
                         interesados: o.interesados || 0,
-                        tiempo: o.created_at ? 'Hace unos minutos' : 'Reciente'
+                        tiempo: o.created_at ? formatearTiempo(o.created_at) : 'Reciente'
                     }));
-                    renderMuro(ofertas);
+                    renderMuro(publicaciones);
                 } else {
-                    renderMuro(publicacionesMock);
+                    // Si no hay datos, usar respaldo
+                    publicaciones = [...publicacionesMock];
+                    renderMuro(publicaciones);
                 }
             } catch (e) {
-                console.warn('⚠️ Usando datos de respaldo:', e);
-                renderMuro(publicacionesMock);
+                console.warn('⚠️ Error cargando ofertas, usando respaldo:', e);
+                publicaciones = [...publicacionesMock];
+                renderMuro(publicaciones);
             }
         }
 
@@ -1505,27 +1514,42 @@
                 if (error) throw error;
 
                 if (data && data.length > 0) {
-                    const actividad = data.map(a => ({
-                        usuario: a.usuario_nombre || 'Usuario',
+                    actividad = data.map(a => ({
+                        usuario: a.usuario_nombre || a.usuario || 'Usuario',
                         accion: a.accion || 'realizó una transacción',
-                        tiempo: a.created_at ? 'Hace unos segundos' : 'Reciente'
+                        tiempo: a.created_at ? formatearTiempo(a.created_at) : 'Reciente'
                     }));
                     renderActividad(actividad);
                 } else {
-                    renderActividad(actividadMock);
+                    actividad = [...actividadMock];
+                    renderActividad(actividad);
                 }
             } catch (e) {
-                console.warn('⚠️ Usando actividad de respaldo:', e);
-                renderActividad(actividadMock);
+                console.warn('⚠️ Error cargando actividad, usando respaldo:', e);
+                actividad = [...actividadMock];
+                renderActividad(actividad);
             }
+        }
+
+        // ================================================================
+        // ⏱️ FORMATEAR TIEMPO
+        // ================================================================
+        function formatearTiempo(fecha) {
+            const diff = Date.now() - new Date(fecha).getTime();
+            const minutos = Math.floor(diff / 60000);
+            if (minutos < 1) return 'Ahora';
+            if (minutos < 60) return `Hace ${minutos}m`;
+            const horas = Math.floor(minutos / 60);
+            if (horas < 24) return `Hace ${horas}h`;
+            return `Hace ${Math.floor(horas / 24)}d`;
         }
 
         // ================================================================
         // 🚀 INICIALIZAR TODO
         // ================================================================
         document.addEventListener('DOMContentLoaded', async function() {
-            // Estrellas
-            initStars();
+            // Estrellas (viene de red-main.js)
+            if (typeof initStars === 'function') initStars();
 
             // Renderizar gráfica (estática por ahora)
             renderGrafica(volumenDiario);
@@ -1551,16 +1575,18 @@
                     tiempo: 'Hace unos segundos'
                 };
                 const contenedor = document.getElementById('actividadFeed');
-                const div = document.createElement('div');
-                div.className = 'actividad-item';
-                div.innerHTML = `
-                    <i class="fas fa-exchange-alt"></i>
-                    <span><strong>${item.usuario}</strong> ${item.accion}</span>
-                    <span class="actividad-time">${item.tiempo}</span>
-                `;
-                contenedor.prepend(div);
-                if (contenedor.children.length > 6) {
-                    contenedor.removeChild(contenedor.lastChild);
+                if (contenedor) {
+                    const div = document.createElement('div');
+                    div.className = 'actividad-item';
+                    div.innerHTML = `
+                        <i class="fas fa-exchange-alt"></i>
+                        <span><strong>${item.usuario}</strong> ${item.accion}</span>
+                        <span class="actividad-time">${item.tiempo}</span>
+                    `;
+                    contenedor.prepend(div);
+                    if (contenedor.children.length > 6) {
+                        contenedor.removeChild(contenedor.lastChild);
+                    }
                 }
             }, 20000);
 
