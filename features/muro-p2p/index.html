@@ -1205,7 +1205,7 @@
         }
 
         // ================================================================
-        // 👤 OBTENER USUARIO
+        // 👤 OBTENER USUARIO (CON auth.uid())
         // ================================================================
         async function obtenerUsuario() {
             try {
@@ -1387,33 +1387,73 @@
         }
 
         // ================================================================
-        // 🎮 ACCIONES DEL MURO
+        // 🎮 ACCIONES DEL MURO (CON SUPABASE)
         // ================================================================
-        function abrirFormularioOferta() {
-            const tipo = confirm('¿Quieres publicar una VENTA? (OK = Venta, Cancelar = Compra)');
-            const cantidad = prompt('¿Cuántos Es.stoks?', '100');
-            if (!cantidad) return;
-            const precio = prompt('¿Precio por unidad (MXN)?', '2.40');
-            if (!precio) return;
-            const mensaje = prompt('Mensaje para tu oferta:', 'Oferta especial');
+        async function abrirFormularioOferta() {
+            try {
+                // ✅ USAR auth.uid() en lugar de localStorage
+                const user = await obtenerUsuario();
+                if (!user) {
+                    mostrarToast('❌ Debes iniciar sesión para publicar', 'error');
+                    return;
+                }
 
-            // Crear publicación local
-            const nuevaPub = {
-                id: Date.now(),
-                usuario: localStorage.getItem('csariels_user_name') || 'Usuario',
-                avatar: 'U',
-                tipo: tipo ? 'venta' : 'compra',
-                cantidad: parseInt(cantidad),
-                precio: parseFloat(precio),
-                mensaje: mensaje || 'Oferta P2P',
-                interesados: 0,
-                tiempo: 'Ahora'
-            };
+                const perfil = await obtenerPerfilLocal();
+                if (!perfil) {
+                    mostrarToast('❌ Error al obtener tu perfil', 'error');
+                    return;
+                }
 
-            publicaciones.unshift(nuevaPub);
-            renderMuro(publicaciones);
+                const tipo = confirm('¿Quieres publicar una VENTA? (OK = Venta, Cancelar = Compra)');
+                const cantidad = prompt('¿Cuántos Es.stoks?', '100');
+                if (!cantidad) return;
+                const precio = prompt('¿Precio por unidad (MXN)?', '2.40');
+                if (!precio) return;
+                const mensaje = prompt('Mensaje para tu oferta:', 'Oferta especial');
 
-            mostrarToast(`✅ Oferta de ${tipo ? 'VENTA' : 'COMPRA'} publicada: ${cantidad} Es.stoks a $${precio}`);
+                const tipoOferta = tipo ? 'venta' : 'compra';
+
+                // ✅ GUARDAR EN SUPABASE
+                const client = await esperarSupabase();
+                const { data, error } = await client
+                    .from('ofertas_muro')
+                    .insert({
+                        usuario_id: user.id,
+                        usuario_nombre: perfil.nombre || 'Usuario',
+                        tipo: tipoOferta,
+                        cantidad: parseInt(cantidad),
+                        precio: parseFloat(precio),
+                        mensaje: mensaje || 'Oferta P2P',
+                        interesados: 0,
+                        created_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                // ✅ ACTUALIZAR UI LOCAL
+                const nuevaPub = {
+                    id: data.id,
+                    usuario: perfil.nombre || 'Usuario',
+                    avatar: perfil.nombre ? perfil.nombre.charAt(0) : 'U',
+                    tipo: tipoOferta,
+                    cantidad: parseInt(cantidad),
+                    precio: parseFloat(precio),
+                    mensaje: mensaje || 'Oferta P2P',
+                    interesados: 0,
+                    tiempo: 'Ahora'
+                };
+
+                publicaciones.unshift(nuevaPub);
+                renderMuro(publicaciones);
+
+                mostrarToast(`✅ Oferta de ${tipo ? 'VENTA' : 'COMPRA'} publicada: ${cantidad} Es.stoks a $${precio}`);
+
+            } catch (error) {
+                console.error('Error publicando oferta:', error);
+                mostrarToast('❌ Error al publicar la oferta: ' + error.message, 'error');
+            }
         }
 
         function negociar(usuario) {
@@ -1465,7 +1505,6 @@
             try {
                 const client = await esperarSupabase();
                 
-                // Intentar cargar desde la tabla 'ofertas_muro'
                 const { data, error } = await client
                     .from('ofertas_muro')
                     .select('*')
@@ -1488,7 +1527,6 @@
                     }));
                     renderMuro(publicaciones);
                 } else {
-                    // Si no hay datos, usar respaldo
                     publicaciones = [...publicacionesMock];
                     renderMuro(publicaciones);
                 }
