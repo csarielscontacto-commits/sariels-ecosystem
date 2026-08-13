@@ -10,11 +10,14 @@
     <!-- ===== SUPABASE SDK ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
+    <!-- ===== THREE.JS PARA EL MUNDO 3D ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <!-- ===== CONECTORES DEL ECOSISTEMA ===== -->
-    <script src="../../js/client-config-loader.js"></script>
-    <script src="../../js/security.js"></script>
-    <script src="../../js/perfil-connector.js"></script>
-    <script src="../../js/red-main.js"></script>
+    <script src="/js/client-config-loader.js"></script>
+    <script src="/js/security.js"></script>
+    <script src="/js/perfil-connector.js"></script>
+    <script src="/js/red-main.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
@@ -329,6 +332,70 @@
             border-radius: 50%;
             background: var(--success);
             display: inline-block;
+        }
+
+        /* ===== MUNDO 3D ===== */
+        .mundo-3d-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 8px 0 16px;
+            border: 1px solid var(--gold-dim);
+            cursor: pointer;
+            background: var(--space-deep);
+        }
+        .mundo-3d-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+        .mundo-3d-container .mundo-label {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.6);
+            padding: 4px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--gold-dim);
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        .mundo-3d-container .mundo-label .rotando {
+            color: var(--gold-cosmic);
+            font-weight: 700;
+        }
+        .mundo-3d-container .mundo-label .pausado {
+            color: var(--quantum);
+            font-weight: 700;
+        }
+        .mundo-3d-container .mundo-label .bateria {
+            font-size: 0.45rem;
+            color: var(--success);
+            margin-left: 8px;
+        }
+        .mundo-3d-container .mundo-label .bateria.ahorro {
+            color: var(--warning);
+        }
+        .mundo-3d-container .mundo-tooltip {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.5);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid var(--gold-dim);
+            pointer-events: none;
         }
 
         /* ===== LAYOUT PRINCIPAL ===== */
@@ -792,6 +859,8 @@
             .profile-card .stats { gap: 12px; }
             .main-grid { grid-template-columns: 1fr; }
             .sidebar-left, .sidebar-right { display: none; }
+            .mundo-3d-container { height: 140px; }
+            .mundo-3d-container .mundo-label { font-size: 0.45rem; padding: 2px 10px; }
         }
     </style>
 </head>
@@ -882,6 +951,17 @@
                 <div class="header-feed">
                     <h2>👥 Mi Red</h2>
                     <span style="font-size:0.6rem;color:var(--text-muted);">Conecta. Comparte. Crece.</span>
+                </div>
+
+                <!-- ===== MUNDO 3D ===== -->
+                <div class="mundo-3d-container" id="mundo3d">
+                    <div id="mundo3d-canvas"></div>
+                    <div class="mundo-label" id="mundoLabel">
+                        🌍 <span class="rotando" id="mundoEstado">Girando</span>
+                        <span class="bateria" id="mundoBateria">⚡ Activo</span>
+                        <span class="bateria ahorro" id="mundoAhorro" style="display:none;">🔋 Ahorro de batería activado</span>
+                    </div>
+                    <div class="mundo-tooltip">🖱️ Click para pausar</div>
                 </div>
 
                 <!-- Perfil -->
@@ -1027,7 +1107,7 @@
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS - MI RED CON SUPABASE -->
+    <!-- 🔥 SCRIPTS - MI RED CON SUPABASE + MUNDO 3D -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
@@ -1295,13 +1375,234 @@
         }
 
         // ================================================================
+        // 🌍 MUNDO 3D
+        // ================================================================
+        let mundoScene, mundoCamera, mundoRenderer, mundoGlobe, mundoGroup;
+        let mundoRotando = true;
+        let mundoAnimationId = null;
+        let mundoClickPaused = false;
+
+        function initMundo3D() {
+            const container = document.getElementById('mundo3d-canvas');
+            const width = container.clientWidth || 400;
+            const height = container.clientHeight || 200;
+
+            // Scene
+            mundoScene = new THREE.Scene();
+
+            // Camera
+            mundoCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            mundoCamera.position.set(0, 0, 3.5);
+
+            // Renderer
+            mundoRenderer = new THREE.WebGLRenderer({ 
+                antialias: true, 
+                alpha: true,
+                powerPreference: "low-power"
+            });
+            mundoRenderer.setSize(width, height);
+            mundoRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            mundoRenderer.setClearColor(0x05080f, 0);
+            container.appendChild(mundoRenderer.domElement);
+
+            // Grupo contenedor
+            mundoGroup = new THREE.Group();
+
+            // Luz
+            const light = new THREE.DirectionalLight(0xffffff, 1.5);
+            light.position.set(5, 5, 5);
+            mundoGroup.add(light);
+
+            const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+            mundoGroup.add(ambientLight);
+
+            // Luz de relleno
+            const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
+            fillLight.position.set(-5, 0, 5);
+            mundoGroup.add(fillLight);
+
+            // Globo terráqueo
+            const geometry = new THREE.SphereGeometry(1.2, 64, 64);
+            
+            // Crear textura procedural con puntos brillantes
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo oscuro
+            ctx.fillStyle = '#05080f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Puntos de luz (estrellas en el globo)
+            const puntos = [
+                { x: 0.5, y: 0.3, size: 8, color: '#D4AF37' },
+                { x: 0.3, y: 0.6, size: 6, color: '#00e5ff' },
+                { x: 0.7, y: 0.4, size: 10, color: '#D4AF37' },
+                { x: 0.2, y: 0.8, size: 5, color: '#ff6b9d' },
+                { x: 0.8, y: 0.2, size: 7, color: '#00ff88' },
+                { x: 0.6, y: 0.7, size: 9, color: '#D4AF37' },
+                { x: 0.4, y: 0.1, size: 6, color: '#00e5ff' },
+                { x: 0.9, y: 0.6, size: 8, color: '#D4AF37' },
+                { x: 0.1, y: 0.4, size: 5, color: '#ff6b9d' },
+                { x: 0.5, y: 0.9, size: 7, color: '#00ff88' },
+                { x: 0.75, y: 0.8, size: 6, color: '#D4AF37' },
+                { x: 0.25, y: 0.2, size: 8, color: '#00e5ff' },
+                { x: 0.85, y: 0.1, size: 5, color: '#D4AF37' },
+                { x: 0.15, y: 0.7, size: 7, color: '#ff6b9d' },
+                { x: 0.45, y: 0.5, size: 10, color: '#D4AF37' },
+                { x: 0.65, y: 0.5, size: 8, color: '#00ff88' },
+                { x: 0.35, y: 0.75, size: 6, color: '#00e5ff' },
+                { x: 0.55, y: 0.2, size: 9, color: '#D4AF37' },
+                { x: 0.95, y: 0.5, size: 5, color: '#ff6b9d' },
+                { x: 0.05, y: 0.5, size: 5, color: '#D4AF37' },
+            ];
+
+            puntos.forEach(p => {
+                ctx.beginPath();
+                const x = p.x * canvas.width;
+                const y = p.y * canvas.height;
+                const grad = ctx.createRadialGradient(x, y, 0, x, y, p.size);
+                grad.addColorStop(0, p.color);
+                grad.addColorStop(0.5, p.color + '88');
+                grad.addColorStop(1, p.color + '00');
+                ctx.fillStyle = grad;
+                ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Líneas de conexión (red)
+            ctx.strokeStyle = 'rgba(212,175,55,0.08)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < puntos.length; i++) {
+                for (let j = i + 1; j < puntos.length; j++) {
+                    if (Math.random() < 0.1) {
+                        ctx.beginPath();
+                        ctx.moveTo(puntos[i].x * canvas.width, puntos[i].y * canvas.height);
+                        ctx.lineTo(puntos[j].x * canvas.width, puntos[j].y * canvas.height);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Círculos alrededor de algunos puntos
+            puntos.forEach(p => {
+                if (Math.random() < 0.15) {
+                    ctx.strokeStyle = 'rgba(212,175,55,0.05)';
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.arc(p.x * canvas.width, p.y * canvas.height, p.size * 3, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+
+            const material = new THREE.MeshPhongMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0.95,
+                emissive: new THREE.Color(0x0a1428),
+                emissiveIntensity: 0.3,
+                shininess: 20,
+                specular: new THREE.Color(0x224466),
+            });
+
+            mundoGlobe = new THREE.Mesh(geometry, material);
+            mundoGroup.add(mundoGlobe);
+
+            // Anillo orbital
+            const ringGeometry = new THREE.TorusGeometry(1.5, 0.008, 16, 100);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: 0xD4AF37,
+                transparent: true,
+                opacity: 0.15,
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            ring.rotation.z = 0.3;
+            mundoGroup.add(ring);
+
+            // Segundo anillo
+            const ring2Geometry = new THREE.TorusGeometry(1.6, 0.005, 16, 100);
+            const ring2Material = new THREE.MeshBasicMaterial({
+                color: 0x00e5ff,
+                transparent: true,
+                opacity: 0.08,
+            });
+            const ring2 = new THREE.Mesh(ring2Geometry, ring2Material);
+            ring2.rotation.x = 1.2;
+            ring2.rotation.y = 0.5;
+            mundoGroup.add(ring2);
+
+            mundoScene.add(mundoGroup);
+
+            // Evento de click para pausar
+            container.addEventListener('click', toggleMundoRotacion);
+
+            // Manejar resize
+            window.addEventListener('resize', () => {
+                const w = container.clientWidth || 400;
+                const h = container.clientHeight || 200;
+                mundoCamera.aspect = w / h;
+                mundoCamera.updateProjectionMatrix();
+                mundoRenderer.setSize(w, h);
+            });
+
+            // Iniciar animación
+            animarMundo();
+        }
+
+        function animarMundo() {
+            mundoAnimationId = requestAnimationFrame(animarMundo);
+
+            if (mundoRotando && mundoGroup) {
+                mundoGroup.rotation.y += 0.0025;
+                mundoGroup.rotation.x = 0.1 + Math.sin(Date.now() * 0.0003) * 0.05;
+            }
+
+            if (mundoRenderer && mundoScene && mundoCamera) {
+                mundoRenderer.render(mundoScene, mundoCamera);
+            }
+        }
+
+        function toggleMundoRotacion() {
+            mundoRotando = !mundoRotando;
+            mundoClickPaused = true;
+
+            const estadoEl = document.getElementById('mundoEstado');
+            const bateriaEl = document.getElementById('mundoBateria');
+            const ahorroEl = document.getElementById('mundoAhorro');
+
+            if (mundoRotando) {
+                estadoEl.textContent = 'Girando';
+                estadoEl.className = 'rotando';
+                bateriaEl.style.display = 'inline';
+                ahorroEl.style.display = 'none';
+                mostrarToast('🌍 Mundo reanudado');
+            } else {
+                estadoEl.textContent = 'Pausado';
+                estadoEl.className = 'pausado';
+                bateriaEl.style.display = 'none';
+                ahorroEl.style.display = 'inline';
+                mostrarToast('🔋 Ahorro de batería activado - El mundo se ha pausado');
+            }
+        }
+
+        // ================================================================
         // 🚀 INICIALIZAR
         // ================================================================
         document.addEventListener('DOMContentLoaded', async function() {
             initStars();
+
+            // Inicializar mundo 3D con un pequeño delay para asegurar el DOM
+            setTimeout(initMundo3D, 300);
+
             await cargarPerfilReal();
 
-            console.log('👥 Csariel\'s - Mi Red con Supabase');
+            console.log('👥 Csariel\'s - Mi Red con Supabase y Mundo 3D');
+            console.log('🌍 Mundo 3D: Click para pausar/reanudar');
         });
 
         // Exponer funciones globales
@@ -1310,6 +1611,8 @@
         window.editarPerfil = editarPerfil;
         window.compartirPerfil = compartirPerfil;
         window.mostrarToast = mostrarToast;
+        window.initMundo3D = initMundo3D;
+        window.toggleMundoRotacion = toggleMundoRotacion;
     </script>
 </body>
 </html>
