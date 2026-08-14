@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="transparent">
+  <title>Marquinhos Actor</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root{
+      --blue:#17318f;
+      --blue2:#2f56d6;
+      --blue3:#0d2a78;
+      --white:#f9fbff;
+      --white2:#eef4ff;
+      --gold:#d7b35c;
+      --gold2:#b88b2d;
+      --pink:#f7b8c7;
+      --shadow:rgba(0,0,0,.2);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html,
+    body{
+      width:100%;
+      height:100%;
+      margin:0;
+      padding:0;
+      overflow:hidden;
+      background:transparent;
+    }
+
+    body{
+      display:grid;
+      place-items:center;
+      perspective:1100px;
+      perspective-origin:50% 42%;
+      font-family:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+
+    .marquinhos{
+      position:relative;
+      width:300px;
+      height:400px;
+      transform-style:preserve-3d;
+      animation:bodyFloat 5.8s ease-in-out infinite;
+      filter:drop-shadow(0 22px 24px rgba(0,0,0,.17));
+      user-select:none;
+      touch-action:none;
+      isolation:isolate;
+    }
+
+    .character{
+      position:absolute;
+      inset:0;
+      transform-style:preserve-3d;
+      transform:
+        translate3d(var(--mouse-x,0px),var(--mouse-y,0px),0)
+        rotateX(var(--tilt-x,0deg))
+        rotateY(var(--tilt-y,0deg));
+      transition:transform .18s ease-out;
+    }
+
+    .head,
+    .body,
+    .arm,
+    .forearm,
+    .hand,
+    .leg,
+    .foot,
+    .antenna{
+      position:absolute;
+      transform-style:preserve-3d;
+    }
+
+    .head{
+      left:50%;
+      top:0;
+      width:186px;
+      height:170px;
+      z-index:5;
+      transform:translateX(-50%) translateZ(28px);
+      overflow:hidden;
+      border:4px solid var(--blue3);
+      border-radius:50% 50% 42% 42%;
+      background:
+        radial-gradient(
+          circle at 34% 24%,
+          rgba(255,255,255,.99) 0 24%,
+          rgba(246,250,255,.99) 42%,
+          #edf3ff 72%,
+          #dde8ff 100%
+        );
+      box-shadow:
+        inset 0 16px 18px rgba(255,255,255,.82),
+        inset 0 -16px 26px rgba(10,30,75,.06);
+    }
+
+    .head::before,
+    .body::before,
+    .arm::before,
+    .forearm::before,
+    .hand::before,
+    .leg::before,
+    .foot::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      mix-blend-mode:multiply;
+    }
+
+    .head::before{
+      opacity:.4;
+      background:
+        radial-gradient(circle at 26px 28px, transparent 0 8px, rgba(17,44,122,.95) 8px 9px, transparent 9px),
+        radial-gradient(circle at 160px 30px, transparent 0 8px, rgba(17,44,122,.82) 8px 9px, transparent 9px),
+        radial-gradient(circle at 154px 122px, transparent 0 9px, rgba(17,44,122,.88) 9px 10px, transparent 10px),
+        radial-gradient(circle at 34px 134px, transparent 0 8px, rgba(17,44,122,.76) 8px 9px, transparent 9px),
+        radial-gradient(circle at 94px 14px, transparent 0 1px, rgba(17,44,122,.65) 1px 1.6px, transparent 1.6px),
+        radial-gradient(circle at 94px 156px, transparent 0 1px, rgba(17,44,122,.65) 1px 1.6px, transparent 1.6px),
+        radial-gradient(circle at 50% 50%, transparent 0 1px, rgba(17,44,122,.1) 1px 1.4px, transparent 1.4px);
+      background-size:
+        52px 52px,
+        58px 58px,
+        64px 64px,
+        48px 48px,
+        34px 34px,
+        34px 34px,
+        22px 22px;
+    }
+
+    .head::after,
+    .body::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(145deg,rgba(255,255,255,.74),transparent 24%),
+        linear-gradient(330deg,transparent 60%,rgba(26,35,126,.07) 100%);
+    }
+
+    .antenna{
+      top:-24px;
+      z-index:2;
+      width:6px;
+      height:30px;
+      border-radius:999px;
+      background:linear-gradient(180deg,var(--blue2),var(--blue));
+      transform-origin:bottom center;
+      animation:antennaIdle 3.2s ease-in-out infinite alternate;
+      box-shadow:0 0 12px rgba(47,71,204,.22);
+    }
+
+    .antenna.left{
+      left:58px;
+    }
+
+    .antenna.right{
+      right:58px;
+      animation-delay:.25s;
+    }
+
+    .antenna::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-8px;
+      width:12px;
+      height:12px;
+      transform:translateX(-50%);
+      border-radius:50%;
+      background:
+        radial-gradient(
+          circle at 30% 30%,
+          #fffbe6 0%,
+          #ffe9ab 20%,
+          var(--gold) 58%,
+          var(--gold2) 100%
+        );
+      box-shadow:0 0 16px rgba(215,179,92,.7);
+    }
+
+    .brow{
+      position:absolute;
+      top:34px;
+      z-index:6;
+      width:34px;
+      height:8px;
+      border-top:4px solid var(--blue3);
+      border-radius:50%;
+      opacity:.95;
+      transition:transform .28s ease,top .28s ease;
+    }
+
+    .brow.left{
+      left:30px;
+      transform:rotate(-8deg);
+    }
+
+    .brow.right{
+      right:30px;
+      transform:rotate(8deg);
+    }
+
+    .eye{
+      position:absolute;
+      top:47px;
+      z-index:6;
+      width:42px;
+      height:50px;
+      overflow:hidden;
+      border-radius:50%;
+      background:#111;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.1),
+        0 0 0 2px rgba(26,35,126,.06);
+    }
+
+    .eye.left{
+      left:30px;
+    }
+
+    .eye.right{
+      right:30px;
+    }
+
+    .eye::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:50%;
+      background:
+        radial-gradient(
+          circle at 50% 42%,
+          #fff 0 56%,
+          #eef4ff 66%,
+          #d7e1ff 100%
+        );
+      transform:scaleY(.74);
+    }
+
+    .eye::after{
+      content:"";
+      position:absolute;
+      left:8px;
+      right:8px;
+      top:-2px;
+      z-index:3;
+      height:0;
+      border-bottom:3px solid var(--blue3);
+      border-radius:50%;
+      background:var(--white);
+      transition:height .12s ease;
+    }
+
+    .iris{
+      position:absolute;
+      top:14px;
+      left:12px;
+      z-index:2;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:
+        radial-gradient(
+          circle at 35% 35%,
+          #5dd7ff 0 16%,
+          #0d5aa3 38%,
+          #061635 74%,
+          #030814 100%
+        );
+      box-shadow:0 0 8px rgba(0,229,255,.18);
+      transition:transform .28s ease;
+    }
+
+    .iris::before{
+      content:"";
+      position:absolute;
+      top:3px;
+      left:3px;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#fff;
+      opacity:.96;
+    }
+
+    .mouth{
+      position:absolute;
+      left:50%;
+      bottom:34px;
+      z-index:6;
+      width:42px;
+      height:18px;
+      border-bottom:4px solid var(--blue3);
+      border-radius:0 0 50% 50%;
+      transform:translateX(-50%);
+      transition:
+        width .12s ease,
+        height .12s ease,
+        border .12s ease,
+        bottom .12s ease;
+    }
+
+    .cheek{
+      position:absolute;
+      bottom:36px;
+      z-index:5;
+      width:22px;
+      height:14px;
+      border-radius:50%;
+      background:var(--pink);
+      filter:blur(4px);
+      opacity:.86;
+      transition:transform .3s ease,opacity .3s ease;
+    }
+
+    .cheek.left{
+      left:18px;
+    }
+
+    .cheek.right{
+      right:18px;
+    }
+
+    .chin{
+      position:absolute;
+      left:50%;
+      bottom:12px;
+      z-index:4;
+      width:64px;
+      height:18px;
+      border-radius:50%;
+      transform:translateX(-50%);
+      background:radial-gradient(circle,rgba(26,35,126,.08) 0%,transparent 70%);
+    }
+
+    .body{
+      left:50%;
+      top:128px;
+      z-index:3;
+      width:206px;
+      height:214px;
+      transform:translateX(-50%) translateZ(18px);
+      overflow:hidden;
+      border:4px solid var(--blue3);
+      border-radius:28px 28px 36px 36px;
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(255,255,255,.96) 0 24%,
+          rgba(246,249,255,.98) 45%,
+          #edf3ff 85%,
+          #dce5fb 100%
+        );
+      box-shadow:
+        inset 0 14px 18px rgba(255,255,255,.72),
+        inset 0 -18px 30px rgba(20,40,90,.08);
+      animation:bodyBreathe 4.8s ease-in-out infinite;
+    }
+
+    .body::before{
+      opacity:.3;
+      background:
+        radial-gradient(circle at 30px 24px,transparent 0 7px,rgba(17,44,122,.95) 7px 8px,transparent 8px),
+        radial-gradient(circle at 170px 24px,transparent 0 7px,rgba(17,44,122,.8) 7px 8px,transparent 8px),
+        radial-gradient(circle at 30px 190px,transparent 0 7px,rgba(17,44,122,.8) 7px 8px,transparent 8px),
+        radial-gradient(circle at 170px 190px,transparent 0 7px,rgba(17,44,122,.95) 7px 8px,transparent 8px),
+        radial-gradient(circle at 65px 50px,transparent 0 2px,rgba(17,44,122,.72) 2px 2.5px,transparent 2.5px),
+        radial-gradient(circle at 141px 50px,transparent 0 2px,rgba(17,44,122,.72) 2px 2.5px,transparent 2.5px),
+        radial-gradient(circle at 65px 164px,transparent 0 2px,rgba(17,44,122,.72) 2px 2.5px,transparent 2.5px),
+        radial-gradient(circle at 141px 164px,transparent 0 2px,rgba(17,44,122,.72) 2px 2.5px,transparent 2.5px);
+      background-size:
+        82px 82px,
+        82px 82px,
+        82px 82px,
+        82px 82px,
+        34px 34px,
+        34px 34px,
+        34px 34px,
+        34px 34px;
+    }
+
+    .chest{
+      position:absolute;
+      left:50%;
+      top:18px;
+      z-index:5;
+      width:110px;
+      height:58px;
+      overflow:hidden;
+      transform:translateX(-50%);
+      border:4px solid var(--gold2);
+      border-radius:18px;
+      background:
+        radial-gradient(
+          circle at 50% 35%,
+          rgba(255,255,255,.55) 0 20%,
+          rgba(215,179,92,.22) 21%,
+          rgba(215,179,92,.12) 100%
+        );
+      box-shadow:inset 0 0 14px rgba(215,179,92,.16);
+    }
+
+    .chest::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.95;
+      background:
+        radial-gradient(circle at 14px 14px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 96px 14px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 14px 44px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 96px 44px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 55px 10px,transparent 0 8px,rgba(17,44,122,.95) 8px 9px,transparent 9px),
+        radial-gradient(circle at 55px 48px,transparent 0 8px,rgba(17,44,122,.95) 8px 9px,transparent 9px),
+        radial-gradient(circle at 55px 29px,transparent 0 1.8px,rgba(17,44,122,.8) 1.8px 2.2px,transparent 2.2px);
+    }
+
+    .chest::after{
+      content:"MARQUINHOS";
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      color:var(--gold);
+      font-family:"Orbitron",system-ui,sans-serif;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:1.4px;
+      line-height:1;
+      white-space:nowrap;
+      text-shadow:0 0 10px rgba(215,179,92,.2);
+    }
+
+    .arm{
+      top:30px;
+      z-index:1;
+      width:26px;
+      height:100px;
+      overflow:hidden;
+      border:4px solid var(--blue3);
+      border-radius:15px;
+      background:
+        radial-gradient(
+          circle at 35% 20%,
+          rgba(255,255,255,.9) 0 30%,
+          rgba(245,249,255,.98) 46%,
+          #edf3ff 74%,
+          #dfe8fb 100%
+        );
+      transform-origin:top center;
+      box-shadow:inset 0 0 12px rgba(255,255,255,.45);
+      transition:transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .arm.left{
+      left:-14px;
+      transform:rotate(-12deg);
+    }
+
+    .arm.right{
+      right:-14px;
+      transform:rotate(12deg);
+    }
+
+    .arm::before{
+      opacity:.82;
+      background:
+        radial-gradient(circle at 16px 18px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 10px 48px,transparent 0 2px,rgba(17,44,122,.65) 2px 2.5px,transparent 2.5px),
+        radial-gradient(circle at 16px 82px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px);
+    }
+
+    .forearm{
+      left:0;
+      top:76px;
+      width:22px;
+      height:84px;
+      overflow:hidden;
+      border:3px solid var(--blue3);
+      border-radius:12px;
+      background:
+        radial-gradient(
+          circle at 50% 18%,
+          rgba(255,255,255,.95) 0 24%,
+          rgba(245,249,255,.98) 46%,
+          #edf3ff 100%
+        );
+      transform-origin:top center;
+      transition:transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .forearm::before{
+      opacity:.88;
+      background:
+        radial-gradient(circle at 11px 14px,transparent 0 2.4px,rgba(17,44,122,.86) 2.4px 2.8px,transparent 2.8px),
+        radial-gradient(circle at 11px 34px,transparent 0 2.4px,rgba(17,44,122,.86) 2.4px 2.8px,transparent 2.8px),
+        radial-gradient(circle at 11px 54px,transparent 0 2.4px,rgba(17,44,122,.86) 2.4px 2.8px,transparent 2.8px),
+        radial-gradient(circle at 11px 74px,transparent 0 2.4px,rgba(17,44,122,.86) 2.4px 2.8px,transparent 2.8px);
+    }
+
+    .hand{
+      left:-8px;
+      top:72px;
+      width:36px;
+      height:36px;
+      overflow:hidden;
+      border:3px solid var(--blue3);
+      border-radius:50%;
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #fff 0 26%,
+          #eef4ff 58%,
+          #dce6fb 100%
+        );
+      transition:transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .hand::before{
+      opacity:.82;
+      background:
+        radial-gradient(circle at 18px 18px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 10px 10px,transparent 0 2px,rgba(17,44,122,.5) 2px 2.4px,transparent 2.4px);
+    }
+
+    .hand::after{
+      content:"";
+      position:absolute;
+      inset:8px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(215,179,92,.22) 0%,transparent 68%);
+      opacity:.7;
+    }
+
+    .finger{
+      position:absolute;
+      top:2px;
+      width:7px;
+      height:15px;
+      border:1px solid var(--blue3);
+      border-radius:4px;
+      background:#fff;
+      transform-origin:bottom center;
+    }
+
+    .finger:nth-child(1){left:4px}
+    .finger:nth-child(2){left:13px}
+    .finger:nth-child(3){left:22px}
+
+    .leg{
+      bottom:-6px;
+      z-index:1;
+      width:34px;
+      height:72px;
+      overflow:hidden;
+      border:4px solid var(--blue3);
+      border-radius:14px;
+      background:
+        radial-gradient(
+          circle at 50% 20%,
+          rgba(255,255,255,.95) 0 28%,
+          rgba(245,249,255,.98) 50%,
+          #edf3ff 100%
+        );
+      box-shadow:inset 0 0 10px rgba(255,255,255,.42);
+    }
+
+    .leg.left{
+      left:53px;
+    }
+
+    .leg.right{
+      right:53px;
+    }
+
+    .leg::before{
+      opacity:.82;
+      background:
+        radial-gradient(circle at 16px 14px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 16px 36px,transparent 0 3px,rgba(17,44,122,.75) 3px 3.5px,transparent 3.5px),
+        radial-gradient(circle at 16px 58px,transparent 0 3px,rgba(17,44,122,.9) 3px 3.5px,transparent 3.5px);
+    }
+
+    .foot{
+      bottom:-16px;
+      left:-8px;
+      width:50px;
+      height:22px;
+      overflow:hidden;
+      border:4px solid var(--blue3);
+      border-radius:18px 18px 10px 10px;
+      background:
+        radial-gradient(
+          circle at 50% 25%,
+          rgba(255,255,255,.95) 0 28%,
+          rgba(245,249,255,.98) 50%,
+          #edf3ff 100%
+        );
+    }
+
+    .foot::before{
+      opacity:.88;
+      background:
+        radial-gradient(circle at 10px 11px,transparent 0 2.4px,rgba(17,44,122,.9) 2.4px 2.8px,transparent 2.8px),
+        radial-gradient(circle at 24px 11px,transparent 0 2.4px,rgba(17,44,122,.9) 2.4px 2.8px,transparent 2.8px),
+        radial-gradient(circle at 39px 11px,transparent 0 2.4px,rgba(17,44,122,.9) 2.4px 2.8px,transparent 2.8px);
+    }
+
+    .name{
+      position:absolute;
+      top:350px;
+      left:0;
+      width:100%;
+      color:var(--gold);
+      font-family:"Orbitron",system-ui,sans-serif;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.8px;
+      line-height:1;
+      text-align:center;
+      text-shadow:0 0 14px rgba(215,179,92,.18);
+    }
+
+    .caption{
+      position:absolute;
+      top:378px;
+      left:0;
+      width:100%;
+      color:rgba(255,255,255,.78);
+      font-family:"Space Grotesk",system-ui,sans-serif;
+      font-size:13px;
+      font-weight:500;
+      line-height:1;
+      text-align:center;
+    }
+
+    .marquinhos[data-emotion="happy"] .mouth{
+      width:48px;
+      height:22px;
+      border-bottom-width:5px;
+    }
+
+    .marquinhos[data-emotion="loving"] .mouth{
+      width:46px;
+      height:20px;
+      border-bottom-width:5px;
+    }
+
+    .marquinhos[data-emotion="sad"] .mouth{
+      bottom:31px;
+      border-top:4px solid var(--blue3);
+      border-bottom:0;
+      border-radius:50% 50% 0 0;
+    }
+
+    .marquinhos[data-emotion="surprised"] .mouth{
+      width:24px;
+      height:26px;
+      border:4px solid var(--blue3);
+      border-radius:50%;
+    }
+
+    .marquinhos[data-emotion="talking"] .mouth{
+      animation:talk .16s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="talking"] .body{
+      animation:
+        bodyBreathe 4.8s ease-in-out infinite,
+        talkBody .65s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="talking"] .brow.left{
+      transform:rotate(-5deg) translateY(-2px);
+    }
+
+    .marquinhos[data-emotion="talking"] .brow.right{
+      transform:rotate(5deg) translateY(-2px);
+    }
+
+    .marquinhos[data-emotion="waving"] .arm.right{
+      animation:waveRight .5s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="waving"] .hand{
+      animation:handWave .32s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="wink"] .eye.left::after{
+      height:40px;
+    }
+
+    .marquinhos[data-emotion="wink"] .eye.left::before{
+      transform:scaleY(.08);
+    }
+
+    .marquinhos[data-emotion="excited"]{
+      animation:excitedBounce .55s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="excited"] .mouth{
+      width:48px;
+      height:24px;
+      border-bottom-width:5px;
+    }
+
+    .marquinhos[data-emotion="thinking"] .iris{
+      transform:translate(7px,-6px);
+    }
+
+    .marquinhos[data-emotion="thinking"] .brow.left{
+      transform:rotate(-15deg) translateY(-4px);
+    }
+
+    .marquinhos[data-emotion="thinking"] .brow.right{
+      transform:rotate(15deg) translateY(-4px);
+    }
+
+    .marquinhos[data-emotion="caring"] .cheek{
+      opacity:1;
+      transform:scale(1.24);
+    }
+
+    .marquinhos[data-emotion="caring"] .mouth{
+      width:40px;
+      height:20px;
+      border-bottom-width:5px;
+    }
+
+    .marquinhos[data-emotion="surprised"] .head{
+      animation:surpriseHead .7s ease-out both;
+    }
+
+    @keyframes bodyFloat{
+      0%,100%{
+        transform:translateY(0);
+      }
+      50%{
+        transform:translateY(-6px);
+      }
+    }
+
+    @keyframes bodyBreathe{
+      0%,100%{
+        transform:translateX(-50%) translateZ(18px) translateY(0) scale(1);
+      }
+      50%{
+        transform:translateX(-50%) translateZ(18px) translateY(3px) scale(1.008,1.012);
+      }
+    }
+
+    @keyframes antennaIdle{
+      from{
+        transform:rotate(-8deg);
+      }
+      to{
+        transform:rotate(8deg);
+      }
+    }
+
+    @keyframes talk{
+      from{
+        transform:translateX(-50%) scaleX(.88);
+        height:7px;
+      }
+      to{
+        transform:translateX(-50%) scaleX(1.14);
+        height:21px;
+      }
+    }
+
+    @keyframes talkBody{
+      from{
+        margin-top:0;
+      }
+      to{
+        margin-top:1px;
+      }
+    }
+
+    @keyframes waveRight{
+      from{
+        transform:rotate(12deg);
+      }
+      to{
+        transform:rotate(62deg);
+      }
+    }
+
+    @keyframes handWave{
+      from{
+        transform:rotate(-8deg);
+      }
+      to{
+        transform:rotate(14deg);
+      }
+    }
+
+    @keyframes excitedBounce{
+      from{
+        transform:translateY(0) scale(1);
+      }
+      to{
+        transform:translateY(-9px) scale(1.025);
+      }
+    }
+
+    @keyframes surpriseHead{
+      0%{
+        transform:translateX(-50%) translateZ(28px);
+      }
+      45%{
+        transform:translateX(-50%) translateZ(28px) translateY(-4px) scale(1.035);
+      }
+      100%{
+        transform:translateX(-50%) translateZ(28px);
+      }
+    }
+
+    @media (max-width:520px){
+      .marquinhos{
+        transform:scale(.88);
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      .marquinhos,
+      .character,
+      .body,
+      .antenna,
+      .mouth,
+      .hand{
+        animation:none !important;
+        transition:none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div
+    class="marquinhos"
+    id="marquinhos"
+    data-emotion="caring"
+    aria-label="Marquinhos"
+  >
+    <div class="character" id="character">
+      <div class="head">
+        <div class="antenna left"></div>
+        <div class="antenna right"></div>
+
+        <div class="brow left"></div>
+        <div class="brow right"></div>
+
+        <div class="eye left">
+          <div class="iris"></div>
+        </div>
+
+        <div class="eye right">
+          <div class="iris"></div>
+        </div>
+
+        <div class="mouth"></div>
+        <div class="cheek left"></div>
+        <div class="cheek right"></div>
+        <div class="chin"></div>
+      </div>
+
+      <div class="body">
+        <div class="chest"></div>
+
+        <div class="arm left">
+          <div class="forearm">
+            <div class="hand">
+              <div class="finger"></div>
+              <div class="finger"></div>
+              <div class="finger"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arm right">
+          <div class="forearm">
+            <div class="hand">
+              <div class="finger"></div>
+              <div class="finger"></div>
+              <div class="finger"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="leg left">
+          <div class="foot"></div>
+        </div>
+
+        <div class="leg right">
+          <div class="foot"></div>
+        </div>
+      </div>
+
+      <div class="name">Marquinhos</div>
+      <div class="caption" id="caption">Listo para acompañarte.</div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    (() => {
+      const root = document.getElementById("marquinhos");
+      const character = document.getElementById("character");
+      const caption = document.getElementById("caption");
+      const mouth = root.querySelector(".mouth");
+      const eyes = [...root.querySelectorAll(".eye")];
+      const irises = [...root.querySelectorAll(".iris")];
+      const antennas = [...root.querySelectorAll(".antenna")];
+
+      const validEmotions = new Set([
+        "idle",
+        "happy",
+        "loving",
+        "sad",
+        "surprised",
+        "talking",
+        "waving",
+        "wink",
+        "excited",
+        "thinking",
+        "caring"
+      ]);
+
+      const state = {
+        emotion:"caring",
+        speaking:false,
+        audioLevel:0,
+        targetLookX:0,
+        targetLookY:0,
+        lookX:0,
+        lookY:0,
+        targetTiltX:0,
+        targetTiltY:0,
+        tiltX:0,
+        tiltY:0,
+        nextBlink:performance.now() + 3000 + Math.random() * 3500,
+        blinkUntil:0,
+        nextIdleAction:performance.now() + 3500 + Math.random() * 5000,
+        idleActionUntil:0,
+        idleAction:"",
+        audioContext:null,
+        analyser:null,
+        audioData:null,
+        audioSource:null,
+        audioElement:null,
+        speechToken:0,
+        lastFrame:performance.now()
+      };
+
+      let resetTimer = null;
+
+      function clamp(value,min,max){
+        return Math.max(min,Math.min(max,value));
+      }
+
+      function random(min,max){
+        return min + Math.random() * (max - min);
+      }
+
+      function resetState(){
+        root.dataset.emotion = "caring";
+        state.emotion = "caring";
+        state.speaking = false;
+        state.audioLevel = 0;
+        caption.textContent = "Listo para acompañarte.";
+        clearTimeout(resetTimer);
+      }
+
+      function setEmotion(emotion,text,duration = 3200){
+        const next = validEmotions.has(emotion) ? emotion : "caring";
+
+        clearTimeout(resetTimer);
+        state.emotion = next;
+        root.dataset.emotion = next;
+
+        if (text){
+          caption.textContent = text;
+        }
+
+        if (duration > 0){
+          resetTimer = window.setTimeout(() => {
+            if (!state.speaking){
+              resetState();
+            }
+          }, duration);
+        }
+      }
+
+      function setLook(x = 0,y = 0){
+        state.targetLookX = clamp(Number(x) || 0,-1,1);
+        state.targetLookY = clamp(Number(y) || 0,-1,1);
+      }
+
+      function setAudioLevel(level = 0){
+        state.audioLevel = clamp(Number(level) || 0,0,1);
+      }
+
+      function setCaption(text){
+        caption.textContent = String(text || "");
+      }
+
+      function speakWithBrowser(text,options = {}){
+        if (!("speechSynthesis" in window)){
+          return null;
+        }
+
+        const message = String(text || "");
+        if (!message){
+          return null;
+        }
+
+        const token = ++state.speechToken;
+        state.speaking = true;
+
+        const emotion = options.emotion || "talking";
+        const label = options.caption || message;
+
+        setEmotion(emotion,label,0);
+
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = options.lang || "es-MX";
+        utterance.rate = Number(options.rate) || 1;
+        utterance.pitch = Number(options.pitch) || 1.08;
+        utterance.volume = Number(options.volume) || 1;
+
+        utterance.onstart = () => {
+          if (token !== state.speechToken){
+            return;
+          }
+          state.speaking = true;
+          setEmotion(emotion,label,0);
+        };
+
+        utterance.onboundary = () => {
+          if (token !== state.speechToken){
+            return;
+          }
+          state.speaking = true;
+          state.audioLevel = Math.max(state.audioLevel,.18);
+        };
+
+        utterance.onend = () => {
+          if (token !== state.speechToken){
+            return;
+          }
+          state.speaking = false;
+          state.audioLevel = 0;
+          setEmotion("caring","Listo para escucharte.",1800);
+        };
+
+        utterance.onerror = () => {
+          if (token !== state.speechToken){
+            return;
+          }
+          state.speaking = false;
+          state.audioLevel = 0;
+          setEmotion("caring","Listo para escucharte.",1800);
+        };
+
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+
+        return utterance;
+      }
+
+      async function connectAudioElement(audioElement){
+        if (!(audioElement instanceof HTMLMediaElement)){
+          throw new TypeError("setAudio necesita un elemento audio o video.");
+        }
+
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass){
+          throw new Error("Este navegador no permite analizar audio.");
+        }
+
+        if (!state.audioContext){
+          state.audioContext = new AudioContextClass();
+          state.analyser = state.audioContext.createAnalyser();
+          state.analyser.fftSize = 256;
+          state.analyser.smoothingTimeConstant = .78;
+          state.audioData = new Uint8Array(state.analyser.fftSize);
+        }
+
+        if (state.audioElement !== audioElement){
+          if (state.audioSource){
+            state.audioSource.disconnect();
+          }
+
+          state.audioElement = audioElement;
+          state.audioSource = state.audioContext.createMediaElementSource(audioElement);
+          state.audioSource.connect(state.analyser);
+          state.analyser.connect(state.audioContext.destination);
+        }
+
+        if (state.audioContext.state === "suspended"){
+          await state.audioContext.resume();
+        }
+
+        state.speaking = true;
+        setEmotion("talking","Hablando...",0);
+      }
+
+      function disconnectAudio(){
+        state.speaking = false;
+        state.audioLevel = 0;
+        setEmotion("caring","Listo para escucharte.",1800);
+      }
+
+      function analyseAudio(){
+        if (!state.analyser || !state.audioData){
+          if (!state.speaking){
+            state.audioLevel *= .88;
+          }
+          return;
+        }
+
+        state.analyser.getByteTimeDomainData(state.audioData);
+
+        let sum = 0;
+
+        for (let i = 0; i < state.audioData.length; i += 1){
+          const normalized = (state.audioData[i] - 128) / 128;
+          sum += normalized * normalized;
+        }
+
+        const rms = Math.sqrt(sum / state.audioData.length);
+        const level = clamp(rms * 5.2,0,1);
+
+        state.audioLevel += (level - state.audioLevel) * .28;
+        state.speaking = level > .025;
+      }
+
+      function blink(now){
+        if (now >= state.nextBlink && now > state.blinkUntil){
+          state.blinkUntil = now + 135;
+          state.nextBlink = now + 3200 + Math.random() * 5000;
+        }
+
+        const blinking = now < state.blinkUntil;
+
+        eyes.forEach((eye,index) => {
+          eye.style.setProperty(
+            "clip-path",
+            blinking ? "inset(46% 0 46% 0 round 50%)" : "none"
+          );
+
+          if (index === 1 && blinking){
+            eye.style.transform = "scaleY(.94)";
+          }else{
+            eye.style.transform = "scaleY(1)";
+          }
+        });
+      }
+
+      function performIdleAction(now){
+        if (now < state.nextIdleAction){
+          return;
+        }
+
+        const actions = ["lookLeft","lookRight","nod","listen","antenna"];
+        state.idleAction = actions[Math.floor(Math.random() * actions.length)];
+        state.idleActionUntil = now + random(900,1800);
+        state.nextIdleAction = now + random(3600,7200);
+
+        if (state.idleAction === "lookLeft"){
+          setLook(-.75,-.04);
+        }
+
+        if (state.idleAction === "lookRight"){
+          setLook(.75,-.04);
+        }
+
+        if (state.idleAction === "nod"){
+          state.targetTiltX = random(-3,3);
+          state.targetTiltY = random(-5,5);
+        }
+
+        if (state.idleAction === "listen"){
+          state.targetTiltY = random(-8,8);
+          state.targetTiltX = random(2,5);
+        }
+      }
+
+      function finishIdleAction(now){
+        if (state.idleAction && now > state.idleActionUntil){
+          state.idleAction = "";
+          setLook(0,0);
+          state.targetTiltX = 0;
+          state.targetTiltY = 0;
+        }
+      }
+
+      function updateLookAndPosture(delta){
+        const emotion = state.emotion;
+
+        let lookX = state.targetLookX;
+        let lookY = state.targetLookY;
+        let tiltX = state.targetTiltX;
+        let tiltY = state.targetTiltY;
+
+        if (emotion === "thinking"){
+          lookX = .35;
+          lookY = -.45;
+          tiltY += 5;
+        }
+
+        if (emotion === "surprised"){
+          lookY = -.2;
+          tiltX -= 3;
+        }
+
+        if (emotion === "talking"){
+          tiltY += Math.sin(performance.now() / 870) * 2.2;
+          tiltX += Math.sin(performance.now() / 1130) * 1.2;
+        }
+
+        state.lookX += (lookX - state.lookX) * delta * 7;
+        state.lookY += (lookY - state.lookY) * delta * 7;
+        state.tiltX += (tiltX - state.tiltX) * delta * 5;
+        state.tiltY += (tiltY - state.tiltY) * delta * 5;
+
+        character.style.setProperty("--mouse-x", `${state.lookX * 2.5}px`);
+        character.style.setProperty("--mouse-y", `${state.lookY * 1.8}px`);
+        character.style.setProperty("--tilt-x", `${state.tiltX}deg`);
+        character.style.setProperty("--tilt-y", `${state.tiltY}deg`);
+
+        irises.forEach((iris,index) => {
+          const side = index === 0 ? 1 : 1;
+          iris.style.transform = `translate(${state.lookX * 7 * side}px,${state.lookY * 4}px)`;
+        });
+      }
+
+      function updateActing(now){
+        const level = state.audioLevel;
+        const talking = state.speaking || level > .03;
+
+        if (talking){
+          const width = 38 + level * 18;
+          const height = 8 + level * 17;
+
+          mouth.style.width = `${width}px`;
+          mouth.style.height = `${height}px`;
+
+          antennas.forEach((antenna,index) => {
+            const rotation = Math.sin(now / 180 + index) * (5 + level * 12);
+            antenna.style.transform = `rotate(${rotation}deg)`;
+          });
+        }else{
+          mouth.style.width = "";
+          mouth.style.height = "";
+
+          antennas.forEach((antenna,index) => {
+            const rotation = Math.sin(now / 850 + index) * 7;
+            antenna.style.transform = `rotate(${rotation}deg)`;
+          });
+        }
+      }
+
+      function animationLoop(now){
+        const delta = Math.min((now - state.lastFrame) / 1000,.05);
+        state.lastFrame = now;
+
+        analyseAudio();
+        blink(now);
+        performIdleAction(now);
+        finishIdleAction(now);
+        updateLookAndPosture(delta);
+        updateActing(now);
+
+        requestAnimationFrame(animationLoop);
+      }
+
+      function react(kind,message = ""){
+        const text = String(message).toLowerCase();
+
+        if (
+          kind === "greet" ||
+          text.includes("hola") ||
+          text.includes("buenas") ||
+          text.includes("bienvenido")
+        ){
+          setEmotion("waving","Hola, qué gusto verte.",3000);
+          return;
+        }
+
+        if (
+          kind === "happy" ||
+          text.includes("gracias") ||
+          text.includes("excelente") ||
+          text.includes("genial")
+        ){
+          setEmotion("happy","Me alegra mucho.",3000);
+          return;
+        }
+
+        if (
+          kind === "loving" ||
+          text.includes("cariño") ||
+          text.includes("amor") ||
+          text.includes("te quiero")
+        ){
+          setEmotion("loving","Te acompaño con cariño.",3600);
+          return;
+        }
+
+        if (
+          kind === "sad" ||
+          text.includes("triste") ||
+          text.includes("problema") ||
+          text.includes("mal")
+        ){
+          setEmotion("sad","Estoy contigo.",3600);
+          return;
+        }
+
+        if (
+          kind === "surprised" ||
+          text.includes("wow") ||
+          text.includes("increíble") ||
+          text.includes("sorpresa")
+        ){
+          setEmotion("surprised","Qué interesante.",2600);
+          return;
+        }
+
+        if (
+          kind === "thinking" ||
+          text.includes("pensando") ||
+          text.includes("analizando") ||
+          text.includes("espera")
+        ){
+          setEmotion("thinking","Estoy pensando.",3200);
+          return;
+        }
+
+        if (kind === "wink"){
+          setEmotion("wink","Aquí estoy.",2200);
+          return;
+        }
+
+        if (
+          kind === "excited" ||
+          text.includes("vamos") ||
+          text.includes("celebrar")
+        ){
+          setEmotion("excited","¡Vamos!",2600);
+          return;
+        }
+
+        setEmotion("caring","Listo para acompañarte.",2200);
+      }
+
+      window.Marquinhos = {
+        react,
+        setEmotion,
+        setLook,
+        setCaption,
+        setAudioLevel,
+        setAudio:connectAudioElement,
+        disconnectAudio,
+        speak:speakWithBrowser,
+        reset:resetState
+      };
+
+      document.addEventListener("pointermove",(event) => {
+        const x = event.clientX / window.innerWidth;
+        const y = event.clientY / window.innerHeight;
+
+        setLook((x - .5) * 1.7,(y - .5) * 1.4);
+      });
+
+      document.addEventListener("pointerleave",() => {
+        setLook(0,0);
+      });
+
+      document.addEventListener("visibilitychange",() => {
+        if (document.hidden){
+          state.audioLevel = 0;
+        }
+      });
+
+      requestAnimationFrame(animationLoop);
+    })();
+  </script>
+</body>
+</html>
