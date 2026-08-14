@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Csariel's · Red Social Integral</title>
+    <title data-i18n="titulo">Csariel's · Red Social Integral</title>
     <meta name="theme-color" content="#0F2D1A" />
-    <meta name="description" content="Red Social Integral · eSIM · Web3" />
+    <meta name="description" data-i18n="descripcion" content="Red Social Integral · eSIM · Web3" />
     <base href="/">
 
     <!-- 🔒 CSP (actualizado) -->
@@ -36,6 +36,9 @@
 
     <!-- ===== UI COMPARTIDA (idiomas, toast, estrellas) ===== -->
     <script src="/js/red-main.js"></script>
+
+    <!-- ===== LOGIN (separado para mantener orden) ===== -->
+    <script src="/js/login-index.js"></script>
 
     <style>
         /* ================================================================
@@ -609,6 +612,25 @@
         .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--danger); color: white; }
 
+        /* ===== NEBULOSAS ===== */
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--live-red); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; }
+        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
         @media (max-width: 480px) {
             .login-card { padding: 20px 16px; }
             .login-card .title { font-size: 1rem; }
@@ -618,8 +640,11 @@
     </style>
 </head>
 <body>
-    <!-- ===== FONDO ESTELAR ===== -->
+    <!-- ===== FONDO ESTELAR Y NEBULOSAS ===== -->
     <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
 
     <div class="app">
 
@@ -751,6 +776,184 @@
     <!-- ================================================================ -->
     <!-- 🔥 SCRIPTS (cargados externamente para cumplir con CSP) -->
     <!-- ================================================================ -->
-    <script src="/js/login-index.js"></script>
+    <script>
+        // ================================================================
+        // 🌐 SISTEMA DE IDIOMAS
+        // ================================================================
+        // CSARIELS_IDIOMA ya está en red-main.js
+        // Solo añadimos las traducciones específicas del index
+
+        // ================================================================
+        // 🚀 FUNCIONES DE LOGIN
+        // ================================================================
+        async function handleLogin() {
+            const username = document.getElementById('inputUsername').value.trim();
+            const email = document.getElementById('inputEmail').value.trim();
+            const phone = document.getElementById('inputPhone').value.trim();
+            const accept = document.getElementById('acceptTerms').checked;
+
+            if (!username || username.length < 2) {
+                mostrarToast('⚠️ Ingresa un nombre de usuario válido', 'error');
+                return;
+            }
+            if (!accept) {
+                mostrarToast('⚠️ Debes aceptar los Términos y Condiciones', 'error');
+                return;
+            }
+
+            localStorage.setItem('csariels_user_name', username);
+            if (email) localStorage.setItem('csariels_email', email);
+            if (phone) localStorage.setItem('csariels_phone', phone);
+            localStorage.setItem('csariels_login', 'true');
+            localStorage.setItem('csariels_member_since', new Date().getFullYear());
+
+            let supabaseOk = false;
+            if (window.supabase) {
+                try {
+                    const { data: { session } } = await window.supabase.auth.getSession();
+                    let uid = session?.user?.id;
+                    if (!uid) {
+                        const { data, error } = await window.supabase.auth.signInAnonymously();
+                        if (error) throw error;
+                        uid = data.session.user.id;
+                        console.log('🆕 Sesión anónima creada:', uid);
+                    }
+                    localStorage.setItem('csariels_user_id', uid);
+                    // Guardar en Supabase (usando el conector)
+                    if (window.guardarPerfilSupabase) {
+                        supabaseOk = await window.guardarPerfilSupabase(uid, { nombre: username, email, phone });
+                    }
+                    if (supabaseOk) console.log('✅ Perfil guardado en Supabase con uid:', uid);
+                } catch (e) {
+                    console.warn('⚠️ Supabase no disponible, guardando solo en localStorage:', e);
+                }
+            }
+
+            if (!localStorage.getItem('csariels_user_id')) {
+                localStorage.setItem('csariels_user_id', 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9));
+            }
+
+            const mensaje = supabaseOk ?
+                `✅ ${CSARIELS_IDIOMA.traducciones['bienvenido_mensaje'] || 'Bienvenido'} ${username}! (datos en Supabase)` :
+                `✅ ${CSARIELS_IDIOMA.traducciones['bienvenido_mensaje'] || 'Bienvenido'} ${username}! (modo local)`;
+            mostrarToast(mensaje);
+            setTimeout(() => {
+                window.location.href = '/features/red/index.html';
+            }, 800);
+        }
+
+        async function loginWithGoogle() {
+            if (!window.supabase) {
+                mostrarToast('⚠️ Supabase no está disponible', 'error');
+                return;
+            }
+            const accept = document.getElementById('acceptTerms').checked;
+            if (!accept) {
+                mostrarToast('⚠️ Debes aceptar los Términos y Condiciones', 'error');
+                return;
+            }
+
+            try {
+                const { data: { session } } = await window.supabase.auth.getSession();
+                const redirectTo = window.location.origin + window.location.pathname;
+
+                if (session?.user?.is_anonymous) {
+                    const { error } = await window.supabase.auth.linkIdentity({
+                        provider: 'google',
+                        options: { redirectTo }
+                    });
+                    if (error) throw error;
+                } else {
+                    const { error } = await window.supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: { redirectTo }
+                    });
+                    if (error) throw error;
+                }
+            } catch (e) {
+                console.error(e);
+                mostrarToast('⚠️ No se pudo iniciar con Google: ' + e.message, 'error');
+            }
+        }
+
+        async function handleOAuthReturn() {
+            if (!window.supabase) return;
+            const { data: { session } } = await window.supabase.auth.getSession();
+            if (!session?.user || session.user.is_anonymous) return;
+
+            const uid = session.user.id;
+            const nombreGoogle = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Usuario';
+            const emailGoogle = session.user.email || null;
+
+            localStorage.setItem('csariels_user_id', uid);
+            localStorage.setItem('csariels_user_name', nombreGoogle);
+            if (emailGoogle) localStorage.setItem('csariels_email', emailGoogle);
+            localStorage.setItem('csariels_login', 'true');
+
+            if (window.guardarPerfilSupabase) {
+                await window.guardarPerfilSupabase(uid, { nombre: nombreGoogle, email: emailGoogle });
+            }
+
+            mostrarToast(`✅ ${CSARIELS_IDIOMA.traducciones['bienvenido_mensaje'] || 'Bienvenido'} ${nombreGoogle}! (Google)`);
+            setTimeout(() => {
+                window.location.href = '/features/red/index.html';
+            }, 600);
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Inicializar estrellas (viene de red-main.js)
+            initStars();
+
+            if (window.Security) {
+                window.Security.initSeguridad();
+                console.log('🛡️ Seguridad activada');
+            }
+
+            // Inicializar idioma
+            await CSARIELS_IDIOMA.init();
+
+            console.log('◈ Csariel\'s - Inicio (modo híbrido con idiomas)');
+
+            await handleOAuthReturn();
+
+            if (localStorage.getItem('csariels_login') === 'true') {
+                const username = localStorage.getItem('csariels_user_name');
+                if (username) {
+                    mostrarToast(`✅ ${CSARIELS_IDIOMA.traducciones['sesion_activa'] || 'Sesión activa como'} ${username}. ${CSARIELS_IDIOMA.traducciones['redirigiendo'] || 'Redirigiendo...'}`);
+                    setTimeout(() => {
+                        window.location.href = '/features/red/index.html';
+                    }, 600);
+                }
+            }
+
+            document.querySelectorAll('#inputUsername, #inputEmail, #inputPhone').forEach(input => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleLogin();
+                });
+            });
+
+            // Escuchar cambios de idioma desde otras pestañas
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
+        });
+
+        // Exponer funciones globales
+        window.handleLogin = handleLogin;
+        window.loginWithGoogle = loginWithGoogle;
+        window.mostrarToast = mostrarToast;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
+    </script>
 </body>
 </html>
