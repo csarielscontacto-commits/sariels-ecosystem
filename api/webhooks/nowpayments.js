@@ -23,37 +23,40 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) console.error('❌ Supabase no 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 // ================================================================
-// 🧹 IMPORTANTE: DESACTIVAR EL BODY PARSER DE VERCEL
-// Necesitamos el body CRUDO (raw) para que la firma HMAC coincida
-// exactamente con lo que NOWPayments firmó. Si dejamos que Vercel
-// lo parsee primero, JSON.stringify() nunca reproduce el mismo
-// string byte por byte y la firma SIEMPRE fallará.
+// ✅ Vercel SÍ debe parsear el body normalmente (bodyParser: true).
+// La firma de NOWPayments no se calcula sobre el raw string, sino
+// sobre el objeto JS ordenado recursivamente por claves y vuelto
+// a convertir a JSON — tal como indica su documentación oficial.
 // ================================================================
 export const config = {
     api: {
-        bodyParser: false,
+        bodyParser: true,
     },
 };
 
 // ================================================================
-// 📦 LEER BODY CRUDO
+// 🔀 ORDENAR OBJETO RECURSIVAMENTE (incluye objetos anidados como "fee")
+// Copiado exacto del ejemplo oficial de NOWPayments
 // ================================================================
-function leerRawBody(req) {
-    return new Promise((resolve, reject) => {
-        let data = '';
-        req.on('data', chunk => { data += chunk; });
-        req.on('end', () => resolve(data));
-        req.on('error', reject);
-    });
+function sortObject(obj) {
+    return Object.keys(obj).sort().reduce((result, key) => {
+        result[key] = (obj[key] && typeof obj[key] === 'object' && !Array.isArray(obj[key]))
+            ? sortObject(obj[key])
+            : obj[key];
+        return result;
+    }, {});
 }
 
 // ================================================================
-// 🛡️ VERIFICAR FIRMA IPN (HMAC-SHA512) SOBRE EL RAW BODY
+// 🛡️ VERIFICAR FIRMA IPN (HMAC-SHA512) — método oficial
 // ================================================================
-function verificarFirmaIPN(rawBody, firmaRecibida) {
+function verificarFirmaIPN(body, firmaRecibida) {
     try {
+        const sorted = sortObject(body);
+        const jsonString = JSON.stringify(sorted);
+
         const hmac = crypto.createHmac('sha512', NOWPAYMENTS_IPN_KEY);
-        hmac.update(rawBody);
+        hmac.update(jsonString);
         const firmaCalculada = hmac.digest('hex');
 
         const bufCalculada = Buffer.from(firmaCalculada, 'hex');
@@ -88,7 +91,6 @@ async function obtenerPlanEsim(planId) {
         console.error('❌ Error obteniendo plan:', error?.message);
         throw new Error('Plan no encontrado');
     }
-
     return data;
 }
 
@@ -102,9 +104,7 @@ async function obtenerOrden(paymentId) {
         .eq('nowpayments_payment_id', paymentId)
         .single();
 
-    if (error && error.code === 'PGRST116') {
-        return null; // No encontrada
-    }
+    if (error && error.code === 'PGRST116') return null;
     if (error) {
         console.error('❌ Error obteniendo orden:', error.message);
         throw error;
@@ -113,7 +113,7 @@ async function obtenerOrden(paymentId) {
 }
 
 // ================================================================
-// 📦 ACTUALIZAR ORDEN (pagada) — solo columnas que existen
+// 📦 ACTUALIZAR ORDEN (pagada)
 // ================================================================
 async function marcarOrdenPagada(ordenId, suscripcionId) {
     const { error } = await supabase
@@ -165,7 +165,7 @@ async function activarSimTelnyx(plan) {
 }
 
 // ================================================================
-// 📦 CREAR SUSCRIPCIÓN — columnas alineadas al schema real
+// 📦 CREAR SUSCRIPCIÓN
 // ================================================================
 async function crearSuscripcion(orden, telnyxSimId, plan) {
     const fechaExpiracion = new Date();
@@ -204,67 +204,46 @@ export default async function handler(req, res) {
 
     console.log('📨 Webhook NOWPayments recibido');
 
-    let rawBody;
-    let body;
-
     try {
-        rawBody = await leerRawBody(req);
-        body = JSON.parse(rawBody);
-    } catch (error) {
-        console.error('❌ Error leyendo/parseando body:', error.message);
-        return res.status(400).json({ error: 'Body inválido' });
-    }
-
-    try {
-        // 1. Verificar firma IPN sobre el RAW body
         const firma = req.headers['x-nowpayments-sig'];
         if (!firma) {
             console.error('❌ Firma IPN faltante');
             return res.status(401).json({ error: 'Firma IPN faltante' });
         }
 
-        const firmaValida = verificarFirmaIPN(rawBody, firma);
+        const firmaValida = verificarFirmaIPN(req.body, firma);
         if (!firmaValida) {
             console.error('❌ Firma IPN inválida');
             return res.status(401).json({ error: 'Firma IPN inválida' });
         }
 
-        // 2. Extraer datos
-        const { payment_id, payment_status, price_amount, actually_paid } = body;
+        const { payment_id, payment_status } = req.body;
         console.log(`📦 Payment ID: ${payment_id} | Status: ${payment_status}`);
 
-        // 3. Solo procesar pagos confirmados/finalizados
         if (payment_status !== 'finished' && payment_status !== 'confirmed') {
             console.log(`⏳ Estado ${payment_status} ignorado`);
             return res.status(200).json({ received: true, message: 'Estado ignorado' });
         }
 
-        // 4. Buscar orden
         const orden = await obtenerOrden(payment_id);
         if (!orden) {
             console.error(`❌ Orden ${payment_id} no encontrada`);
             return res.status(404).json({ error: 'Orden no encontrada' });
         }
 
-        // 5. Evitar duplicados (replay)
         if (orden.estado === 'pagada') {
             console.log(`⏳ Orden ${payment_id} ya procesada`);
             return res.status(200).json({ received: true, message: 'Ya procesada' });
         }
 
-        // 6. Obtener plan
         const plan = await obtenerPlanEsim(orden.plan_id);
         console.log(`📦 Plan: ${plan.nombre} (${plan.datos_mb} MB)`);
 
-        // 7. Activar SIM en Telnyx
         console.log('🔌 Activando SIM en Telnyx...');
         const telnyxSim = await activarSimTelnyx(plan);
         console.log(`✅ SIM activada: ${telnyxSim.id}`);
 
-        // 8. Crear suscripción
         const suscripcion = await crearSuscripcion(orden, telnyxSim.id, plan);
-
-        // 9. Marcar orden como pagada
         await marcarOrdenPagada(orden.id, suscripcion.id);
 
         console.log(`✅ Proceso completado para ${payment_id}`);
