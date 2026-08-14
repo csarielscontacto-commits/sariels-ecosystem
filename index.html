@@ -1,959 +1,710 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="titulo">Csariel's · Red Social Integral</title>
-    <meta name="theme-color" content="#0F2D1A" />
-    <meta name="description" data-i18n="descripcion" content="Red Social Integral · eSIM · Web3" />
-    <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marquinhos</title>
+  <style>
+    :root{
+      --bg:#071019;
+      --bg2:#0c1726;
+      --card:rgba(9,15,24,.74);
+      --blue:#1a237e;
+      --blue2:#2f47cc;
+      --white:#fbfdff;
+      --gold:#d7b35c;
+      --gold2:#b88b2d;
+      --pink:#ffccd8;
+      --shadow:rgba(0,0,0,.35);
+      --glow:rgba(215,179,92,.22);
+      --speed:.28s;
+      --idle:4s;
+    }
 
-    <!-- 🔒 CSP (actualizado) -->
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
-        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
-        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-        img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-        frame-src 'self';
-        media-src 'self';
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
-    ">
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      overflow:hidden;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:
+        radial-gradient(circle at top, #173757 0%, #0a121d 38%, var(--bg) 100%);
+      color:#fff;
+    }
 
-    <!-- ===== FUENTES Y FONTAWESOME ===== -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    .scene{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      display:grid;
+      place-items:center;
+      perspective:1200px;
+      perspective-origin:50% 42%;
+    }
 
-    <!-- ===== SUPABASE ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    .ambient{
+      position:absolute;
+      width:540px;
+      height:540px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(215,179,92,.16) 0%, rgba(47,71,204,.08) 35%, transparent 70%);
+      filter:blur(8px);
+      transform:translateY(40px);
+    }
 
-    <!-- ===== CONECTORES ===== -->
-    <script src="/js/client-config-loader.js"></script>
-    <script src="/js/security.js"></script>
+    .shadow{
+      position:absolute;
+      bottom:10%;
+      width:250px;
+      height:42px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(0,0,0,.4) 0%, rgba(0,0,0,.18) 45%, transparent 70%);
+      filter:blur(6px);
+      transform:scale(1.15);
+    }
 
-    <!-- ===== UI COMPARTIDA (idiomas, toast, estrellas) ===== -->
-    <script src="/js/red-main.js"></script>
+    .marquinhos{
+      position:relative;
+      width:300px;
+      transform-style:preserve-3d;
+      animation:float 4.5s ease-in-out infinite;
+      filter:drop-shadow(0 28px 34px rgba(0,0,0,.34));
+    }
 
-    <!-- ===== LOGIN (separado para mantener orden) ===== -->
-    <script src="/js/login-index.js"></script>
+    .card{
+      background:linear-gradient(180deg, rgba(15,23,36,.8), rgba(7,12,20,.82));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:30px;
+      padding:18px 18px 16px;
+      backdrop-filter:blur(10px);
+      transform:rotateX(2deg);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.05),
+        0 10px 30px rgba(0,0,0,.22);
+    }
 
-    <style>
-        /* ================================================================
-           ESTILOS CON COLOR DE RESPALDO
-           ================================================================ */
-        :root {
-            --space-deep: #05080f;
-            --space-mid: #0a1428;
-            --verde-bosque: #0F2D1A;
-            --verde-bosque-light: #1a4a2a;
-            --gold-cosmic: #D4AF37;
-            --gold-dim: rgba(212,175,55,0.15);
-            --gold-glow: rgba(212,175,55,0.25);
-            --text-primary: #e8f0f8;
-            --text-secondary: #8ba3c7;
-            --text-muted: #4a6a8a;
-            --border: rgba(212,175,55,0.08);
-            --border-glow: rgba(212,175,55,0.25);
-            --radius: 16px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --success: #00b894;
-            --danger: #ff3366;
-            --warning: #D4AF37;
-            --quantum: #00e5ff;
-            --live-red: #ff0033;
-        }
+    .head{
+      position:relative;
+      width:184px;
+      height:168px;
+      margin:0 auto;
+      border:4px solid var(--blue);
+      border-radius:50% 50% 42% 42%;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 35% 25%, rgba(255,255,255,.95) 0 28%, rgba(245,249,255,.98) 42%, #edf2ff 72%, #dfe9ff 100%);
+      box-shadow:
+        inset 0 16px 18px rgba(255,255,255,.75),
+        inset 0 -18px 30px rgba(20,40,90,.06),
+        0 10px 24px rgba(0,0,0,.15);
+      transform:translateZ(26px);
+    }
 
-        body {
-            background: #05080f;
-            background: var(--space-deep);
-            color: #e8f0f8;
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-            line-height: 1.5;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            position: relative;
-        }
+    .head::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 22px 20px, rgba(26,35,126,.9) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 46px 42px, rgba(26,35,126,.75) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 70px 18px, rgba(26,35,126,.5) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 118px 24px, rgba(26,35,126,.45) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 146px 48px, rgba(26,35,126,.72) 0 2px, transparent 2.5px);
+      background-size:56px 56px;
+      opacity:.22;
+      mix-blend-mode:multiply;
+      pointer-events:none;
+    }
 
-        #stars-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
+    .head::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.72), transparent 22%),
+        linear-gradient(330deg, transparent 58%, rgba(26,35,126,.06) 100%);
+      pointer-events:none;
+    }
 
-        .app {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 16px 20px 30px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    .antenna{
+      position:absolute;
+      top:-24px;
+      width:6px;
+      height:30px;
+      border-radius:999px;
+      background:linear-gradient(180deg, var(--blue2), var(--blue));
+      transform-origin:bottom center;
+      animation:sway 3.2s ease-in-out infinite alternate;
+      box-shadow:0 0 12px rgba(47,71,204,.25);
+    }
+    .antenna::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-8px;
+      width:12px;
+      height:12px;
+      transform:translateX(-50%);
+      border-radius:50%;
+      background:radial-gradient(circle, #ffe9ab 0%, var(--gold) 55%, var(--gold2) 100%);
+      box-shadow:0 0 16px rgba(215,179,92,.7);
+    }
+    .antenna.left{left:58px}
+    .antenna.right{right:58px; animation-delay:.14s}
 
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0 16px;
-            border-bottom: 2px solid var(--gold-dim);
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-            position: relative;
-        }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
-            opacity: 0.4;
-        }
+    .brow{
+      position:absolute;
+      top:32px;
+      width:34px;
+      height:8px;
+      border-top:4px solid var(--blue);
+      border-radius:50%;
+      z-index:4;
+      opacity:.95;
+      transition:transform .25s ease, top .25s ease;
+    }
+    .brow.left{left:30px; transform:rotate(-8deg)}
+    .brow.right{right:30px; transform:rotate(8deg)}
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
-        .logo-icon .hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 900;
-            border: 2px solid var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
+    .eye{
+      position:absolute;
+      top:46px;
+      width:42px;
+      height:50px;
+      border-radius:50%;
+      overflow:hidden;
+      background:#111;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+    }
+    .eye.left{left:30px}
+    .eye.right{right:30px}
 
-        .logo-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.3rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .logo-badge {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.45rem;
-            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
-            color: white;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            -webkit-text-fill-color: white;
-            border: 1px solid rgba(212,175,55,0.2);
-            animation: badge-pulse 2s ease-in-out infinite;
-        }
-        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
+    .eye::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 50% 42%, #fff 0 56%, #eef4ff 66%, #d7e1ff 100%);
+      border-radius:50%;
+      transform:scaleY(.74);
+    }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+    .eye::after{
+      content:"";
+      position:absolute;
+      left:8px;
+      right:8px;
+      top:-2px;
+      height:0;
+      background:var(--white);
+      border-bottom:3px solid var(--blue);
+      border-radius:50%;
+      z-index:3;
+      transition:height .2s ease;
+    }
 
-        /* ===== SELECTOR DE IDIOMA ===== */
-        .language-selector {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            background: rgba(212,175,55,0.03);
-            border-radius: 16px;
-            border: 1px solid rgba(212,175,55,0.08);
-        }
-        .language-selector .lang-icon {
-            font-size: 0.7rem;
-            margin-right: 2px;
-        }
-        .lang-btn {
-            padding: 2px 8px;
-            border-radius: 10px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.45rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .lang-btn:hover {
-            color: var(--text-secondary);
-            background: rgba(212,175,55,0.05);
-        }
-        .lang-btn.active {
-            border-color: var(--gold-cosmic);
-            background: rgba(212,175,55,0.1);
-            color: var(--gold-cosmic);
-        }
+    .iris{
+      position:absolute;
+      z-index:2;
+      width:18px;
+      height:18px;
+      left:12px;
+      top:14px;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, #5dd7ff 0 16%, #0d5aa3 38%, #061635 74%, #030814 100%);
+      box-shadow:0 0 8px rgba(0,229,255,.2);
+      animation:look 4.8s linear infinite;
+    }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(212,175,55,0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.55rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+    .iris::before{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:7px;
+      left:3px;
+      top:3px;
+      border-radius:50%;
+      background:#fff;
+      opacity:.9;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
-            box-shadow: 0 0 40px rgba(15,45,26,0.5);
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-        }
-        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
-        .btn-outline { border-color: var(--border); background: transparent; }
-        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
-        .btn-sm { padding: 4px 10px; font-size: 0.5rem; }
-        .btn-danger {
-            background: rgba(255,51,102,0.15);
-            border-color: rgba(255,51,102,0.3);
-            color: var(--danger);
-        }
-        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
-        .btn-trading {
-            background: linear-gradient(135deg, var(--quantum), #0099ff);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-            animation: pulse-trading 2s ease-in-out infinite;
-        }
-        .btn-trading:hover {
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-trading {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
-        }
-        .btn-internet {
-            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
-            animation: pulse-internet 2s ease-in-out infinite;
-        }
-        .btn-internet:hover {
-            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-internet {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
-        }
-        .btn-tienda {
-            background: linear-gradient(135deg, #a855f7, #7c3aed);
-            border-color: transparent;
-            color: #fff;
-            -webkit-text-fill-color: #fff;
-            box-shadow: 0 0 20px rgba(168,85,247,0.2);
-            animation: pulse-tienda 2s ease-in-out infinite;
-        }
-        .btn-tienda:hover {
-            box-shadow: 0 0 40px rgba(168,85,247,0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-tienda {
-            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
-            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
-        }
-        .btn-wallet {
-            background: linear-gradient(135deg, #00d4ff, #0099ff);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0,212,255,0.2);
-            animation: pulse-wallet 2s ease-in-out infinite;
-        }
-        .btn-wallet:hover {
-            box-shadow: 0 0 40px rgba(0,212,255,0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-wallet {
-            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
-            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
-        }
+    .mouth{
+      position:absolute;
+      left:50%;
+      bottom:33px;
+      width:42px;
+      height:18px;
+      border-bottom:4px solid var(--blue);
+      border-radius:0 0 50% 50%;
+      transform:translateX(-50%);
+      transition:all var(--speed) ease;
+      box-shadow:0 0 0 1px rgba(26,35,126,.02);
+    }
 
-        /* ===== BOTÓN HUB LEALTAD ===== */
-        .btn-hub-lealtad {
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-            box-shadow: 0 0 20px rgba(212,175,55,0.15);
-            animation: pulse-hub 2s ease-in-out infinite;
-        }
-        .btn-hub-lealtad:hover {
-            box-shadow: 0 0 40px rgba(212,175,55,0.3);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-hub {
-            0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.15); }
-            50% { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
-        }
+    .cheek{
+      position:absolute;
+      bottom:36px;
+      width:22px;
+      height:14px;
+      border-radius:50%;
+      background:var(--pink);
+      filter:blur(4px);
+      opacity:.82;
+    }
+    .cheek.left{left:18px}
+    .cheek.right{right:18px}
 
-        .status-badge {
-            padding: 4px 12px;
-            font-size: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(212,175,55,0.06);
-            border: 1px solid rgba(212,175,55,0.15);
-            border-radius: 30px;
-            color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-        .status-dot.online {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--success);
-            display: inline-block;
-        }
+    .chin{
+      position:absolute;
+      left:50%;
+      bottom:12px;
+      width:64px;
+      height:18px;
+      transform:translateX(-50%);
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(26,35,126,.08) 0%, transparent 70%);
+      opacity:.9;
+    }
 
-        /* ===== BOTÓN LIVE DESTACADO ===== */
-        .btn-live {
-            background: linear-gradient(135deg, var(--live-red), #cc0033);
-            border-color: var(--live-red);
-            color: #fff;
-            -webkit-text-fill-color: #fff;
-            box-shadow: 0 0 20px rgba(255,0,51,0.3);
-            animation: pulse-live 1.5s ease-in-out infinite;
-        }
-        .btn-live:hover {
-            box-shadow: 0 0 40px rgba(255,0,51,0.5);
-            transform: scale(1.05);
-        }
-        @keyframes pulse-live {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,0,51,0.3); }
-            50% { box-shadow: 0 0 40px rgba(255,0,51,0.6); }
-        }
-        .btn-live .live-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            animation: dot-pulse 1s infinite;
-            margin-right: 4px;
-        }
-        @keyframes dot-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+    .body{
+      position:relative;
+      width:206px;
+      height:214px;
+      margin:-8px auto 0;
+      border:4px solid var(--blue);
+      border-radius:28px 28px 36px 36px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.96) 0 24%, rgba(246,249,255,.98) 45%, #edf3ff 85%, #dce5fb 100%);
+      box-shadow:
+        inset 0 14px 18px rgba(255,255,255,.7),
+        inset 0 -18px 30px rgba(20,40,90,.08),
+        0 12px 24px rgba(0,0,0,.13);
+      transform:translateZ(18px);
+      animation:breathe var(--idle) ease-in-out infinite;
+    }
 
-        /* ===== LOGIN CARD ===== */
-        .login-card {
-            background: rgba(15,45,26,0.25);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 32px 28px;
-            max-width: 480px;
-            margin: 20px auto;
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-            flex: 1;
-        }
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
-            background-size: 300% 300%;
-            border-radius: var(--radius);
-            z-index: -1;
-            opacity: 0.1;
-            animation: border-flow 4s ease-in-out infinite;
-        }
-        @keyframes border-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+    .body::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, transparent 0 44%, rgba(26,35,126,.12) 44% 48%, transparent 48% 100%),
+        radial-gradient(circle at 15% 18%, rgba(215,179,92,.18) 0 2px, transparent 3px),
+        radial-gradient(circle at 82% 22%, rgba(215,179,92,.14) 0 2px, transparent 3px),
+        radial-gradient(circle at 25% 70%, rgba(26,35,126,.08) 0 2px, transparent 3px),
+        radial-gradient(circle at 76% 66%, rgba(26,35,126,.08) 0 2px, transparent 3px);
+      opacity:.28;
+      background-size:62px 62px;
+      pointer-events:none;
+    }
 
-        .login-card .title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.2rem;
-            text-align: center;
-            color: var(--gold-cosmic);
-            margin-bottom: 4px;
-        }
-        .login-card .subtitle {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-bottom: 20px;
-        }
+    .chest{
+      position:absolute;
+      left:50%;
+      top:18px;
+      width:110px;
+      height:58px;
+      transform:translateX(-50%);
+      border:4px solid var(--gold2);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(215,179,92,.28), rgba(215,179,92,.08));
+      box-shadow:
+        inset 0 0 14px rgba(215,179,92,.16),
+        0 8px 14px rgba(0,0,0,.05);
+    }
 
-        .form-group {
-            margin-bottom: 14px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-            transition: var(--transition);
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .form-group input:focus {
-            border-color: var(--gold-cosmic);
-        }
-        .form-group input::placeholder {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
+    .chest::before{
+      content:"MARQUINHOS";
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      font-weight:900;
+      letter-spacing:1.4px;
+      font-size:11px;
+      color:var(--gold);
+      text-shadow:0 0 10px rgba(215,179,92,.2);
+    }
 
-        .btn-login {
-            width: 100%;
-            justify-content: center;
-            padding: 12px;
-            font-size: 0.75rem;
-            margin-top: 8px;
-        }
+    .arm{
+      position:absolute;
+      top:30px;
+      width:26px;
+      height:100px;
+      border:4px solid var(--blue);
+      border-radius:15px;
+      background:
+        linear-gradient(180deg, #fff, #edf3ff);
+      transform-origin:top center;
+      box-shadow:inset 0 0 12px rgba(255,255,255,.45);
+    }
+    .arm.left{left:-14px; transform:rotate(-12deg)}
+    .arm.right{right:-14px; transform:rotate(12deg)}
 
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 18px 0;
-            color: var(--text-muted);
-            font-size: 0.6rem;
-            font-family: 'Orbitron', monospace;
-        }
-        .divider hr {
-            flex: 1;
-            border: none;
-            border-top: 1px solid var(--gold-dim);
-        }
+    .forearm{
+      position:absolute;
+      left:0;
+      top:76px;
+      width:22px;
+      height:84px;
+      border:3px solid var(--blue);
+      border-radius:12px;
+      background:linear-gradient(180deg, #fff, #edf3ff);
+      transform-origin:top center;
+      box-shadow:inset 0 0 10px rgba(255,255,255,.45);
+    }
 
-        .btn-google {
-            width: 100%;
-            justify-content: center;
-            background: rgba(255,255,255,0.05);
-            border-color: rgba(255,255,255,0.1);
-            color: var(--text-primary);
-            padding: 10px;
-            font-size: 0.7rem;
-        }
-        .btn-google:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: var(--gold-cosmic);
-        }
+    .hand{
+      position:absolute;
+      left:-8px;
+      top:72px;
+      width:36px;
+      height:36px;
+      border:3px solid var(--blue);
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 35% 30%, #fff 0 26%, #eef4ff 58%, #dce6fb 100%);
+      transform-origin:center;
+      box-shadow:inset 0 0 10px rgba(255,255,255,.4);
+    }
 
-        .terms-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.55rem;
-            color: var(--text-muted);
-            margin: 12px 0 6px;
-            flex-wrap: wrap;
-        }
-        .terms-row a {
-            color: var(--gold-cosmic);
-            text-decoration: underline;
-        }
-        .terms-row input {
-            accent-color: var(--gold-cosmic);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
+    .hand::after{
+      content:"";
+      position:absolute;
+      inset:8px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(215,179,92,.22) 0%, transparent 68%);
+      opacity:.7;
+    }
 
-        .login-footer-text {
-            text-align: center;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            margin-top: 14px;
-        }
+    .finger{
+      position:absolute;
+      top:2px;
+      width:7px;
+      height:15px;
+      border:1px solid var(--blue);
+      border-radius:4px;
+      background:#fff;
+      transform-origin:bottom center;
+    }
+    .finger:nth-child(1){left:4px}
+    .finger:nth-child(2){left:13px}
+    .finger:nth-child(3){left:22px}
 
-        /* ===== FOOTER ===== */
-        .footer {
-            margin-top: 40px;
-            padding-top: 14px;
-            border-top: 1px solid var(--gold-dim);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            position: relative;
-        }
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
-            opacity: 0.2;
-        }
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.5rem;
-            letter-spacing: 0.5px;
-            font-family: 'Orbitron', monospace;
-        }
-        .footer-text .brand { color: var(--gold-cosmic); }
-        .footer-links {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.5rem;
-            transition: var(--transition);
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 0.5px;
-        }
-        .footer-links a:hover { color: var(--gold-cosmic); }
-        .footer-hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.45rem;
-            font-weight: 700;
-            border: 1px solid var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
+    .leg{
+      position:absolute;
+      bottom:-6px;
+      width:34px;
+      height:72px;
+      border:4px solid var(--blue);
+      border-radius:14px;
+      background:linear-gradient(180deg, #fff, #edf3ff);
+      box-shadow:inset 0 0 10px rgba(255,255,255,.42);
+    }
+    .leg.left{left:53px}
+    .leg.right{right:53px}
 
-        .toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.7rem;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 5000;
-            pointer-events: none;
-            font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(212,175,55,0.15);
-            max-width: 90%;
-            text-align: center;
-        }
-        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--danger); color: white; }
+    .foot{
+      position:absolute;
+      bottom:-16px;
+      left:-8px;
+      width:50px;
+      height:22px;
+      border:4px solid var(--blue);
+      border-radius:18px 18px 10px 10px;
+      background:linear-gradient(180deg, #fff, #edf3ff);
+    }
 
-        /* ===== NEBULOSAS ===== */
-        .nebula {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.08;
-            pointer-events: none;
-            z-index: 0;
-            animation: nebula-drift 25s ease-in-out infinite alternate;
-        }
-        .nebula-1 { width: 700px; height: 700px; background: var(--live-red); top: -15%; right: -15%; }
-        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; }
-        .nebula-3 { width: 500px; height: 500px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; }
+    .caption{
+      margin-top:14px;
+      text-align:center;
+      font-size:13px;
+      color:rgba(255,255,255,.78);
+      letter-spacing:.2px;
+    }
 
-        @keyframes nebula-drift {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(40px, -30px) scale(1.15); }
-        }
+    .name{
+      margin-top:4px;
+      text-align:center;
+      font-weight:900;
+      font-size:18px;
+      letter-spacing:.8px;
+      color:var(--gold);
+      text-shadow:0 0 14px rgba(215,179,92,.18);
+    }
 
-        @media (max-width: 480px) {
-            .login-card { padding: 20px 16px; }
-            .login-card .title { font-size: 1rem; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-        }
-    </style>
+    .bubble{
+      position:absolute;
+      top:20px;
+      left:20px;
+      padding:10px 14px;
+      border-radius:16px;
+      background:rgba(10,17,28,.55);
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(10px);
+      color:#dfe7ff;
+      font-size:13px;
+      line-height:1.35;
+      width:min(340px, calc(100vw - 40px));
+    }
+
+    .bubble strong{color:var(--gold)}
+
+    .marquinhos.happy .mouth{width:48px;height:22px;border-bottom-width:5px}
+    .marquinhos.loving .mouth{width:46px;height:20px;border-bottom-width:5px}
+    .marquinhos.sad .mouth{border-bottom:0;border-top:4px solid var(--blue);border-radius:50% 50% 0 0;bottom:31px}
+    .marquinhos.surprised .mouth{width:24px;height:26px;border:4px solid var(--blue);border-radius:50%}
+    .marquinhos.talking .mouth{animation:talk .18s ease-in-out infinite alternate}
+    .marquinhos.waving .arm.right{animation:waveR .45s ease-in-out infinite alternate}
+    .marquinhos.waving .arm.left{animation:waveL .45s ease-in-out infinite alternate}
+    .marquinhos.waving .finger{animation:wiggle .24s ease-in-out infinite alternate}
+    .marquinhos.wink .eye.left::after{height:40px}
+    .marquinhos.wink .eye.left::before{transform:scaleY(.08)}
+    .marquinhos.excited{animation:bounce .55s ease-in-out infinite alternate}
+    .marquinhos.thinking .iris{animation:think 1.2s ease-in-out infinite alternate}
+    .marquinhos.caring .cheek{opacity:1;transform:scale(1.24)}
+    .marquinhos.caring .mouth{width:40px;height:20px;border-bottom-width:5px}
+
+    @keyframes float{
+      0%,100%{transform:translateY(0) rotateX(0deg)}
+      50%{transform:translateY(-6px) rotateX(2deg)}
+    }
+    @keyframes breathe{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(4px)}
+    }
+    @keyframes sway{
+      from{transform:rotate(-8deg)}
+      to{transform:rotate(8deg)}
+    }
+    @keyframes look{
+      0%,100%{transform:translateX(0)}
+      25%{transform:translateX(8px)}
+      50%{transform:translateX(0)}
+      75%{transform:translateX(-8px)}
+    }
+    @keyframes talk{
+      from{transform:translateX(-50%) scaleX(.92);height:8px}
+      to{transform:translateX(-50%) scaleX(1.12);height:22px}
+    }
+    @keyframes waveR{
+      from{transform:rotate(10deg)}
+      to{transform:rotate(66deg)}
+    }
+    @keyframes waveL{
+      from{transform:rotate(-10deg)}
+      to{transform:rotate(-66deg)}
+    }
+    @keyframes wiggle{
+      from{transform:rotate(-8deg)}
+      to{transform:rotate(15deg)}
+    }
+    @keyframes think{
+      from{transform:translate(0,-1px)}
+      to{transform:translate(7px,-6px)}
+    }
+    @keyframes bounce{
+      from{transform:translateY(0) scale(1)}
+      to{transform:translateY(-10px) scale(1.03)}
+    }
+
+    @media (max-width:520px){
+      .marquinhos{transform:scale(.88)}
+      .bubble{top:12px;left:12px;width:calc(100vw - 24px)}
+    }
+  </style>
 </head>
 <body>
-    <!-- ===== FONDO ESTELAR Y NEBULOSAS ===== -->
-    <canvas id="stars-canvas"></canvas>
-    <div class="nebula nebula-1"></div>
-    <div class="nebula nebula-2"></div>
-    <div class="nebula nebula-3"></div>
+  <div class="scene">
+    <div class="ambient"></div>
+    <div class="shadow"></div>
 
-    <div class="app">
-
-        <!-- HEADER CON LOGOTIPO Y SELECTOR DE IDIOMA -->
-        <header class="header">
-            <a href="/" class="logo">
-                <span class="logo-icon"><span class="hex">◈</span></span>
-                <span class="logo-text">Csariel's</span>
-                <span class="logo-badge" data-i18n="inicio">Inicio</span>
-            </a>
-            <div class="header-actions">
-                <!-- ===== SELECTOR DE IDIOMA ===== -->
-                <div class="language-selector">
-                    <span class="lang-icon">🌐</span>
-                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
-                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
-                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
-                </div>
-
-                <div class="status-badge">
-                    <span class="status-dot online"></span>
-                    <span data-i18n="conectate">Conéctate</span>
-                </div>
-
-                <!-- ===== BOTONES HACIA FEATURES ===== -->
-                <a href="/features/red/index.html" class="btn btn-primary btn-sm">
-                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
-                </a>
-                <a href="/features/live/index.html" class="btn btn-live btn-sm">
-                    <span class="live-dot"></span> <span data-i18n="live">Live</span>
-                </a>
-                <a href="/features/foro/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
-                </a>
-                <a href="/features/trading/index.html" class="btn btn-trading btn-sm">
-                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
-                </a>
-                <a href="/features/servicios/index.html" class="btn btn-gold btn-sm">
-                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
-                </a>
-                <a href="/features/internet/index.html" class="btn btn-internet btn-sm">
-                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
-                </a>
-                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm">
-                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
-                </a>
-                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm">
-                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
-                </a>
-                <a href="/features/hub-lealtad/index.html" class="btn btn-hub-lealtad btn-sm">
-                    <i class="fas fa-handshake"></i> <span data-i18n="hub_lealtad">Hub Lealtad</span>
-                </a>
-
-                <!-- ===== ENLACES LEGALES ===== -->
-                <a href="/terminos-completos.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
-                </a>
-                <a href="/aviso-privacidad.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-shield-alt"></i> <span data-i18n="privacidad">Privacidad</span>
-                </a>
-            </div>
-        </header>
-
-        <!-- ===== CARD DE LOGIN ===== -->
-        <div class="login-card" id="loginCard">
-            <div class="title" data-i18n="bienvenido">🔐 Bienvenido a Csariel's</div>
-            <div class="subtitle" data-i18n="login_subtitle">Regístrate o inicia sesión para acceder a la red</div>
-
-            <div class="form-group">
-                <label data-i18n="usuario_label">Nombre de usuario *</label>
-                <input type="text" id="inputUsername" data-i18n-placeholder="usuario_placeholder" placeholder="Ej: TuNombre" />
-            </div>
-            <div class="form-group">
-                <label data-i18n="email_label">Correo electrónico</label>
-                <input type="email" id="inputEmail" data-i18n-placeholder="email_placeholder" placeholder="tu@email.com" />
-            </div>
-            <div class="form-group">
-                <label data-i18n="telefono_label">Número de celular</label>
-                <input type="tel" id="inputPhone" data-i18n-placeholder="telefono_placeholder" placeholder="55 1234 5678" />
-            </div>
-
-            <div class="terms-row">
-                <input type="checkbox" id="acceptTerms" />
-                <label for="acceptTerms" data-i18n="aceptar_terminos">Acepto los <a href="/terminos-completos.html">Términos y Condiciones</a> y el <a href="/aviso-privacidad.html">Aviso de Privacidad</a></label>
-            </div>
-
-            <button class="btn btn-gold btn-login" onclick="handleLogin()" id="btnLogin">
-                <i class="fas fa-rocket"></i> <span data-i18n="entrar">Entrar al Ecosistema</span>
-            </button>
-
-            <div class="divider">
-                <hr /> <span data-i18n="o">O</span> <hr />
-            </div>
-
-            <button class="btn btn-google btn-login" onclick="loginWithGoogle()">
-                <i class="fab fa-google" style="font-size: 1rem; margin-right: 6px;"></i> <span data-i18n="google_continuar">Continuar con Google</span>
-            </button>
-
-            <div class="login-footer-text" data-i18n="login_footer">
-                Al continuar aceptas nuestros Términos y Política de Privacidad.
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <footer class="footer">
-            <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_tagline">Red Social Integral · eSIM · Web3</span>
-            </span>
-            <div class="footer-links">
-                <a href="/features/red/index.html" data-i18n="mi_red">👥 Mi Red</a>
-                <a href="/features/trading/index.html" data-i18n="trading">📈 Trading</a>
-                <a href="/features/live/index.html" data-i18n="live" style="color:var(--live-red);font-weight:700;">🔴 Live</a>
-                <a href="/features/foro/index.html" data-i18n="foro">💬 Foro</a>
-                <a href="/features/servicios/index.html" data-i18n="servicios" style="color:var(--gold-cosmic);">🛠️ Servicios</a>
-                <a href="/features/internet/index.html" data-i18n="internet" style="color:#00d68f;">🌐 Internet</a>
-                <a href="/features/tienda/index.html" data-i18n="tienda" style="color:#a855f7;">🏰 Tienda</a>
-                <a href="/features/wallet/index.html" data-i18n="wallet" style="color:#00d4ff;">◈ Wallet</a>
-                <a href="/features/hub-lealtad/index.html" data-i18n="hub_lealtad" style="color:var(--gold-cosmic);font-weight:700;">🤝 Hub Lealtad</a>
-                <a href="/terminos-completos.html" data-i18n="terminos">📜 Términos</a>
-                <a href="/aviso-privacidad.html" data-i18n="privacidad">🔐 Privacidad</a>
-                <span class="footer-hex">◈</span>
-            </div>
-        </footer>
+    <div class="bubble" id="bubble">
+      <strong>Marquinhos</strong> listo para saludar, conversar y reaccionar con estilo.
     </div>
 
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
+    <div class="marquinhos caring" id="marquinhos">
+      <div class="card">
+        <div class="head">
+          <div class="antenna left"></div>
+          <div class="antenna right"></div>
 
-    <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS (cargados externamente para cumplir con CSP) -->
-    <!-- ================================================================ -->
-    <script>
-        // ================================================================
-        // 🌐 SISTEMA DE IDIOMAS
-        // ================================================================
-        // CSARIELS_IDIOMA ya está en red-main.js
-        // Solo añadimos las traducciones específicas del index
+          <div class="brow left"></div>
+          <div class="brow right"></div>
 
-        // ================================================================
-        // 🚀 FUNCIONES DE LOGIN
-        // ================================================================
-        async function handleLogin() {
-            const username = document.getElementById('inputUsername').value.trim();
-            const email = document.getElementById('inputEmail').value.trim();
-            const phone = document.getElementById('inputPhone').value.trim();
-            const accept = document.getElementById('acceptTerms').checked;
+          <div class="eye left"><div class="iris"></div></div>
+          <div class="eye right"><div class="iris"></div></div>
 
-            if (!username || username.length < 2) {
-                mostrarToast('⚠️ Ingresa un nombre de usuario válido', 'error');
-                return;
-            }
-            if (!accept) {
-                mostrarToast('⚠️ Debes aceptar los Términos y Condiciones', 'error');
-                return;
-            }
+          <div class="mouth"></div>
+          <div class="cheek left"></div>
+          <div class="cheek right"></div>
+          <div class="chin"></div>
+        </div>
 
-            localStorage.setItem('csariels_user_name', username);
-            if (email) localStorage.setItem('csariels_email', email);
-            if (phone) localStorage.setItem('csariels_phone', phone);
-            localStorage.setItem('csariels_login', 'true');
-            localStorage.setItem('csariels_member_since', new Date().getFullYear());
+        <div class="body">
+          <div class="chest"></div>
 
-            let supabaseOk = false;
-            if (window.supabase) {
-                try {
-                    const { data: { session } } = await window.supabase.auth.getSession();
-                    let uid = session?.user?.id;
-                    if (!uid) {
-                        const { data, error } = await window.supabase.auth.signInAnonymously();
-                        if (error) throw error;
-                        uid = data.session.user.id;
-                        console.log('🆕 Sesión anónima creada:', uid);
-                    }
-                    localStorage.setItem('csariels_user_id', uid);
-                    // Guardar en Supabase (usando el conector)
-                    if (window.guardarPerfilSupabase) {
-                        supabaseOk = await window.guardarPerfilSupabase(uid, { nombre: username, email, phone });
-                    }
-                    if (supabaseOk) console.log('✅ Perfil guardado en Supabase con uid:', uid);
-                } catch (e) {
-                    console.warn('⚠️ Supabase no disponible, guardando solo en localStorage:', e);
-                }
-            }
+          <div class="arm left">
+            <div class="forearm">
+              <div class="hand">
+                <div class="finger"></div>
+                <div class="finger"></div>
+                <div class="finger"></div>
+              </div>
+            </div>
+          </div>
 
-            if (!localStorage.getItem('csariels_user_id')) {
-                localStorage.setItem('csariels_user_id', 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9));
-            }
+          <div class="arm right">
+            <div class="forearm">
+              <div class="hand">
+                <div class="finger"></div>
+                <div class="finger"></div>
+                <div class="finger"></div>
+              </div>
+            </div>
+          </div>
 
-            const mensaje = supabaseOk ?
-                `✅ ${CSARIELS_IDIOMA.traducciones['bienvenido_mensaje'] || 'Bienvenido'} ${username}! (datos en Supabase)` :
-                `✅ ${CSARIELS_IDIOMA.traducciones['bienvenido_mensaje'] || 'Bienvenido'} ${username}! (modo local)`;
-            mostrarToast(mensaje);
-            setTimeout(() => {
-                window.location.href = '/features/red/index.html';
-            }, 800);
-        }
+          <div class="leg left"><div class="foot"></div></div>
+          <div class="leg right"><div class="foot"></div></div>
+        </div>
 
-        async function loginWithGoogle() {
-            if (!window.supabase) {
-                mostrarToast('⚠️ Supabase no está disponible', 'error');
-                return;
-            }
-            const accept = document.getElementById('acceptTerms').checked;
-            if (!accept) {
-                mostrarToast('⚠️ Debes aceptar los Términos y Condiciones', 'error');
-                return;
-            }
+        <div class="name">Marquinhos</div>
+        <div class="caption" id="caption">Hola 👋 estoy listo para tu ecosistema.</div>
+      </div>
+    </div>
+  </div>
 
-            try {
-                const { data: { session } } = await window.supabase.auth.getSession();
-                const redirectTo = window.location.origin + window.location.pathname;
+  <script>
+    const marquinhos = document.getElementById('marquinhos');
+    const caption = document.getElementById('caption');
+    const bubble = document.getElementById('bubble');
 
-                if (session?.user?.is_anonymous) {
-                    const { error } = await window.supabase.auth.linkIdentity({
-                        provider: 'google',
-                        options: { redirectTo }
-                    });
-                    if (error) throw error;
-                } else {
-                    const { error } = await window.supabase.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: { redirectTo }
-                    });
-                    if (error) throw error;
-                }
-            } catch (e) {
-                console.error(e);
-                mostrarToast('⚠️ No se pudo iniciar con Google: ' + e.message, 'error');
-            }
-        }
+    const states = ['happy','loving','sad','surprised','talking','waving','wink','excited','thinking','caring'];
+    let resetTimer = null;
 
-        async function handleOAuthReturn() {
-            if (!window.supabase) return;
-            const { data: { session } } = await window.supabase.auth.getSession();
-            if (!session?.user || session.user.is_anonymous) return;
+    function resetState(){
+      marquinhos.classList.remove(...states);
+    }
 
-            const uid = session.user.id;
-            const nombreGoogle = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Usuario';
-            const emailGoogle = session.user.email || null;
+    function setState(state, text, duration = 3200){
+      clearTimeout(resetTimer);
+      resetState();
+      marquinhos.classList.add(state);
+      if (text) caption.textContent = text;
+      bubble.innerHTML = '<strong>Marquinhos</strong> ' + (text || 'interactuando con tu ecosistema');
+      resetTimer = setTimeout(() => {
+        resetState();
+        marquinhos.classList.add('caring');
+        caption.textContent = 'Esperando tu siguiente acción.';
+        bubble.innerHTML = '<strong>Marquinhos</strong> listo para acompañarte.';
+      }, duration);
+    }
 
-            localStorage.setItem('csariels_user_id', uid);
-            localStorage.setItem('csariels_user_name', nombreGoogle);
-            if (emailGoogle) localStorage.setItem('csariels_email', emailGoogle);
-            localStorage.setItem('csariels_login', 'true');
+    function speak(text){
+      if (!('speechSynthesis' in window)) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'es-MX';
+      u.rate = 1;
+      u.pitch = 1.08;
+      u.volume = 1;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
 
-            if (window.guardarPerfilSupabase) {
-                await window.guardarPerfilSupabase(uid, { nombre: nombreGoogle, email: emailGoogle });
-            }
+    function blinkOnce(){
+      const eyes = document.querySelectorAll('.eye');
+      eyes.forEach(e => e.style.animation = 'none');
+      setTimeout(() => {
+        eyes.forEach(e => e.style.animation = 'none');
+      }, 20);
+    }
 
-            mostrarToast(`✅ ${CSARIELS_IDIOMA.traducciones['bienvenido_mensaje'] || 'Bienvenido'} ${nombreGoogle}! (Google)`);
-            setTimeout(() => {
-                window.location.href = '/features/red/index.html';
-            }, 600);
-        }
+    function scheduleBlink(){
+      setInterval(() => {
+        const eyes = document.querySelectorAll('.eye');
+        eyes.forEach(e => e.style.animation = 'none');
+        setTimeout(() => {
+          eyes.forEach(e => e.style.animation = '');
+        }, 120);
+      }, 4600);
+    }
 
-        // ================================================================
-        // 🚀 INICIALIZAR
-        // ================================================================
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Inicializar estrellas (viene de red-main.js)
-            initStars();
+    function react(kind, message = ''){
+      const m = String(message).toLowerCase();
 
-            if (window.Security) {
-                window.Security.initSeguridad();
-                console.log('🛡️ Seguridad activada');
-            }
+      if (kind === 'greet' || m.includes('hola') || m.includes('buenas') || m.includes('buenos días')) {
+        setState('waving', 'Hola 👋 qué gusto verte', 3800);
+        speak('Hola, qué gusto verte.');
+        return;
+      }
 
-            // Inicializar idioma
-            await CSARIELS_IDIOMA.init();
+      if (kind === 'happy' || m.includes('gracias') || m.includes('feliz') || m.includes('genial') || m.includes('excelente')) {
+        setState('happy', 'Sonrisa alegre', 3000);
+        speak('Me alegra mucho.');
+        return;
+      }
 
-            console.log('◈ Csariel\'s - Inicio (modo híbrido con idiomas)');
+      if (kind === 'loving' || m.includes('cariño') || m.includes('te quiero') || m.includes('amor') || m.includes('querido')) {
+        setState('loving', 'Expresión cariñosa', 4200);
+        speak('Te acompaño con cariño.');
+        return;
+      }
 
-            await handleOAuthReturn();
+      if (kind === 'sad' || m.includes('triste') || m.includes('mal') || m.includes('solo') || m.includes('problema')) {
+        setState('sad', 'Expresión empática', 4200);
+        speak('Estoy contigo.');
+        return;
+      }
 
-            if (localStorage.getItem('csariels_login') === 'true') {
-                const username = localStorage.getItem('csariels_user_name');
-                if (username) {
-                    mostrarToast(`✅ ${CSARIELS_IDIOMA.traducciones['sesion_activa'] || 'Sesión activa como'} ${username}. ${CSARIELS_IDIOMA.traducciones['redirigiendo'] || 'Redirigiendo...'}`);
-                    setTimeout(() => {
-                        window.location.href = '/features/red/index.html';
-                    }, 600);
-                }
-            }
+      if (kind === 'surprised' || m.includes('wow') || m.includes('sorpresa') || m.includes('increíble')) {
+        setState('surprised', 'Sorpresa amable', 2800);
+        speak('Qué interesante.');
+        return;
+      }
 
-            document.querySelectorAll('#inputUsername, #inputEmail, #inputPhone').forEach(input => {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') handleLogin();
-                });
-            });
+      if (kind === 'thinking' || m.includes('espera') || m.includes('pensando') || m.includes('analiza')) {
+        setState('thinking', 'Pensando', 3800);
+        speak('Un momento, estoy pensando.');
+        return;
+      }
 
-            // Escuchar cambios de idioma desde otras pestañas
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
-                    CSARIELS_IDIOMA.cambiar(e.newValue);
-                }
-            });
+      if (kind === 'wink') {
+        setState('wink', 'Guiño amistoso', 2400);
+        speak('Aquí estoy.');
+        return;
+      }
 
-            window.addEventListener('idioma-cambiado', (e) => {
-                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
-                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
-                }
-            });
-        });
+      if (kind === 'excited' || m.includes('vamos') || m.includes('fiesta') || m.includes('wow')) {
+        setState('excited', 'Muy animado', 2600);
+        speak('Vamos.');
+        return;
+      }
 
-        // Exponer funciones globales
-        window.handleLogin = handleLogin;
-        window.loginWithGoogle = loginWithGoogle;
-        window.mostrarToast = mostrarToast;
-        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
-    </script>
+      if (kind === 'caring') {
+        setState('caring', 'Modo cercano', 3600);
+        speak('Estoy aquí para ayudarte.');
+        return;
+      }
+
+      setState('talking', 'Conversando', 2600);
+      speak('Cuéntame más.');
+    }
+
+    function talk(text){
+      setState('talking', text, Math.max(2200, text.length * 55));
+      speak(text);
+    }
+
+    window.Marquinhos = {
+      react,
+      talk,
+      setState,
+      reset: resetState
+    };
+
+    scheduleBlink();
+    setTimeout(() => react('greet'), 800);
+  </script>
 </body>
 </html>
