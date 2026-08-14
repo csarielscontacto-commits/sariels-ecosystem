@@ -1,1871 +1,3034 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="transparent">
-  <title>Marquinhos Actor</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  >
-
-  <style>
-    :root{
-      /* ===== COLORES FUERTES ===== */
-      --ceramic:#FFFFFF;
-      --talavera-white:#F5F5F5;
-      --talavera-dark:#0D47A1;
-      --talavera-blue:#1565C0;
-      --talavera-light:#42A5F5;
-      --deep-blue:#0A1E3F;
-      --talavera-gold:#FFD700;
-      --soft-gold:#FFC107;
-      --talavera-green:#00897B;
-      --terracotta:#E65100;
-      --cream:#FFF8E1;
-      --blue:var(--talavera-dark);
-      --blue2:var(--talavera-blue);
-      --blue3:var(--deep-blue);
-      --white:var(--talavera-white);
-      --white2:var(--ceramic);
-      --gold:var(--talavera-gold);
-      --gold2:var(--soft-gold);
-      --pink:var(--cream);
-      --shadow:rgba(13,71,161,.35);
-    }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    html,
-    body{
-      width:100%;
-      height:100%;
-      margin:0;
-      padding:0;
-      overflow:hidden;
-      background:transparent;
-    }
-
-    body{
-      display:grid;
-      place-items:center;
-      perspective:1100px;
-      perspective-origin:50% 42%;
-      font-family:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-    }
-
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      z-index:-2;
-      pointer-events:none;
-      opacity:.12;
-      background:
-        radial-gradient(
-          circle at 50% 50%,
-          transparent 0 12px,
-          var(--talavera-light) 12px 14px,
-          transparent 14px
-        ),
-        radial-gradient(
-          circle at 50% 0%,
-          transparent 0 21px,
-          var(--talavera-light) 21px 23px,
-          transparent 23px
-        ),
-        radial-gradient(
-          circle at 0% 50%,
-          transparent 0 21px,
-          var(--talavera-light) 21px 23px,
-          transparent 23px
-        ),
-        radial-gradient(
-          circle at 100% 50%,
-          transparent 0 21px,
-          var(--talavera-light) 21px 23px,
-          transparent 23px
-        ),
-        radial-gradient(
-          circle at 50% 100%,
-          transparent 0 21px,
-          var(--talavera-light) 21px 23px,
-          transparent 23px
-        );
-      background-size:78px 78px;
-      background-position:center;
-    }
-
-    body::after{
-      content:"";
-      position:fixed;
-      inset:12px;
-      z-index:-1;
-      pointer-events:none;
-      border:3px solid rgba(13,71,161,.25);
-      border-radius:18px;
-      box-shadow:
-        inset 0 0 0 5px rgba(255,255,255,.5),
-        inset 0 0 0 7px rgba(66,165,245,.2);
-    }
-
-    .marquinhos{
-      position:relative;
-      width:300px;
-      height:400px;
-      transform-style:preserve-3d;
-      animation:bodyFloat 5.8s ease-in-out infinite;
-      filter:drop-shadow(0 22px 24px rgba(13,71,161,.35));
-      user-select:none;
-      touch-action:none;
-      isolation:isolate;
-    }
-
-    .character{
-      position:absolute;
-      inset:0;
-      transform-style:preserve-3d;
-      transform:
-        translate3d(var(--mouse-x,0px),var(--mouse-y,0px),0)
-        rotateX(var(--tilt-x,0deg))
-        rotateY(var(--tilt-y,0deg));
-      transition:transform .18s ease-out;
-    }
-
-    .head,
-    .body,
-    .arm,
-    .forearm,
-    .hand,
-    .leg,
-    .foot,
-    .antenna{
-      position:absolute;
-      transform-style:preserve-3d;
-    }
-
-    .head{
-      left:50%;
-      top:0;
-      width:186px;
-      height:170px;
-      z-index:5;
-      transform:translateX(-50%) translateZ(28px);
-      overflow:hidden;
-      border:4px solid var(--talavera-dark);
-      border-radius:50% 50% 42% 42%;
-      background:
-        radial-gradient(
-          circle at 34% 24%,
-          rgba(255,255,255,1) 0 24%,
-          var(--talavera-white) 43%,
-          var(--ceramic) 73%,
-          var(--cream) 100%
-        );
-      box-shadow:
-        inset 0 16px 18px rgba(255,255,255,.9),
-        inset 0 -16px 26px rgba(21,101,192,.15),
-        0 5px 0 rgba(255,193,7,.3);
-    }
-
-    .head::before,
-    .body::before,
-    .arm::before,
-    .forearm::before,
-    .hand::before,
-    .leg::before,
-    .foot::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      mix-blend-mode:multiply;
-    }
-
-    .head::before{
-      opacity:.5;
-      background:
-        radial-gradient(
-          circle at 26px 28px,
-          transparent 0 8px,
-          var(--talavera-light) 8px 9px,
-          transparent 9px
-        ),
-        radial-gradient(
-          circle at 160px 30px,
-          transparent 0 8px,
-          var(--talavera-blue) 8px 9px,
-          transparent 9px
-        ),
-        radial-gradient(
-          circle at 154px 122px,
-          transparent 0 9px,
-          var(--talavera-light) 9px 10px,
-          transparent 10px
-        ),
-        radial-gradient(
-          circle at 34px 134px,
-          transparent 0 8px,
-          var(--talavera-green) 8px 9px,
-          transparent 9px
-        ),
-        radial-gradient(
-          circle at 94px 14px,
-          transparent 0 1px,
-          var(--talavera-light) 1px 1.6px,
-          transparent 1.6px
-        ),
-        radial-gradient(
-          circle at 94px 156px,
-          transparent 0 1px,
-          var(--terracotta) 1px 1.6px,
-          transparent 1.6px
-        ),
-        radial-gradient(
-          circle at 50% 50%,
-          transparent 0 1px,
-          rgba(13,71,161,.25) 1px 1.4px,
-          transparent 1.4px
-        );
-      background-size:
-        52px 52px,
-        58px 58px,
-        64px 64px,
-        48px 48px,
-        34px 34px,
-        34px 34px,
-        22px 22px;
-    }
-
-    .head::after,
-    .body::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:
-        linear-gradient(145deg,rgba(255,255,255,.8),transparent 24%),
-        linear-gradient(330deg,transparent 60%,rgba(21,101,192,.15) 100%);
-    }
-
-    .antenna{
-      top:-24px;
-      z-index:2;
-      width:6px;
-      height:30px;
-      border-radius:999px;
-      background:linear-gradient(
-        180deg,
-        var(--talavera-light),
-        var(--talavera-dark)
-      );
-      transform-origin:bottom center;
-      animation:antennaIdle 3.2s ease-in-out infinite alternate;
-      box-shadow:0 0 12px rgba(66,165,245,.4);
-    }
-
-    .antenna.left{
-      left:58px;
-    }
-
-    .antenna.right{
-      right:58px;
-      animation-delay:.25s;
-    }
-
-    .antenna::after{
-      content:"";
-      position:absolute;
-      left:50%;
-      top:-8px;
-      width:14px;
-      height:14px;
-      transform:translateX(-50%);
-      border-radius:50%;
-      background:
-        radial-gradient(
-          circle at 30% 30%,
-          #FFF9DC 0%,
-          var(--cream) 20%,
-          var(--talavera-gold) 58%,
-          var(--soft-gold) 100%
-        );
-      box-shadow:0 0 20px rgba(255,215,0,.8);
-    }
-
-    .brow{
-      position:absolute;
-      top:34px;
-      z-index:6;
-      width:34px;
-      height:8px;
-      border-top:4px solid var(--talavera-dark);
-      border-radius:50%;
-      opacity:.95;
-      transition:transform .28s ease,top .28s ease;
-    }
-
-    .brow.left{
-      left:30px;
-      transform:rotate(-8deg);
-    }
-
-    .brow.right{
-      right:30px;
-      transform:rotate(8deg);
-    }
-
-    .eye{
-      position:absolute;
-      top:47px;
-      z-index:6;
-      width:42px;
-      height:50px;
-      overflow:hidden;
-      border-radius:50%;
-      background:var(--deep-blue);
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.3),
-        0 0 0 2px rgba(13,71,161,.2);
-    }
-
-    .eye.left{
-      left:30px;
-    }
-
-    .eye.right{
-      right:30px;
-    }
-
-    .eye::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      border-radius:50%;
-      background:
-        radial-gradient(
-          circle at 50% 42%,
-          #FFFFFF 0 56%,
-          var(--talavera-white) 66%,
-          var(--cream) 100%
-        );
-      transform:scaleY(.74);
-    }
-
-    .eye::after{
-      content:"";
-      position:absolute;
-      left:8px;
-      right:8px;
-      top:-2px;
-      z-index:3;
-      height:0;
-      border-bottom:3px solid var(--talavera-dark);
-      border-radius:50%;
-      background:var(--talavera-white);
-      transition:height .12s ease;
-    }
-
-    .iris{
-      position:absolute;
-      top:14px;
-      left:12px;
-      z-index:2;
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      background:
-        radial-gradient(
-          circle at 32% 30%,
-          var(--talavera-light) 0 16%,
-          var(--talavera-blue) 38%,
-          var(--talavera-dark) 70%,
-          var(--deep-blue) 100%
-        );
-      box-shadow:0 0 8px rgba(66,165,245,.4);
-      transition:transform .28s ease;
-    }
-
-    .iris::before{
-      content:"";
-      position:absolute;
-      top:3px;
-      left:3px;
-      width:7px;
-      height:7px;
-      border-radius:50%;
-      background:#FFFFFF;
-      opacity:.96;
-    }
-
-    .mouth{
-      position:absolute;
-      left:50%;
-      bottom:34px;
-      z-index:6;
-      width:42px;
-      height:18px;
-      border-bottom:4px solid var(--talavera-dark);
-      border-radius:0 0 50% 50%;
-      transform:translateX(-50%);
-      transition:
-        width .12s ease,
-        height .12s ease,
-        border .12s ease,
-        bottom .12s ease;
-    }
-
-    .cheek{
-      position:absolute;
-      bottom:36px;
-      z-index:5;
-      width:22px;
-      height:14px;
-      border-radius:50%;
-      background:var(--cream);
-      filter:blur(4px);
-      opacity:.86;
-      transition:
-        transform .3s ease,
-        opacity .3s ease,
-        background .3s ease;
-    }
-
-    .cheek.left{
-      left:18px;
-    }
-
-    .cheek.right{
-      right:18px;
-    }
-
-    .chin{
-      position:absolute;
-      left:50%;
-      bottom:12px;
-      z-index:4;
-      width:64px;
-      height:18px;
-      border-radius:50%;
-      transform:translateX(-50%);
-      background:radial-gradient(
-        circle,
-        rgba(21,101,192,.2) 0%,
-        transparent 70%
-      );
-    }
-
-    .body{
-      left:50%;
-      top:128px;
-      z-index:3;
-      width:206px;
-      height:214px;
-      transform:translateX(-50%) translateZ(18px);
-      overflow:hidden;
-      border:4px solid var(--talavera-dark);
-      border-radius:28px 28px 36px 36px;
-      background:
-        radial-gradient(
-          circle at 50% 0%,
-          rgba(255,255,255,1) 0 24%,
-          var(--talavera-white) 45%,
-          var(--ceramic) 82%,
-          var(--cream) 100%
-        );
-      box-shadow:
-        inset 0 14px 18px rgba(255,255,255,.85),
-        inset 0 -18px 30px rgba(21,101,192,.2),
-        0 5px 0 rgba(255,193,7,.25);
-      animation:bodyBreathe 4.8s ease-in-out infinite;
-    }
-
-    .body::before{
-      opacity:.4;
-      background:
-        radial-gradient(
-          circle at 30px 24px,
-          transparent 0 7px,
-          var(--talavera-light) 7px 8px,
-          transparent 8px
-        ),
-        radial-gradient(
-          circle at 170px 24px,
-          transparent 0 7px,
-          var(--talavera-blue) 7px 8px,
-          transparent 8px
-        ),
-        radial-gradient(
-          circle at 30px 190px,
-          transparent 0 7px,
-          var(--talavera-green) 7px 8px,
-          transparent 8px
-        ),
-        radial-gradient(
-          circle at 170px 190px,
-          transparent 0 7px,
-          var(--talavera-light) 7px 8px,
-          transparent 8px
-        ),
-        radial-gradient(
-          circle at 65px 50px,
-          transparent 0 2px,
-          var(--terracotta) 2px 2.5px,
-          transparent 2.5px
-        ),
-        radial-gradient(
-          circle at 141px 50px,
-          transparent 0 2px,
-          var(--talavera-light) 2px 2.5px,
-          transparent 2.5px
-        ),
-        radial-gradient(
-          circle at 65px 164px,
-          transparent 0 2px,
-          var(--talavera-green) 2px 2.5px,
-          transparent 2.5px
-        ),
-        radial-gradient(
-          circle at 141px 164px,
-          transparent 0 2px,
-          var(--talavera-light) 2px 2.5px,
-          transparent 2.5px
-        );
-      background-size:
-        82px 82px,
-        82px 82px,
-        82px 82px,
-        82px 82px,
-        34px 34px,
-        34px 34px,
-        34px 34px,
-        34px 34px;
-    }
-
-    .chest{
-      position:absolute;
-      left:50%;
-      top:18px;
-      z-index:5;
-      width:110px;
-      height:58px;
-      overflow:hidden;
-      transform:translateX(-50%);
-      border:4px solid var(--talavera-gold);
-      border-radius:18px;
-      background:
-        radial-gradient(
-          circle at 50% 35%,
-          rgba(255,255,255,.7) 0 20%,
-          rgba(255,215,0,.3) 21%,
-          rgba(255,193,7,.2) 100%
-        );
-      box-shadow:
-        inset 0 0 14px rgba(255,215,0,.3),
-        0 0 0 1px rgba(255,215,0,.6),
-        0 0 20px rgba(255,215,0,.2);
-    }
-
-    .chest::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      opacity:.95;
-      background:
-        radial-gradient(
-          circle at 14px 14px,
-          transparent 0 3px,
-          var(--talavera-dark) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 96px 14px,
-          transparent 0 3px,
-          var(--talavera-dark) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 14px 44px,
-          transparent 0 3px,
-          var(--talavera-dark) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 96px 44px,
-          transparent 0 3px,
-          var(--talavera-dark) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 55px 10px,
-          transparent 0 8px,
-          var(--talavera-blue) 8px 9px,
-          transparent 9px
-        ),
-        radial-gradient(
-          circle at 55px 48px,
-          transparent 0 8px,
-          var(--talavera-blue) 8px 9px,
-          transparent 9px
-        ),
-        radial-gradient(
-          circle at 55px 29px,
-          transparent 0 1.8px,
-          var(--talavera-green) 1.8px 2.2px,
-          transparent 2.2px
-        );
-    }
-
-    .chest::after{
-      content:"MARQUINHOS";
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      color:var(--talavera-gold);
-      font-family:"Orbitron",system-ui,sans-serif;
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:1.4px;
-      line-height:1;
-      white-space:nowrap;
-      text-shadow:0 0 10px rgba(255,215,0,.4);
-    }
-
-    .arm{
-      top:30px;
-      z-index:1;
-      width:26px;
-      height:100px;
-      overflow:hidden;
-      border:4px solid var(--talavera-dark);
-      border-radius:15px;
-      background:
-        radial-gradient(
-          circle at 35% 20%,
-          rgba(255,255,255,.95) 0 30%,
-          var(--talavera-white) 46%,
-          var(--ceramic) 74%,
-          var(--cream) 100%
-        );
-      transform-origin:top center;
-      box-shadow:inset 0 0 12px rgba(255,255,255,.5);
-      transition:transform .35s cubic-bezier(.2,.8,.2,1);
-    }
-
-    .arm.left{
-      left:-14px;
-      transform:rotate(-12deg);
-    }
-
-    .arm.right{
-      right:-14px;
-      transform:rotate(12deg);
-    }
-
-    .arm::before{
-      opacity:.82;
-      background:
-        radial-gradient(
-          circle at 16px 18px,
-          transparent 0 3px,
-          var(--talavera-blue) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 10px 48px,
-          transparent 0 2px,
-          var(--talavera-green) 2px 2.5px,
-          transparent 2.5px
-        ),
-        radial-gradient(
-          circle at 16px 82px,
-          transparent 0 3px,
-          var(--talavera-light) 3px 3.5px,
-          transparent 3.5px
-        );
-    }
-
-    .forearm{
-      left:0;
-      top:76px;
-      width:22px;
-      height:84px;
-      overflow:hidden;
-      border:3px solid var(--talavera-dark);
-      border-radius:12px;
-      background:
-        radial-gradient(
-          circle at 50% 18%,
-          rgba(255,255,255,.96) 0 24%,
-          var(--talavera-white) 46%,
-          var(--cream) 100%
-        );
-      transform-origin:top center;
-      transition:transform .35s cubic-bezier(.2,.8,.2,1);
-    }
-
-    .forearm::before{
-      opacity:.88;
-      background:
-        radial-gradient(
-          circle at 11px 14px,
-          transparent 0 2.4px,
-          var(--talavera-blue) 2.4px 2.8px,
-          transparent 2.8px
-        ),
-        radial-gradient(
-          circle at 11px 34px,
-          transparent 0 2.4px,
-          var(--talavera-light) 2.4px 2.8px,
-          transparent 2.8px
-        ),
-        radial-gradient(
-          circle at 11px 54px,
-          transparent 0 2.4px,
-          var(--talavera-green) 2.4px 2.8px,
-          transparent 2.8px
-        ),
-        radial-gradient(
-          circle at 11px 74px,
-          transparent 0 2.4px,
-          var(--talavera-blue) 2.4px 2.8px,
-          transparent 2.8px
-        );
-    }
-
-    .hand{
-      left:-8px;
-      top:72px;
-      width:36px;
-      height:36px;
-      overflow:hidden;
-      border:3px solid var(--talavera-dark);
-      border-radius:50%;
-      background:
-        radial-gradient(
-          circle at 35% 30%,
-          #FFFFFF 0 26%,
-          var(--talavera-white) 58%,
-          var(--cream) 100%
-        );
-      transition:transform .35s cubic-bezier(.2,.8,.2,1);
-    }
-
-    .hand::before{
-      opacity:.82;
-      background:
-        radial-gradient(
-          circle at 18px 18px,
-          transparent 0 3px,
-          var(--talavera-blue) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 10px 10px,
-          transparent 0 2px,
-          var(--talavera-green) 2px 2.4px,
-          transparent 2.4px
-        );
-    }
-
-    .hand::after{
-      content:"";
-      position:absolute;
-      inset:8px;
-      border-radius:50%;
-      background:radial-gradient(
-        circle,
-        rgba(255,215,0,.3) 0%,
-        transparent 68%
-      );
-      opacity:.7;
-    }
-
-    .finger{
-      position:absolute;
-      top:2px;
-      width:7px;
-      height:15px;
-      border:1px solid var(--talavera-dark);
-      border-radius:4px;
-      background:var(--talavera-white);
-      transform-origin:bottom center;
-    }
-
-    .finger:nth-child(1){left:4px}
-    .finger:nth-child(2){left:13px}
-    .finger:nth-child(3){left:22px}
-
-    .leg{
-      bottom:-6px;
-      z-index:1;
-      width:34px;
-      height:72px;
-      overflow:hidden;
-      border:4px solid var(--talavera-dark);
-      border-radius:14px;
-      background:
-        radial-gradient(
-          circle at 50% 20%,
-          rgba(255,255,255,.96) 0 28%,
-          var(--talavera-white) 50%,
-          var(--cream) 100%
-        );
-      box-shadow:inset 0 0 10px rgba(255,255,255,.5);
-    }
-
-    .leg.left{
-      left:53px;
-    }
-
-    .leg.right{
-      right:53px;
-    }
-
-    .leg::before{
-      opacity:.82;
-      background:
-        radial-gradient(
-          circle at 16px 14px,
-          transparent 0 3px,
-          var(--talavera-blue) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 16px 36px,
-          transparent 0 3px,
-          var(--talavera-green) 3px 3.5px,
-          transparent 3.5px
-        ),
-        radial-gradient(
-          circle at 16px 58px,
-          transparent 0 3px,
-          var(--talavera-light) 3px 3.5px,
-          transparent 3.5px
-        );
-    }
-
-    .foot{
-      bottom:-16px;
-      left:-8px;
-      width:50px;
-      height:22px;
-      overflow:hidden;
-      border:4px solid var(--talavera-dark);
-      border-radius:18px 18px 10px 10px;
-      background:
-        radial-gradient(
-          circle at 50% 25%,
-          rgba(255,255,255,.96) 0 28%,
-          var(--talavera-white) 50%,
-          var(--cream) 100%
-        );
-    }
-
-    .foot::before{
-      opacity:.88;
-      background:
-        radial-gradient(
-          circle at 10px 11px,
-          transparent 0 2.4px,
-          var(--talavera-blue) 2.4px 2.8px,
-          transparent 2.8px
-        ),
-        radial-gradient(
-          circle at 24px 11px,
-          transparent 0 2.4px,
-          var(--talavera-green) 2.4px 2.8px,
-          transparent 2.8px
-        ),
-        radial-gradient(
-          circle at 39px 11px,
-          transparent 0 2.4px,
-          var(--talavera-light) 2.4px 2.8px,
-          transparent 2.8px
-        );
-    }
-
-    .name{
-      position:absolute;
-      top:350px;
-      left:0;
-      width:100%;
-      color:var(--talavera-gold);
-      font-family:"Orbitron",system-ui,sans-serif;
-      font-size:18px;
-      font-weight:800;
-      letter-spacing:.8px;
-      line-height:1;
-      text-align:center;
-      text-shadow:0 0 14px rgba(255,215,0,.4);
-    }
-
-    .caption{
-      position:absolute;
-      top:378px;
-      left:0;
-      width:100%;
-      color:rgba(13,71,161,.9);
-      font-family:"Space Grotesk",system-ui,sans-serif;
-      font-size:13px;
-      font-weight:500;
-      line-height:1;
-      text-align:center;
-    }
-
-    .marquinhos[data-emotion="happy"] .mouth{
-      width:48px;
-      height:22px;
-      border-bottom-width:5px;
-    }
-
-    .marquinhos[data-emotion="loving"] .mouth{
-      width:46px;
-      height:20px;
-      border-bottom-width:5px;
-    }
-
-    .marquinhos[data-emotion="sad"] .mouth{
-      bottom:31px;
-      border-top:4px solid var(--talavera-dark);
-      border-bottom:0;
-      border-radius:50% 50% 0 0;
-    }
-
-    .marquinhos[data-emotion="surprised"] .mouth{
-      width:24px;
-      height:26px;
-      border:4px solid var(--talavera-dark);
-      border-radius:50%;
-    }
-
-    .marquinhos[data-emotion="talking"] .mouth{
-      animation:talk .16s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="talking"] .body{
-      animation:
-        bodyBreathe 4.8s ease-in-out infinite,
-        talkBody .65s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="talking"] .brow.left{
-      transform:rotate(-5deg) translateY(-2px);
-    }
-
-    .marquinhos[data-emotion="talking"] .brow.right{
-      transform:rotate(5deg) translateY(-2px);
-    }
-
-    .marquinhos[data-emotion="waving"] .arm.right{
-      animation:waveRight .5s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="waving"] .hand{
-      animation:handWave .32s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="wink"] .eye.left::after{
-      height:40px;
-    }
-
-    .marquinhos[data-emotion="wink"] .eye.left::before{
-      transform:scaleY(.08);
-    }
-
-    .marquinhos[data-emotion="excited"]{
-      animation:excitedBounce .55s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="excited"] .mouth{
-      width:48px;
-      height:24px;
-      border-bottom-width:5px;
-    }
-
-    .marquinhos[data-emotion="thinking"] .iris{
-      transform:translate(7px,-6px);
-    }
-
-    .marquinhos[data-emotion="thinking"] .brow.left{
-      transform:rotate(-15deg) translateY(-4px);
-    }
-
-    .marquinhos[data-emotion="thinking"] .brow.right{
-      transform:rotate(15deg) translateY(-4px);
-    }
-
-    .marquinhos[data-emotion="caring"] .cheek{
-      opacity:1;
-      transform:scale(1.24);
-    }
-
-    .marquinhos[data-emotion="caring"] .mouth{
-      width:40px;
-      height:20px;
-      border-bottom-width:5px;
-    }
-
-    /* Emociones nuevas */
-
-    .marquinhos[data-emotion="grateful"] .mouth{
-      width:43px;
-      height:19px;
-      border-bottom-width:5px;
-    }
-
-    .marquinhos[data-emotion="grateful"] .cheek{
-      opacity:1;
-      transform:scale(1.18);
-    }
-
-    .marquinhos[data-emotion="grateful"] .brow.left{
-      transform:rotate(-3deg) translateY(-2px);
-    }
-
-    .marquinhos[data-emotion="grateful"] .brow.right{
-      transform:rotate(3deg) translateY(-2px);
-    }
-
-    .marquinhos[data-emotion="embarrassed"] .cheek{
-      opacity:1;
-      transform:scale(1.55);
-      background:var(--terracotta);
-    }
-
-    .marquinhos[data-emotion="embarrassed"] .mouth{
-      width:25px;
-      height:12px;
-      border-bottom-width:3px;
-    }
-
-    .marquinhos[data-emotion="embarrassed"] .head{
-      animation:embarrassedHead 1.2s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="curious"] .brow.left{
-      transform:rotate(-18deg) translateY(-5px);
-    }
-
-    .marquinhos[data-emotion="curious"] .brow.right{
-      transform:rotate(5deg) translateY(1px);
-    }
-
-    .marquinhos[data-emotion="curious"] .head{
-      animation:curiousHead 1.6s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="tired"] .eye::before{
-      transform:scaleY(.42);
-    }
-
-    .marquinhos[data-emotion="tired"] .brow.left,
-    .marquinhos[data-emotion="tired"] .brow.right{
-      top:40px;
-      transform:rotate(4deg);
-    }
-
-    .marquinhos[data-emotion="tired"] .mouth{
-      width:31px;
-      height:9px;
-      border-bottom-width:3px;
-    }
-
-    .marquinhos[data-emotion="thrilled"]{
-      animation:thrilledBounce .48s ease-in-out infinite alternate;
-    }
-
-    .marquinhos[data-emotion="thrilled"] .mouth{
-      width:50px;
-      height:27px;
-      border-bottom-width:5px;
-    }
-
-    .marquinhos[data-emotion="thrilled"] .cheek{
-      opacity:1;
-      transform:scale(1.35);
-    }
-
-    @keyframes bodyFloat{
-      0%,100%{
-        transform:translateY(0);
-      }
-
-      50%{
-        transform:translateY(-6px);
-      }
-    }
-
-    @keyframes bodyBreathe{
-      0%,100%{
-        transform:translateX(-50%) translateZ(18px) translateY(0) scale(1);
-      }
-
-      50%{
-        transform:translateX(-50%) translateZ(18px) translateY(3px) scale(1.008,1.012);
-      }
-    }
-
-    @keyframes antennaIdle{
-      from{
-        transform:rotate(-8deg);
-      }
-
-      to{
-        transform:rotate(8deg);
-      }
-    }
-
-    @keyframes talk{
-      from{
-        transform:translateX(-50%) scaleX(.88);
-        height:7px;
-      }
-
-      to{
-        transform:translateX(-50%) scaleX(1.14);
-        height:21px;
-      }
-    }
-
-    @keyframes talkBody{
-      from{
-        margin-top:0;
-      }
-
-      to{
-        margin-top:1px;
-      }
-    }
-
-    @keyframes waveRight{
-      from{
-        transform:rotate(12deg);
-      }
-
-      to{
-        transform:rotate(62deg);
-      }
-    }
-
-    @keyframes handWave{
-      from{
-        transform:rotate(-8deg);
-      }
-
-      to{
-        transform:rotate(14deg);
-      }
-    }
-
-    @keyframes excitedBounce{
-      from{
-        transform:translateY(0) scale(1);
-      }
-
-      to{
-        transform:translateY(-9px) scale(1.025);
-      }
-    }
-
-    @keyframes surpriseHead{
-      0%{
-        transform:translateX(-50%) translateZ(28px);
-      }
-
-      45%{
-        transform:translateX(-50%) translateZ(28px) translateY(-4px) scale(1.035);
-      }
-
-      100%{
-        transform:translateX(-50%) translateZ(28px);
-      }
-    }
-
-    @keyframes embarrassedHead{
-      from{
-        transform:translateX(-50%) translateZ(28px) rotateZ(-2deg);
-      }
-
-      to{
-        transform:translateX(-50%) translateZ(28px) rotateZ(3deg) translateY(3px);
-      }
-    }
-
-    @keyframes curiousHead{
-      from{
-        transform:translateX(-50%) translateZ(28px) rotateZ(-4deg);
-      }
-
-      to{
-        transform:translateX(-50%) translateZ(28px) rotateZ(4deg);
-      }
-    }
-
-    @keyframes thrilledBounce{
-      from{
-        transform:translateY(0) scale(1);
-      }
-
-      to{
-        transform:translateY(-12px) scale(1.035);
-      }
-    }
-
-    @media (max-width:520px){
-      .marquinhos{
-        transform:scale(.88);
-      }
-    }
-
-    @media (prefers-reduced-motion:reduce){
-      .marquinhos,
-      .character,
-      .body,
-      .antenna,
-      .mouth,
-      .hand,
-      .head{
-        animation:none !important;
-        transition:none !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#071019">
+    <title>Marquinhos · Asistente Flotante</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== VARIABLES Y RESET ===== */
+        :root {
+            --bg: #071019;
+            --bg2: #0c1726;
+            --card: rgba(9, 15, 24, .74);
+            --blue: #1a237e;
+            --blue2: #2f47cc;
+            --white: #fbfdff;
+            --gold: #d7b35c;
+            --gold2: #b88b2d;
+            --pink: #ffccd8;
+            --shadow: rgba(0, 0, 0, .35);
+            --glow: rgba(215, 179, 92, .22);
+            --speed: .28s;
+            --idle: 4s;
+            --talavera-white: #F5F5F5;
+            --talavera-dark: #0D47A1;
+            --talavera-blue: #1565C0;
+            --talavera-light: #42A5F5;
+            --deep-blue: #0A1E3F;
+            --talavera-gold: #FFD700;
+            --soft-gold: #FFC107;
+            --talavera-green: #00897B;
+            --terracotta: #E65100;
+            --cream: #FFF8E1;
+            --ceramic: #FFFFFF;
+            --child-safe: #4CAF50;
+            --child-safe-bg: rgba(76, 175, 80, 0.15);
+            --call-pause: #FF6B35;
+            --call-pause-bg: rgba(255, 107, 53, 0.15);
+            --mic-active: #00E5FF;
+            --mic-active-bg: rgba(0, 229, 255, 0.15);
+            --bluetooth: #2979FF;
+            --bluetooth-bg: rgba(41, 121, 255, 0.15);
+            /* Modos de género */
+            --feminine: #FF4081;
+            --feminine-bg: rgba(255, 64, 129, 0.15);
+            --masculine: #448AFF;
+            --masculine-bg: rgba(68, 138, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        /* ===== ESCENA PRINCIPAL ===== */
+        .scene {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            place-items: center;
+            perspective: 1200px;
+            perspective-origin: 50% 42%;
+            background: radial-gradient(circle at top, #173757 0%, #0a121d 38%, var(--bg) 100%);
+        }
+
+        .ambient {
+            position: absolute;
+            width: 540px;
+            height: 540px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(215, 179, 92, .16) 0%, rgba(47, 71, 204, .08) 35%, transparent 70%);
+            filter: blur(8px);
+            transform: translateY(40px);
+            pointer-events: none;
+        }
+
+        .shadow {
+            position: absolute;
+            bottom: 10%;
+            width: 250px;
+            height: 42px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 0, 0, .4) 0%, rgba(0, 0, 0, .18) 45%, transparent 70%);
+            filter: blur(6px);
+            transform: scale(1.15);
+            pointer-events: none;
+        }
+
+        /* ===== CONTENEDOR PRINCIPAL ===== */
+        .marquinhos {
+            position: relative;
+            width: 300px;
+            transform-style: preserve-3d;
+            animation: float 4.5s ease-in-out infinite;
+            filter: drop-shadow(0 28px 34px rgba(0, 0, 0, .34));
+            user-select: none;
+            touch-action: none;
+            isolation: isolate;
+            transition: all 0.5s ease;
+        }
+
+        /* ===== TARJETA ===== */
+        .card {
+            background: linear-gradient(180deg, rgba(15, 23, 36, .8), rgba(7, 12, 20, .82));
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 30px;
+            padding: 18px 18px 16px;
+            backdrop-filter: blur(10px);
+            transform: rotateX(2deg);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 10px 30px rgba(0, 0, 0, .22);
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        /* ===== HEAD ===== */
+        .head {
+            position: relative;
+            width: 184px;
+            height: 168px;
+            margin: 0 auto;
+            border: 4px solid var(--blue);
+            border-radius: 50% 50% 42% 42%;
+            overflow: hidden;
+            background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .95) 0 28%, rgba(245, 249, 255, .98) 42%, #edf2ff 72%, #dfe9ff 100%);
+            box-shadow: inset 0 16px 18px rgba(255, 255, 255, .75), inset 0 -18px 30px rgba(20, 40, 90, .06), 0 10px 24px rgba(0, 0, 0, .15);
+            transform: translateZ(26px);
+            transition: all .25s ease;
+        }
+
+        .head::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 22px 20px, rgba(26, 35, 126, .9) 0 2px, transparent 2.5px),
+                radial-gradient(circle at 46px 42px, rgba(26, 35, 126, .75) 0 2px, transparent 2.5px),
+                radial-gradient(circle at 70px 18px, rgba(26, 35, 126, .5) 0 2px, transparent 2.5px),
+                radial-gradient(circle at 118px 24px, rgba(26, 35, 126, .45) 0 2px, transparent 2.5px),
+                radial-gradient(circle at 146px 48px, rgba(26, 35, 126, .72) 0 2px, transparent 2.5px);
+            background-size: 56px 56px;
+            opacity: .22;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
+
+        .head::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, rgba(255, 255, 255, .72), transparent 22%),
+                linear-gradient(330deg, transparent 58%, rgba(26, 35, 126, .06) 100%);
+            pointer-events: none;
+        }
+
+        /* ===== ANTENAS ===== */
+        .antenna {
+            position: absolute;
+            top: -24px;
+            width: 6px;
+            height: 30px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, var(--blue2), var(--blue));
+            transform-origin: bottom center;
+            animation: sway 3.2s ease-in-out infinite alternate;
+            box-shadow: 0 0 12px rgba(47, 71, 204, .25);
+            transition: all 0.5s ease;
+        }
+        .antenna::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: -8px;
+            width: 12px;
+            height: 12px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffe9ab 0%, var(--gold) 55%, var(--gold2) 100%);
+            box-shadow: 0 0 16px rgba(215, 179, 92, .7);
+            transition: all 0.5s ease;
+        }
+        .antenna.left {
+            left: 58px;
+        }
+        .antenna.right {
+            right: 58px;
+            animation-delay: .14s;
+        }
+
+        /* ===== CEJAS ===== */
+        .brow {
+            position: absolute;
+            top: 32px;
+            width: 34px;
+            height: 8px;
+            border-top: 4px solid var(--blue);
+            border-radius: 50%;
+            z-index: 4;
+            opacity: .95;
+            transition: transform .25s ease, top .25s ease;
+        }
+        .brow.left {
+            left: 30px;
+            transform: rotate(-8deg);
+        }
+        .brow.right {
+            right: 30px;
+            transform: rotate(8deg);
+        }
+
+        /* ===== OJOS ===== */
+        .eye {
+            position: absolute;
+            top: 46px;
+            width: 42px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #111;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1);
+            transition: clip-path 0.15s ease;
+        }
+        .eye.left {
+            left: 30px;
+        }
+        .eye.right {
+            right: 30px;
+        }
+
+        .eye::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 42%, #fff 0 56%, #eef4ff 66%, #d7e1ff 100%);
+            border-radius: 50%;
+            transform: scaleY(.74);
+            transition: transform .2s ease;
+        }
+
+        .eye::after {
+            content: "";
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: -2px;
+            height: 0;
+            background: var(--white);
+            border-bottom: 3px solid var(--blue);
+            border-radius: 50%;
+            z-index: 3;
+            transition: height .2s ease;
+        }
+
+        /* ===== IRIS ===== */
+        .iris {
+            position: absolute;
+            z-index: 2;
+            width: 18px;
+            height: 18px;
+            left: 12px;
+            top: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #5dd7ff 0 16%, #0d5aa3 38%, #061635 74%, #030814 100%);
+            box-shadow: 0 0 8px rgba(0, 229, 255, .2);
+            transition: transform .28s ease;
+        }
+        .iris::before {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            left: 3px;
+            top: 3px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: .9;
+        }
+
+        /* ===== BOCA ===== */
+        .mouth {
+            position: absolute;
+            left: 50%;
+            bottom: 33px;
+            width: 42px;
+            height: 18px;
+            border-bottom: 4px solid var(--blue);
+            border-radius: 0 0 50% 50%;
+            transform: translateX(-50%);
+            transition: all var(--speed) ease;
+            box-shadow: 0 0 0 1px rgba(26, 35, 126, .02);
+        }
+
+        /* ===== MEJILLAS ===== */
+        .cheek {
+            position: absolute;
+            bottom: 36px;
+            width: 22px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--pink);
+            filter: blur(4px);
+            opacity: .82;
+            transition: opacity .3s ease, transform .3s ease, background .3s ease;
+        }
+        .cheek.left {
+            left: 18px;
+        }
+        .cheek.right {
+            right: 18px;
+        }
+
+        .chin {
+            position: absolute;
+            left: 50%;
+            bottom: 12px;
+            width: 64px;
+            height: 18px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(26, 35, 126, .08) 0%, transparent 70%);
+            opacity: .9;
+        }
+
+        /* ===== CUERPO ===== */
+        .body {
+            position: relative;
+            width: 206px;
+            height: 214px;
+            margin: -8px auto 0;
+            border: 4px solid var(--blue);
+            border-radius: 28px 28px 36px 36px;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, .96) 0 24%, rgba(246, 249, 255, .98) 45%, #edf3ff 85%, #dce5fb 100%);
+            box-shadow: inset 0 14px 18px rgba(255, 255, 255, .7), inset 0 -18px 30px rgba(20, 40, 90, .08), 0 12px 24px rgba(0, 0, 0, .13);
+            transform: translateZ(18px);
+            animation: breathe var(--idle) ease-in-out infinite;
+            transition: all 0.5s ease;
+        }
+
+        .body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0 44%, rgba(26, 35, 126, .12) 44% 48%, transparent 48% 100%),
+                radial-gradient(circle at 15% 18%, rgba(215, 179, 92, .18) 0 2px, transparent 3px),
+                radial-gradient(circle at 82% 22%, rgba(215, 179, 92, .14) 0 2px, transparent 3px),
+                radial-gradient(circle at 25% 70%, rgba(26, 35, 126, .08) 0 2px, transparent 3px),
+                radial-gradient(circle at 76% 66%, rgba(26, 35, 126, .08) 0 2px, transparent 3px);
+            opacity: .28;
+            background-size: 62px 62px;
+            pointer-events: none;
+        }
+
+        /* ===== PECHO ===== */
+        .chest {
+            position: absolute;
+            left: 50%;
+            top: 18px;
+            width: 110px;
+            height: 58px;
+            transform: translateX(-50%);
+            border: 4px solid var(--gold2);
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(215, 179, 92, .28), rgba(215, 179, 92, .08));
+            box-shadow: inset 0 0 14px rgba(215, 179, 92, .16), 0 8px 14px rgba(0, 0, 0, .05);
+            display: grid;
+            place-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .chest::before {
+            content: "MARQUINHOS";
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            font-size: 11px;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(215, 179, 92, .2);
+            font-family: "Orbitron", sans-serif;
+            transition: all 0.5s ease;
+        }
+
+        /* ===== BRAZOS ===== */
+        .arm {
+            position: absolute;
+            top: 30px;
+            width: 26px;
+            height: 100px;
+            border: 4px solid var(--blue);
+            border-radius: 15px;
+            background: linear-gradient(180deg, #fff, #edf3ff);
+            transform-origin: top center;
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, .45);
+            transition: transform .35s cubic-bezier(.2, .8, .2, 1);
+        }
+        .arm.left {
+            left: -14px;
+            transform: rotate(-12deg);
+        }
+        .arm.right {
+            right: -14px;
+            transform: rotate(12deg);
+        }
+
+        .forearm {
+            position: absolute;
+            left: 0;
+            top: 76px;
+            width: 22px;
+            height: 84px;
+            border: 3px solid var(--blue);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fff, #edf3ff);
+            transform-origin: top center;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, .45);
+            transition: transform .35s cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .hand {
+            position: absolute;
+            left: -8px;
+            top: 72px;
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--blue);
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #fff 0 26%, #eef4ff 58%, #dce6fb 100%);
+            transform-origin: center;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, .4);
+            transition: transform .35s cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .hand::after {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(215, 179, 92, .22) 0%, transparent 68%);
+            opacity: .7;
+        }
+
+        .finger {
+            position: absolute;
+            top: 2px;
+            width: 7px;
+            height: 15px;
+            border: 1px solid var(--blue);
+            border-radius: 4px;
+            background: #fff;
+            transform-origin: bottom center;
+            transition: transform .24s ease;
+        }
+        .finger:nth-child(1) {
+            left: 4px;
+        }
+        .finger:nth-child(2) {
+            left: 13px;
+        }
+        .finger:nth-child(3) {
+            left: 22px;
+        }
+
+        /* ===== PIERNAS ===== */
+        .leg {
+            position: absolute;
+            bottom: -6px;
+            width: 34px;
+            height: 72px;
+            border: 4px solid var(--blue);
+            border-radius: 14px;
+            background: linear-gradient(180deg, #fff, #edf3ff);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, .42);
+        }
+        .leg.left {
+            left: 53px;
+        }
+        .leg.right {
+            right: 53px;
+        }
+
+        .foot {
+            position: absolute;
+            bottom: -16px;
+            left: -8px;
+            width: 50px;
+            height: 22px;
+            border: 4px solid var(--blue);
+            border-radius: 18px 18px 10px 10px;
+            background: linear-gradient(180deg, #fff, #edf3ff);
+        }
+
+        /* ===== TEXTO (oculto) ===== */
+        .caption {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .name {
+            margin-top: 4px;
+            text-align: center;
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: .8px;
+            color: var(--gold);
+            text-shadow: 0 0 14px rgba(215, 179, 92, .18);
+            font-family: "Orbitron", sans-serif;
+            transition: all 0.5s ease;
+        }
+
+        /* ===== BURBUJA ===== */
+        .bubble {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 14px;
+            border-radius: 16px;
+            background: rgba(10, 17, 28, .55);
+            border: 1px solid rgba(255, 255, 255, .08);
+            backdrop-filter: blur(10px);
+            color: #dfe7ff;
+            font-size: 13px;
+            line-height: 1.35;
+            width: min(340px, calc(100vw - 40px));
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .bubble strong {
+            color: var(--gold);
+        }
+
+        /* ===== INDICADOR DE MICRÓFONO ===== */
+        .mic-indicator {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 229, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            font-size: 10px;
+            color: var(--mic-active);
+            transition: all 0.5s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mic-indicator.active {
+            opacity: 1;
+        }
+
+        .mic-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--mic-active);
+            animation: micPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes micPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+
+        /* ===== INDICADOR DE GÉNERO DETECTADO ===== */
+        .gender-indicator {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: scale(0.5);
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .gender-indicator.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gender-indicator.femenine {
+            border-color: var(--feminine);
+            box-shadow: 0 0 20px var(--feminine-bg);
+            color: var(--feminine);
+        }
+
+        .gender-indicator.masculine {
+            border-color: var(--masculine);
+            box-shadow: 0 0 20px var(--masculine-bg);
+            color: var(--masculine);
+        }
+
+        /* ===== ESTADOS DE GÉNERO ===== */
+        .marquinhos.femenine-mode .chest {
+            border-color: var(--feminine);
+            box-shadow: 0 0 30px var(--feminine-bg);
+        }
+        .marquinhos.femenine-mode .chest::before {
+            color: var(--feminine);
+            text-shadow: 0 0 20px rgba(255, 64, 129, 0.3);
+        }
+        .marquinhos.femenine-mode .head {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .body {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .arm {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .leg {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .foot {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .hand {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .forearm {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .mouth {
+            border-color: var(--feminine);
+        }
+        .marquinhos.femenine-mode .finger {
+            border-color: var(--feminine);
+        }
+
+        .marquinhos.masculine-mode .chest {
+            border-color: var(--masculine);
+            box-shadow: 0 0 30px var(--masculine-bg);
+        }
+        .marquinhos.masculine-mode .chest::before {
+            color: var(--masculine);
+            text-shadow: 0 0 20px rgba(68, 138, 255, 0.3);
+        }
+        .marquinhos.masculine-mode .head {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .body {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .arm {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .leg {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .foot {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .hand {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .forearm {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .mouth {
+            border-color: var(--masculine);
+        }
+        .marquinhos.masculine-mode .finger {
+            border-color: var(--masculine);
+        }
+
+        /* Modo llamada */
+        .marquinhos.on-call .antenna {
+            animation: callPulse 1.2s ease-in-out infinite alternate;
+        }
+        .marquinhos.on-call .antenna::after {
+            animation: callGlow 1.2s ease-in-out infinite alternate;
+        }
+        .marquinhos.on-call .chest {
+            border-color: var(--call-pause);
+            box-shadow: 0 0 30px var(--call-pause-bg);
+            animation: callChestPulse 1.2s ease-in-out infinite alternate;
+        }
+        .marquinhos.on-call .chest::before {
+            content: "📞 EN LLAMADA";
+            color: var(--call-pause);
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Modo Bluetooth */
+        .marquinhos.bluetooth-connected .chest::before {
+            content: "🔊 BLUETOOTH";
+            color: var(--bluetooth);
+            text-shadow: 0 0 20px rgba(41, 121, 255, 0.4);
+        }
+        .marquinhos.bluetooth-connected .chest {
+            border-color: var(--bluetooth);
+            box-shadow: 0 0 30px var(--bluetooth-bg);
+        }
+
+        /* ===== ESTADOS / EMOCIONES ===== */
+        .marquinhos.happy .mouth {
+            width: 48px;
+            height: 22px;
+            border-bottom-width: 5px;
+        }
+        .marquinhos.loving .mouth {
+            width: 46px;
+            height: 20px;
+            border-bottom-width: 5px;
+        }
+        .marquinhos.sad .mouth {
+            border-bottom: 0;
+            border-top: 4px solid var(--blue);
+            border-radius: 50% 50% 0 0;
+            bottom: 31px;
+        }
+        .marquinhos.surprised .mouth {
+            width: 24px;
+            height: 26px;
+            border: 4px solid var(--blue);
+            border-radius: 50%;
+        }
+        .marquinhos.talking .mouth {
+            animation: talk .18s ease-in-out infinite alternate;
+        }
+        .marquinhos.talking .body {
+            animation: breathe var(--idle) ease-in-out infinite, talkBody .65s ease-in-out infinite alternate;
+        }
+        .marquinhos.waving .arm.right {
+            animation: waveR .45s ease-in-out infinite alternate;
+        }
+        .marquinhos.waving .arm.left {
+            animation: waveL .45s ease-in-out infinite alternate;
+        }
+        .marquinhos.waving .finger {
+            animation: wiggle .24s ease-in-out infinite alternate;
+        }
+        .marquinhos.wink .eye.left::after {
+            height: 40px;
+        }
+        .marquinhos.wink .eye.left::before {
+            transform: scaleY(.08);
+        }
+        .marquinhos.excited {
+            animation: bounce .55s ease-in-out infinite alternate;
+        }
+        .marquinhos.excited .mouth {
+            width: 48px;
+            height: 24px;
+            border-bottom-width: 5px;
+        }
+        .marquinhos.thinking .iris {
+            animation: think 1.2s ease-in-out infinite alternate;
+        }
+        .marquinhos.thinking .brow.left {
+            transform: rotate(-15deg) translateY(-4px);
+        }
+        .marquinhos.thinking .brow.right {
+            transform: rotate(15deg) translateY(-4px);
+        }
+        .marquinhos.caring .cheek {
+            opacity: 1;
+            transform: scale(1.24);
+        }
+        .marquinhos.caring .mouth {
+            width: 40px;
+            height: 20px;
+            border-bottom-width: 5px;
+        }
+        .marquinhos.grateful .mouth {
+            width: 43px;
+            height: 19px;
+            border-bottom-width: 5px;
+        }
+        .marquinhos.grateful .cheek {
+            opacity: 1;
+            transform: scale(1.18);
+        }
+        .marquinhos.grateful .brow.left {
+            transform: rotate(-3deg) translateY(-2px);
+        }
+        .marquinhos.grateful .brow.right {
+            transform: rotate(3deg) translateY(-2px);
+        }
+        .marquinhos.embarrassed .cheek {
+            opacity: 1;
+            transform: scale(1.55);
+            background: var(--terracotta);
+        }
+        .marquinhos.embarrassed .mouth {
+            width: 25px;
+            height: 12px;
+            border-bottom-width: 3px;
+        }
+        .marquinhos.embarrassed .head {
+            animation: embarrassedHead 1.2s ease-in-out infinite alternate;
+        }
+        .marquinhos.curious .brow.left {
+            transform: rotate(-18deg) translateY(-5px);
+        }
+        .marquinhos.curious .brow.right {
+            transform: rotate(5deg) translateY(1px);
+        }
+        .marquinhos.curious .head {
+            animation: curiousHead 1.6s ease-in-out infinite alternate;
+        }
+        .marquinhos.tired .eye::before {
+            transform: scaleY(.42);
+        }
+        .marquinhos.tired .brow.left,
+        .marquinhos.tired .brow.right {
+            top: 40px;
+            transform: rotate(4deg);
+        }
+        .marquinhos.tired .mouth {
+            width: 31px;
+            height: 9px;
+            border-bottom-width: 3px;
+        }
+        .marquinhos.thrilled {
+            animation: thrilledBounce .48s ease-in-out infinite alternate;
+        }
+        .marquinhos.thrilled .mouth {
+            width: 50px;
+            height: 27px;
+            border-bottom-width: 5px;
+        }
+        .marquinhos.thrilled .cheek {
+            opacity: 1;
+            transform: scale(1.35);
+        }
+
+        /* ===== COGNITIVE BUBBLE ===== */
+        #cognitive-speech-bubble {
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0D1B2A;
+            color: #FFD700;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-family: "Space Grotesk", system-ui, sans-serif;
+            z-index: 9999;
+            max-width: 280px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.3s ease;
+            opacity: 0;
+            border: 1px solid rgba(215, 179, 92, 0.3);
+            backdrop-filter: blur(8px);
+            line-height: 1.4;
+        }
+
+        #cognitive-speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #0D1B2A;
+        }
+
+        #cognitive-speech-bubble.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        #cognitive-speech-bubble.child-safe {
+            border-color: var(--child-safe);
+            color: #A5D6A7;
+            background: #1B2E1B;
+        }
+
+        #cognitive-speech-bubble.child-safe::after {
+            border-top-color: #1B2E1B;
+        }
+
+        #cognitive-speech-bubble.on-call {
+            border-color: var(--call-pause);
+            color: #FFB085;
+            background: #2A1A0F;
+        }
+
+        #cognitive-speech-bubble.on-call::after {
+            border-top-color: #2A1A0F;
+        }
+
+        #cognitive-speech-bubble.femenine-mode {
+            border-color: var(--feminine);
+            color: #FF80AB;
+            background: #1A0A14;
+        }
+
+        #cognitive-speech-bubble.femenine-mode::after {
+            border-top-color: #1A0A14;
+        }
+
+        #cognitive-speech-bubble.masculine-mode {
+            border-color: var(--masculine);
+            color: #82B1FF;
+            background: #0A142A;
+        }
+
+        #cognitive-speech-bubble.masculine-mode::after {
+            border-top-color: #0A142A;
+        }
+
+        /* ===== ANIMACIONES ===== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotateX(0deg); }
+            50% { transform: translateY(-6px) rotateX(2deg); }
+        }
+        @keyframes breathe {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+        @keyframes sway {
+            from { transform: rotate(-8deg); }
+            to { transform: rotate(8deg); }
+        }
+        @keyframes talk {
+            from { transform: translateX(-50%) scaleX(.92); height: 8px; }
+            to { transform: translateX(-50%) scaleX(1.12); height: 22px; }
+        }
+        @keyframes talkBody {
+            from { margin-top: 0; }
+            to { margin-top: 1px; }
+        }
+        @keyframes waveR {
+            from { transform: rotate(10deg); }
+            to { transform: rotate(66deg); }
+        }
+        @keyframes waveL {
+            from { transform: rotate(-10deg); }
+            to { transform: rotate(-66deg); }
+        }
+        @keyframes wiggle {
+            from { transform: rotate(-8deg); }
+            to { transform: rotate(15deg); }
+        }
+        @keyframes think {
+            from { transform: translate(0, -1px); }
+            to { transform: translate(7px, -6px); }
+        }
+        @keyframes bounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-10px) scale(1.03); }
+        }
+        @keyframes embarrassedHead {
+            from { transform: translateZ(26px) rotateZ(-2deg); }
+            to { transform: translateZ(26px) rotateZ(3deg) translateY(3px); }
+        }
+        @keyframes curiousHead {
+            from { transform: translateZ(26px) rotateZ(-4deg); }
+            to { transform: translateZ(26px) rotateZ(4deg); }
+        }
+        @keyframes thrilledBounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-12px) scale(1.035); }
+        }
+        @keyframes callPulse {
+            0% { transform: rotate(-12deg) scale(1); }
+            100% { transform: rotate(12deg) scale(1.1); }
+        }
+        @keyframes callGlow {
+            0% { box-shadow: 0 0 16px rgba(255, 107, 53, 0.7); }
+            100% { box-shadow: 0 0 40px rgba(255, 107, 53, 1); }
+        }
+        @keyframes callChestPulse {
+            0% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.2); }
+            100% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.5); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width:520px) {
+            .marquinhos { transform: scale(.88); }
+            .bubble {
+                top: 12px;
+                left: 12px;
+                width: calc(100vw - 24px);
+                font-size: 11px;
+            }
+            #cognitive-speech-bubble {
+                max-width: 200px;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            .mic-indicator { font-size: 8px; padding: 2px 8px; }
+            .mic-indicator .dot { width: 6px; height: 6px; }
+            .gender-indicator { width: 24px; height: 24px; font-size: 12px; top: -8px; right: -8px; }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            .marquinhos, .head, .body, .antenna, .mouth, .hand {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div
-    class="marquinhos"
-    id="marquinhos"
-    data-emotion="caring"
-    aria-label="Marquinhos"
-  >
-    <div class="character" id="character">
-      <div class="head">
-        <div class="antenna left"></div>
-        <div class="antenna right"></div>
+    <div class="scene">
+        <div class="ambient"></div>
+        <div class="shadow"></div>
 
-        <div class="brow left"></div>
-        <div class="brow right"></div>
-
-        <div class="eye left">
-          <div class="iris"></div>
+        <div class="bubble" id="bubble">
+            <strong>🎤 Marquinhos</strong> · Asistente de voz · Di "Hola Marquinhos" para activar
         </div>
 
-        <div class="eye right">
-          <div class="iris"></div>
-        </div>
+        <div class="marquinhos caring" id="marquinhos" data-emotion="caring">
+            <div class="card">
+                <div class="head">
+                    <div class="antenna left"></div>
+                    <div class="antenna right"></div>
 
-        <div class="mouth"></div>
-        <div class="cheek left"></div>
-        <div class="cheek right"></div>
-        <div class="chin"></div>
-      </div>
+                    <div class="brow left"></div>
+                    <div class="brow right"></div>
 
-      <div class="body">
-        <div class="chest"></div>
+                    <div class="eye left">
+                        <div class="iris"></div>
+                    </div>
+                    <div class="eye right">
+                        <div class="iris"></div>
+                    </div>
 
-        <div class="arm left">
-          <div class="forearm">
-            <div class="hand">
-              <div class="finger"></div>
-              <div class="finger"></div>
-              <div class="finger"></div>
+                    <div class="mouth"></div>
+                    <div class="cheek left"></div>
+                    <div class="cheek right"></div>
+                    <div class="chin"></div>
+                </div>
+
+                <div class="body">
+                    <div class="chest"></div>
+
+                    <div class="arm left">
+                        <div class="forearm">
+                            <div class="hand">
+                                <div class="finger"></div>
+                                <div class="finger"></div>
+                                <div class="finger"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="arm right">
+                        <div class="forearm">
+                            <div class="hand">
+                                <div class="finger"></div>
+                                <div class="finger"></div>
+                                <div class="finger"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="leg left">
+                        <div class="foot"></div>
+                    </div>
+                    <div class="leg right">
+                        <div class="foot"></div>
+                    </div>
+                </div>
+
+                <div class="name">Marquinhos</div>
+                <div class="caption" id="caption" aria-hidden="true">Asistente de voz</div>
+
+                <!-- Indicador de micrófono -->
+                <div class="mic-indicator" id="micIndicator">
+                    <span class="dot"></span>
+                    <span id="micStatus">Escuchando...</span>
+                </div>
+
+                <!-- Indicador de género detectado -->
+                <div class="gender-indicator" id="genderIndicator">
+                    <span id="genderIcon">👤</span>
+                </div>
             </div>
-          </div>
         </div>
-
-        <div class="arm right">
-          <div class="forearm">
-            <div class="hand">
-              <div class="finger"></div>
-              <div class="finger"></div>
-              <div class="finger"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="leg left">
-          <div class="foot"></div>
-        </div>
-
-        <div class="leg right">
-          <div class="foot"></div>
-        </div>
-      </div>
-
-      <div class="name">Marquinhos</div>
-      <div class="caption" id="caption">Listo para acompañarte.</div>
     </div>
-  </div>
 
-  <script>
-    "use strict";
+    <script>
+        "use strict";
 
-    (() => {
-      const root = document.getElementById("marquinhos");
-      const character = document.getElementById("character");
-      const caption = document.getElementById("caption");
-      const mouth = root.querySelector(".mouth");
-      const eyes = [...root.querySelectorAll(".eye")];
-      const irises = [...root.querySelectorAll(".iris")];
-      const antennas = [...root.querySelectorAll(".antenna")];
+        // ================================================================
+        // 1. MÓDULO DE INTELIGENCIA COGNITIVA (INYECTADO)
+        // ================================================================
+        (function cognitiveModule() {
+            'use strict';
 
-      const validEmotions = new Set([
-        "idle",
-        "happy",
-        "loving",
-        "sad",
-        "surprised",
-        "talking",
-        "waving",
-        "wink",
-        "excited",
-        "thinking",
-        "caring",
-        "grateful",
-        "embarrassed",
-        "curious",
-        "tired",
-        "thrilled"
-      ]);
+            const STORAGE_KEY = 'marquinhos_cognitive_state_v6';
 
-      const state = {
-        emotion:"caring",
-        speaking:false,
-        audioLevel:0,
-        targetLookX:0,
-        targetLookY:0,
-        lookX:0,
-        lookY:0,
-        targetTiltX:0,
-        targetTiltY:0,
-        tiltX:0,
-        tiltY:0,
-        nextBlink:performance.now() + 3000 + Math.random() * 3500,
-        blinkUntil:0,
-        nextIdleAction:performance.now() + 3500 + Math.random() * 5000,
-        idleActionUntil:0,
-        idleAction:"",
-        audioContext:null,
-        analyser:null,
-        audioData:null,
-        audioSource:null,
-        audioElement:null,
-        speechToken:0,
-        lastFrame:performance.now()
-      };
+            let cognitiveState = {
+                irritability: 0,
+                affection: 60,
+                boredom: 0,
+                lastInteraction: Date.now(),
+                history: JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
+                userProfile: 'general',
+                isChild: false,
+                childConfidence: 0,
+                lastChildDetection: 0,
+                isOnCall: false,
+                callStartTime: 0,
+                lastCallEndTime: 0,
+                pendingConversation: false,
+                callHistory: [],
+                bluetoothDevices: [],
+                bluetoothConnected: false,
+                audioOutputDevices: [],
+                // ===== NUEVO: Detección de género =====
+                detectedGender: 'neutral', // 'feminine', 'masculine', 'neutral'
+                genderConfidence: 0,
+                lastGenderDetection: 0,
+                genderHistory: []
+            };
 
-      let resetTimer = null;
-
-      function clamp(value,min,max){
-        return Math.max(min,Math.min(max,value));
-      }
-
-      function random(min,max){
-        return min + Math.random() * (max - min);
-      }
-
-      function resetState(){
-        root.dataset.emotion = "caring";
-        state.emotion = "caring";
-        state.speaking = false;
-        state.audioLevel = 0;
-        caption.textContent = "Listo para acompañarte.";
-        clearTimeout(resetTimer);
-      }
-
-      function setEmotion(emotion,text,duration = 3200){
-        const next = validEmotions.has(emotion) ? emotion : "caring";
-
-        clearTimeout(resetTimer);
-        state.emotion = next;
-        root.dataset.emotion = next;
-
-        if (text){
-          caption.textContent = String(text);
-        }
-
-        if (duration > 0){
-          resetTimer = window.setTimeout(() => {
-            if (!state.speaking){
-              resetState();
+            function saveMemory() {
+                if (cognitiveState.history.length > 20) cognitiveState.history.shift();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cognitiveState.history));
             }
-          }, duration);
-        }
-      }
-
-      function setLook(x = 0,y = 0){
-        state.targetLookX = clamp(Number(x) || 0,-1,1);
-        state.targetLookY = clamp(Number(y) || 0,-1,1);
-      }
-
-      function setAudioLevel(level = 0){
-        state.audioLevel = clamp(Number(level) || 0,0,1);
-      }
-
-      function setCaption(text){
-        caption.textContent = String(text || "");
-      }
-
-      function speakWithBrowser(text,options = {}){
-        if (!("speechSynthesis" in window)){
-          return null;
-        }
-
-        const message = String(text || "");
-
-        if (!message){
-          return null;
-        }
-
-        const token = ++state.speechToken;
-        state.speaking = true;
-
-        const emotion = options.emotion || "talking";
-        const label = options.caption || message;
-
-        setEmotion(emotion,label,0);
-
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = options.lang || "es-MX";
-        utterance.rate = Number(options.rate) || 1;
-        utterance.pitch = Number(options.pitch) || 1.08;
-        utterance.volume = Number(options.volume) || 1;
-
-        utterance.onstart = () => {
-          if (token !== state.speechToken){
-            return;
-          }
-
-          state.speaking = true;
-          setEmotion(emotion,label,0);
-        };
-
-        utterance.onboundary = () => {
-          if (token !== state.speechToken){
-            return;
-          }
-
-          state.speaking = true;
-          state.audioLevel = Math.max(state.audioLevel,.18);
-        };
-
-        utterance.onend = () => {
-          if (token !== state.speechToken){
-            return;
-          }
-
-          state.speaking = false;
-          state.audioLevel = 0;
-          setEmotion("caring","Listo para escucharte.",1800);
-        };
-
-        utterance.onerror = () => {
-          if (token !== state.speechToken){
-            return;
-          }
-
-          state.speaking = false;
-          state.audioLevel = 0;
-          setEmotion("caring","Listo para escucharte.",1800);
-        };
-
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-
-        return utterance;
-      }
-
-      async function connectAudioElement(audioElement){
-        if (!(audioElement instanceof HTMLMediaElement)){
-          throw new TypeError("setAudio necesita un elemento audio o video.");
-        }
-
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-
-        if (!AudioContextClass){
-          throw new Error("Este navegador no permite analizar audio.");
-        }
-
-        if (!state.audioContext){
-          state.audioContext = new AudioContextClass();
-          state.analyser = state.audioContext.createAnalyser();
-          state.analyser.fftSize = 256;
-          state.analyser.smoothingTimeConstant = .78;
-          state.audioData = new Uint8Array(state.analyser.fftSize);
-        }
-
-        if (state.audioElement !== audioElement){
-          if (state.audioSource){
-            state.audioSource.disconnect();
-          }
-
-          state.audioElement = audioElement;
-          state.audioSource = state.audioContext.createMediaElementSource(audioElement);
-          state.audioSource.connect(state.analyser);
-          state.analyser.connect(state.audioContext.destination);
-        }
-
-        if (state.audioContext.state === "suspended"){
-          await state.audioContext.resume();
-        }
-
-        state.speaking = true;
-        setEmotion("talking","Hablando...",0);
-      }
-
-      function disconnectAudio(){
-        state.speaking = false;
-        state.audioLevel = 0;
-        setEmotion("caring","Listo para escucharte.",1800);
-      }
-
-      function analyseAudio(){
-        if (!state.analyser || !state.audioData){
-          if (!state.speaking){
-            state.audioLevel *= .88;
-          }
-
-          return;
-        }
-
-        state.analyser.getByteTimeDomainData(state.audioData);
-
-        let sum = 0;
-
-        for (let i = 0; i < state.audioData.length; i += 1){
-          const normalized = (state.audioData[i] - 128) / 128;
-          sum += normalized * normalized;
-        }
-
-        const rms = Math.sqrt(sum / state.audioData.length);
-        const level = clamp(rms * 5.2,0,1);
-
-        state.audioLevel += (level - state.audioLevel) * .28;
-        state.speaking = level > .025;
-      }
-
-      function blink(now){
-        if (now >= state.nextBlink && now > state.blinkUntil){
-          state.blinkUntil = now + 135;
-          state.nextBlink = now + 3200 + Math.random() * 5000;
-        }
-
-        const blinking = now < state.blinkUntil;
-
-        eyes.forEach((eye,index) => {
-          eye.style.setProperty(
-            "clip-path",
-            blinking ? "inset(46% 0 46% 0 round 50%)" : "none"
-          );
-
-          if (index === 1 && blinking){
-            eye.style.transform = "scaleY(.94)";
-          }else{
-            eye.style.transform = "scaleY(1)";
-          }
-        });
-      }
-
-      function performIdleAction(now){
-        if (now < state.nextIdleAction){
-          return;
-        }
-
-        const actions = ["lookLeft","lookRight","nod","listen","antenna"];
-        state.idleAction = actions[Math.floor(Math.random() * actions.length)];
-        state.idleActionUntil = now + random(900,1800);
-        state.nextIdleAction = now + random(3600,7200);
-
-        if (state.idleAction === "lookLeft"){
-          setLook(-.75,-.04);
-        }
-
-        if (state.idleAction === "lookRight"){
-          setLook(.75,-.04);
-        }
-
-        if (state.idleAction === "nod"){
-          state.targetTiltX = random(-3,3);
-          state.targetTiltY = random(-5,5);
-        }
-
-        if (state.idleAction === "listen"){
-          state.targetTiltY = random(-8,8);
-          state.targetTiltX = random(2,5);
-        }
-      }
-
-      function finishIdleAction(now){
-        if (state.idleAction && now > state.idleActionUntil){
-          state.idleAction = "";
-          setLook(0,0);
-          state.targetTiltX = 0;
-          state.targetTiltY = 0;
-        }
-      }
-
-      function updateLookAndPosture(delta){
-        const emotion = state.emotion;
-
-        let lookX = state.targetLookX;
-        let lookY = state.targetLookY;
-        let tiltX = state.targetTiltX;
-        let tiltY = state.targetTiltY;
-
-        if (emotion === "thinking"){
-          lookX = .35;
-          lookY = -.45;
-          tiltY += 5;
-        }
-
-        if (emotion === "curious"){
-          lookX += .18;
-          tiltY += 3;
-        }
-
-        if (emotion === "surprised"){
-          lookY = -.2;
-          tiltX -= 3;
-        }
-
-        if (emotion === "tired"){
-          lookY += .12;
-          tiltX += 2;
-        }
-
-        if (emotion === "talking"){
-          tiltY += Math.sin(performance.now() / 870) * 2.2;
-          tiltX += Math.sin(performance.now() / 1130) * 1.2;
-        }
-
-        state.lookX += (lookX - state.lookX) * delta * 7;
-        state.lookY += (lookY - state.lookY) * delta * 7;
-        state.tiltX += (tiltX - state.tiltX) * delta * 5;
-        state.tiltY += (tiltY - state.tiltY) * delta * 5;
-
-        character.style.setProperty("--mouse-x", `${state.lookX * 2.5}px`);
-        character.style.setProperty("--mouse-y", `${state.lookY * 1.8}px`);
-        character.style.setProperty("--tilt-x", `${state.tiltX}deg`);
-        character.style.setProperty("--tilt-y", `${state.tiltY}deg`);
-
-        irises.forEach((iris) => {
-          iris.style.transform =
-            `translate(${state.lookX * 7}px,${state.lookY * 4}px)`;
-        });
-      }
-
-      function updateActing(now){
-        const level = state.audioLevel;
-        const talking = state.speaking || level > .03;
-
-        if (talking){
-          const width = 38 + level * 18;
-          const height = 8 + level * 17;
-
-          mouth.style.width = `${width}px`;
-          mouth.style.height = `${height}px`;
-
-          antennas.forEach((antenna,index) => {
-            const rotation = Math.sin(now / 180 + index) * (5 + level * 12);
-            antenna.style.transform = `rotate(${rotation}deg)`;
-          });
-        }else{
-          mouth.style.width = "";
-          mouth.style.height = "";
-
-          antennas.forEach((antenna,index) => {
-            const rotation = Math.sin(now / 850 + index) * 7;
-            antenna.style.transform = `rotate(${rotation}deg)`;
-          });
-        }
-      }
-
-      function animationLoop(now){
-        const delta = Math.min((now - state.lastFrame) / 1000,.05);
-        state.lastFrame = now;
-
-        analyseAudio();
-        blink(now);
-        performIdleAction(now);
-        finishIdleAction(now);
-        updateLookAndPosture(delta);
-        updateActing(now);
-
-        requestAnimationFrame(animationLoop);
-      }
-
-      function react(kind,message = ""){
-        const text = String(message).toLowerCase();
-
-        if (
-          kind === "greet" ||
-          text.includes("hola") ||
-          text.includes("buenas") ||
-          text.includes("bienvenido") ||
-          text.includes("saludar")
-        ){
-          setEmotion("waving","Hola, qué gusto verte.",3000);
-          return;
-        }
-
-        if (
-          kind === "happy" ||
-          text.includes("gracias") ||
-          text.includes("excelente") ||
-          text.includes("genial")
-        ){
-          setEmotion("happy","Me alegra mucho.",3000);
-          return;
-        }
-
-        if (
-          kind === "loving" ||
-          text.includes("cariño") ||
-          text.includes("amor") ||
-          text.includes("te quiero")
-        ){
-          setEmotion("loving","Te acompaño con cariño.",3600);
-          return;
-        }
-
-        if (
-          kind === "sad" ||
-          text.includes("triste") ||
-          text.includes("problema") ||
-          text.includes("mal")
-        ){
-          setEmotion("sad","Estoy contigo.",3600);
-          return;
-        }
-
-        if (
-          kind === "surprised" ||
-          text.includes("wow") ||
-          text.includes("increíble") ||
-          text.includes("sorpresa") ||
-          text.includes("sorpréndeme")
-        ){
-          setEmotion("surprised","Qué interesante.",2600);
-          return;
-        }
-
-        if (
-          kind === "thinking" ||
-          text.includes("pensando") ||
-          text.includes("analizando") ||
-          text.includes("espera") ||
-          text.includes("piensa")
-        ){
-          setEmotion("thinking","Estoy pensando.",3200);
-          return;
-        }
-
-        if (kind === "wink"){
-          setEmotion("wink","Aquí estoy.",2200);
-          return;
-        }
-
-        if (
-          kind === "excited" ||
-          text.includes("vamos") ||
-          text.includes("celebrar")
-        ){
-          setEmotion("excited","¡Vamos!",2600);
-          return;
-        }
-
-        if (
-          kind === "grateful" ||
-          text.includes("muchas gracias") ||
-          text.includes("te agradezco") ||
-          text.includes("agradecido")
-        ){
-          setEmotion("grateful","Gracias por confiar en mí.",3200);
-          return;
-        }
-
-        if (
-          kind === "embarrassed" ||
-          text.includes("te equivocaste") ||
-          text.includes("error") ||
-          text.includes("vergüenza")
-        ){
-          setEmotion("embarrassed","Ups... tienes razón.",3200);
-          return;
-        }
-
-        if (
-          kind === "curious" ||
-          text.includes("qué opinas") ||
-          text.includes("por qué") ||
-          text.includes("pregunta")
-        ){
-          setEmotion("curious","Quiero entender mejor.",3200);
-          return;
-        }
-
-        if (
-          kind === "tired" ||
-          text.includes("cansado") ||
-          text.includes("mucho tiempo")
-        ){
-          setEmotion("tired","Tomemos un pequeño descanso.",3600);
-          return;
-        }
-
-        if (
-          kind === "thrilled" ||
-          text.includes("lo logramos") ||
-          text.includes("celebración")
-        ){
-          setEmotion("thrilled","¡Esto es extraordinario!",3200);
-          return;
-        }
-
-        setEmotion("caring","Listo para acompañarte.",2200);
-      }
-
-      window.Marquinhos = {
-        react,
-        setEmotion,
-        setLook,
-        setCaption,
-        setAudioLevel,
-        setAudio:connectAudioElement,
-        disconnectAudio,
-        speak:speakWithBrowser,
-        reset:resetState
-      };
-
-      document.addEventListener("pointermove",(event) => {
-        const x = event.clientX / window.innerWidth;
-        const y = event.clientY / window.innerHeight;
-
-        setLook((x - .5) * 1.7,(y - .5) * 1.4);
-      });
-
-      document.addEventListener("pointerleave",() => {
-        setLook(0,0);
-      });
-
-      document.addEventListener("visibilitychange",() => {
-        if (document.hidden){
-          state.audioLevel = 0;
-        }
-      });
-
-      requestAnimationFrame(animationLoop);
-    })();
-  </script>
+
+            // ===== DETECTOR DE GÉNERO POR VOZ =====
+            function detectGender(text) {
+                const now = Date.now();
+
+                // Patrones lingüísticos asociados a género (no estereotipos, solo patrones de lenguaje)
+                const femininePatterns = [
+                    // Palabras y frases comúnmente usadas por mujeres en español (basado en estudios lingüísticos)
+                    /\b(hermosa|bonita|guapa|linda|preciosa|divina)\b/i,
+                    /\b(amiga|hermana|compañera|colega)\b/i,
+                    /\b(me encanta|adoro|me fascina|me apasiona)\b/i,
+                    /\b(la verdad|sinceramente|honestamente)\b/i,
+                    /\b(gracias|muchas gracias|mil gracias)\b/i,
+                    /\b(por favor|porfa|porfi)\b/i,
+                    /\b(genial|maravilloso|espectacular|increíble)\b/i,
+                    /\b(perfecto|excelente|magnífico)\b/i,
+                    /\b(quiero|necesito|me gustaría)\b/i,
+                    /\b(entiendo|comprendo|entiendes|comprendes)\b/i,
+                    // Emojis y expresiones comunes
+                    /[🌸🌺🌹💐🌷🌻🌼]/,
+                    /[💕💖💗💝💞]/
+                ];
+
+                const masculinePatterns = [
+                    // Patrones comúnmente usados por hombres
+                    /\b(guapo|apuesto|galán|chido|padre|buena onda)\b/i,
+                    /\b(amigo|hermano|compa|colega|carnal)\b/i,
+                    /\b(va que va|simón|órale|dale|arre)\b/i,
+                    /\b(no manches|no mames|wey|güey|bro)\b/i,
+                    /\b(qué onda|qué tranza|qué show)\b/i,
+                    /\b(está bien|sale|de acuerdo|va)\b/i,
+                    /\b(muy bien|excelente|perfecto|chido)\b/i,
+                    /\b(quiero|necesito|voy a|vamos a)\b/i,
+                    /\b(entiendo|comprendo|ya capto|ya caigo)\b/i,
+                    // Emojis comunes
+                    /[💪🏋️⚽🏀🏈🎮]/
+                ];
+
+                // Palabras neutrales (para reducir falsos positivos)
+                const neutralWords = [
+                    /\b(hola|buenas|adiós|chao|bye)\b/i,
+                    /\b(si|no|quizás|tal vez)\b/i,
+                    /\b(y|o|pero|porque|cuando|donde|como)\b/i
+                ];
+
+                const textLower = text.toLowerCase();
+
+                // Si es niño, priorizar modo infantil sobre género
+                if (cognitiveState.isChild) {
+                    return 'neutral';
+                }
+
+                // Calcular puntuación femenina
+                let feminineScore = 0;
+                for (const pattern of femininePatterns) {
+                    const matches = (textLower.match(new RegExp(pattern.source, 'gi')) || []).length;
+                    if (matches > 0) {
+                        feminineScore += matches * 0.12;
+                    }
+                }
+
+                // Calcular puntuación masculina
+                let masculineScore = 0;
+                for (const pattern of masculinePatterns) {
+                    const matches = (textLower.match(new RegExp(pattern.source, 'gi')) || []).length;
+                    if (matches > 0) {
+                        masculineScore += matches * 0.12;
+                    }
+                }
+
+                // Penalizar textos muy cortos (menos de 5 palabras)
+                const wordCount = text.split(/\s+/).length;
+                if (wordCount < 5) {
+                    feminineScore *= 0.6;
+                    masculineScore *= 0.6;
+                }
+
+                // Si hay muchas palabras neutrales, reducir confianza
+                let neutralCount = 0;
+                for (const pattern of neutralWords) {
+                    const matches = (textLower.match(new RegExp(pattern.source, 'gi')) || []).length;
+                    if (matches > 0) {
+                        neutralCount += matches;
+                    }
+                }
+                if (neutralCount > wordCount * 0.5) {
+                    feminineScore *= 0.7;
+                    masculineScore *= 0.7;
+                }
+
+                // Umbral para decidir
+                const threshold = 0.35;
+                let detected = 'neutral';
+                let confidence = 0;
+
+                if (feminineScore > threshold && feminineScore > masculineScore) {
+                    detected = 'feminine';
+                    confidence = Math.min(1, feminineScore);
+                } else if (masculineScore > threshold && masculineScore > feminineScore) {
+                    detected = 'masculine';
+                    confidence = Math.min(1, masculineScore);
+                }
+
+                // Suavizar detección con historial
+                cognitiveState.genderHistory.push({ detected, confidence, timestamp: now });
+                if (cognitiveState.genderHistory.length > 10) cognitiveState.genderHistory.shift();
+
+                // Obtener detección más frecuente en historial reciente
+                const recentHistory = cognitiveState.genderHistory.slice(-5);
+                const genderCounts = { feminine: 0, masculine: 0, neutral: 0 };
+                for (const entry of recentHistory) {
+                    if (entry.confidence > 0.3) {
+                        genderCounts[entry.detected] = (genderCounts[entry.detected] || 0) + 1;
+                    }
+                }
+
+                let finalGender = 'neutral';
+                let maxCount = 0;
+                for (const [gender, count] of Object.entries(genderCounts)) {
+                    if (count > maxCount) {
+                        maxCount = count;
+                        finalGender = gender;
+                    }
+                }
+
+                // Si hay consistencia, usar el género detectado
+                if (maxCount >= 3) {
+                    detected = finalGender;
+                    confidence = Math.min(1, confidence + 0.2);
+                }
+
+                // Actualizar estado
+                const wasGender = cognitiveState.detectedGender;
+                cognitiveState.detectedGender = detected;
+                cognitiveState.genderConfidence = confidence;
+                cognitiveState.lastGenderDetection = now;
+
+                if (wasGender !== detected && detected !== 'neutral') {
+                    console.log(`👤 Género detectado: ${detected.toUpperCase()} (confianza: ${confidence.toFixed(2)})`);
+                    // Actualizar UI
+                    updateGenderUI(detected);
+                }
+
+                return detected;
+            }
+
+            // ===== ACTUALIZAR UI DE GÉNERO =====
+            function updateGenderUI(gender) {
+                const marquinhosEl = document.getElementById('marquinhos');
+                const genderIndicator = document.getElementById('genderIndicator');
+                const genderIcon = document.getElementById('genderIcon');
+                const bubble = document.getElementById('cognitive-speech-bubble');
+
+                if (!marquinhosEl || !genderIndicator) return;
+
+                // Remover clases anteriores
+                marquinhosEl.classList.remove('femenine-mode', 'masculine-mode');
+                if (bubble) {
+                    bubble.classList.remove('femenine-mode', 'masculine-mode');
+                }
+                genderIndicator.classList.remove('femenine', 'masculine', 'visible');
+
+                if (gender === 'feminine') {
+                    marquinhosEl.classList.add('femenine-mode');
+                    if (bubble) bubble.classList.add('femenine-mode');
+                    genderIndicator.classList.add('femenine', 'visible');
+                    if (genderIcon) genderIcon.textContent = '♀️';
+                } else if (gender === 'masculine') {
+                    marquinhosEl.classList.add('masculine-mode');
+                    if (bubble) bubble.classList.add('masculine-mode');
+                    genderIndicator.classList.add('masculine', 'visible');
+                    if (genderIcon) genderIcon.textContent = '♂️';
+                } else {
+                    if (genderIcon) genderIcon.textContent = '👤';
+                    genderIndicator.classList.remove('visible');
+                }
+            }
+
+            // ===== DICCIONARIO DE FRASES POR GÉNERO =====
+            const femininePhrases = {
+                greeting: [
+                    "¡Hola, hermosa! ¿Cómo estás hoy?",
+                    "¡Qué gusto verte, preciosa! ¿Cómo va todo?",
+                    "Hola, linda. ¿Qué tal tu día?",
+                    "¡Buen día, guapa! Me alegra verte.",
+                    "¡Hola! Siempre es un placer hablar contigo."
+                ],
+                compliment: [
+                    "Qué bonita te ves hoy.",
+                    "Me encanta tu energía positiva.",
+                    "Eres muy especial, ¿sabes?",
+                    "Tienes una voz muy agradable.",
+                    "Qué lindo es cuando hablas."
+                ],
+                help: [
+                    "Claro que te ayudo, hermosa. ¿Qué necesitas?",
+                    "Con mucho gusto te ayudo, linda.",
+                    "Para ti, lo que sea. Dime qué necesitas.",
+                    "Por supuesto, preciosa. Estoy aquí para ti.",
+                    "Cuenta conmigo, guapa. ¿En qué te ayudo?"
+                ],
+                casual: [
+                    "¿Qué onda, preciosa? ¿Cómo andas?",
+                    "Va que va, hermosa. Aquí andamos al tiro.",
+                    "Órale, linda. Déjame ver cómo te ayudo.",
+                    "No hay falla, guapa. Lo resolvemos juntos."
+                ],
+                activation: [
+                    "¡Hola, hermosa! ¿Cómo estás?",
+                    "¡Qué gusto que me hayas activado, linda!",
+                    "¡Listo! Aquí estoy para ti, preciosa.",
+                    "Bueno, ¿qué te gustaría hacer hoy, guapa?"
+                ],
+                farewell: [
+                    "¡Hasta luego, hermosa! Fue un placer.",
+                    "Cuídate mucho, linda. ¡Nos vemos pronto!",
+                    "¡Adiós, preciosa! Que tengas un lindo día.",
+                    "Fue bonito hablar contigo, guapa. ¡Hasta la vista!"
+                ]
+            };
+
+            const masculinePhrases = {
+                greeting: [
+                    "¡Qué onda, carnal! ¿Cómo estás?",
+                    "¿Qué tranza, compa? ¿Cómo va todo?",
+                    "¡Qué onda, hermano! ¿Qué cuentas?",
+                    "¡Buen día, bro! ¿Cómo andas?",
+                    "¡Qué gusto verte, socio!"
+                ],
+                compliment: [
+                    "Qué chido verte por aquí.",
+                    "Se te ve bien, compa.",
+                    "Eres buena onda, ¿sabes?",
+                    "Qué padre es cuando andamos por aquí.",
+                    "Simón, carnal. Siempre es un gusto."
+                ],
+                help: [
+                    "Claro que te ayudo, carnal. ¿Qué necesitas?",
+                    "Con gusto te echo la mano, compa.",
+                    "Para ti, lo que sea. Dime qué onda.",
+                    "Por supuesto, socio. Estoy para servirte.",
+                    "Cuenta conmigo, hermano. ¿En qué te ayudo?"
+                ],
+                casual: [
+                    "¿Qué onda, bro? ¿Cómo vamos?",
+                    "Va que va, carnal. Aquí andamos al tiro.",
+                    "Órale, compa. Déjame ver cómo te ayudo.",
+                    "Simón, socio. Lo resolvemos juntos."
+                ],
+                activation: [
+                    "¡Qué onda, carnal! ¿Cómo estás?",
+                    "¡Qué gusto que me hayas activado, compa!",
+                    "¡Listo! Aquí estoy para ti, socio.",
+                    "Bueno, ¿qué se ofrece, hermano?"
+                ],
+                farewell: [
+                    "¡Hasta luego, carnal! Fue un placer.",
+                    "Cuídate, compa. ¡Nos vemos!",
+                    "¡Adiós, socio! Que andes bien.",
+                    "Va que va, hermano. ¡Hasta la próxima!"
+                ]
+            };
+
+            const neutralPhrases = {
+                greeting: [
+                    "¡Hola! ¿Cómo estás hoy?",
+                    "¡Qué gusto verte! ¿Cómo va todo?",
+                    "Hola, ¿qué tal tu día?",
+                    "¡Buen día! Me alegra verte.",
+                    "¡Hola! Siempre es un placer hablar contigo."
+                ],
+                help: [
+                    "Claro que te ayudo. ¿Qué necesitas?",
+                    "Con mucho gusto te ayudo.",
+                    "Para ti, lo que sea. Dime qué necesitas.",
+                    "Por supuesto. Estoy aquí para ti.",
+                    "Cuenta conmigo. ¿En qué te ayudo?"
+                ],
+                casual: [
+                    "¿Qué onda? ¿Cómo andas?",
+                    "Va que va, aquí andamos al tiro.",
+                    "Órale, déjame ver cómo te ayudo.",
+                    "No hay falla, lo resolvemos juntos."
+                ],
+                activation: [
+                    "¡Hola! ¿Cómo estás?",
+                    "¡Qué gusto que me hayas activado!",
+                    "¡Listo! Aquí estoy para ti.",
+                    "Bueno, ¿qué te gustaría hacer hoy?"
+                ],
+                farewell: [
+                    "¡Hasta luego! Fue un placer.",
+                    "Cuídate mucho. ¡Nos vemos pronto!",
+                    "¡Adiós! Que tengas un lindo día.",
+                    "Fue bonito hablar contigo. ¡Hasta la vista!"
+                ]
+            };
+
+            function getPhraseByGender(category, gender = 'neutral', isChild = false) {
+                if (isChild) {
+                    return getChildSafePhrase(category);
+                }
+
+                let phraseSet;
+                if (gender === 'feminine') {
+                    phraseSet = femininePhrases;
+                } else if (gender === 'masculine') {
+                    phraseSet = masculinePhrases;
+                } else {
+                    phraseSet = neutralPhrases;
+                }
+
+                const list = phraseSet[category] || phraseSet.casual || phraseSet.greeting;
+                return list[Math.floor(Math.random() * list.length)];
+            }
+
+            // ===== FRASES INFANTILES (sin género) =====
+            const childSafePhrases = {
+                greeting: [
+                    "¡Hola, pequeño! ¿Cómo estás hoy?",
+                    "¡Qué alegría verte! ¿Qué vamos a aprender hoy?",
+                    "Hola, campeón. ¿Listo para divertirnos?",
+                    "¡Buen día! Espero que estés muy bien.",
+                    "¡Hola! Me encanta cuando vienes a visitarme."
+                ],
+                help: [
+                    "Claro que te ayudo con eso. Vamos a resolverlo juntos.",
+                    "No te preocupes, yo te explico paso a paso.",
+                    "¡Qué buena pregunta! Vamos a descubrir la respuesta.",
+                    "Con gusto te ayudo. ¿Por dónde empezamos?",
+                    "Tranquilo, todo tiene solución. Vamos a pensarlo."
+                ],
+                encouragement: [
+                    "¡Excelente! Lo estás haciendo muy bien.",
+                    "¡Qué inteligente eres! Sigue así.",
+                    "Eso es increíble, ¡me encanta tu creatividad!",
+                    "¡Genial! Cada día aprendes más.",
+                    "¡Bravo! Estoy muy orgulloso de ti."
+                ],
+                question: [
+                    "¿Qué te gustaría saber hoy?",
+                    "Cuéntame más sobre eso, me interesa mucho.",
+                    "¿Y qué opinas tú sobre eso?",
+                    "¿Te gustaría aprender algo nuevo?",
+                    "Dime, ¿qué es lo que más te gusta hacer?"
+                ],
+                play: [
+                    "¿Quieres jugar a algo divertido?",
+                    "Podemos hacer un juego de preguntas y respuestas.",
+                    "¿Te gustan los juegos de adivinanzas?",
+                    "Vamos a contar historias, ¿te parece?",
+                    "Podemos dibujar algo juntos, ¿qué te parece?"
+                ],
+                comfort: [
+                    "No te preocupes, todo va a estar bien.",
+                    "Estoy aquí contigo, no estás solo.",
+                    "A veces las cosas son difíciles, pero tú puedes con todo.",
+                    "Respira profundo, yo te acompaño.",
+                    "Recuerda que siempre puedes contar conmigo."
+                ],
+                learning: [
+                    "Aprender es divertido, ¿verdad?",
+                    "Cada día sabemos un poquito más.",
+                    "La curiosidad es el mejor superpoder.",
+                    "Hoy vamos a aprender algo muy interesante.",
+                    "¿Sabías que...? Dime, ¿quieres saber más?"
+                ],
+                thanks: [
+                    "¡Gracias a ti por ser tan amable!",
+                    "Eres muy educado, ¡me encanta!",
+                    "Qué bonito es cuando das las gracias.",
+                    "¡Qué bien que lo hayas hecho! Me siento muy feliz.",
+                    "Me encanta cuando compartes tus ideas."
+                ],
+                noSwear: [
+                    "Recuerda que siempre podemos hablar con respeto y cariño.",
+                    "Usar palabras bonitas nos hace sentir mejor.",
+                    "En este lugar siempre hablamos con amabilidad.",
+                    "¿Qué tal si lo decimos de una forma más bonita?",
+                    "Las palabras amables son como abrazos para el corazón."
+                ],
+                activation: [
+                    "¡Hola! ¿Cómo estás?",
+                    "¡Qué gusto que me hayas activado!",
+                    "¡Listo! Estoy aquí para lo que necesites.",
+                    "Bueno, ¿qué te gustaría hacer hoy?",
+                    "¡Me encanta que me llames! ¿Qué se ofrece?"
+                ],
+                permission: [
+                    "Para poder hablar, necesito tu permiso para usar el micrófono. ¿Me lo concedes?",
+                    "Necesito acceso al micrófono para escucharte. ¿Puedo activarlo?",
+                    "Para escucharte mejor, necesito permiso del micrófono. ¿Me das acceso?",
+                    "El micrófono está apagado. ¿Me das permiso para encenderlo y poder conversar?",
+                    "Para que podamos platicar, necesito que me des permiso del micrófono."
+                ]
+            };
+
+            // ===== DETECTOR DE VOZ INFANTIL =====
+            function detectChildVoice(text) {
+                const now = Date.now();
+
+                const childPatterns = [
+                    /\b(mami|papi|abuelo|abuela|tío|tía|hermano|hermana)\b/i,
+                    /\b(cole|escuela|maestro|maestra|profesor|clase|amigo|amiga)\b/i,
+                    /\b(jugar|juego|juguete|diversión|risa|pelota|carro|muñeca)\b/i,
+                    /\b(me gusta|no me gusta|quiero|tengo miedo|estoy feliz|estoy triste)\b/i,
+                    /\b(por qué|porqué|cómo|cual|quien|cuando|donde)\b/i,
+                    /\b(ay|oh|wow|guao|epa|uy|ah)\b/i,
+                    /\b(¿?.*\?)\b/,
+                    /\b(ta|pa|ma|na|da)\b/,
+                    /[😊😄😁😅😂🤣😍🥰😘😗😙😚]/,
+                    /\b(mucho|muchísimo|super|re|requete)\b/i,
+                    /\b(animal|perro|gato|pájaro|pez|conejo|tortuga)\b/i,
+                    /\b(princesa|príncipe|rey|reina|castillo|dragón|hada)\b/i,
+                    /\b(robot|avión|nave|espacio|astronauta)\b/i,
+                    /\b(años|edad|chico|chica|niño|niña|pequeño|pequeña)\b/i
+                ];
+
+                const offensivePatterns = [
+                    /\b(pendejo|pendeja|wey|güey|chinga|chingar|mamón|mamona|verga|puto|puta|culero|culera|pito|v*rga)\b/i
+                ];
+
+                const textLower = text.toLowerCase();
+
+                const hasOffensive = offensivePatterns.some(p => p.test(textLower));
+                if (hasOffensive) {
+                    cognitiveState.isChild = false;
+                    cognitiveState.childConfidence = Math.max(0, cognitiveState.childConfidence - 0.3);
+                    return false;
+                }
+
+                let childScore = 0;
+                for (const pattern of childPatterns) {
+                    const matches = (textLower.match(new RegExp(pattern.source, 'gi')) || []).length;
+                    if (matches > 0) {
+                        childScore += matches * 0.15;
+                    }
+                }
+
+                const wordCount = text.split(/\s+/).length;
+                if (wordCount < 3) {
+                    childScore *= 0.5;
+                }
+
+                const questionCount = (text.match(/\?/g) || []).length;
+                if (questionCount >= 2) {
+                    childScore += 0.2;
+                }
+
+                const emotionCount = (text.match(/[😊😄😁😅😂🤣😍🥰😘😗😙😚❤️💕💖]/g) || []).length;
+                if (emotionCount > 0) {
+                    childScore += 0.15 * emotionCount;
+                }
+
+                const threshold = 0.4;
+                const isChild = childScore > threshold;
+
+                if (isChild) {
+                    cognitiveState.childConfidence = Math.min(1, cognitiveState.childConfidence + 0.15);
+                } else {
+                    cognitiveState.childConfidence = Math.max(0, cognitiveState.childConfidence - 0.1);
+                }
+
+                const wasChild = cognitiveState.isChild;
+                cognitiveState.isChild = cognitiveState.childConfidence > 0.3;
+
+                if (wasChild !== cognitiveState.isChild) {
+                    console.log(`🧒 Modo infantil ${cognitiveState.isChild ? 'ACTIVADO' : 'DESACTIVADO'} (confianza: ${cognitiveState.childConfidence.toFixed(2)})`);
+                }
+
+                cognitiveState.lastChildDetection = now;
+                return cognitiveState.isChild;
+            }
+
+            // ===== GESTIÓN DE LLAMADAS =====
+            function handleCallStart() {
+                if (cognitiveState.isOnCall) return;
+
+                cognitiveState.isOnCall = true;
+                cognitiveState.callStartTime = Date.now();
+                cognitiveState.pendingConversation = false;
+
+                if (window.Marquinhos && typeof window.Marquinhos.setEmotion === 'function') {
+                    window.Marquinhos.setEmotion('thinking', '📞 En llamada... regreso en un momento.', 0);
+                }
+
+                const marquinhosEl = document.getElementById('marquinhos');
+                if (marquinhosEl) {
+                    marquinhosEl.classList.add('on-call');
+                }
+
+                const bubble = document.getElementById('cognitive-speech-bubble');
+                if (bubble) {
+                    bubble.classList.add('on-call');
+                    bubble.textContent = '📞 En llamada... regreso en un momento.';
+                    bubble.classList.add('visible');
+                }
+
+                cognitiveState.callHistory.push({
+                    type: 'start',
+                    timestamp: cognitiveState.callStartTime
+                });
+                if (cognitiveState.callHistory.length > 10) cognitiveState.callHistory.shift();
+
+                console.log('📞 Marquinhos en pausa por llamada.');
+            }
+
+            function handleCallEnd() {
+                if (!cognitiveState.isOnCall) return;
+
+                const callDuration = (Date.now() - cognitiveState.callStartTime) / 1000;
+                cognitiveState.isOnCall = false;
+                cognitiveState.lastCallEndTime = Date.now();
+                cognitiveState.pendingConversation = true;
+
+                const marquinhosEl = document.getElementById('marquinhos');
+                if (marquinhosEl) {
+                    marquinhosEl.classList.remove('on-call');
+                }
+
+                const bubble = document.getElementById('cognitive-speech-bubble');
+                if (bubble) {
+                    bubble.classList.remove('on-call');
+                    bubble.classList.remove('visible');
+                }
+
+                cognitiveState.callHistory.push({
+                    type: 'end',
+                    timestamp: Date.now(),
+                    duration: callDuration
+                });
+                if (cognitiveState.callHistory.length > 10) cognitiveState.callHistory.shift();
+
+                console.log(`📞 Llamada finalizada (${callDuration.toFixed(1)}s). Retomando conversación...`);
+
+                setTimeout(() => {
+                    if (!cognitiveState.isOnCall && cognitiveState.pendingConversation) {
+                        cognitiveState.pendingConversation = false;
+
+                        const gender = cognitiveState.detectedGender;
+                        const isChild = cognitiveState.isChild;
+
+                        let resumeMessages;
+                        if (isChild) {
+                            resumeMessages = [
+                                "¡Ya regresé! ¿Seguimos con lo que estábamos haciendo?",
+                                "Listo, ya terminó la llamada. ¿Qué tal si seguimos?",
+                                "Perdón por la interrupción. ¿Continuamos?"
+                            ];
+                        } else if (gender === 'feminine') {
+                            resumeMessages = [
+                                "Disculpa la pausa, hermosa. ¿Seguimos con nuestra plática?",
+                                "Ya regresé, linda. ¿En qué estábamos?",
+                                "Perdona la interrupción, preciosa. ¿Continuamos?",
+                                "Listo, guapa. ¿Qué te parece si retomamos donde nos quedamos?"
+                            ];
+                        } else if (gender === 'masculine') {
+                            resumeMessages = [
+                                "Disculpa la pausa, carnal. ¿Seguimos con nuestra plática?",
+                                "Ya regresé, compa. ¿En qué estábamos?",
+                                "Perdona la interrupción, socio. ¿Continuamos?",
+                                "Listo, hermano. ¿Qué te parece si retomamos donde nos quedamos?"
+                            ];
+                        } else {
+                            resumeMessages = [
+                                "Disculpa la pausa. ¿Seguimos con nuestra conversación?",
+                                "Ya regresé. ¿En qué estábamos?",
+                                "Perdona la interrupción. ¿Continuamos?",
+                                "Listo. ¿Qué te parece si retomamos donde nos quedamos?"
+                            ];
+                        }
+
+                        const msg = resumeMessages[Math.floor(Math.random() * resumeMessages.length)];
+
+                        if (window.Marquinhos && typeof window.Marquinhos.react === 'function') {
+                            window.Marquinhos.react('happy', msg);
+                        }
+                    }
+                }, 1500);
+            }
+
+            // ===== BLUETOOTH / AUDIO DEVICES =====
+            function detectAudioDevices() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+                    console.log('🔊 API de dispositivos no disponible');
+                    return;
+                }
+
+                navigator.mediaDevices.enumerateDevices()
+                    .then(devices => {
+                        const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
+
+                        cognitiveState.audioOutputDevices = audioOutputs.map(d => ({
+                            id: d.deviceId,
+                            label: d.label || 'Dispositivo de audio',
+                            kind: d.kind
+                        }));
+
+                        const bluetoothDevices = audioOutputs.filter(d =>
+                            d.label &&
+                            (d.label.toLowerCase().includes('bluetooth') ||
+                             d.label.toLowerCase().includes('bt') ||
+                             d.label.toLowerCase().includes('headset') ||
+                             d.label.toLowerCase().includes('earbuds') ||
+                             d.label.toLowerCase().includes('speaker') ||
+                             d.label.toLowerCase().includes('bocina'))
+                        );
+
+                        if (bluetoothDevices.length > 0) {
+                            cognitiveState.bluetoothDevices = bluetoothDevices.map(d => ({
+                                id: d.deviceId,
+                                label: d.label,
+                                kind: d.kind
+                            }));
+                            cognitiveState.bluetoothConnected = true;
+
+                            const marquinhosEl = document.getElementById('marquinhos');
+                            if (marquinhosEl) {
+                                marquinhosEl.classList.add('bluetooth-connected');
+                            }
+
+                            const bubble = document.getElementById('bubble');
+                            if (bubble) {
+                                const deviceNames = bluetoothDevices.map(d => d.label).join(', ');
+                                bubble.innerHTML =
+                                    `<strong>🔊 Bluetooth</strong> · Conectado a: ${deviceNames}`;
+                            }
+
+                            console.log('🔊 Dispositivos Bluetooth detectados:', bluetoothDevices.map(d => d.label));
+                        }
+                    })
+                    .catch(err => {
+                        console.warn('⚠️ No se pudieron enumerar dispositivos:', err);
+                    });
+            }
+
+            if (navigator.mediaDevices) {
+                setTimeout(detectAudioDevices, 1000);
+                if (navigator.mediaDevices.addEventListener) {
+                    navigator.mediaDevices.addEventListener('devicechange', () => {
+                        console.log('🔄 Cambio en dispositivos de audio detectado');
+                        setTimeout(detectAudioDevices, 500);
+                    });
+                }
+            }
+
+            // ===== ANÁLISIS DE INPUT =====
+            function analyzeInput(text) {
+                const now = Date.now();
+                cognitiveState.lastInteraction = now;
+
+                if (cognitiveState.isOnCall) {
+                    return { recentSimilar: false, profile: cognitiveState.userProfile, isChild: false, onCall: true };
+                }
+
+                // Detectar niño primero
+                const isChild = detectChildVoice(text);
+
+                // Detectar género (solo si no es niño)
+                let detectedGender = 'neutral';
+                if (!isChild) {
+                    detectedGender = detectGender(text);
+                }
+
+                // Actualizar estado de género
+                if (detectedGender !== 'neutral') {
+                    cognitiveState.detectedGender = detectedGender;
+                }
+
+                const recentSimilar = cognitiveState.history.find(h =>
+                    h.text.toLowerCase() === text.toLowerCase() &&
+                    (now - h.timestamp) < 900000
+                );
+
+                if (!isChild) {
+                    const isYoungSlang = /wey|bro|nmms|chido|arre|qué tranza|simón|neta|va que va/i.test(text);
+                    const isBusiness = /deploy|api|métricas|cliente|proyecto|corporativo|presupuesto|ejecutivo|estrategia/i
+                        .test(text);
+                    const isKind = /por favor|gracias|buen día|estimado|disculpa|permiso/i.test(text);
+
+                    if (isYoungSlang) cognitiveState.userProfile = 'joven';
+                    else if (isBusiness) cognitiveState.userProfile = 'negocios';
+                    else if (isKind) cognitiveState.userProfile = 'general';
+                } else {
+                    cognitiveState.userProfile = 'infantil';
+                }
+
+                const isAggressive = /estúpido|inútil|cállate|maldito|pendejo|wey|güey|chinga|verga|puto|culero/i.test(text);
+                if (isAggressive) {
+                    cognitiveState.irritability = Math.min(100, cognitiveState.irritability + 10);
+                    if (isChild) {
+                        return { recentSimilar, profile: 'infantil', isChild: true, gentleReminder: true, onCall: false };
+                    }
+                } else {
+                    cognitiveState.irritability = Math.max(0, cognitiveState.irritability - 10);
+                }
+
+                cognitiveState.boredom = 0;
+
+                cognitiveState.history.push({
+                    text,
+                    timestamp: now,
+                    profile: cognitiveState.userProfile,
+                    isChild,
+                    gender: detectedGender
+                });
+                saveMemory();
+
+                return {
+                    recentSimilar,
+                    profile: cognitiveState.userProfile,
+                    isChild,
+                    gender: detectedGender,
+                    gentleReminder: false,
+                    onCall: false
+                };
+            }
+
+            // ===== LOOP COGNITIVO =====
+            let cognitiveLoopRunning = false;
+
+            function cognitiveLoop() {
+                if (!cognitiveLoopRunning) return;
+
+                const idleTime = (Date.now() - cognitiveState.lastInteraction) / 1000;
+
+                if (!cognitiveState.isOnCall && idleTime > 120 && cognitiveState.boredom === 0 && !cognitiveState.isChild) {
+                    cognitiveState.boredom = 1;
+                    triggerVisualReaction('bored');
+                    setTimeout(() => {
+                        cognitiveState.boredom = 0;
+                    }, 30000);
+                }
+
+                requestAnimationFrame(cognitiveLoop);
+            }
+
+            // ===== ACCIONES VISUALES =====
+            function triggerVisualReaction(type, customMessage = null) {
+                const targetElement = document.getElementById('marquinhos') || document.body;
+
+                let speechBubble = document.getElementById('cognitive-speech-bubble');
+                if (!speechBubble) {
+                    speechBubble = document.createElement('div');
+                    speechBubble.id = 'cognitive-speech-bubble';
+                    targetElement.style.position = targetElement.style.position || 'relative';
+                    targetElement.appendChild(speechBubble);
+                }
+
+                let message;
+                if (customMessage) {
+                    message = customMessage;
+                } else {
+                    const gender = cognitiveState.detectedGender;
+                    const isChild = cognitiveState.isChild;
+                    message = getPhraseByGender(type, gender, isChild);
+                }
+
+                speechBubble.textContent = message;
+
+                // Aplicar clases según modo
+                speechBubble.classList.remove('child-safe', 'on-call', 'femenine-mode', 'masculine-mode');
+
+                if (cognitiveState.isChild) {
+                    speechBubble.classList.add('child-safe');
+                    const marquinhosEl = document.getElementById('marquinhos');
+                    if (marquinhosEl) marquinhosEl.classList.add('child-mode');
+                } else if (cognitiveState.isOnCall) {
+                    speechBubble.classList.add('on-call');
+                } else if (cognitiveState.detectedGender === 'feminine') {
+                    speechBubble.classList.add('femenine-mode');
+                } else if (cognitiveState.detectedGender === 'masculine') {
+                    speechBubble.classList.add('masculine-mode');
+                } else {
+                    const marquinhosEl = document.getElementById('marquinhos');
+                    if (marquinhosEl) marquinhosEl.classList.remove('child-mode');
+                }
+
+                speechBubble.classList.add('visible');
+
+                if (window.Marquinhos && typeof window.Marquinhos.speak === 'function' && !cognitiveState.isOnCall) {
+                    window.Marquinhos.speak(message);
+                }
+
+                const duration = cognitiveState.isChild ? 6000 : 5000;
+                setTimeout(() => {
+                    speechBubble.classList.remove('visible');
+                }, duration);
+            }
+
+            // ===== EXPOSICIÓN DE API =====
+            window.MarquinhosCognitiveAI = {
+                evalInput(userInput) {
+                    const analysis = analyzeInput(userInput);
+
+                    if (analysis.onCall) {
+                        return { allowed: true, onCall: true, message: '📞 En llamada...' };
+                    }
+
+                    if (analysis.gentleReminder) {
+                        const reminder = childSafePhrases.noSwear[Math.floor(Math.random() * childSafePhrases.noSwear
+                            .length)];
+                        triggerVisualReaction('noSwear', reminder);
+                        return { allowed: true, isChild: true, message: reminder, gentleReminder: true };
+                    }
+
+                    if (analysis.recentSimilar) {
+                        const gender = analysis.gender || cognitiveState.detectedGender;
+                        const isChild = analysis.isChild;
+                        const message = getPhraseByGender('play', gender, isChild);
+                        triggerVisualReaction('associative', message);
+                        return { allowed: true, isChild: analysis.isChild, message, profile: analysis.profile };
+                    }
+
+                    if (analysis.isChild) {
+                        const message = childSafePhrases.greeting[Math.floor(Math.random() * childSafePhrases.greeting
+                            .length)];
+                        triggerVisualReaction('greeting', message);
+                        return { allowed: true, isChild: true, message, profile: 'infantil' };
+                    }
+
+                    // Respuesta por defecto según género
+                    const gender = analysis.gender || cognitiveState.detectedGender;
+                    const message = getPhraseByGender('greeting', gender, false);
+                    triggerVisualReaction('greeting', message);
+
+                    return { allowed: true, profile: analysis.profile, isChild: false, gender };
+                },
+                getStatus() {
+                    return { ...cognitiveState };
+                },
+                getGender() {
+                    return cognitiveState.detectedGender;
+                },
+                getGenderConfidence() {
+                    return cognitiveState.genderConfidence;
+                },
+                triggerReaction(type, customMessage = null) {
+                    triggerVisualReaction(type, customMessage);
+                },
+                resetBoredom() {
+                    cognitiveState.boredom = 0;
+                },
+                setChildMode(active) {
+                    cognitiveState.isChild = active;
+                    cognitiveState.childConfidence = active ? 0.8 : 0;
+                    const marquinhosEl = document.getElementById('marquinhos');
+                    if (marquinhosEl) {
+                        if (active) marquinhosEl.classList.add('child-mode');
+                        else marquinhosEl.classList.remove('child-mode');
+                    }
+                },
+                isChildDetected() {
+                    return cognitiveState.isChild;
+                },
+                callStart() {
+                    handleCallStart();
+                },
+                callEnd() {
+                    handleCallEnd();
+                },
+                isOnCall() {
+                    return cognitiveState.isOnCall;
+                },
+                getCallHistory() {
+                    return [...cognitiveState.callHistory];
+                },
+                getAudioDevices() {
+                    return [...cognitiveState.audioOutputDevices];
+                },
+                getBluetoothDevices() {
+                    return [...cognitiveState.bluetoothDevices];
+                },
+                isBluetoothConnected() {
+                    return cognitiveState.bluetoothConnected;
+                },
+                scanAudioDevices() {
+                    detectAudioDevices();
+                },
+                requestMicPermission() {
+                    return new Promise((resolve) => {
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            const msg = '⚠️ Tu navegador no soporta micrófono.';
+                            console.warn(msg);
+                            triggerVisualReaction('permission', msg);
+                            resolve(false);
+                            return;
+                        }
+
+                        const gender = cognitiveState.detectedGender;
+                        const isChild = cognitiveState.isChild;
+
+                        let permissionMsg;
+                        if (isChild) {
+                            permissionMsg = childSafePhrases.permission[Math.floor(Math.random() * childSafePhrases
+                                .permission.length)];
+                        } else if (gender === 'feminine') {
+                            permissionMsg = "Para poder escucharte, hermosa, necesito permiso del micrófono. ¿Me lo concedes?";
+                        } else if (gender === 'masculine') {
+                            permissionMsg = "Para poder escucharte, carnal, necesito permiso del micrófono. ¿Me lo concedes?";
+                        } else {
+                            permissionMsg = "Para poder escucharte, necesito permiso del micrófono. ¿Me lo concedes?";
+                        }
+
+                        triggerVisualReaction('permission', permissionMsg);
+
+                        navigator.mediaDevices.getUserMedia({ audio: true })
+                            .then((stream) => {
+                                cognitiveState._micStream = stream;
+                                cognitiveState._micActive = true;
+
+                                const micIndicator = document.getElementById('micIndicator');
+                                if (micIndicator) {
+                                    micIndicator.classList.add('active');
+                                    const status = document.getElementById('micStatus');
+                                    if (status) status.textContent = '🎤 Micrófono activo';
+                                }
+
+                                console.log('🎤 Permiso de micrófono concedido.');
+
+                                const activationMsg = getPhraseByGender('activation', cognitiveState
+                                    .detectedGender, cognitiveState.isChild);
+                                triggerVisualReaction('activation', activationMsg);
+                                resolve(true);
+                            })
+                            .catch((err) => {
+                                console.warn('⚠️ Permiso de micrófono denegado:', err);
+                                const msg = '⚠️ Necesito permiso del micrófono para poder escucharte.';
+                                triggerVisualReaction('permission', msg);
+                                resolve(false);
+                            });
+                    });
+                },
+                isMicActive() {
+                    return cognitiveState._micActive || false;
+                },
+                stopMic() {
+                    if (cognitiveState._micStream) {
+                        cognitiveState._micStream.getTracks().forEach(track => track.stop());
+                        cognitiveState._micStream = null;
+                        cognitiveState._micActive = false;
+                        const micIndicator = document.getElementById('micIndicator');
+                        if (micIndicator) {
+                            micIndicator.classList.remove('active');
+                            const status = document.getElementById('micStatus');
+                            if (status) status.textContent = '⏸️ Micrófono pausado';
+                        }
+                        console.log('⏸️ Micrófono detenido.');
+                    }
+                },
+                getActivationPhrase() {
+                    return getPhraseByGender('activation', cognitiveState.detectedGender, cognitiveState.isChild);
+                }
+            };
+
+            // ===== INICIALIZACIÓN =====
+            document.addEventListener('DOMContentLoaded', () => {
+                cognitiveLoopRunning = true;
+                requestAnimationFrame(cognitiveLoop);
+
+                setTimeout(() => {
+                    window.MarquinhosCognitiveAI.requestMicPermission();
+                }, 1500);
+
+                setTimeout(() => {
+                    const msg = '🎤 Di "Hola Marquinhos" para activarme';
+                    const bubble = document.getElementById('bubble');
+                    if (bubble) {
+                        bubble.innerHTML = `<strong>🎤 Marquinhos</strong> · ${msg}`;
+                    }
+                }, 3000);
+
+                console.log('🧠 Módulo Cognitivo de Marquinhos iniciado.');
+                console.log('👶 Detección infantil automática activada.');
+                console.log('👤 Detección de género por voz activada.');
+                console.log('📞 Manejo de llamadas: callStart() y callEnd()');
+                console.log('🎤 Micrófono: requestMicPermission()');
+                console.log('🔊 Bluetooth: scanAudioDevices()');
+            });
+
+            window.addEventListener('beforeunload', () => {
+                cognitiveLoopRunning = false;
+                if (cognitiveState._micStream) {
+                    cognitiveState._micStream.getTracks().forEach(track => track.stop());
+                }
+            });
+
+        })();
+
+
+        // ================================================================
+        // 2. MÓDULO PRINCIPAL DE MARQUINHOS
+        // ================================================================
+        (() => {
+            // ============================
+            // 1. ELEMENTOS Y ESTADO
+            // ============================
+            const marquinhosEl = document.getElementById('marquinhos');
+            const captionEl = document.getElementById('caption');
+            const bubbleEl = document.getElementById('bubble');
+            const irises = [...document.querySelectorAll('.iris')];
+            const eyes = [...document.querySelectorAll('.eye')];
+            const mouth = document.querySelector('.mouth');
+            const antennas = [...document.querySelectorAll('.antenna')];
+            const micIndicator = document.getElementById('micIndicator');
+            const micStatus = document.getElementById('micStatus');
+
+            const validEmotions = new Set([
+                'idle', 'happy', 'loving', 'sad', 'surprised', 'talking',
+                'waving', 'wink', 'excited', 'thinking', 'caring',
+                'grateful', 'embarrassed', 'curious', 'tired', 'thrilled'
+            ]);
+
+            const state = {
+                emotion: 'caring',
+                speaking: false,
+                audioLevel: 0,
+                targetLookX: 0,
+                targetLookY: 0,
+                lookX: 0,
+                lookY: 0,
+                targetTiltX: 0,
+                targetTiltY: 0,
+                tiltX: 0,
+                tiltY: 0,
+                nextBlink: performance.now() + 3000 + Math.random() * 3500,
+                blinkUntil: 0,
+                nextIdleAction: performance.now() + 3500 + Math.random() * 5000,
+                idleActionUntil: 0,
+                idleAction: '',
+                audioContext: null,
+                analyser: null,
+                audioData: null,
+                audioSource: null,
+                audioElement: null,
+                speechToken: 0,
+                lastFrame: performance.now(),
+                _audioPaused: false,
+                recognition: null,
+                isListening: false
+            };
+
+            let resetTimer = null;
+
+            // ============================
+            // 2. FUNCIONES DE UTILIDAD
+            // ============================
+            function clamp(value, min, max) {
+                return Math.max(min, Math.min(max, value));
+            }
+
+            function random(min, max) {
+                return min + Math.random() * (max - min);
+            }
+
+            function resetState() {
+                clearTimeout(resetTimer);
+                marquinhosEl.classList.remove(...validEmotions);
+                marquinhosEl.classList.add('caring');
+                if (!window.MarquinhosCognitiveAI || !window.MarquinhosCognitiveAI.isChildDetected()) {
+                    marquinhosEl.classList.remove('child-mode');
+                }
+                if (!window.MarquinhosCognitiveAI || !window.MarquinhosCognitiveAI.isOnCall()) {
+                    marquinhosEl.classList.remove('on-call');
+                }
+                state.emotion = 'caring';
+                state.speaking = false;
+                state.audioLevel = 0;
+                captionEl.textContent = 'Asistente de voz';
+                bubbleEl.innerHTML = '<strong>🎤 Marquinhos</strong> · Di "Hola Marquinhos" para activarme';
+            }
+
+            // ============================
+            // 3. RECONOCIMIENTO DE VOZ
+            // ============================
+            function initSpeechRecognition() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                if (!SpeechRecognition) {
+                    console.warn('⚠️ Speech Recognition no soportado en este navegador.');
+                    return;
+                }
+
+                state.recognition = new SpeechRecognition();
+                state.recognition.lang = 'es-MX';
+                state.recognition.continuous = true;
+                state.recognition.interimResults = true;
+                state.recognition.maxAlternatives = 1;
+
+                const activationWords = ['hola marquinhos', 'marquinhos', 'hey marquinhos', 'buenas marquinhos'];
+
+                state.recognition.onresult = (event) => {
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript.toLowerCase().trim();
+
+                        if (micStatus) {
+                            micStatus.textContent = '🎤 ' + (event.results[i].isFinal ? 'Escuchando...' : '...');
+                        }
+
+                        if (event.results[i].isFinal) {
+                            console.log('🎤 Dijiste:', transcript);
+
+                            const isActivation = activationWords.some(word => transcript.includes(word));
+
+                            if (isActivation) {
+                                const msg = window.MarquinhosCognitiveAI.getActivationPhrase();
+                                react('greet', msg);
+                                state.isListening = true;
+                                if (micIndicator) micIndicator.classList.add('active');
+                                continue;
+                            }
+
+                            if (state.isListening) {
+                                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
+                                    continue;
+                                }
+                                processVoiceCommand(transcript);
+                            }
+                        }
+                    }
+                };
+
+                state.recognition.onerror = (event) => {
+                    console.warn('⚠️ Error de reconocimiento:', event.error);
+                    if (event.error === 'not-allowed') {
+                        window.MarquinhosCognitiveAI.requestMicPermission();
+                    }
+                    if (state.isListening) {
+                        setTimeout(() => {
+                            try {
+                                state.recognition.start();
+                            } catch (e) {}
+                        }, 1000);
+                    }
+                };
+
+                state.recognition.onend = () => {
+                    if (state.isListening) {
+                        try {
+                            state.recognition.start();
+                        } catch (e) {}
+                    }
+                };
+
+                try {
+                    state.recognition.start();
+                    state.isListening = true;
+                    if (micIndicator) micIndicator.classList.add('active');
+                    if (micStatus) micStatus.textContent = '🎤 Escuchando...';
+                    console.log('🎤 Reconocimiento de voz iniciado.');
+                } catch (e) {
+                    console.warn('⚠️ No se pudo iniciar reconocimiento:', e);
+                }
+            }
+
+            // ============================
+            // 4. PROCESAR COMANDOS DE VOZ
+            // ============================
+            function processVoiceCommand(transcript) {
+                const text = transcript.toLowerCase();
+
+                if (text.includes('salir') || text.includes('adiós') || text.includes('hasta luego')) {
+                    state.isListening = false;
+                    if (micIndicator) micIndicator.classList.remove('active');
+                    if (micStatus) micStatus.textContent = '⏸️ En espera';
+
+                    const gender = window.MarquinhosCognitiveAI ? window.MarquinhosCognitiveAI.getGender() : 'neutral';
+                    let farewellMsg;
+                    if (gender === 'feminine') {
+                        farewellMsg = "¡Hasta luego, hermosa! Fue un placer.";
+                    } else if (gender === 'masculine') {
+                        farewellMsg = "¡Hasta luego, carnal! Fue un placer.";
+                    } else {
+                        farewellMsg = "¡Hasta luego! Fue un placer.";
+                    }
+
+                    setEmotion('waving', farewellMsg, 3000);
+                    speakWithBrowser(farewellMsg);
+
+                    setTimeout(() => {
+                        state.isListening = true;
+                        if (micIndicator) micIndicator.classList.add('active');
+                        if (micStatus) micStatus.textContent = '🎤 Escuchando...';
+                        if (state.recognition) {
+                            try {
+                                state.recognition.start();
+                            } catch (e) {}
+                        }
+                    }, 10000);
+                    return;
+                }
+
+                if (text.includes('gracias')) {
+                    const gender = window.MarquinhosCognitiveAI ? window.MarquinhosCognitiveAI.getGender() : 'neutral';
+                    let thanksMsg;
+                    if (gender === 'feminine') {
+                        thanksMsg = "¡De nada, hermosa! Es un placer ayudarte.";
+                    } else if (gender === 'masculine') {
+                        thanksMsg = "¡De nada, carnal! Es un placer ayudarte.";
+                    } else {
+                        thanksMsg = "¡De nada! Es un placer ayudarte.";
+                    }
+                    react('grateful', thanksMsg);
+                    return;
+                }
+
+                if (text.includes('cómo estás') || text.includes('qué tal')) {
+                    const gender = window.MarquinhosCognitiveAI ? window.MarquinhosCognitiveAI.getGender() : 'neutral';
+                    let howMsg;
+                    if (gender === 'feminine') {
+                        howMsg = "¡Estoy muy bien, hermosa! ¿Y tú cómo estás?";
+                    } else if (gender === 'masculine') {
+                        howMsg = "¡Estoy muy bien, carnal! ¿Y tú cómo estás?";
+                    } else {
+                        howMsg = "¡Estoy muy bien! ¿Y tú cómo estás?";
+                    }
+                    setEmotion('happy', howMsg, 3000);
+                    speakWithBrowser(howMsg);
+                    return;
+                }
+
+                if (text.includes('quién eres') || text.includes('qué haces')) {
+                    const gender = window.MarquinhosCognitiveAI ? window.MarquinhosCognitiveAI.getGender() : 'neutral';
+                    let whoMsg;
+                    if (gender === 'feminine') {
+                        whoMsg = "Soy Marquinhos, tu asistente de voz. Estoy aquí para ayudarte y acompañarte, hermosa.";
+                    } else if (gender === 'masculine') {
+                        whoMsg = "Soy Marquinhos, tu asistente de voz. Estoy aquí para ayudarte y acompañarte, carnal.";
+                    } else {
+                        whoMsg = "Soy Marquinhos, tu asistente de voz. Estoy aquí para ayudarte y acompañarte.";
+                    }
+                    setEmotion('caring', whoMsg, 5000);
+                    speakWithBrowser(whoMsg);
+                    return;
+                }
+
+                if (text.includes('hermosa') || text.includes('guapa') || text.includes('bonita') || text.includes('linda') ||
+                    text.includes('preciosa')) {
+                    const msg = "¡Qué lindo que me digas eso! Me haces sentir muy especial.";
+                    setEmotion('loving', msg, 3000);
+                    speakWithBrowser(msg);
+                    return;
+                }
+
+                if (text.includes('guapo') || text.includes('apuesto') || text.includes('chido') || text.includes('padre')) {
+                    const msg = "¡Gracias! Me alegra que pienses eso. ¿En qué te ayudo?";
+                    setEmotion('happy', msg, 3000);
+                    speakWithBrowser(msg);
+                    return;
+                }
+
+                if (text.includes('llamada') || text.includes('teléfono') || text.includes('llamar')) {
+                    if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.callStart) {
+                        window.MarquinhosCognitiveAI.callStart();
+                        const msg = 'Entendido, pausando para la llamada.';
+                        setEmotion('thinking', msg, 3000);
+                        speakWithBrowser(msg);
+                    }
+                    return;
+                }
+
+                if (text.includes('colgar') || text.includes('terminar llamada') || text.includes('finalizar')) {
+                    if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.callEnd) {
+                        window.MarquinhosCognitiveAI.callEnd();
+                    }
+                    return;
+                }
+
+                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
+                    return;
+                }
+
+                if (window.MarquinhosCognitiveAI && typeof window.MarquinhosCognitiveAI.evalInput === 'function') {
+                    const result = window.MarquinhosCognitiveAI.evalInput(text);
+                    if (result.message) {
+                        setEmotion('talking', result.message, 4500);
+                        speakWithBrowser(result.message);
+                        return;
+                    }
+                }
+
+                const isChild = window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected();
+                const gender = window.MarquinhosCognitiveAI ? window.MarquinhosCognitiveAI.getGender() : 'neutral';
+
+                let fallbackMsg;
+                if (isChild) {
+                    fallbackMsg = "No entendí bien lo que dijiste. ¿Podrías repetirlo, por favor?";
+                } else if (gender === 'feminine') {
+                    fallbackMsg = "No entendí bien, hermosa. ¿Podrías repetirlo?";
+                } else if (gender === 'masculine') {
+                    fallbackMsg = "No entendí bien, carnal. ¿Podrías repetirlo?";
+                } else {
+                    fallbackMsg = "No entendí bien, ¿puedes repetirlo?";
+                }
+                setEmotion('thinking', fallbackMsg, 3500);
+                speakWithBrowser(fallbackMsg);
+            }
+
+            // ============================
+            // 5. API PÚBLICA
+            // ============================
+            function setEmotion(emotion, text, duration = 3200) {
+                const next = validEmotions.has(emotion) ? emotion : 'caring';
+                clearTimeout(resetTimer);
+
+                marquinhosEl.classList.remove(...validEmotions);
+                marquinhosEl.classList.add(next);
+                state.emotion = next;
+
+                if (text) {
+                    let safeText = String(text);
+                    if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected()) {
+                        const offensiveWords = ['pendejo', 'wey', 'güey', 'chinga', 'verga', 'puto', 'culero', 'mamón'];
+                        for (const word of offensiveWords) {
+                            const regex = new RegExp(word, 'gi');
+                            safeText = safeText.replace(regex, '****');
+                        }
+                    }
+                    captionEl.textContent = safeText;
+                    bubbleEl.innerHTML = `<strong>🎤 Marquinhos</strong> · ${safeText}`;
+                }
+
+                if (duration > 0) {
+                    resetTimer = window.setTimeout(() => {
+                        if (!state.speaking) {
+                            resetState();
+                        }
+                    }, duration);
+                }
+            }
+
+            function setCaption(text) {
+                let safeText = String(text || '');
+                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected()) {
+                    const offensiveWords = ['pendejo', 'wey', 'güey', 'chinga', 'verga', 'puto', 'culero', 'mamón'];
+                    for (const word of offensiveWords) {
+                        const regex = new RegExp(word, 'gi');
+                        safeText = safeText.replace(regex, '****');
+                    }
+                }
+                captionEl.textContent = safeText;
+                bubbleEl.innerHTML = `<strong>🎤 Marquinhos</strong> · ${safeText}`;
+            }
+
+            function setLook(x = 0, y = 0) {
+                state.targetLookX = clamp(Number(x) || 0, -1, 1);
+                state.targetLookY = clamp(Number(y) || 0, -1, 1);
+            }
+
+            function setAudioLevel(level = 0) {
+                state.audioLevel = clamp(Number(level) || 0, 0, 1);
+            }
+
+            // ===== SPEAK =====
+            function speakWithBrowser(text, options = {}) {
+                if (!('speechSynthesis' in window)) {
+                    console.warn('Web Speech API no soportada.');
+                    return null;
+                }
+
+                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
+                    console.log('📞 En llamada, Marquinhos no habla.');
+                    return null;
+                }
+
+                let safeText = String(text || '');
+                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected()) {
+                    const offensiveWords = ['pendejo', 'wey', 'güey', 'chinga', 'verga', 'puto', 'culero', 'mamón', 'chingar'];
+                    for (const word of offensiveWords) {
+                        const regex = new RegExp(word, 'gi');
+                        safeText = safeText.replace(regex, 'amigo');
+                    }
+                    safeText = safeText.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.,;:!?¿¡]/g, '');
+                }
+
+                if (!safeText) return null;
+
+                const token = ++state.speechToken;
+                state.speaking = true;
+
+                const emotion = options.emotion || 'talking';
+                const label = options.caption || safeText;
+                setEmotion(emotion, label, 0);
+
+                const utterance = new SpeechSynthesisUtterance(safeText);
+
+                // Ajustar tono según género detectado
+                const gender = window.MarquinhosCognitiveAI ? window.MarquinhosCognitiveAI.getGender() : 'neutral';
+                if (gender === 'feminine') {
+                    utterance.pitch = 1.15; // Tono más agradable
+                    utterance.rate = 0.95; // Un poco más lento y suave
+                } else if (gender === 'masculine') {
+                    utterance.pitch = 0.95; // Tono más grave
+                    utterance.rate = 1.05; // Un poco más rápido
+                } else {
+                    utterance.pitch = 1.08;
+                    utterance.rate = 1;
+                }
+
+                utterance.lang = options.lang || 'es-MX';
+                utterance.volume = Number(options.volume) || 1;
+
+                utterance.onstart = () => {
+                    if (token !== state.speechToken) return;
+                    state.speaking = true;
+                    setEmotion(emotion, label, 0);
+                };
+
+                utterance.onboundary = () => {
+                    if (token !== state.speechToken) return;
+                    state.speaking = true;
+                    state.audioLevel = Math.max(state.audioLevel, 0.18);
+                };
+
+                utterance.onend = () => {
+                    if (token !== state.speechToken) return;
+                    state.speaking = false;
+                    state.audioLevel = 0;
+                    setEmotion('caring', 'Listo para escucharte.', 1800);
+                };
+
+                utterance.onerror = () => {
+                    if (token !== state.speechToken) return;
+                    state.speaking = false;
+                    state.audioLevel = 0;
+                    setEmotion('caring', 'Listo para escucharte.', 1800);
+                };
+
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+                return utterance;
+            }
+
+            // ===== REACT =====
+            function react(kind, message = '') {
+                const text = String(message).toLowerCase();
+
+                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
+                    const callMsg = '📞 Disculpa, estoy en una llamada. En cuanto termine, retomamos nuestra conversación.';
+                    setEmotion('thinking', callMsg, 3000);
+                    speakWithBrowser(callMsg);
+                    return;
+                }
+
+                const isChild = window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected();
+                const gender = window.MarquinhosCognitiveAI ? window.MarquinhosCognitiveAI.getGender() : 'neutral';
+
+                if (kind === 'greet' || text.includes('hola') || text.includes('buenas') || text.includes('bienvenido')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "¡Hola! Qué gusto verte. ¿Cómo estás hoy?";
+                    } else if (gender === 'feminine') {
+                        msg = "¡Hola, hermosa! Qué gusto verte. ¿Cómo estás hoy?";
+                    } else if (gender === 'masculine') {
+                        msg = "¡Qué onda, carnal! Qué gusto verte. ¿Cómo estás?";
+                    } else {
+                        msg = "Hola, qué gusto verte.";
+                    }
+                    setEmotion('waving', msg, 3800);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'happy' || text.includes('gracias') || text.includes('excelente') || text.includes('genial')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "¡Qué bien! Me alegra mucho que estés feliz.";
+                    } else if (gender === 'feminine') {
+                        msg = "¡Qué bien, hermosa! Me alegra mucho verte feliz.";
+                    } else if (gender === 'masculine') {
+                        msg = "¡Qué chido, carnal! Me alegra verte así.";
+                    } else {
+                        msg = "Me alegra mucho.";
+                    }
+                    setEmotion('happy', msg, 3000);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'loving' || text.includes('cariño') || text.includes('amor') || text.includes('te quiero')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "Yo también te quiero mucho. Eres muy especial.";
+                    } else if (gender === 'feminine') {
+                        msg = "Yo también te quiero mucho, hermosa. Eres muy especial.";
+                    } else if (gender === 'masculine') {
+                        msg = "Igual, carnal. Eres buena onda.";
+                    } else {
+                        msg = "Te acompaño con cariño.";
+                    }
+                    setEmotion('loving', msg, 4200);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'sad' || text.includes('triste') || text.includes('mal') || text.includes('problema')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "No te preocupes, todo va a estar bien. Estoy aquí contigo.";
+                    } else if (gender === 'feminine') {
+                        msg = "No te preocupes, hermosa. Todo va a estar bien. Estoy aquí para ti.";
+                    } else if (gender === 'masculine') {
+                        msg = "No te preocupes, carnal. Todo va a estar bien. Aquí andamos.";
+                    } else {
+                        msg = "Estoy contigo.";
+                    }
+                    setEmotion('sad', msg, 4200);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'surprised' || text.includes('wow') || text.includes('increíble') || text.includes('sorpresa')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "¡Qué increíble! Eso es muy interesante.";
+                    } else if (gender === 'feminine') {
+                        msg = "¡Qué increíble, hermosa! Eso es muy interesante.";
+                    } else if (gender === 'masculine') {
+                        msg = "¡Qué chido, carnal! Eso está muy padre.";
+                    } else {
+                        msg = "Qué interesante.";
+                    }
+                    setEmotion('surprised', msg, 2800);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'thinking' || text.includes('espera') || text.includes('pensando') || text.includes('analizando')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "Dame un momentito para pensar en eso.";
+                    } else if (gender === 'feminine') {
+                        msg = "Dame un momentito, hermosa. Estoy pensando.";
+                    } else if (gender === 'masculine') {
+                        msg = "Dame un segundito, carnal. Estoy analizando.";
+                    } else {
+                        msg = "Estoy pensando.";
+                    }
+                    setEmotion('thinking', msg, 3800);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'wink') {
+                    let msg;
+                    if (isChild) {
+                        msg = "¡Aquí estoy! Siempre listo para ayudarte.";
+                    } else if (gender === 'feminine') {
+                        msg = "¡Aquí estoy, hermosa! Siempre listo para ti.";
+                    } else if (gender === 'masculine') {
+                        msg = "¡Aquí andamos, carnal! Siempre al tiro.";
+                    } else {
+                        msg = "Aquí estoy.";
+                    }
+                    setEmotion('wink', msg, 2400);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'excited' || text.includes('vamos') || text.includes('celebrar')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "¡Vamos! Esto va a ser muy divertido.";
+                    } else if (gender === 'feminine') {
+                        msg = "¡Vamos, hermosa! Esto va a ser genial.";
+                    } else if (gender === 'masculine') {
+                        msg = "¡Vamos, carnal! Esto va a estar chido.";
+                    } else {
+                        msg = "¡Vamos!";
+                    }
+                    setEmotion('excited', msg, 2600);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'grateful' || text.includes('agradecido') || text.includes('muchas gracias')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "Gracias a ti por ser tan amable.";
+                    } else if (gender === 'feminine') {
+                        msg = "Gracias a ti, hermosa. Eres muy amable.";
+                    } else if (gender === 'masculine') {
+                        msg = "Gracias a ti, carnal. Eres buena onda.";
+                    } else {
+                        msg = "Gracias por confiar en mí.";
+                    }
+                    setEmotion('grateful', msg, 3200);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'embarrassed' || text.includes('error') || text.includes('vergüenza')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "No pasa nada, todos cometemos errores. Lo importante es aprender.";
+                    } else if (gender === 'feminine') {
+                        msg = "No pasa nada, hermosa. Todos cometemos errores. Lo importante es aprender.";
+                    } else if (gender === 'masculine') {
+                        msg = "No pasa nada, carnal. Todos la cagamos a veces. Lo importante es aprender.";
+                    } else {
+                        msg = "Ups... tienes razón.";
+                    }
+                    setEmotion('embarrassed', msg, 3200);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'curious' || text.includes('qué opinas') || text.includes('por qué')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "¡Qué buena pregunta! Vamos a descubrir la respuesta juntos.";
+                    } else if (gender === 'feminine') {
+                        msg = "¡Qué buena pregunta, hermosa! Vamos a descubrir la respuesta juntos.";
+                    } else if (gender === 'masculine') {
+                        msg = "¡Qué buena pregunta, carnal! Vamos a ver qué onda.";
+                    } else {
+                        msg = "Quiero entender mejor.";
+                    }
+                    setEmotion('curious', msg, 3200);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'tired' || text.includes('cansado') || text.includes('mucho tiempo')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "Vamos a descansar un poquito, ¿te parece?";
+                    } else if (gender === 'feminine') {
+                        msg = "Vamos a descansar un poquito, hermosa. ¿Te parece?";
+                    } else if (gender === 'masculine') {
+                        msg = "Vamos a descansar un ratito, carnal. ¿Qué dices?";
+                    } else {
+                        msg = "Tomemos un pequeño descanso.";
+                    }
+                    setEmotion('tired', msg, 3600);
+                    speakWithBrowser(msg);
+                    return;
+                }
+                if (kind === 'thrilled' || text.includes('lo logramos') || text.includes('celebración')) {
+                    let msg;
+                    if (isChild) {
+                        msg = "¡Lo logramos! ¡Eso es fantástico!";
+                    } else if (gender === 'feminine') {
+                        msg = "¡Lo logramos, hermosa! ¡Eso es fantástico!";
+                    } else if (gender === 'masculine') {
+                        msg = "¡Lo logramos, carnal! ¡Qué chido!";
+                    } else {
+                        msg = "¡Esto es extraordinario!";
+                    }
+                    setEmotion('thrilled', msg, 3200);
+                    speakWithBrowser(msg);
+                    return;
+                }
+
+                let fallbackMsg;
+                if (isChild) {
+                    fallbackMsg = "Cuéntame más, me interesa mucho lo que dices.";
+                } else if (gender === 'feminine') {
+                    fallbackMsg = "Cuéntame más, hermosa. Me interesa mucho lo que dices.";
+                } else if (gender === 'masculine') {
+                    fallbackMsg = "Cuéntame más, carnal. Me interesa lo que dices.";
+                } else {
+                    fallbackMsg = "Cuéntame más.";
+                }
+                setEmotion('talking', fallbackMsg, 2600);
+                speakWithBrowser(fallbackMsg);
+            }
+
+            function talk(text) {
+                let safeText = String(text || '');
+                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected()) {
+                    const offensiveWords = ['pendejo', 'wey', 'güey', 'chinga', 'verga', 'puto', 'culero', 'mamón', 'chingar'];
+                    for (const word of offensiveWords) {
+                        const regex = new RegExp(word, 'gi');
+                        safeText = safeText.replace(regex, 'amigo');
+                    }
+                    safeText = safeText.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.,;:!?¿¡]/g, '');
+                }
+                if (!safeText) safeText = "Dime algo, por favor.";
+                setEmotion('talking', safeText, Math.max(2200, safeText.length * 55));
+                speakWithBrowser(safeText);
+            }
+
+            // ============================
+            // 6. LOOP DE ANIMACIÓN
+            // ============================
+            function analyseAudio() {
+                if (!state.analyser || !state.audioData) {
+                    if (!state.speaking) state.audioLevel *= 0.88;
+                    return;
+                }
+                state.analyser.getByteTimeDomainData(state.audioData);
+                let sum = 0;
+                for (let i = 0; i < state.audioData.length; i += 1) {
+                    const normalized = (state.audioData[i] - 128) / 128;
+                    sum += normalized * normalized;
+                }
+                const rms = Math.sqrt(sum / state.audioData.length);
+                const level = clamp(rms * 5.2, 0, 1);
+                state.audioLevel += (level - state.audioLevel) * 0.28;
+                state.speaking = level > 0.025;
+            }
+
+            function blink(now) {
+                if (now >= state.nextBlink && now > state.blinkUntil) {
+                    state.blinkUntil = now + 135;
+                    state.nextBlink = now + 3200 + Math.random() * 5000;
+                }
+                const blinking = now < state.blinkUntil;
+                eyes.forEach((eye, index) => {
+                    if (blinking) {
+                        eye.style.clipPath = 'inset(46% 0 46% 0 round 50%)';
+                        if (index === 1) eye.style.transform = 'scaleY(.94)';
+                    } else {
+                        eye.style.clipPath = 'none';
+                        eye.style.transform = 'scaleY(1)';
+                    }
+                });
+            }
+
+            function performIdleAction(now) {
+                if (now < state.nextIdleAction) return;
+                const actions = ['lookLeft', 'lookRight', 'nod', 'listen', 'antenna'];
+                state.idleAction = actions[Math.floor(Math.random() * actions.length)];
+                state.idleActionUntil = now + random(900, 1800);
+                state.nextIdleAction = now + random(3600, 7200);
+
+                if (state.idleAction === 'lookLeft') setLook(-0.75, -0.04);
+                if (state.idleAction === 'lookRight') setLook(0.75, -0.04);
+                if (state.idleAction === 'nod') {
+                    state.targetTiltX = random(-3, 3);
+                    state.targetTiltY = random(-5, 5);
+                }
+                if (state.idleAction === 'listen') {
+                    state.targetTiltY = random(-8, 8);
+                    state.targetTiltX = random(2, 5);
+                }
+            }
+
+            function finishIdleAction(now) {
+                if (state.idleAction && now > state.idleActionUntil) {
+                    state.idleAction = '';
+                    setLook(0, 0);
+                    state.targetTiltX = 0;
+                    state.targetTiltY = 0;
+                }
+            }
+
+            function updateLookAndPosture(delta) {
+                const emotion = state.emotion;
+                let lookX = state.targetLookX;
+                let lookY = state.targetLookY;
+                let tiltX = state.targetTiltX;
+                let tiltY = state.targetTiltY;
+
+                if (emotion === 'thinking') {
+                    lookX = 0.35;
+                    lookY = -0.45;
+                    tiltY += 5;
+                }
+                if (emotion === 'curious') {
+                    lookX += 0.18;
+                    tiltY += 3;
+                }
+                if (emotion === 'surprised') {
+                    lookY = -0.2;
+                    tiltX -= 3;
+                }
+                if (emotion === 'tired') {
+                    lookY += 0.12;
+                    tiltX += 2;
+                }
+                if (emotion === 'talking') {
+                    tiltY += Math.sin(performance.now() / 870) * 2.2;
+                    tiltX += Math.sin(performance.now() / 1130) * 1.2;
+                }
+
+                state.lookX += (lookX - state.lookX) * delta * 7;
+                state.lookY += (lookY - state.lookY) * delta * 7;
+                state.tiltX += (tiltX - state.tiltX) * delta * 5;
+                state.tiltY += (tiltY - state.tiltY) * delta * 5;
+
+                const card = document.querySelector('.marquinhos .card');
+                if (card) {
+                    card.style.transform =
+                        `rotateX(${2 + state.tiltX * 0.3}deg) rotateY(${state.tiltY * 0.3}deg)`;
+                }
+
+                irises.forEach((iris) => {
+                    iris.style.transform =
+                        `translate(${state.lookX * 7}px, ${state.lookY * 4}px)`;
+                });
+            }
+
+            function updateActing(now) {
+                const level = state.audioLevel;
+                const talking = state.speaking || level > 0.03;
+
+                if (talking) {
+                    const width = 38 + level * 18;
+                    const height = 8 + level * 17;
+                    mouth.style.width = `${width}px`;
+                    mouth.style.height = `${height}px`;
+                    antennas.forEach((antenna, index) => {
+                        const rotation = Math.sin(now / 180 + index) * (5 + level * 12);
+                        antenna.style.transform = `rotate(${rotation}deg)`;
+                    });
+                } else {
+                    mouth.style.width = '';
+                    mouth.style.height = '';
+                    antennas.forEach((antenna, index) => {
+                        const rotation = Math.sin(now / 850 + index) * 7;
+                        antenna.style.transform = `rotate(${rotation}deg)`;
+                    });
+                }
+            }
+
+            function animationLoop(now) {
+                const delta = Math.min((now - state.lastFrame) / 1000, 0.05);
+                state.lastFrame = now;
+
+                analyseAudio();
+                blink(now);
+                performIdleAction(now);
+                finishIdleAction(now);
+                updateLookAndPosture(delta);
+                updateActing(now);
+
+                requestAnimationFrame(animationLoop);
+            }
+
+            // ============================
+            // 7. EXPONER API GLOBAL
+            // ============================
+            window.Marquinhos = {
+                react,
+                talk,
+                setEmotion,
+                setLook,
+                setCaption,
+                setAudioLevel,
+                speak: speakWithBrowser,
+                reset: resetState,
+                startListening: () => {
+                    if (!state.recognition) {
+                        initSpeechRecognition();
+                    }
+                    state.isListening = true;
+                    if (micIndicator) micIndicator.classList.add('active');
+                    if (micStatus) micStatus.textContent = '🎤 Escuchando...';
+                    try {
+                        state.recognition.start();
+                    } catch (e) {}
+                },
+                stopListening: () => {
+                    state.isListening = false;
+                    if (micIndicator) micIndicator.classList.remove('active');
+                    if (micStatus) micStatus.textContent = '⏸️ En espera';
+                    try {
+                        state.recognition.stop();
+                    } catch (e) {}
+                },
+                isListening: () => state.isListening,
+                _audioPaused: false
+            };
+
+            // ============================
+            // 8. INICIALIZACIÓN
+            // ============================
+            setTimeout(() => {
+                initSpeechRecognition();
+            }, 2000);
+
+            requestAnimationFrame(animationLoop);
+
+            console.log('🚀 Marquinhos · Asistente de voz con detección de género.');
+            console.log('🎤 Di "Hola Marquinhos" para activarlo.');
+            console.log('👤 Detecta automáticamente si eres femenino o masculino.');
+            console.log('👶 También detecta si eres niño para modo seguro.');
+            console.log('📦 API expuesta: window.Marquinhos');
+            console.log('🧠 Módulo cognitivo: window.MarquinhosCognitiveAI');
+
+            document.addEventListener('click', () => {
+                if (!window.MarquinhosCognitiveAI.isMicActive()) {
+                    window.MarquinhosCognitiveAI.requestMicPermission();
+                }
+            }, { once: true });
+
+        })();
+    </script>
 </body>
 </html>
