@@ -430,7 +430,10 @@
       background:var(--cream);
       filter:blur(4px);
       opacity:.86;
-      transition:transform .3s ease,opacity .3s ease;
+      transition:
+        transform .3s ease,
+        opacity .3s ease,
+        background .3s ease;
     }
 
     .cheek.left{
@@ -1009,8 +1012,84 @@
       border-bottom-width:5px;
     }
 
-    .marquinhos[data-emotion="surprised"] .head{
-      animation:surpriseHead .7s ease-out both;
+    /* Emociones nuevas */
+
+    .marquinhos[data-emotion="grateful"] .mouth{
+      width:43px;
+      height:19px;
+      border-bottom-width:5px;
+    }
+
+    .marquinhos[data-emotion="grateful"] .cheek{
+      opacity:1;
+      transform:scale(1.18);
+    }
+
+    .marquinhos[data-emotion="grateful"] .brow.left{
+      transform:rotate(-3deg) translateY(-2px);
+    }
+
+    .marquinhos[data-emotion="grateful"] .brow.right{
+      transform:rotate(3deg) translateY(-2px);
+    }
+
+    .marquinhos[data-emotion="embarrassed"] .cheek{
+      opacity:1;
+      transform:scale(1.55);
+      background:var(--terracotta);
+    }
+
+    .marquinhos[data-emotion="embarrassed"] .mouth{
+      width:25px;
+      height:12px;
+      border-bottom-width:3px;
+    }
+
+    .marquinhos[data-emotion="embarrassed"] .head{
+      animation:embarrassedHead 1.2s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="curious"] .brow.left{
+      transform:rotate(-18deg) translateY(-5px);
+    }
+
+    .marquinhos[data-emotion="curious"] .brow.right{
+      transform:rotate(5deg) translateY(1px);
+    }
+
+    .marquinhos[data-emotion="curious"] .head{
+      animation:curiousHead 1.6s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="tired"] .eye::before{
+      transform:scaleY(.42);
+    }
+
+    .marquinhos[data-emotion="tired"] .brow.left,
+    .marquinhos[data-emotion="tired"] .brow.right{
+      top:40px;
+      transform:rotate(4deg);
+    }
+
+    .marquinhos[data-emotion="tired"] .mouth{
+      width:31px;
+      height:9px;
+      border-bottom-width:3px;
+    }
+
+    .marquinhos[data-emotion="thrilled"]{
+      animation:thrilledBounce .48s ease-in-out infinite alternate;
+    }
+
+    .marquinhos[data-emotion="thrilled"] .mouth{
+      width:50px;
+      height:27px;
+      border-bottom-width:5px;
+    }
+
+    .marquinhos[data-emotion="thrilled"] .cheek{
+      opacity:1;
+      transform:scale(1.35);
     }
 
     @keyframes bodyFloat{
@@ -1109,6 +1188,36 @@
       }
     }
 
+    @keyframes embarrassedHead{
+      from{
+        transform:translateX(-50%) translateZ(28px) rotateZ(-2deg);
+      }
+
+      to{
+        transform:translateX(-50%) translateZ(28px) rotateZ(3deg) translateY(3px);
+      }
+    }
+
+    @keyframes curiousHead{
+      from{
+        transform:translateX(-50%) translateZ(28px) rotateZ(-4deg);
+      }
+
+      to{
+        transform:translateX(-50%) translateZ(28px) rotateZ(4deg);
+      }
+    }
+
+    @keyframes thrilledBounce{
+      from{
+        transform:translateY(0) scale(1);
+      }
+
+      to{
+        transform:translateY(-12px) scale(1.035);
+      }
+    }
+
     @media (max-width:520px){
       .marquinhos{
         transform:scale(.88);
@@ -1121,7 +1230,8 @@
       .body,
       .antenna,
       .mouth,
-      .hand{
+      .hand,
+      .head{
         animation:none !important;
         transition:none !important;
       }
@@ -1218,7 +1328,12 @@
         "wink",
         "excited",
         "thinking",
-        "caring"
+        "caring",
+        "grateful",
+        "embarrassed",
+        "curious",
+        "tired",
+        "thrilled"
       ]);
 
       const state = {
@@ -1511,9 +1626,19 @@
           tiltY += 5;
         }
 
+        if (emotion === "curious"){
+          lookX += .18;
+          tiltY += 3;
+        }
+
         if (emotion === "surprised"){
           lookY = -.2;
           tiltX -= 3;
+        }
+
+        if (emotion === "tired"){
+          lookY += .12;
+          tiltX += 2;
         }
 
         if (emotion === "talking"){
@@ -1531,9 +1656,9 @@
         character.style.setProperty("--tilt-x", `${state.tiltX}deg`);
         character.style.setProperty("--tilt-y", `${state.tiltY}deg`);
 
-        irises.forEach((iris,index) => {
-          const side = index === 0 ? 1 : 1;
-          iris.style.transform = `translate(${state.lookX * 7 * side}px,${state.lookY * 4}px)`;
+        irises.forEach((iris) => {
+          iris.style.transform =
+            `translate(${state.lookX * 7}px,${state.lookY * 4}px)`;
         });
       }
 
@@ -1584,7 +1709,8 @@
           kind === "greet" ||
           text.includes("hola") ||
           text.includes("buenas") ||
-          text.includes("bienvenido")
+          text.includes("bienvenido") ||
+          text.includes("saludar")
         ){
           setEmotion("waving","Hola, qué gusto verte.",3000);
           return;
@@ -1624,7 +1750,8 @@
           kind === "surprised" ||
           text.includes("wow") ||
           text.includes("increíble") ||
-          text.includes("sorpresa")
+          text.includes("sorpresa") ||
+          text.includes("sorpréndeme")
         ){
           setEmotion("surprised","Qué interesante.",2600);
           return;
@@ -1634,7 +1761,8 @@
           kind === "thinking" ||
           text.includes("pensando") ||
           text.includes("analizando") ||
-          text.includes("espera")
+          text.includes("espera") ||
+          text.includes("piensa")
         ){
           setEmotion("thinking","Estoy pensando.",3200);
           return;
@@ -1651,6 +1779,54 @@
           text.includes("celebrar")
         ){
           setEmotion("excited","¡Vamos!",2600);
+          return;
+        }
+
+        if (
+          kind === "grateful" ||
+          text.includes("muchas gracias") ||
+          text.includes("te agradezco") ||
+          text.includes("agradecido")
+        ){
+          setEmotion("grateful","Gracias por confiar en mí.",3200);
+          return;
+        }
+
+        if (
+          kind === "embarrassed" ||
+          text.includes("te equivocaste") ||
+          text.includes("error") ||
+          text.includes("vergüenza")
+        ){
+          setEmotion("embarrassed","Ups... tienes razón.",3200);
+          return;
+        }
+
+        if (
+          kind === "curious" ||
+          text.includes("qué opinas") ||
+          text.includes("por qué") ||
+          text.includes("pregunta")
+        ){
+          setEmotion("curious","Quiero entender mejor.",3200);
+          return;
+        }
+
+        if (
+          kind === "tired" ||
+          text.includes("cansado") ||
+          text.includes("mucho tiempo")
+        ){
+          setEmotion("tired","Tomemos un pequeño descanso.",3600);
+          return;
+        }
+
+        if (
+          kind === "thrilled" ||
+          text.includes("lo logramos") ||
+          text.includes("celebración")
+        ){
+          setEmotion("thrilled","¡Esto es extraordinario!",3200);
           return;
         }
 
