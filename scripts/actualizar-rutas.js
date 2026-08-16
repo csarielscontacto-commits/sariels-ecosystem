@@ -5,7 +5,7 @@
  * Script para actualizar automáticamente las rutas de los archivos features.
  * 
  * Hecho en Puebla, México 🇲🇽
- * Versión: 2.1.0 (SIN MEMES)
+ * Versión: 3.0.0 (RUTAS ACTUALIZADAS)
  * ================================================================
  */
 
@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 // ================================================================
-// 📋 CONFIGURACIÓN (ACTUALIZADO - SIN MEMES)
+// 📋 CONFIGURACIÓN (ACTUALIZADO - RUTAS CORRECTAS)
 // ================================================================
 
 const FEATURES_DIR = './features';
@@ -38,7 +38,7 @@ const ARCHIVOS = [
 ];
 
 // ================================================================
-// 🔄 PATRONES DE REEMPLAZO
+// 🔄 PATRONES DE REEMPLAZO (ACTUALIZADOS)
 // ================================================================
 
 const REPLACEMENTS = [
@@ -86,6 +86,24 @@ const REPLACEMENTS = [
     { 
         find: /href="\.\.\/aviso-privacidad\.html"/g, 
         replace: 'href="../../aviso-privacidad.html"' 
+    },
+
+    // === TIENDA (ahora está en la raíz) ===
+    { 
+        find: /href="\.\.\/tienda\/index\.html"/g, 
+        replace: 'href="../../tienda.html"' 
+    },
+    { 
+        find: /href="\.\.\/features\/tienda\/index\.html"/g, 
+        replace: 'href="../../tienda.html"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/tienda\.html"/g, 
+        replace: 'href="../../tienda.html"' 
+    },
+    { 
+        find: /href="\/tienda\.html"/g, 
+        replace: 'href="../../tienda.html"' 
     },
 
     // === RUTAS DE ADMIN Y LEGALES ===
@@ -153,6 +171,10 @@ const REPLACEMENTS = [
         find: /src="\.\.\/\.\.\/\.\.\/js\//g, 
         replace: 'src="../../js/"' 
     },
+    { 
+        find: /src="\/js\//g, 
+        replace: 'src="../../js/"' 
+    },
 
     // === RUTAS DE CSS ===
     { 
@@ -162,6 +184,38 @@ const REPLACEMENTS = [
     { 
         find: /href="\.\.\/css\//g, 
         replace: 'href="../../css/"' 
+    },
+    { 
+        find: /href="\/css\//g, 
+        replace: 'href="../../css/"' 
+    },
+
+    // === RUTAS DE IMÁGENES ===
+    { 
+        find: /src="\.\.\/\.\.\/img\//g, 
+        replace: 'src="../../img/"' 
+    },
+    { 
+        find: /src="\.\.\/img\//g, 
+        replace: 'src="../../img/"' 
+    },
+    { 
+        find: /src="\/img\//g, 
+        replace: 'src="../../img/"' 
+    },
+
+    // === RUTAS DE ASSETS ===
+    { 
+        find: /href="\.\.\/\.\.\/assets\//g, 
+        replace: 'href="../../assets/"' 
+    },
+    { 
+        find: /href="\.\.\/assets\//g, 
+        replace: 'href="../../assets/"' 
+    },
+    { 
+        find: /href="\/assets\//g, 
+        replace: 'href="../../assets/"' 
     }
 ];
 
@@ -216,13 +270,23 @@ console.log(`📁 Procesando ${ARCHIVOS.length} archivos...`);
 console.log('');
 
 let totalModificados = 0;
+let totalErrores = 0;
 
 for (const archivo of ARCHIVOS) {
-    const result = procesarArchivo(archivo);
-    if (result) totalModificados++;
+    try {
+        const result = procesarArchivo(archivo);
+        if (result) totalModificados++;
+    } catch (error) {
+        console.error(`❌ Error procesando ${archivo}:`, error.message);
+        totalErrores++;
+    }
 }
 
 console.log('');
-console.log(`✅ Proceso completado. ${totalModificados} de ${ARCHIVOS.length} archivos modificados.`);
+console.log(`✅ Proceso completado.`);
+console.log(`   📄 ${totalModificados} archivos modificados`);
+console.log(`   ⚠️ ${totalErrores} errores`);
+console.log(`   📁 ${ARCHIVOS.length - totalModificados - totalErrores} archivos sin cambios`);
+console.log('');
 console.log('📍 Hecho en Puebla, México 🇲🇽');
-console.log('📌 MEMES eliminado del ecosistema');
+console.log('🛍️ Tienda ahora en la raíz (tienda.html)');
