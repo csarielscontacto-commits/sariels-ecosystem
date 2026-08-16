@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🛍️ Tienda de ropa Marquinhos - Voltron</title>
+  <title>🛍️ Tienda de ropa Marquinhos - Csariel's</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="importmap">
   {
@@ -14,75 +14,406 @@
   }
   </script>
   <style>
-    :root { --gold: #d4af37; --verde: #0f2d1a; }
-    #marquinhos-widget {
-      position: fixed; bottom: 24px; right: 24px;
-      width: 180px; height: 260px; z-index: 9999;
-      cursor: grab; touch-action: none; user-select: none;
+    :root {
+      --gold: #d4af37;
+      --verde: #0f2d1a;
+      --crema: #f5efe0;
+      --verde-claro: #1a4a2a;
     }
-    #marquinhos-widget:active { cursor: grabbing; }
+
+    /* ===== FONDO CON PLANTILLA ===== */
+    body {
+      background: var(--verde);
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(15, 45, 26, 0.3) 0%, transparent 50%);
+      min-height: 100vh;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    /* ===== HEADER CON LOGO ===== */
+    .header-csariel {
+      background: rgba(15, 45, 26, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-csariel {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-csariel .hex {
+      font-size: 2rem;
+      background: var(--verde);
+      color: var(--gold);
+      padding: 2px 12px;
+      border-radius: 8px;
+      border: 2px solid var(--gold);
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+    }
+
+    .logo-csariel .text {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), var(--verde-claro));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-csariel .badge {
+      font-size: 0.5rem;
+      background: var(--gold);
+      color: var(--verde);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-family: 'Orbitron', monospace;
+    }
+
+    /* ===== TIENDA ===== */
+    .tienda-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .tienda-titulo {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, var(--gold), #b8923a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 20px 0;
+      text-shadow: 0 0 40px rgba(212, 175, 55, 0.1);
+    }
+
+    .tienda-subtitulo {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    /* ===== CATÁLOGO ===== */
+    .catalogo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .card-ropa {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .card-ropa:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212, 175, 55, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 30px rgba(212, 175, 55, 0.05);
+    }
+
+    .card-ropa .icono {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .card-ropa .nombre {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+
+    .card-ropa .precio {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      color: var(--gold);
+      margin: 4px 0 8px;
+    }
+
+    .card-ropa .btn-vestir {
+      background: var(--gold);
+      border: none;
+      border-radius: 30px;
+      padding: 4px 14px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--verde);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .card-ropa .btn-vestir:hover {
+      background: #b8923a;
+      transform: scale(1.05);
+    }
+
+    .card-ropa .badge-equipado {
+      font-size: 0.5rem;
+      color: #4ade80;
+      font-weight: 700;
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* ===== BOTONES DE ACCIÓN ===== */
+    .acciones {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .btn-accion {
+      padding: 8px 24px;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-accion:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-voltron {
+      background: linear-gradient(135deg, var(--gold), #b8923a);
+      color: var(--verde);
+    }
+
+    .btn-limpiar {
+      background: rgba(255, 50, 50, 0.8);
+      color: white;
+    }
+
+    /* ===== WIDGET ===== */
+    #marquinhos-widget {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 180px;
+      height: 260px;
+      z-index: 9999;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    #marquinhos-widget:active {
+      cursor: grabbing;
+    }
+
+    /* ===== VOLTRON ===== */
     .pieza-voltron {
-      position: fixed; width: 40px; height: 40px;
-      background: var(--gold); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10000; font-size: 24px;
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      font-size: 24px;
       box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
       transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
-    @keyframes wave { 0%,100%{transform:rotate(0)} 50%{transform:rotate(20deg)} }
-    .saludando { animation: wave 0.4s 3; }
-    .ropa-equipada {
-      position: absolute; inset: 0;
-      pointer-events: none; z-index: 10;
+
+    @keyframes wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      50% {
+        transform: rotate(20deg);
+      }
     }
+    .saludando {
+      animation: wave 0.4s 3;
+    }
+
+    /* ===== ROPA EQUIPADA ===== */
+    .ropa-equipada {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
     .ropa-item {
       position: absolute;
       pointer-events: none;
       z-index: 11;
       transition: all 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
       animation: vestirAnim 0.6s ease-out;
       will-change: transform;
     }
+
     @keyframes vestirAnim {
-      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
-      60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
-      100% { transform: scale(1) rotate(0deg); }
+      0% {
+        transform: scale(0) rotate(-20deg);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.2) rotate(5deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+      }
     }
+
     @keyframes voltronFlash {
-      0% { filter: brightness(1) drop-shadow(0 0 0 transparent); transform: scale(1); }
-      25% { filter: brightness(2) drop-shadow(0 0 30px #D4AF37); transform: scale(1.05); }
-      50% { filter: brightness(1.5) drop-shadow(0 0 60px #00e5ff); transform: scale(0.95); }
-      75% { filter: brightness(2) drop-shadow(0 0 30px #D4AF37); transform: scale(1.03); }
-      100% { filter: brightness(1) drop-shadow(0 0 0 transparent); transform: scale(1); }
+      0% {
+        filter: brightness(1) drop-shadow(0 0 0 transparent);
+        transform: scale(1);
+      }
+      25% {
+        filter: brightness(2) drop-shadow(0 0 30px #D4AF37);
+        transform: scale(1.05);
+      }
+      50% {
+        filter: brightness(1.5) drop-shadow(0 0 60px #00e5ff);
+        transform: scale(0.95);
+      }
+      75% {
+        filter: brightness(2) drop-shadow(0 0 30px #D4AF37);
+        transform: scale(1.03);
+      }
+      100% {
+        filter: brightness(1) drop-shadow(0 0 0 transparent);
+        transform: scale(1);
+      }
+    }
+
+    /* ===== TOAST ===== */
+    .toast-csariel {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--verde);
+      color: var(--gold);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: bold;
+      z-index: 99999;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      font-size: 0.8rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      animation: toastAnim 0.3s ease-out;
+      font-family: 'Orbitron', monospace;
+    }
+
+    @keyframes toastAnim {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .catalogo-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .card-ropa {
+        padding: 12px 8px;
+      }
+      .card-ropa .icono {
+        font-size: 2rem;
+      }
+      .tienda-titulo {
+        font-size: 1.3rem;
+      }
+      .header-csariel {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 16px;
+      }
+      .logo-csariel .text {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center pt-8">
+<body>
 
-  <!-- ===== BOTONES DE AUTENTICACIÓN ===== -->
-  <div class="fixed top-4 left-4 space-x-2 z-50">
-    <button onclick="loginConGoogle()" class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-sm font-bold">
-      🔑 Login
-    </button>
-    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded text-sm font-bold">
-      🚪 Logout
-    </button>
+  <!-- ===== HEADER CON LOGO ===== -->
+  <header class="header-csariel">
+    <a href="/" class="logo-csariel">
+      <span class="hex">◈</span>
+      <span class="text">Csariel's</span>
+      <span class="badge">Tienda</span>
+    </a>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+      <button onclick="loginConGoogle()" class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-sm font-bold">
+        🔑 Login
+      </button>
+      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded text-sm font-bold">
+        🚪 Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== TIENDA ===== -->
+  <div class="tienda-container">
+
+    <h1 class="tienda-titulo">🛍️ Marquinhos Dress to Impress</h1>
+    <p class="tienda-subtitulo">Viste a tu asistente con el mejor estilo · Hecho en Puebla 🇲🇽</p>
+
+    <!-- ===== CATÁLOGO ===== -->
+    <div id="catalogo" class="catalogo-grid"></div>
+
+    <!-- ===== ACCIONES ===== -->
+    <div class="acciones">
+      <button onclick="invocarMarquinhos()" class="btn-accion btn-voltron">
+        ⚡ INVOCAR VOLTRON
+      </button>
+      <button onclick="limpiarRopa()" class="btn-accion btn-limpiar">
+        🧹 Limpiar Ropa
+      </button>
+    </div>
+
   </div>
 
-  <!-- ===== CATÁLOGO ===== -->
-  <section class="w-full max-w-4xl mb-8 px-4">
-    <h1 class="text-3xl font-bold text-center mb-4">🛍️ Catálogo Marquinhos</h1>
-    <div id="catalogo" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-    <button onclick="invocarMarquinhos()" class="mt-6 mx-auto block bg-[#d4af37] hover:bg-[#b8923a] px-6 py-2 rounded-full font-bold transition">
-      ⚡ INVOCAR VOLTRON
-    </button>
-    <button onclick="limpiarRopa()" class="mt-2 mx-auto block bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-full font-bold transition">
-      🧹 Limpiar Ropa
-    </button>
-  </section>
-
-  <!-- ===== WIDGET FLOTANTE DE MARQUINHOS ===== -->
+  <!-- ===== WIDGET FLOTANTE ===== -->
   <div id="marquinhos-widget"></div>
 
   <!-- ================================================================ -->
@@ -103,42 +434,6 @@
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     window.supabase = supabase;
-
-    // ================================================================
-    // 🔒 ACTIVAR RLS EN SUPABASE (ejecutar al inicio)
-    // ================================================================
-
-    async function activarRLS() {
-      try {
-        // Verificar si la tabla perfiles existe y tiene RLS
-        const { error } = await supabase
-          .from('perfiles')
-          .select('user_id')
-          .limit(1);
-
-        if (error && error.message.includes('permission denied')) {
-          console.log('🔒 RLS ya está activado en perfiles');
-          return;
-        }
-
-        // Si no hay error, intentar activar RLS (esto requiere permisos de admin)
-        // En la práctica, el usuario debe ejecutar esto en SQL de Supabase
-        console.log('⚠️ Para activar RLS, ejecuta en SQL de Supabase:');
-        console.log(`
-          -- Activa RLS
-          alter table perfiles enable row level security;
-
-          -- Solo el dueño puede ver/editar su outfit
-          create policy "usuarios solo su outfit" on perfiles
-          for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-        `);
-      } catch (e) {
-        console.warn('⚠️ No se pudo verificar RLS:', e);
-      }
-    }
-
-    // Ejecutar verificación de RLS
-    activarRLS();
 
     // ================================================================
     // 👤 AUTH FUNCTIONS
@@ -169,10 +464,11 @@
     };
 
     // ================================================================
-    // 📦 INVENTARIO DE ROPA
+    // 📦 INVENTARIO DE ROPA CON LOGO DE CSARIEL'S
     // ================================================================
 
     const INVENTARIO_ROPA = {
+      // ===== GORROS =====
       gorra_america: {
         category: 'gorro',
         name: 'Gorra América',
@@ -181,8 +477,7 @@
         emoji: '🧢',
         top: '-8px',
         left: '20px',
-        size: '28px',
-        modelPath: null
+        size: '28px'
       },
       sombrero_charro: {
         category: 'gorro',
@@ -192,8 +487,7 @@
         emoji: '🤠',
         top: '-12px',
         left: '15px',
-        size: '32px',
-        modelPath: null
+        size: '32px'
       },
       casco_astronauta: {
         category: 'gorro',
@@ -203,9 +497,10 @@
         emoji: '🚀',
         top: '-10px',
         left: '18px',
-        size: '30px',
-        modelPath: null
+        size: '30px'
       },
+
+      // ===== PLAYERAS =====
       playera_puebla: {
         category: 'playera',
         name: 'Playera Puebla FC',
@@ -214,8 +509,7 @@
         emoji: '⚽',
         top: '20px',
         left: '30px',
-        size: '24px',
-        modelPath: null
+        size: '24px'
       },
       traje_godin: {
         category: 'playera',
@@ -225,8 +519,7 @@
         emoji: '💼',
         top: '20px',
         left: '30px',
-        size: '24px',
-        modelPath: null
+        size: '24px'
       },
       traje_batman: {
         category: 'playera',
@@ -236,8 +529,7 @@
         emoji: '🦇',
         top: '20px',
         left: '30px',
-        size: '24px',
-        modelPath: null
+        size: '24px'
       },
       playera_aladdin: {
         category: 'playera',
@@ -247,9 +539,32 @@
         emoji: '🧞',
         top: '20px',
         left: '30px',
-        size: '24px',
-        modelPath: null
+        size: '24px'
       },
+      // 🆕 PLAYERA CSARIEL'S CON LOGO
+      playera_csariel: {
+        category: 'playera',
+        name: '◈ Csariel\'s',
+        precio: 49,
+        icono: '◈',
+        emoji: '◈',
+        top: '18px',
+        left: '28px',
+        size: '28px',
+        description: 'Playera oficial con el logo de Csariel\'s'
+      },
+      traje_pan_cancha: {
+        category: 'playera',
+        name: '🥖 Traje Pan Cancha',
+        precio: 69,
+        icono: '🥖',
+        emoji: '🥖',
+        top: '15px',
+        left: '25px',
+        size: '28px'
+      },
+
+      // ===== PANTALONES =====
       short_playa: {
         category: 'pantalon',
         name: 'Short Playa',
@@ -258,8 +573,7 @@
         emoji: '🏖️',
         top: '50px',
         left: '35px',
-        size: '20px',
-        modelPath: null
+        size: '20px'
       },
       mezclilla: {
         category: 'pantalon',
@@ -269,9 +583,10 @@
         emoji: '👖',
         top: '50px',
         left: '35px',
-        size: '20px',
-        modelPath: null
+        size: '20px'
       },
+
+      // ===== TENIS =====
       crocs: {
         category: 'tenis',
         name: 'Crocs',
@@ -280,8 +595,7 @@
         emoji: '🩴',
         top: '75px',
         left: '20px',
-        size: '18px',
-        modelPath: null
+        size: '18px'
       },
       jordan: {
         category: 'tenis',
@@ -291,9 +605,10 @@
         emoji: '👟',
         top: '75px',
         left: '20px',
-        size: '18px',
-        modelPath: null
+        size: '18px'
       },
+
+      // ===== EXTRAS =====
       lentes_sol: {
         category: 'extras',
         name: 'Lentes de Sol',
@@ -302,8 +617,7 @@
         emoji: '🕶️',
         top: '15px',
         left: '25px',
-        size: '22px',
-        modelPath: null
+        size: '22px'
       },
       cadena_oro: {
         category: 'extras',
@@ -313,8 +627,7 @@
         emoji: '⛓️',
         top: '30px',
         left: '40px',
-        size: '18px',
-        modelPath: null
+        size: '18px'
       },
       capa_heroe: {
         category: 'extras',
@@ -324,19 +637,18 @@
         emoji: '🦸',
         top: '10px',
         left: '15px',
-        size: '35px',
-        modelPath: null
+        size: '35px'
       },
-      playera_csariel: {
-        category: 'playera',
-        name: 'Playera Csariel\'s',
-        precio: 49,
-        icono: '◈',
-        emoji: '◈',
-        top: '20px',
-        left: '30px',
+      baguette: {
+        category: 'extras',
+        name: '🥖 Baguette Francesa',
+        precio: 19,
+        icono: '🥖',
+        emoji: '🥖',
+        top: '35px',
+        left: '55px',
         size: '24px',
-        modelPath: null
+        rotation: '15deg'
       }
     };
 
@@ -377,7 +689,7 @@
     }
 
     // ================================================================
-    // 👕 VESTIR A MARQUINHOS REAL (con física)
+    // 👕 VESTIR A MARQUINHOS REAL
     // ================================================================
 
     function vestirMarquinhosReal(itemId) {
@@ -385,7 +697,6 @@
       const item = INVENTARIO_ROPA[itemId];
       if (!item) return;
 
-      // Crear contenedor de ropa
       let capaRopa = widget.querySelector('.ropa-equipada');
       if (!capaRopa) {
         capaRopa = document.createElement('div');
@@ -394,7 +705,6 @@
         widget.appendChild(capaRopa);
       }
 
-      // Limpiar items de la misma categoría
       const itemsPrevios = capaRopa.querySelectorAll(`.ropa-item-${item.category}`);
       itemsPrevios.forEach(el => {
         el.style.transition = 'all 0.3s ease';
@@ -403,16 +713,16 @@
         setTimeout(() => el.remove(), 300);
       });
 
-      // Si es extra, verificar si ya existe
       if (item.category === 'extras') {
         const existente = capaRopa.querySelector(`.ropa-item[data-item-id="${itemId}"]`);
         if (existente) return;
       }
 
-      // Crear elemento de ropa
       const ropaEl = document.createElement('div');
       ropaEl.className = `ropa-item ropa-item-${item.category}`;
       ropaEl.dataset.itemId = itemId;
+
+      const rotacion = item.rotation || '0deg';
       ropaEl.style.cssText = `
         position: absolute;
         top: ${item.top || '0px'};
@@ -424,17 +734,23 @@
         filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
         animation: vestirAnim 0.6s ease-out;
         will-change: transform;
+        transform: rotate(${rotacion});
       `;
-      ropaEl.textContent = item.emoji || item.icono;
 
-      // Guardar referencia para física
-      ropaEl._posX = 0;
-      ropaEl._posY = 0;
+      // Si es la playera de Csariel's, mostrar emoji especial
+      if (itemId === 'playera_csariel') {
+        ropaEl.textContent = '◈';
+        ropaEl.style.fontSize = '32px';
+        ropaEl.style.fontWeight = '900';
+        ropaEl.style.color = '#d4af37';
+        ropaEl.style.textShadow = '0 0 20px rgba(212, 175, 55, 0.3)';
+      } else {
+        ropaEl.textContent = item.emoji || item.icono;
+      }
 
       capaRopa.appendChild(ropaEl);
       ropaItems.push(ropaEl);
 
-      // Actualizar outfitActual
       if (item.category === 'extras') {
         if (!outfitActual.extras.includes(itemId)) {
           outfitActual.extras.push(itemId);
@@ -449,7 +765,6 @@
         outfitActual[mapCategoria[item.category]] = itemId;
       }
 
-      // Guardar
       guardarOutfitLocal();
       guardarOutfitSupabase();
 
@@ -533,7 +848,7 @@
       }
     }
 
-    function limpiarRopa() {
+    window.limpiarRopa = function() {
       const widget = obtenerWidget();
       const capaRopa = widget.querySelector('.ropa-equipada');
       if (capaRopa) capaRopa.innerHTML = '';
@@ -542,8 +857,8 @@
       guardarOutfitLocal();
       guardarOutfitSupabase();
       renderCatalogo();
-      console.log('🧹 Ropa limpiada');
-    }
+      mostrarToast('🧹 Ropa limpiada');
+    };
 
     // ================================================================
     // 🎨 THREE.JS - ESCENA 3D
@@ -572,7 +887,7 @@
       dir.position.set(1, 2, 1);
       scene.add(dir);
 
-      // Base Marquinhos
+      // Base Marquinhos con color dorado
       const baseGeo = new THREE.SphereGeometry(0.5, 32, 32);
       const baseMat = new THREE.MeshStandardMaterial({
         color: 0xd4af37,
@@ -623,14 +938,14 @@
     }
 
     // ================================================================
-    // 👆 ARRASTRE CON FÍSICA SUELTA (¡NUEVO!)
+    // 👆 ARRASTRE CON FÍSICA SUELTA
     // ================================================================
 
     function hacerDraggable(widget) {
       let dragging = false;
       let startX, startY, origX, origY;
-      let lastDx = 0, lastDy = 0;
-      let animationId = null;
+      let lastDx = 0,
+        lastDy = 0;
 
       widget.addEventListener('pointerdown', (e) => {
         dragging = true;
@@ -650,19 +965,16 @@
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
 
-        // Mover widget
         widget.style.left = (origX + dx) + 'px';
         widget.style.top = (origY + dy) + 'px';
         widget.style.right = 'auto';
         widget.style.bottom = 'auto';
 
-        // Calcular velocidad
         const velX = dx - lastDx;
         const velY = dy - lastDy;
         lastDx = dx;
         lastDy = dy;
 
-        // Aplicar física suelta a la ropa
         const capaRopa = widget.querySelector('.ropa-equipada');
         if (capaRopa) {
           const items = capaRopa.querySelectorAll('.ropa-item');
@@ -673,7 +985,6 @@
             const yOffset = -dy * factor + velY * 2.5;
             const rot = dx * 0.08 + velX * 0.5;
 
-            // Aplicar con retraso para efecto de gelatina
             clearTimeout(item._physicsTimeout);
             item._physicsTimeout = setTimeout(() => {
               item.style.transform = `translate(${xOffset}px, ${yOffset}px) rotate(${rot}deg)`;
@@ -686,7 +997,6 @@
         dragging = false;
         widget.style.cursor = 'grab';
 
-        // Regresar la ropa a su posición con efecto de rebote
         const capaRopa = widget.querySelector('.ropa-equipada');
         if (capaRopa) {
           const items = capaRopa.querySelectorAll('.ropa-item');
@@ -711,7 +1021,7 @@
     }
 
     // ================================================================
-    // ⚡ TRANSFORMACIÓN VOLTRON (10 partes)
+    // ⚡ TRANSFORMACIÓN VOLTRON
     // ================================================================
 
     window.invocarMarquinhos = async function() {
@@ -765,26 +1075,34 @@
 
       for (const [id, item] of Object.entries(INVENTARIO_ROPA)) {
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow p-3 flex flex-col items-center';
+        card.className = 'card-ropa';
 
         const icon = document.createElement('span');
-        icon.textContent = item.icono || '👕';
-        icon.className = 'text-4xl mb-2';
+        icon.className = 'icono';
+        if (id === 'playera_csariel') {
+          icon.textContent = '◈';
+          icon.style.color = '#d4af37';
+          icon.style.fontSize = '3.5rem';
+          icon.style.fontWeight = '900';
+          icon.style.textShadow = '0 0 30px rgba(212, 175, 55, 0.3)';
+        } else {
+          icon.textContent = item.icono || '👕';
+        }
         card.appendChild(icon);
 
-        const name = document.createElement('p');
+        const name = document.createElement('div');
+        name.className = 'nombre';
         name.textContent = item.name;
-        name.className = 'text-sm font-medium text-center';
         card.appendChild(name);
 
-        const price = document.createElement('p');
+        const price = document.createElement('div');
+        price.className = 'precio';
         price.textContent = `$${item.precio}`;
-        price.className = 'text-xs text-gray-500 font-bold';
         card.appendChild(price);
 
         const btn = document.createElement('button');
+        btn.className = 'btn-vestir';
         btn.textContent = '👕 Vestir';
-        btn.className = 'mt-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1 rounded transition';
         btn.onclick = () => {
           vestirMarquinhosReal(id);
           renderCatalogo();
@@ -800,8 +1118,8 @@
 
         if (estaEquipado) {
           const badge = document.createElement('span');
-          badge.textContent = '✅';
-          badge.className = 'text-xs text-green-600 font-bold mt-1';
+          badge.className = 'badge-equipado';
+          badge.textContent = '✅ Equipado';
           card.appendChild(badge);
         }
 
@@ -815,15 +1133,8 @@
 
     function mostrarToast(mensaje) {
       const toast = document.createElement('div');
+      toast.className = 'toast-csariel';
       toast.textContent = mensaje;
-      toast.style.cssText = `
-        position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-        background: #0f2d1a; color: #d4af37; padding: 10px 20px;
-        border-radius: 12px; font-weight: bold; z-index: 99999;
-        border: 1px solid rgba(212, 175, 55, 0.3);
-        font-size: 0.8rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        animation: toastAnim 0.3s ease-out;
-      `;
       document.body.appendChild(toast);
 
       setTimeout(() => {
@@ -851,15 +1162,15 @@
         console.warn('⚠️ No se pudo hacer login anónimo:', e);
       }
 
-      console.log('🛍️ Tienda Marquinhos lista!');
+      console.log('🛍️ Tienda Marquinhos - Csariel\'s Edition');
       console.log('👕 Items disponibles:', Object.keys(INVENTARIO_ROPA).length);
-      console.log('💡 Usa vestirMarquinhosReal("id") para vestirlo');
-      console.log('🔄 La ropa tiene física suelta al arrastrar!');
+      console.log('◈ Playera Csariel\'s con logo incluido!');
+      console.log('🥖 Traje de Pan de Cancha y Baguette agregados!');
+      console.log('💡 Usa vestirMarquinhosReal("playera_csariel") para el logo');
     }
 
     // Exponer funciones globales
     window.vestirMarquinhosReal = vestirMarquinhosReal;
-    window.limpiarRopa = limpiarRopa;
     window.invocarMarquinhos = invocarMarquinhos;
     window.mostrarToast = mostrarToast;
     window.renderCatalogo = renderCatalogo;
