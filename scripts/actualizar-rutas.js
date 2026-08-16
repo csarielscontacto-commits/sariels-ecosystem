@@ -2,10 +2,10 @@
  * ================================================================
  * 🔧 ACTUALIZADOR DE RUTAS - Csariel's Ecosystem
  * ================================================================
- * Script para actualizar automáticamente las rutas de los archivos features.
+ * Script para actualizar automáticamente las rutas de los archivos.
  * 
  * Hecho en Puebla, México 🇲🇽
- * Versión: 3.0.0 (RUTAS ACTUALIZADAS)
+ * Versión: 4.0.0 (CORREGIDO - BASADO EN ESTRUCTURA ACTUAL)
  * ================================================================
  */
 
@@ -13,19 +13,21 @@ const fs = require('fs');
 const path = require('path');
 
 // ================================================================
-// 📋 CONFIGURACIÓN (ACTUALIZADO - RUTAS CORRECTAS)
+// 📋 CONFIGURACIÓN
 // ================================================================
 
 const FEATURES_DIR = './features';
 const ARCHIVOS = [
+    // Features principales
     'red/index.html',
     'live/index.html',
     'trading/index.html',
     'servicios/index.html',
     'internet/index.html',
-    'tienda/index.html',
     'wallet/index.html',
     'admin/index.html',
+    'foro/index.html',
+    // Legales
     'contrato-creador/index.html',
     'derechos-autor/index.html',
     'legal-hub/index.html',
@@ -38,184 +40,356 @@ const ARCHIVOS = [
 ];
 
 // ================================================================
-// 🔄 PATRONES DE REEMPLAZO (ACTUALIZADOS)
+// 🔄 PATRONES DE REEMPLAZO (CORREGIDOS)
 // ================================================================
 
 const REPLACEMENTS = [
-    // === ENLACES A FEATURES ===
-    { 
-        find: /href="\.\.\/usuario\/index\.html"/g, 
-        replace: 'href="../red/index.html"' 
-    },
-    { 
-        find: /href="\.\.\/mired\/index\.html"/g, 
-        replace: 'href="../red/index.html"' 
-    },
-    { 
-        find: /href="\.\.\/memes\/index\.html"/g, 
-        replace: 'href="../foro/index.html"' 
-    },
-    { 
-        find: /href="memes\/index\.html"/g, 
-        replace: 'href="foro/index.html"' 
-    },
-    { 
-        find: /href="\.\.\/terminos-uso\/index\.html"/g, 
-        replace: 'href="../../terminos-completos.html"' 
-    },
-    { 
-        find: /href="\.\.\/terminos-completos\.html"/g, 
-        replace: 'href="../../terminos-completos.html"' 
-    },
-    { 
-        find: /href="terminos-completos\.html"/g, 
-        replace: 'href="../../terminos-completos.html"' 
-    },
-    { 
-        find: /href="\.\.\/\.\.\/terminos-completos\.html"/g, 
-        replace: 'href="../../terminos-completos.html"' 
-    },
-    { 
-        find: /href="\.\.\/privacidad\/index\.html"/g, 
-        replace: 'href="../../aviso-privacidad.html"' 
-    },
-    { 
-        find: /href="aviso-privacidad\.html"/g, 
-        replace: 'href="../../aviso-privacidad.html"' 
-    },
-    { 
-        find: /href="\.\.\/aviso-privacidad\.html"/g, 
-        replace: 'href="../../aviso-privacidad.html"' 
-    },
-
     // === TIENDA (ahora está en la raíz) ===
     { 
         find: /href="\.\.\/tienda\/index\.html"/g, 
-        replace: 'href="../../tienda.html"' 
+        replace: 'href="/tienda.html"' 
     },
     { 
         find: /href="\.\.\/features\/tienda\/index\.html"/g, 
-        replace: 'href="../../tienda.html"' 
+        replace: 'href="/tienda.html"' 
+    },
+    { 
+        find: /href="tienda\/index\.html"/g, 
+        replace: 'href="/tienda.html"' 
     },
     { 
         find: /href="\.\.\/\.\.\/tienda\.html"/g, 
-        replace: 'href="../../tienda.html"' 
+        replace: 'href="/tienda.html"' 
     },
     { 
         find: /href="\/tienda\.html"/g, 
-        replace: 'href="../../tienda.html"' 
+        replace: 'href="/tienda.html"' 
     },
 
-    // === RUTAS DE ADMIN Y LEGALES ===
+    // === RED SOCIAL ===
+    { 
+        find: /href="\.\.\/usuario\/index\.html"/g, 
+        replace: 'href="/features/red/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/mired\/index\.html"/g, 
+        replace: 'href="/features/red/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/red\/index\.html"/g, 
+        replace: 'href="/features/red/index.html"' 
+    },
+
+    // === FORO (reemplazar memes) ===
+    { 
+        find: /href="\.\.\/memes\/index\.html"/g, 
+        replace: 'href="/features/foro/index.html"' 
+    },
+    { 
+        find: /href="memes\/index\.html"/g, 
+        replace: 'href="/features/foro/index.html"' 
+    },
+
+    // === TÉRMINOS Y CONDICIONES ===
+    { 
+        find: /href="\.\.\/terminos-uso\/index\.html"/g, 
+        replace: 'href="/terminos-completos.html"' 
+    },
+    { 
+        find: /href="\.\.\/terminos-completos\.html"/g, 
+        replace: 'href="/terminos-completos.html"' 
+    },
+    { 
+        find: /href="terminos-completos\.html"/g, 
+        replace: 'href="/terminos-completos.html"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/terminos-completos\.html"/g, 
+        replace: 'href="/terminos-completos.html"' 
+    },
+
+    // === AVISO DE PRIVACIDAD ===
+    { 
+        find: /href="\.\.\/privacidad\/index\.html"/g, 
+        replace: 'href="/aviso-privacidad.html"' 
+    },
+    { 
+        find: /href="aviso-privacidad\.html"/g, 
+        replace: 'href="/aviso-privacidad.html"' 
+    },
+    { 
+        find: /href="\.\.\/aviso-privacidad\.html"/g, 
+        replace: 'href="/aviso-privacidad.html"' 
+    },
+
+    // === FEATURES (desde cualquier nivel a la raíz) ===
     { 
         find: /href="\.\.\/admin\/index\.html"/g, 
-        replace: 'href="../admin/index.html"' 
+        replace: 'href="/features/admin/index.html"' 
     },
     { 
-        find: /href="\.\.\/contrato-creador\/index\.html"/g, 
-        replace: 'href="../contrato-creador/index.html"' 
+        find: /href="\.\.\/live\/index\.html"/g, 
+        replace: 'href="/features/live/index.html"' 
     },
     { 
-        find: /href="\.\.\/derechos-autor\/index\.html"/g, 
-        replace: 'href="../derechos-autor/index.html"' 
+        find: /href="\.\.\/trading\/index\.html"/g, 
+        replace: 'href="/features/trading/index.html"' 
     },
     { 
-        find: /href="\.\.\/legal-hub\/index\.html"/g, 
-        replace: 'href="../legal-hub/index.html"' 
+        find: /href="\.\.\/servicios\/index\.html"/g, 
+        replace: 'href="/features/servicios/index.html"' 
     },
     { 
-        find: /href="\.\.\/moderacion\/index\.html"/g, 
-        replace: 'href="../moderacion/index.html"' 
+        find: /href="\.\.\/internet\/index\.html"/g, 
+        replace: 'href="/features/internet/index.html"' 
     },
     { 
-        find: /href="\.\.\/talaverin\/index\.html"/g, 
-        replace: 'href="../talaverin/index.html"' 
+        find: /href="\.\.\/wallet\/index\.html"/g, 
+        replace: 'href="/features/wallet/index.html"' 
     },
     { 
-        find: /href="\.\.\/rewards\/index\.html"/g, 
-        replace: 'href="../rewards/index.html"' 
+        find: /href="\.\.\/foro\/index\.html"/g, 
+        replace: 'href="/features/foro/index.html"' 
+    },
+
+    // === FEATURES (desde subcarpetas) ===
+    { 
+        find: /href="\.\.\/\.\.\/admin\/index\.html"/g, 
+        replace: 'href="/features/admin/index.html"' 
     },
     { 
-        find: /href="\.\.\/takedown\/index\.html"/g, 
-        replace: 'href="../takedown/index.html"' 
+        find: /href="\.\.\/\.\.\/live\/index\.html"/g, 
+        replace: 'href="/features/live/index.html"' 
     },
     { 
-        find: /href="\.\.\/terminos-servicios\/index\.html"/g, 
-        replace: 'href="../terminos-servicios/index.html"' 
+        find: /href="\.\.\/\.\.\/trading\/index\.html"/g, 
+        replace: 'href="/features/trading/index.html"' 
     },
     { 
-        find: /href="\.\.\/faq-legal\/index\.html"/g, 
-        replace: 'href="../faq-legal/index.html"' 
+        find: /href="\.\.\/\.\.\/servicios\/index\.html"/g, 
+        replace: 'href="/features/servicios/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/internet\/index\.html"/g, 
+        replace: 'href="/features/internet/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/wallet\/index\.html"/g, 
+        replace: 'href="/features/wallet/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/foro\/index\.html"/g, 
+        replace: 'href="/features/foro/index.html"' 
     },
 
     // === ENLACES A INICIO ===
     { 
         find: /href="\.\.\/index\.html"/g, 
-        replace: 'href="../../index.html"' 
+        replace: 'href="/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/index\.html"/g, 
+        replace: 'href="/index.html"' 
     },
     { 
         find: /href="\.\.\/\.\.\/\.\.\/index\.html"/g, 
-        replace: 'href="../../index.html"' 
+        replace: 'href="/index.html"' 
+    },
+    { 
+        find: /href="\/index\.html"/g, 
+        replace: 'href="/index.html"' 
     },
 
-    // === RUTAS DE JS ===
+    // === RUTAS DE JS (absolutas) ===
     { 
         find: /src="\.\.\/\.\.\/js\//g, 
-        replace: 'src="../../js/"' 
+        replace: 'src="/js/"' 
     },
     { 
         find: /src="\.\.\/js\//g, 
-        replace: 'src="../../js/"' 
+        replace: 'src="/js/"' 
     },
     { 
         find: /src="\.\.\/\.\.\/\.\.\/js\//g, 
-        replace: 'src="../../js/"' 
+        replace: 'src="/js/"' 
     },
     { 
         find: /src="\/js\//g, 
-        replace: 'src="../../js/"' 
+        replace: 'src="/js/"' 
     },
 
-    // === RUTAS DE CSS ===
+    // === RUTAS DE CSS (absolutas) ===
     { 
         find: /href="\.\.\/\.\.\/css\//g, 
-        replace: 'href="../../css/"' 
+        replace: 'href="/css/"' 
     },
     { 
         find: /href="\.\.\/css\//g, 
-        replace: 'href="../../css/"' 
+        replace: 'href="/css/"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/\.\.\/css\//g, 
+        replace: 'href="/css/"' 
     },
     { 
         find: /href="\/css\//g, 
-        replace: 'href="../../css/"' 
+        replace: 'href="/css/"' 
     },
 
-    // === RUTAS DE IMÁGENES ===
+    // === RUTAS DE IMÁGENES (absolutas) ===
     { 
         find: /src="\.\.\/\.\.\/img\//g, 
-        replace: 'src="../../img/"' 
+        replace: 'src="/img/"' 
     },
     { 
         find: /src="\.\.\/img\//g, 
-        replace: 'src="../../img/"' 
+        replace: 'src="/img/"' 
+    },
+    { 
+        find: /src="\.\.\/\.\.\/\.\.\/img\//g, 
+        replace: 'src="/img/"' 
     },
     { 
         find: /src="\/img\//g, 
-        replace: 'src="../../img/"' 
+        replace: 'src="/img/"' 
     },
 
-    // === RUTAS DE ASSETS ===
+    // === RUTAS DE ASSETS (absolutas) ===
     { 
         find: /href="\.\.\/\.\.\/assets\//g, 
-        replace: 'href="../../assets/"' 
+        replace: 'href="/assets/"' 
     },
     { 
         find: /href="\.\.\/assets\//g, 
-        replace: 'href="../../assets/"' 
+        replace: 'href="/assets/"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/\.\.\/assets\//g, 
+        replace: 'href="/assets/"' 
     },
     { 
         find: /href="\/assets\//g, 
-        replace: 'href="../../assets/"' 
+        replace: 'href="/assets/"' 
+    },
+
+    // === RUTAS DE FAVICON ===
+    { 
+        find: /href="\.\.\/\.\.\/icon-192\.png"/g, 
+        replace: 'href="/icon-192.png"' 
+    },
+    { 
+        find: /href="\.\.\/icon-192\.png"/g, 
+        replace: 'href="/icon-192.png"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/icon-512\.png"/g, 
+        replace: 'href="/icon-512.png"' 
+    },
+    { 
+        find: /href="\.\.\/icon-512\.png"/g, 
+        replace: 'href="/icon-512.png"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/manifest\.json"/g, 
+        replace: 'href="/manifest.json"' 
+    },
+    { 
+        find: /href="\.\.\/manifest\.json"/g, 
+        replace: 'href="/manifest.json"' 
+    },
+
+    // === RUTAS DE SUPABASE ===
+    { 
+        find: /src="\.\.\/\.\.\/supabase\//g, 
+        replace: 'src="/supabase/"' 
+    },
+    { 
+        find: /src="\.\.\/supabase\//g, 
+        replace: 'src="/supabase/"' 
+    },
+    { 
+        find: /src="\/supabase\//g, 
+        replace: 'src="/supabase/"' 
+    },
+
+    // === RUTAS DE PERFIL-CONNECTOR ===
+    { 
+        find: /src="\.\.\/\.\.\/js\/perfil-connector\.js"/g, 
+        replace: 'src="/js/perfil-connector.js"' 
+    },
+    { 
+        find: /src="\.\.\/js\/perfil-connector\.js"/g, 
+        replace: 'src="/js/perfil-connector.js"' 
+    },
+
+    // === RUTAS DE CLIENT-CONFIG ===
+    { 
+        find: /src="\.\.\/\.\.\/js\/client-config-loader\.js"/g, 
+        replace: 'src="/js/client-config-loader.js"' 
+    },
+    { 
+        find: /src="\.\.\/js\/client-config-loader\.js"/g, 
+        replace: 'src="/js/client-config-loader.js"' 
+    },
+
+    // === CORREGIR DOBLES BARRAS ===
+    { 
+        find: /href="\/\//g, 
+        replace: 'href="/"' 
+    },
+    { 
+        find: /src="\/\//g, 
+        replace: 'src="/"' 
+    },
+
+    // === LOGOS Y BADGES ===
+    { 
+        find: /logo-badge" data-i18n="ecosistema">Ecosistema/g, 
+        replace: 'logo-badge">Ecosistema' 
+    },
+    { 
+        find: /<span data-i18n="conectado">Conectado<\/span>/g, 
+        replace: '<span>Conectado</span>' 
+    },
+    { 
+        find: /data-i18n="mi_red">Mi Red<\/span>/g, 
+        replace: 'Mi Red</span>' 
+    },
+    { 
+        find: /data-i18n="live">Live<\/span>/g, 
+        replace: 'Live</span>' 
+    },
+    { 
+        find: /data-i18n="foro">Foro<\/span>/g, 
+        replace: 'Foro</span>' 
+    },
+    { 
+        find: /data-i18n="trading">Trading<\/span>/g, 
+        replace: 'Trading</span>' 
+    },
+    { 
+        find: /data-i18n="servicios">Servicios<\/span>/g, 
+        replace: 'Servicios</span>' 
+    },
+    { 
+        find: /data-i18n="internet">Internet<\/span>/g, 
+        replace: 'Internet</span>' 
+    },
+    { 
+        find: /data-i18n="tienda">Tienda<\/span>/g, 
+        replace: 'Tienda</span>' 
+    },
+    { 
+        find: /data-i18n="wallet">Wallet<\/span>/g, 
+        replace: 'Wallet</span>' 
+    },
+    { 
+        find: /data-i18n="admin">Admin<\/span>/g, 
+        replace: 'Admin</span>' 
+    },
+    { 
+        find: /data-i18n="terminos">Términos<\/span>/g, 
+        replace: 'Términos</span>' 
     }
 ];
 
@@ -271,11 +445,16 @@ console.log('');
 
 let totalModificados = 0;
 let totalErrores = 0;
+let totalSinCambios = 0;
 
 for (const archivo of ARCHIVOS) {
     try {
         const result = procesarArchivo(archivo);
-        if (result) totalModificados++;
+        if (result) {
+            totalModificados++;
+        } else {
+            totalSinCambios++;
+        }
     } catch (error) {
         console.error(`❌ Error procesando ${archivo}:`, error.message);
         totalErrores++;
@@ -286,7 +465,8 @@ console.log('');
 console.log(`✅ Proceso completado.`);
 console.log(`   📄 ${totalModificados} archivos modificados`);
 console.log(`   ⚠️ ${totalErrores} errores`);
-console.log(`   📁 ${ARCHIVOS.length - totalModificados - totalErrores} archivos sin cambios`);
+console.log(`   📁 ${totalSinCambios} archivos sin cambios`);
 console.log('');
 console.log('📍 Hecho en Puebla, México 🇲🇽');
 console.log('🛍️ Tienda ahora en la raíz (tienda.html)');
+console.log('📌 Todas las rutas son absolutas (/)');
