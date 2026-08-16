@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛍️ Tienda de ropa Marquinhos - Voltron</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    :root { --gold: #d4af37; --verde: #0f2d1a; }
+    #marquinhos-widget {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 180px; height: 260px; z-index: 9999;
+      cursor: grab; touch-action: none; user-select: none;
+    }
+    #marquinhos-widget:active { cursor: grabbing; }
+    .pieza-voltron {
+      position: fixed; width: 40px; height: 40px;
+      background: var(--gold); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; font-size: 24px;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+      transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    @keyframes wave { 0%,100%{transform:rotate(0)} 50%{transform:rotate(20deg)} }
+    .saludando { animation: wave 0.4s 3; }
+    .ropa-equipada {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 10;
+    }
+    .ropa-item {
+      position: absolute;
+      pointer-events: none;
+      z-index: 11;
+      transition: all 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+      animation: vestirAnim 0.6s ease-out;
+      will-change: transform;
+    }
+    @keyframes vestirAnim {
+      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    @keyframes voltronFlash {
+      0% { filter: brightness(1) drop-shadow(0 0 0 transparent); transform: scale(1); }
+      25% { filter: brightness(2) drop-shadow(0 0 30px #D4AF37); transform: scale(1.05); }
+      50% { filter: brightness(1.5) drop-shadow(0 0 60px #00e5ff); transform: scale(0.95); }
+      75% { filter: brightness(2) drop-shadow(0 0 30px #D4AF37); transform: scale(1.03); }
+      100% { filter: brightness(1) drop-shadow(0 0 0 transparent); transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center pt-8">
+
+  <!-- ===== BOTONES DE AUTENTICACIÓN ===== -->
+  <div class="fixed top-4 left-4 space-x-2 z-50">
+    <button onclick="loginConGoogle()" class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-sm font-bold">
+      🔑 Login
+    </button>
+    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded text-sm font-bold">
+      🚪 Logout
+    </button>
+  </div>
+
+  <!-- ===== CATÁLOGO ===== -->
+  <section class="w-full max-w-4xl mb-8 px-4">
+    <h1 class="text-3xl font-bold text-center mb-4">🛍️ Catálogo Marquinhos</h1>
+    <div id="catalogo" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+    <button onclick="invocarMarquinhos()" class="mt-6 mx-auto block bg-[#d4af37] hover:bg-[#b8923a] px-6 py-2 rounded-full font-bold transition">
+      ⚡ INVOCAR VOLTRON
+    </button>
+    <button onclick="limpiarRopa()" class="mt-2 mx-auto block bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-full font-bold transition">
+      🧹 Limpiar Ropa
+    </button>
+  </section>
+
+  <!-- ===== WIDGET FLOTANTE DE MARQUINHOS ===== -->
+  <div id="marquinhos-widget"></div>
+
+  <!-- ================================================================ -->
+  <!-- SCRIPTS PRINCIPALES -->
+  <!-- ================================================================ -->
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.4/+esm';
+
+    // ================================================================
+    // 🔌 CONFIGURACIÓN SUPABASE
+    // ================================================================
+
+    const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.supabase = supabase;
+
+    // ================================================================
+    // 🔒 ACTIVAR RLS EN SUPABASE (ejecutar al inicio)
+    // ================================================================
+
+    async function activarRLS() {
+      try {
+        // Verificar si la tabla perfiles existe y tiene RLS
+        const { error } = await supabase
+          .from('perfiles')
+          .select('user_id')
+          .limit(1);
+
+        if (error && error.message.includes('permission denied')) {
+          console.log('🔒 RLS ya está activado en perfiles');
+          return;
+        }
+
+        // Si no hay error, intentar activar RLS (esto requiere permisos de admin)
+        // En la práctica, el usuario debe ejecutar esto en SQL de Supabase
+        console.log('⚠️ Para activar RLS, ejecuta en SQL de Supabase:');
+        console.log(`
+          -- Activa RLS
+          alter table perfiles enable row level security;
+
+          -- Solo el dueño puede ver/editar su outfit
+          create policy "usuarios solo su outfit" on perfiles
+          for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+        `);
+      } catch (e) {
+        console.warn('⚠️ No se pudo verificar RLS:', e);
+      }
+    }
+
+    // Ejecutar verificación de RLS
+    activarRLS();
+
+    // ================================================================
+    // 👤 AUTH FUNCTIONS
+    // ================================================================
+
+    window.loginConGoogle = async function() {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.href }
+        });
+        if (error) throw error;
+        console.log('✅ Login con Google iniciado');
+      } catch (e) {
+        console.error('❌ Error en login:', e);
+        alert('Error al iniciar sesión: ' + e.message);
+      }
+    };
+
+    window.logout = async function() {
+      try {
+        await supabase.auth.signOut();
+        localStorage.removeItem('marquinhos_outfit');
+        location.reload();
+      } catch (e) {
+        console.error('❌ Error en logout:', e);
+      }
+    };
+
+    // ================================================================
+    // 📦 INVENTARIO DE ROPA
+    // ================================================================
+
+    const INVENTARIO_ROPA = {
+      gorra_america: {
+        category: 'gorro',
+        name: 'Gorra América',
+        precio: 29,
+        icono: '🧢',
+        emoji: '🧢',
+        top: '-8px',
+        left: '20px',
+        size: '28px',
+        modelPath: null
+      },
+      sombrero_charro: {
+        category: 'gorro',
+        name: 'Sombrero Charro',
+        precio: 49,
+        icono: '🤠',
+        emoji: '🤠',
+        top: '-12px',
+        left: '15px',
+        size: '32px',
+        modelPath: null
+      },
+      casco_astronauta: {
+        category: 'gorro',
+        name: 'Casco Astronauta',
+        precio: 99,
+        icono: '🚀',
+        emoji: '🚀',
+        top: '-10px',
+        left: '18px',
+        size: '30px',
+        modelPath: null
+      },
+      playera_puebla: {
+        category: 'playera',
+        name: 'Playera Puebla FC',
+        precio: 39,
+        icono: '⚽',
+        emoji: '⚽',
+        top: '20px',
+        left: '30px',
+        size: '24px',
+        modelPath: null
+      },
+      traje_godin: {
+        category: 'playera',
+        name: 'Traje Godín',
+        precio: 59,
+        icono: '💼',
+        emoji: '💼',
+        top: '20px',
+        left: '30px',
+        size: '24px',
+        modelPath: null
+      },
+      traje_batman: {
+        category: 'playera',
+        name: 'Traje Batman',
+        precio: 99,
+        icono: '🦇',
+        emoji: '🦇',
+        top: '20px',
+        left: '30px',
+        size: '24px',
+        modelPath: null
+      },
+      playera_aladdin: {
+        category: 'playera',
+        name: 'Playera Aladdin',
+        precio: 149,
+        icono: '🧞',
+        emoji: '🧞',
+        top: '20px',
+        left: '30px',
+        size: '24px',
+        modelPath: null
+      },
+      short_playa: {
+        category: 'pantalon',
+        name: 'Short Playa',
+        precio: 29,
+        icono: '🏖️',
+        emoji: '🏖️',
+        top: '50px',
+        left: '35px',
+        size: '20px',
+        modelPath: null
+      },
+      mezclilla: {
+        category: 'pantalon',
+        name: 'Pantalón Mezclilla',
+        precio: 39,
+        icono: '👖',
+        emoji: '👖',
+        top: '50px',
+        left: '35px',
+        size: '20px',
+        modelPath: null
+      },
+      crocs: {
+        category: 'tenis',
+        name: 'Crocs',
+        precio: 19,
+        icono: '🩴',
+        emoji: '🩴',
+        top: '75px',
+        left: '20px',
+        size: '18px',
+        modelPath: null
+      },
+      jordan: {
+        category: 'tenis',
+        name: 'Tenis Jordan',
+        precio: 79,
+        icono: '👟',
+        emoji: '👟',
+        top: '75px',
+        left: '20px',
+        size: '18px',
+        modelPath: null
+      },
+      lentes_sol: {
+        category: 'extras',
+        name: 'Lentes de Sol',
+        precio: 29,
+        icono: '🕶️',
+        emoji: '🕶️',
+        top: '15px',
+        left: '25px',
+        size: '22px',
+        modelPath: null
+      },
+      cadena_oro: {
+        category: 'extras',
+        name: 'Cadena de Oro',
+        precio: 49,
+        icono: '⛓️',
+        emoji: '⛓️',
+        top: '30px',
+        left: '40px',
+        size: '18px',
+        modelPath: null
+      },
+      capa_heroe: {
+        category: 'extras',
+        name: 'Capa de Héroe',
+        precio: 59,
+        icono: '🦸',
+        emoji: '🦸',
+        top: '10px',
+        left: '15px',
+        size: '35px',
+        modelPath: null
+      },
+      playera_csariel: {
+        category: 'playera',
+        name: 'Playera Csariel\'s',
+        precio: 49,
+        icono: '◈',
+        emoji: '◈',
+        top: '20px',
+        left: '30px',
+        size: '24px',
+        modelPath: null
+      }
+    };
+
+    // ================================================================
+    // 🧠 STATE MANAGER
+    // ================================================================
+
+    let outfitActual = {
+      gorro: null,
+      playera: null,
+      pantalon: null,
+      tenis: null,
+      extras: []
+    };
+
+    let marquinhosWidget = null;
+    let ropaItems = [];
+
+    // ================================================================
+    // 🎯 WIDGET FLOTANTE
+    // ================================================================
+
+    function obtenerWidget() {
+      if (!marquinhosWidget) {
+        marquinhosWidget = document.getElementById('marquinhos-widget');
+        if (!marquinhosWidget) {
+          marquinhosWidget = document.createElement('div');
+          marquinhosWidget.id = 'marquinhos-widget';
+          marquinhosWidget.style.cssText = `
+            position: fixed; bottom: 24px; right: 24px;
+            width: 180px; height: 260px; z-index: 9999;
+            cursor: grab; touch-action: none; user-select: none;
+          `;
+          document.body.appendChild(marquinhosWidget);
+        }
+      }
+      return marquinhosWidget;
+    }
+
+    // ================================================================
+    // 👕 VESTIR A MARQUINHOS REAL (con física)
+    // ================================================================
+
+    function vestirMarquinhosReal(itemId) {
+      const widget = obtenerWidget();
+      const item = INVENTARIO_ROPA[itemId];
+      if (!item) return;
+
+      // Crear contenedor de ropa
+      let capaRopa = widget.querySelector('.ropa-equipada');
+      if (!capaRopa) {
+        capaRopa = document.createElement('div');
+        capaRopa.className = 'ropa-equipada';
+        widget.style.position = 'relative';
+        widget.appendChild(capaRopa);
+      }
+
+      // Limpiar items de la misma categoría
+      const itemsPrevios = capaRopa.querySelectorAll(`.ropa-item-${item.category}`);
+      itemsPrevios.forEach(el => {
+        el.style.transition = 'all 0.3s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'scale(0) rotate(20deg)';
+        setTimeout(() => el.remove(), 300);
+      });
+
+      // Si es extra, verificar si ya existe
+      if (item.category === 'extras') {
+        const existente = capaRopa.querySelector(`.ropa-item[data-item-id="${itemId}"]`);
+        if (existente) return;
+      }
+
+      // Crear elemento de ropa
+      const ropaEl = document.createElement('div');
+      ropaEl.className = `ropa-item ropa-item-${item.category}`;
+      ropaEl.dataset.itemId = itemId;
+      ropaEl.style.cssText = `
+        position: absolute;
+        top: ${item.top || '0px'};
+        left: ${item.left || '0px'};
+        font-size: ${item.size || '24px'};
+        pointer-events: none;
+        z-index: 11;
+        transition: all 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+        animation: vestirAnim 0.6s ease-out;
+        will-change: transform;
+      `;
+      ropaEl.textContent = item.emoji || item.icono;
+
+      // Guardar referencia para física
+      ropaEl._posX = 0;
+      ropaEl._posY = 0;
+
+      capaRopa.appendChild(ropaEl);
+      ropaItems.push(ropaEl);
+
+      // Actualizar outfitActual
+      if (item.category === 'extras') {
+        if (!outfitActual.extras.includes(itemId)) {
+          outfitActual.extras.push(itemId);
+        }
+      } else {
+        const mapCategoria = {
+          'gorro': 'gorro',
+          'playera': 'playera',
+          'pantalon': 'pantalon',
+          'tenis': 'tenis'
+        };
+        outfitActual[mapCategoria[item.category]] = itemId;
+      }
+
+      // Guardar
+      guardarOutfitLocal();
+      guardarOutfitSupabase();
+
+      console.log(`👕 ${item.emoji} puesto en Marquinhos flotante (${itemId})`);
+      return ropaEl;
+    }
+
+    // ================================================================
+    // 💾 PERSISTENCIA
+    // ================================================================
+
+    function guardarOutfitLocal() {
+      localStorage.setItem('marquinhos_outfit', JSON.stringify(outfitActual));
+      localStorage.setItem('marquinhos_outfit_last', Date.now());
+    }
+
+    function cargarOutfitLocal() {
+      try {
+        const data = localStorage.getItem('marquinhos_outfit');
+        return data ? JSON.parse(data) : {};
+      } catch { return {}; }
+    }
+
+    async function guardarOutfitSupabase() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { error } = await supabase
+          .from('perfiles')
+          .upsert({
+            user_id: user.id,
+            marquinhos_outfit: outfitActual,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+
+        if (error) console.warn('⚠️ Error guardando en Supabase:', error);
+      } catch (e) {
+        console.warn('⚠️ Excepción guardando outfit:', e);
+      }
+    }
+
+    async function cargarOutfitSupabase() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+
+        const { data, error } = await supabase
+          .from('perfiles')
+          .select('marquinhos_outfit')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        return data?.marquinhos_outfit || null;
+      } catch (e) {
+        console.warn('⚠️ Error cargando outfit:', e);
+        return null;
+      }
+    }
+
+    async function cargarOutfitGuardado() {
+      let outfit = await cargarOutfitSupabase();
+      if (!outfit || Object.keys(outfit).length === 0) {
+        outfit = cargarOutfitLocal();
+      }
+      if (outfit && Object.keys(outfit).length > 0) {
+        outfitActual = outfit;
+        aplicarOutfit(outfitActual);
+        console.log('👕 Outfit cargado:', outfitActual);
+      }
+    }
+
+    function aplicarOutfit(outfit) {
+      if (outfit.gorro) vestirMarquinhosReal(outfit.gorro);
+      if (outfit.playera) vestirMarquinhosReal(outfit.playera);
+      if (outfit.pantalon) vestirMarquinhosReal(outfit.pantalon);
+      if (outfit.tenis) vestirMarquinhosReal(outfit.tenis);
+      if (outfit.extras) {
+        outfit.extras.forEach(id => vestirMarquinhosReal(id));
+      }
+    }
+
+    function limpiarRopa() {
+      const widget = obtenerWidget();
+      const capaRopa = widget.querySelector('.ropa-equipada');
+      if (capaRopa) capaRopa.innerHTML = '';
+      ropaItems = [];
+      outfitActual = { gorro: null, playera: null, pantalon: null, tenis: null, extras: [] };
+      guardarOutfitLocal();
+      guardarOutfitSupabase();
+      renderCatalogo();
+      console.log('🧹 Ropa limpiada');
+    }
+
+    // ================================================================
+    // 🎨 THREE.JS - ESCENA 3D
+    // ================================================================
+
+    let three = null;
+
+    function initThree() {
+      const widget = obtenerWidget();
+
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'width:100%; height:100%; display:block;';
+      widget.appendChild(canvas);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, widget.clientWidth / widget.clientHeight, 0.1, 1000);
+      camera.position.set(0, 1.2, 2.5);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(widget.clientWidth, widget.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
+
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+      scene.add(hemi);
+      const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+      dir.position.set(1, 2, 1);
+      scene.add(dir);
+
+      // Base Marquinhos
+      const baseGeo = new THREE.SphereGeometry(0.5, 32, 32);
+      const baseMat = new THREE.MeshStandardMaterial({
+        color: 0xd4af37,
+        emissive: 0x0f2d1a,
+        emissiveIntensity: 0.1,
+        metalness: 0.1,
+        roughness: 0.6
+      });
+      const base = new THREE.Mesh(baseGeo, baseMat);
+      base.position.y = 0.5;
+      scene.add(base);
+
+      // Ojos
+      const ojoGeo = new THREE.SphereGeometry(0.08, 8, 8);
+      const ojoMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 });
+      const ojo1 = new THREE.Mesh(ojoGeo, ojoMat);
+      ojo1.position.set(-0.15, 0.65, 0.45);
+      scene.add(ojo1);
+      const ojo2 = new THREE.Mesh(ojoGeo, ojoMat);
+      ojo2.position.set(0.15, 0.65, 0.45);
+      scene.add(ojo2);
+
+      const pupilaGeo = new THREE.SphereGeometry(0.04, 8, 8);
+      const pupilaMat = new THREE.MeshStandardMaterial({ color: 0x0a0a1a });
+      const pupila1 = new THREE.Mesh(pupilaGeo, pupilaMat);
+      pupila1.position.set(-0.15, 0.62, 0.52);
+      scene.add(pupila1);
+      const pupila2 = new THREE.Mesh(pupilaGeo, pupilaMat);
+      pupila2.position.set(0.15, 0.62, 0.52);
+      scene.add(pupila2);
+
+      three = { scene, camera, renderer, base };
+
+      hacerDraggable(widget);
+
+      (function animate() {
+        requestAnimationFrame(animate);
+        base.rotation.y += 0.005;
+        renderer.render(scene, camera);
+      })();
+
+      window.addEventListener('resize', () => {
+        const rect = widget.getBoundingClientRect();
+        camera.aspect = rect.width / rect.height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(rect.width, rect.height);
+      });
+    }
+
+    // ================================================================
+    // 👆 ARRASTRE CON FÍSICA SUELTA (¡NUEVO!)
+    // ================================================================
+
+    function hacerDraggable(widget) {
+      let dragging = false;
+      let startX, startY, origX, origY;
+      let lastDx = 0, lastDy = 0;
+      let animationId = null;
+
+      widget.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = widget.getBoundingClientRect();
+        origX = rect.left;
+        origY = rect.top;
+        widget.setPointerCapture(e.pointerId);
+        widget.style.cursor = 'grabbing';
+        lastDx = 0;
+        lastDy = 0;
+      });
+
+      widget.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        // Mover widget
+        widget.style.left = (origX + dx) + 'px';
+        widget.style.top = (origY + dy) + 'px';
+        widget.style.right = 'auto';
+        widget.style.bottom = 'auto';
+
+        // Calcular velocidad
+        const velX = dx - lastDx;
+        const velY = dy - lastDy;
+        lastDx = dx;
+        lastDy = dy;
+
+        // Aplicar física suelta a la ropa
+        const capaRopa = widget.querySelector('.ropa-equipada');
+        if (capaRopa) {
+          const items = capaRopa.querySelectorAll('.ropa-item');
+          items.forEach((item, index) => {
+            const delay = index * 30;
+            const factor = 0.15 + (index * 0.05);
+            const xOffset = -dx * factor + velX * 2.5;
+            const yOffset = -dy * factor + velY * 2.5;
+            const rot = dx * 0.08 + velX * 0.5;
+
+            // Aplicar con retraso para efecto de gelatina
+            clearTimeout(item._physicsTimeout);
+            item._physicsTimeout = setTimeout(() => {
+              item.style.transform = `translate(${xOffset}px, ${yOffset}px) rotate(${rot}deg)`;
+            }, delay);
+          });
+        }
+      });
+
+      widget.addEventListener('pointerup', () => {
+        dragging = false;
+        widget.style.cursor = 'grab';
+
+        // Regresar la ropa a su posición con efecto de rebote
+        const capaRopa = widget.querySelector('.ropa-equipada');
+        if (capaRopa) {
+          const items = capaRopa.querySelectorAll('.ropa-item');
+          items.forEach((item, index) => {
+            const delay = index * 40;
+            clearTimeout(item._physicsTimeout);
+            setTimeout(() => {
+              item.style.transform = 'translate(0px, 0px) rotate(0deg)';
+              item.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+              setTimeout(() => {
+                item.style.transition = 'all 0.3s cubic-bezier(0.34, 1.2, 0.64, 1)';
+              }, 500);
+            }, delay);
+          });
+        }
+      });
+
+      widget.addEventListener('pointercancel', () => {
+        dragging = false;
+        widget.style.cursor = 'grab';
+      });
+    }
+
+    // ================================================================
+    // ⚡ TRANSFORMACIÓN VOLTRON (10 partes)
+    // ================================================================
+
+    window.invocarMarquinhos = async function() {
+      const widget = obtenerWidget();
+      widget.style.display = 'none';
+
+      const iconos = ['🧠', '💪', '🦾', '🦿', '👋', '🤚', '🦶', '👟', '📡', '✋'];
+      const piezas = [];
+
+      iconos.forEach((ico, i) => {
+        const p = document.createElement('div');
+        p.className = 'pieza-voltron';
+        p.textContent = ico;
+        const ang = (i / iconos.length) * Math.PI * 2;
+        p.style.left = `calc(50% + ${Math.cos(ang) * window.innerWidth * 0.6}px)`;
+        p.style.top = `calc(50% + ${Math.sin(ang) * window.innerHeight * 0.6}px)`;
+        p.style.transitionDelay = `${i * 60}ms`;
+        document.body.appendChild(p);
+        piezas.push(p);
+      });
+
+      await new Promise(r => setTimeout(r, 300));
+
+      piezas.forEach((p, i) => {
+        p.style.left = '50%';
+        p.style.top = '50%';
+        p.style.transform = 'translate(-50%, -50%)';
+        p.style.transition = 'all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        p.style.transitionDelay = `${i * 60}ms`;
+      });
+
+      setTimeout(() => {
+        piezas.forEach(p => p.remove());
+        widget.style.display = 'block';
+        widget.classList.add('saludando');
+        setTimeout(() => widget.classList.remove('saludando'), 1500);
+
+        setTimeout(() => {
+          aplicarOutfit(outfitActual);
+        }, 100);
+      }, 1200);
+    };
+
+    // ================================================================
+    // 🏷️ RENDER CATÁLOGO
+    // ================================================================
+
+    function renderCatalogo() {
+      const div = document.getElementById('catalogo');
+      div.innerHTML = '';
+
+      for (const [id, item] of Object.entries(INVENTARIO_ROPA)) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow p-3 flex flex-col items-center';
+
+        const icon = document.createElement('span');
+        icon.textContent = item.icono || '👕';
+        icon.className = 'text-4xl mb-2';
+        card.appendChild(icon);
+
+        const name = document.createElement('p');
+        name.textContent = item.name;
+        name.className = 'text-sm font-medium text-center';
+        card.appendChild(name);
+
+        const price = document.createElement('p');
+        price.textContent = `$${item.precio}`;
+        price.className = 'text-xs text-gray-500 font-bold';
+        card.appendChild(price);
+
+        const btn = document.createElement('button');
+        btn.textContent = '👕 Vestir';
+        btn.className = 'mt-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1 rounded transition';
+        btn.onclick = () => {
+          vestirMarquinhosReal(id);
+          renderCatalogo();
+          mostrarToast(`✅ ${item.name} puesto!`);
+        };
+        card.appendChild(btn);
+
+        const estaEquipado = (() => {
+          if (item.category === 'extras') return outfitActual.extras.includes(id);
+          const map = { 'gorro': 'gorro', 'playera': 'playera', 'pantalon': 'pantalon', 'tenis': 'tenis' };
+          return outfitActual[map[item.category]] === id;
+        })();
+
+        if (estaEquipado) {
+          const badge = document.createElement('span');
+          badge.textContent = '✅';
+          badge.className = 'text-xs text-green-600 font-bold mt-1';
+          card.appendChild(badge);
+        }
+
+        div.appendChild(card);
+      }
+    }
+
+    // ================================================================
+    // 🔔 TOAST
+    // ================================================================
+
+    function mostrarToast(mensaje) {
+      const toast = document.createElement('div');
+      toast.textContent = mensaje;
+      toast.style.cssText = `
+        position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+        background: #0f2d1a; color: #d4af37; padding: 10px 20px;
+        border-radius: 12px; font-weight: bold; z-index: 99999;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        font-size: 0.8rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        animation: toastAnim 0.3s ease-out;
+      `;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 400);
+      }, 2500);
+    }
+
+    // ================================================================
+    // 🚀 INICIALIZAR
+    // ================================================================
+
+    async function initApp() {
+      initThree();
+      renderCatalogo();
+      await cargarOutfitGuardado();
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          await supabase.auth.signInAnonymously();
+        }
+      } catch (e) {
+        console.warn('⚠️ No se pudo hacer login anónimo:', e);
+      }
+
+      console.log('🛍️ Tienda Marquinhos lista!');
+      console.log('👕 Items disponibles:', Object.keys(INVENTARIO_ROPA).length);
+      console.log('💡 Usa vestirMarquinhosReal("id") para vestirlo');
+      console.log('🔄 La ropa tiene física suelta al arrastrar!');
+    }
+
+    // Exponer funciones globales
+    window.vestirMarquinhosReal = vestirMarquinhosReal;
+    window.limpiarRopa = limpiarRopa;
+    window.invocarMarquinhos = invocarMarquinhos;
+    window.mostrarToast = mostrarToast;
+    window.renderCatalogo = renderCatalogo;
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
