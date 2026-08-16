@@ -1,40 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>eSIM | Csariel's</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Csariel's STOKS · Trading</title>
     <meta name="theme-color" content="#0F2D1A" />
+    <base href="/">
 
-    <!-- ===== RECURSOS ===== -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
+    </script>
+
+    <script src="/js/client-config-loader.js"></script>
+    <script src="/js/security.js"></script>
+    <script src="/js/perfil-connector.js"></script>
+    <script src="/js/red-main.js"></script>
 
     <style>
         /* ================================================================
-           ESTILOS CSARIEL'S - eSIM
+           DISEÑO DE PANTALLA ANCHA - TRADING PROFESIONAL
            ================================================================ */
         :root {
             --space-deep: #05080f;
-            --space-mid: #0a1428;
             --verde-bosque: #0F2D1A;
-            --verde-bosque-light: #1a4a2a;
             --gold-cosmic: #D4AF37;
-            --gold-dim: rgba(212,175,55,0.15);
-            --gold-glow: rgba(212,175,55,0.25);
+            --gold-dim: rgba(212, 175, 55, 0.15);
             --text-primary: #e8f0f8;
             --text-secondary: #8ba3c7;
             --text-muted: #4a6a8a;
-            --border: rgba(212,175,55,0.08);
-            --border-glow: rgba(212,175,55,0.25);
-            --radius: 16px;
+            --border: rgba(212, 175, 55, 0.08);
+            --border-glow: rgba(212, 175, 55, 0.25);
+            --radius: 12px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --success: #00b894;
             --danger: #ff3366;
-            --warning: #D4AF37;
             --quantum: #00e5ff;
+            --warning-bg: rgba(255, 235, 59, 0.1);
+            --warning-border: rgba(255, 235, 59, 0.3);
+            --risk-bg: rgba(255, 51, 102, 0.08);
+            --risk-border: rgba(255, 51, 102, 0.3);
         }
-
         * {
             margin: 0;
             padding: 0;
@@ -43,14 +65,14 @@
         html {
             scroll-behavior: smooth;
         }
-
         body {
             background: var(--space-deep);
             color: var(--text-primary);
-            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.5;
             min-height: 100vh;
+            overflow-x: hidden;
         }
-
         #stars-canvas {
             position: fixed;
             top: 0;
@@ -60,12 +82,11 @@
             z-index: 0;
             pointer-events: none;
         }
-
         .nebula {
             position: fixed;
             border-radius: 50%;
             filter: blur(120px);
-            opacity: 0.10;
+            opacity: 0.08;
             pointer-events: none;
             z-index: 0;
             animation: nebula-drift 25s ease-in-out infinite alternate;
@@ -84,7 +105,7 @@
             bottom: -15%;
             left: -15%;
             animation-delay: -8s;
-            opacity: 0.05;
+            opacity: 0.04;
         }
         .nebula-3 {
             width: 500px;
@@ -94,9 +115,8 @@
             left: 50%;
             transform: translate(-50%, -50%);
             animation-delay: -15s;
-            opacity: 0.04;
+            opacity: 0.03;
         }
-
         @keyframes nebula-drift {
             0% {
                 transform: translate(0, 0) scale(1);
@@ -105,7 +125,6 @@
                 transform: translate(40px, -30px) scale(1.15);
             }
         }
-
         ::-webkit-scrollbar {
             width: 5px;
         }
@@ -120,9 +139,9 @@
         .app {
             position: relative;
             z-index: 1;
-            max-width: 1200px;
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 16px 20px 30px;
+            padding: 16px 24px 30px;
         }
 
         /* ===== HEADER ===== */
@@ -136,29 +155,12 @@
             flex-wrap: wrap;
             gap: 10px;
             backdrop-filter: blur(10px);
-            position: relative;
         }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
-            opacity: 0.4;
-        }
-
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-        }
-        .logo-icon {
-            font-size: 2rem;
-            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
-            animation: pulse-glow 3s ease-in-out infinite;
         }
         .logo-icon .hex {
             display: inline-block;
@@ -170,23 +172,13 @@
             font-weight: 900;
             border: 2px solid var(--gold-cosmic);
             font-family: 'Orbitron', monospace;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
         }
-        @keyframes pulse-glow {
-            0%,
-            100% {
-                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
-            }
-            50% {
-                filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
-            }
-        }
-
         .logo-text {
             font-family: 'Orbitron', monospace;
             font-size: 1.3rem;
             font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -198,124 +190,16 @@
             padding: 3px 12px;
             border-radius: 20px;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            -webkit-text-fill-color: white;
             border: 1px solid rgba(212, 175, 55, 0.2);
-            animation: badge-pulse 2s ease-in-out infinite;
         }
-        @keyframes badge-pulse {
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(15, 45, 26, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
-            }
-        }
-
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 16px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(212, 175, 55, 0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.6rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover {
-            transform: scale(1.02);
-            border-color: var(--border-glow);
-        }
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
-            box-shadow: 0 0 40px rgba(15, 45, 26, 0.5);
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-        }
-        .btn-gold:hover:not(:disabled) {
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
-        }
-        .btn-outline {
-            border-color: var(--border);
-            background: transparent;
-        }
-        .btn-outline:hover:not(:disabled) {
-            background: rgba(212, 175, 55, 0.05);
-            border-color: var(--gold-cosmic);
-        }
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 0.55rem;
-        }
-        .btn-success {
-            background: rgba(0, 184, 148, 0.15);
-            border-color: rgba(0, 184, 148, 0.3);
-            color: var(--success);
-        }
-        .btn-success:hover:not(:disabled) {
-            background: rgba(0, 184, 148, 0.25);
-        }
-        .btn-danger {
-            background: rgba(255, 51, 102, 0.15);
-            border-color: rgba(255, 51, 102, 0.3);
-            color: var(--danger);
-        }
-        .btn-danger:hover:not(:disabled) {
-            background: rgba(255, 51, 102, 0.25);
-        }
-        .btn-esim {
-            background: linear-gradient(135deg, var(--quantum), #0099ff);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-            animation: pulse-esim 2s ease-in-out infinite;
-        }
-        .btn-esim:hover:not(:disabled) {
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-esim {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
-            }
-        }
-
+        /* ===== SELECTOR DE IDIOMA ===== */
         .language-selector {
             display: flex;
             align-items: center;
@@ -350,290 +234,512 @@
             color: var(--gold-cosmic);
         }
 
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212, 175, 55, 0.03);
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            border-color: var(--border-glow);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+        .btn-outline {
+            border-color: var(--border);
+            background: transparent;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.55rem;
+        }
+        .btn-success {
+            background: #00b894;
+            border-color: #00b894;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+        .btn-danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+        .btn-trading {
+            background: linear-gradient(135deg, var(--quantum), #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            animation: pulse-trading 2s ease-in-out infinite;
+        }
+        .btn-trading:hover {
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-trading {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            }
+        }
+        .btn-internet {
+            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
+        }
+        .btn-internet:hover {
+            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-internet {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            }
+        }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover {
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-tienda {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+            }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover {
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-wallet {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+            }
+        }
+
         .status-badge {
+            padding: 4px 12px;
+            font-size: 0.5rem;
             display: flex;
             align-items: center;
             gap: 6px;
             background: rgba(212, 175, 55, 0.06);
             border: 1px solid rgba(212, 175, 55, 0.15);
-            padding: 6px 14px;
             border-radius: 30px;
-            font-size: 0.6rem;
             color: var(--gold-cosmic);
             font-family: 'Orbitron', monospace;
-            backdrop-filter: blur(10px);
-        }
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            animation: quantum-pulse 1.5s ease-in-out infinite;
         }
         .status-dot.online {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
             background: var(--success);
-            box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
-        }
-        @keyframes quantum-pulse {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.5;
-                transform: scale(0.7);
-            }
+            display: inline-block;
         }
 
-        /* ===== eSIM DASHBOARD ===== */
-        .esim-dashboard {
-            background: rgba(15, 45, 26, 0.2);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-bottom: 16px;
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-        .esim-dashboard::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, var(--quantum), var(--verde-bosque), var(--quantum));
-            background-size: 300% 300%;
-            border-radius: var(--radius);
-            z-index: -1;
-            opacity: 0.08;
-            animation: border-flow 4s ease-in-out infinite;
-        }
-        @keyframes border-flow {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .esim-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
+        /* ===== CONTENEDOR PRINCIPAL: GRÁFICO + PANEL ===== */
+        .trading-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 16px;
             margin-bottom: 16px;
         }
-        .esim-header .title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.1rem;
-            color: var(--gold-cosmic);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .esim-header .title i {
-            color: var(--quantum);
-        }
-        .esim-header .status-badge-esim {
-            font-size: 0.55rem;
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-family: 'Orbitron', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .esim-header .status-badge-esim.activa {
-            background: rgba(0, 184, 148, 0.15);
-            color: var(--success);
-            border: 1px solid rgba(0, 184, 148, 0.2);
-        }
-        .esim-header .status-badge-esim.inactiva {
-            background: rgba(255, 51, 102, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(255, 51, 102, 0.2);
-        }
-        .esim-header .status-badge-esim.suspendida {
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--warning);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
 
-        .esim-datos {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin: 12px 0 16px;
-        }
-        .esim-dato-item {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            border: 1px solid var(--gold-dim);
-        }
-        .esim-dato-item .numero {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--gold-cosmic);
-        }
-        .esim-dato-item .numero .unidad {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-        }
-        .esim-dato-item .label {
-            font-size: 0.5rem;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 4px;
-        }
-
-        .esim-progress {
-            margin: 12px 0 16px;
-        }
-        .esim-progress .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.55rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-        .esim-progress .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--gold-dim);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .esim-progress .progress-bar .fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold-cosmic), var(--quantum));
-            border-radius: 4px;
-            transition: width 0.5s;
-            width: 0%;
-        }
-
-        .esim-acciones {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-        .esim-acciones .btn {
-            flex: 1;
-            min-width: 120px;
-            justify-content: center;
-            padding: 10px 16px;
-            font-size: 0.6rem;
-        }
-
-        /* ===== PLANES ===== */
-        .planes-section {
-            margin-top: 16px;
-        }
-        .planes-section h3 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-        .planes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 12px;
-        }
-        .plan-card {
+        /* ===== PANEL DE PRECIO ===== */
+        .trading-header {
+            grid-column: 1 / -1;
             background: rgba(15, 45, 26, 0.15);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
-            padding: 16px;
-            text-align: center;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .plan-card:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-2px);
-        }
-        .plan-card .plan-icon {
-            font-size: 2rem;
-            margin-bottom: 6px;
-        }
-        .plan-card .plan-nombre {
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: var(--text-primary);
-        }
-        .plan-card .plan-datos {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.1rem;
-            color: var(--gold-cosmic);
-            margin: 4px 0;
-        }
-        .plan-card .plan-datos .unidad {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-        }
-        .plan-card .plan-precio {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-        }
-        .plan-card .plan-btn {
-            margin-top: 8px;
-        }
-
-        /* ===== HISTORIAL ===== */
-        .historial-section {
-            margin-top: 16px;
-        }
-        .historial-section h3 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-        .historial-item {
+            padding: 12px 20px;
+            backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
-            background: rgba(15, 45, 26, 0.1);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .trading-header .left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .trading-header .symbol {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+        }
+        .trading-header .address {
+            font-family: monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--gold-dim);
+        }
+        .trading-header .price-group {
+            text-align: right;
+        }
+        .trading-header .price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 1px;
+        }
+        .trading-header .change {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .trading-header .change.positive {
+            color: var(--success);
+        }
+        .trading-header .change.negative {
+            color: var(--danger);
+        }
+        .trading-header .label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ===== GRÁFICO ===== */
+        .chart-wrapper {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: var(--radius);
+            border: 1px solid var(--gold-dim);
+            padding: 12px;
+        }
+        .chart-wrapper #chart-container {
+            width: 100%;
+            height: 440px;
+        }
+
+        .chart-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .timeframes {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .timeframes .tf {
+            padding: 2px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .timeframes .tf.active {
+            background: var(--gold-cosmic);
+            color: #000;
+            border-color: var(--gold-cosmic);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        .timeframes .tf:hover {
+            border-color: var(--gold-cosmic);
+        }
+
+        .indicators-bar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .indicators-bar .ind-btn {
+            padding: 2px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.5rem;
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .indicators-bar .ind-btn:hover {
+            border-color: var(--gold-cosmic);
+            color: white;
+        }
+        .indicators-bar .ind-btn.active {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== PANEL DE TRADING ===== */
+        .trade-panel {
+            background: rgba(15, 45, 26, 0.2);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .trade-panel .balance-row {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.25);
             border-radius: 8px;
-            border-bottom: 1px solid var(--gold-dim);
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .trade-panel .balance-row .item {
+            color: var(--text-muted);
+        }
+        .trade-panel .balance-row .value {
+            color: white;
+            font-weight: 600;
+        }
+
+        .trade-panel .input-group {
+            margin-bottom: 6px;
+        }
+        .trade-panel .input-group label {
+            display: block;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 2px;
+        }
+        .trade-panel .input-group input {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .trade-panel .input-group input:focus {
+            border-color: var(--gold-cosmic);
+        }
+
+        .trade-panel .price-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .trade-panel .price-info .value {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* ===== COMISIÓN 1% (Art. 3.4) - ALERTA AMARILLA ===== */
+        .commission-info {
+            font-size: 0.6rem;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(255, 235, 59, 0.1);
+            border: 1px solid rgba(255, 235, 59, 0.3);
+            color: var(--gold-cosmic);
+        }
+        .commission-info strong {
+            color: var(--gold-cosmic);
+            font-weight: 700;
+        }
+
+        /* ===== RIESGO (Art. 3.5) - ALERTA ROJA ===== */
+        .risk-warning {
+            font-size: 0.5rem;
+            color: var(--danger);
+            text-align: center;
+            margin-top: 4px;
+            padding: 6px 10px;
+            background: rgba(255, 51, 102, 0.08);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .trade-panel .terms-check {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            margin: 4px 0;
+        }
+        .trade-panel .terms-check input {
+            accent-color: var(--gold-cosmic);
+        }
+        .trade-panel .terms-check a {
+            color: var(--gold-cosmic);
+            text-decoration: underline;
+        }
+
+        .trade-panel .btn-execute {
+            width: 100%;
+            padding: 10px;
+            justify-content: center;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .trade-panel .btn-execute.buy {
+            background: linear-gradient(135deg, #00b894, #00897b);
+            border-color: transparent;
+            color: white;
+        }
+        .trade-panel .btn-execute.sell {
+            background: linear-gradient(135deg, #ff3366, #cc0033);
+            border-color: transparent;
+            color: white;
+        }
+        .trade-panel .btn-execute:hover {
+            transform: scale(1.02);
+        }
+
+        .trade-panel .trade-status {
+            text-align: center;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            min-height: 18px;
+        }
+
+        /* ===== ÓRDENES E HISTORIAL ===== */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .orders-grid .order-card {
+            background: rgba(15, 45, 26, 0.15);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+        }
+        .orders-grid .order-card h4 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 6px;
+        }
+        .orders-grid .order-card .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             font-size: 0.6rem;
             color: var(--text-secondary);
         }
-        .historial-item .h-desc {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .orders-grid .order-card .order-item:last-child {
+            border-bottom: none;
         }
-        .historial-item .h-desc i {
-            color: var(--gold-cosmic);
+        .orders-grid .order-card .order-item .type-buy {
+            color: var(--success);
         }
-        .historial-item .h-cantidad {
-            font-family: 'Orbitron', monospace;
-            color: var(--gold-cosmic);
-        }
-        .historial-item .h-cantidad.negativo {
+        .orders-grid .order-card .order-item .type-sell {
             color: var(--danger);
         }
-        .historial-item .h-cantidad.positivo {
+        .orders-grid .order-card .order-item .status-filled {
             color: var(--success);
+        }
+        .orders-grid .order-card .order-item .status-open {
+            color: var(--gold-cosmic);
+        }
+
+        /* ===== AVISO LEGAL (Art. 5.5 y 5.10) ===== */
+        .legal-notice {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+        .legal-notice a {
+            color: var(--gold-cosmic);
+            text-decoration: underline;
+        }
+        .legal-notice .jurisdiction {
+            color: var(--text-secondary);
+            font-weight: 600;
         }
 
         /* ===== FOOTER ===== */
         .footer {
-            margin-top: 24px;
+            margin-top: 20px;
             padding-top: 14px;
             border-top: 1px solid var(--gold-dim);
             display: flex;
@@ -641,17 +747,6 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            position: relative;
-        }
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
-            opacity: 0.2;
         }
         .footer-text {
             color: var(--text-muted);
@@ -673,13 +768,11 @@
             font-size: 0.5rem;
             transition: var(--transition);
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.5px;
         }
         .footer-links a:hover {
             color: var(--gold-cosmic);
         }
         .footer-hex {
-            display: inline-block;
             background: var(--verde-bosque);
             color: var(--gold-cosmic);
             padding: 2px 8px;
@@ -690,6 +783,7 @@
             font-family: 'Orbitron', monospace;
         }
 
+        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 80px;
@@ -719,518 +813,1195 @@
             color: white;
         }
 
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .header-actions {
-                width: 100%;
-                justify-content: flex-start;
-                flex-wrap: wrap;
-            }
-            .esim-datos {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .planes-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        /* ===== MODALES ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: rgba(15, 45, 26, 0.95);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 450px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .modal-close:hover {
+            color: white;
+        }
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1rem;
+            margin-bottom: 8px;
         }
 
-        @media (max-width: 480px) {
-            .btn {
-                font-size: 0.45rem;
-                padding: 4px 8px;
-            }
-            .esim-datos {
-                grid-template-columns: 1fr 1fr;
-            }
-            .esim-dato-item .numero {
-                font-size: 0.9rem;
-            }
-            .planes-grid {
+        @media (max-width: 1024px) {
+            .trading-grid {
                 grid-template-columns: 1fr;
             }
-            .esim-acciones .btn {
-                min-width: 80px;
-                font-size: 0.5rem;
-                padding: 6px 10px;
+            .orders-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-wrapper #chart-container {
+                height: 320px;
+            }
+        }
+        @media (max-width: 600px) {
+            .trading-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .trading-header .price-group {
+                text-align: left;
+            }
+            .trading-header .price {
+                font-size: 1.4rem;
+            }
+            .chart-wrapper #chart-container {
+                height: 240px;
+            }
+            .app {
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- ===== FONDO ESTELAR ===== -->
     <canvas id="stars-canvas"></canvas>
     <div class="nebula nebula-1"></div>
     <div class="nebula nebula-2"></div>
     <div class="nebula nebula-3"></div>
 
     <div class="app">
-
-        <!-- ===== HEADER ===== -->
+        <!-- HEADER CON TODOS LOS ENLACES -->
         <header class="header">
-            <a href="../index.html" class="logo">
+            <a href="/" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge">eSIM</span>
+                <span class="logo-badge" data-i18n="trading">STOKS</span>
             </a>
             <div class="header-actions">
                 <div class="language-selector">
                     <span class="lang-icon">🌐</span>
-                    <button class="lang-btn active" onclick="cambiarIdioma('es')">ES</button>
-                    <button class="lang-btn" onclick="cambiarIdioma('en')">EN</button>
-                    <button class="lang-btn" onclick="cambiarIdioma('fr')">FR</button>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
                 </div>
 
                 <div class="status-badge">
                     <span class="status-dot online"></span>
-                    <span>En línea</span>
+                    <span data-i18n="conectado">Conectado</span>
                 </div>
 
-                <a href="../index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-arrow-left"></i> Volver
+                <a href="/" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span>
                 </a>
-                <a href="../../internet/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-globe"></i> Internet
+                <a href="/features/red/index.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
+                </a>
+                <a href="/features/live/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-video"></i> <span data-i18n="live">Live</span>
+                </a>
+                <a href="/features/foro/index.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
+                </a>
+                <a href="/features/servicios/index.html" class="btn btn-gold btn-sm">
+                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
+                </a>
+                <a href="/features/internet/index.html" class="btn btn-internet btn-sm">
+                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
+                </a>
+                <a href="/features/tienda/index.html" class="btn btn-tienda btn-sm">
+                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
+                </a>
+                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm">
+                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
+                </a>
+                <a href="/terminos-completos.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
                 </a>
             </div>
         </header>
 
-        <!-- ===== eSIM DASHBOARD ===== -->
-        <div class="esim-dashboard">
-            <div class="esim-header">
-                <div class="title">
-                    <i class="fas fa-sim-card"></i> Csariel's eSIM
-                </div>
-                <span class="status-badge-esim inactiva" id="esimStatusBadge">● Inactiva</span>
-            </div>
-
-            <div class="esim-datos">
-                <div class="esim-dato-item">
-                    <div class="numero" id="esimRestantes">0 <span class="unidad">MB</span></div>
-                    <div class="label">MB Restantes</div>
-                </div>
-                <div class="esim-dato-item">
-                    <div class="numero" id="esimConsumidos">0 <span class="unidad">MB</span></div>
-                    <div class="label">MB Consumidos</div>
-                </div>
-                <div class="esim-dato-item">
-                    <div class="numero" id="esimTotal">0 <span class="unidad">MB</span></div>
-                    <div class="label">MB Total</div>
-                </div>
-                <div class="esim-dato-item">
-                    <div class="numero" id="esimDias">--</div>
-                    <div class="label">Días Restantes</div>
+        <!-- PANEL DE PRECIO -->
+        <div class="trading-header">
+            <div class="left">
+                <span class="symbol">STOKS</span>
+                <span class="address" id="userDisplay">Usuario</span>
+                <div class="timeframes">
+                    <button class="tf active" data-tf="1m" onclick="setTimeframe('1m')">1m</button>
+                    <button class="tf" data-tf="5m" onclick="setTimeframe('5m')">5m</button>
+                    <button class="tf" data-tf="15m" onclick="setTimeframe('15m')">15m</button>
+                    <button class="tf" data-tf="1h" onclick="setTimeframe('1h')">1h</button>
+                    <button class="tf" data-tf="1d" onclick="setTimeframe('1d')">1d</button>
                 </div>
             </div>
-
-            <div class="esim-progress">
-                <div class="progress-label">
-                    <span id="esimProgresoTexto">0% utilizado</span>
-                    <span id="esimProgresoDetalle">0 / 0 MB</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="fill" id="esimProgress" style="width:0%;"></div>
-                </div>
-            </div>
-
-            <div class="esim-acciones">
-                <button class="btn btn-esim" id="btnActivarEsim" onclick="activarEsim()">
-                    <i class="fas fa-play"></i> <span data-i18n="activar">Activar eSIM</span>
-                </button>
-                <button class="btn btn-primary" id="btnRecargar" style="display:none;" onclick="recargarDatos()">
-                    <i class="fas fa-plus"></i> <span data-i18n="recargar">Recargar</span>
-                </button>
-                <button class="btn btn-outline" id="btnDesactivar" style="display:none;" onclick="desactivarEsim()">
-                    <i class="fas fa-pause"></i> <span data-i18n="desactivar">Desactivar</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- ===== PLANES DISPONIBLES ===== -->
-        <div class="planes-section">
-            <h3><i class="fas fa-tags" style="color:var(--gold-cosmic);"></i> Planes Disponibles</h3>
-            <div class="planes-grid" id="planesGrid">
-                <div class="plan-card" onclick="seleccionarPlan(1)">
-                    <div class="plan-icon">📱</div>
-                    <div class="plan-nombre">Plan Básico</div>
-                    <div class="plan-datos">100 <span class="unidad">MB</span></div>
-                    <div class="plan-precio">$1.99 / mes</div>
-                    <button class="btn btn-primary btn-sm plan-btn">Seleccionar</button>
-                </div>
-                <div class="plan-card" onclick="seleccionarPlan(2)">
-                    <div class="plan-icon">🚀</div>
-                    <div class="plan-nombre">Plan Pro</div>
-                    <div class="plan-datos">500 <span class="unidad">MB</span></div>
-                    <div class="plan-precio">$4.99 / mes</div>
-                    <button class="btn btn-primary btn-sm plan-btn">Seleccionar</button>
-                </div>
-                <div class="plan-card" onclick="seleccionarPlan(3)">
-                    <div class="plan-icon">💎</div>
-                    <div class="plan-nombre">Plan Premium</div>
-                    <div class="plan-datos">2 <span class="unidad">GB</span></div>
-                    <div class="plan-precio">$9.99 / mes</div>
-                    <button class="btn btn-primary btn-sm plan-btn">Seleccionar</button>
-                </div>
-                <div class="plan-card" onclick="seleccionarPlan(4)">
-                    <div class="plan-icon">🌍</div>
-                    <div class="plan-nombre">Plan Ilimitado</div>
-                    <div class="plan-datos">10 <span class="unidad">GB</span></div>
-                    <div class="plan-precio">$19.99 / mes</div>
-                    <button class="btn btn-primary btn-sm plan-btn">Seleccionar</button>
+            <div class="price-group">
+                <span class="label" data-i18n="precio_stoks">Precio STOKS / CMT</span>
+                <div>
+                    <span class="price" id="currentPrice">1.3700</span>
+                    <span class="change positive" id="priceChange">+0.0200 (+1.80%)</span>
                 </div>
             </div>
         </div>
 
-        <!-- ===== HISTORIAL ===== -->
-        <div class="historial-section">
-            <h3><i class="fas fa-history" style="color:var(--gold-cosmic);"></i> Historial de Consumo</h3>
-            <div id="historialLista">
-                <div class="historial-item">
-                    <span class="h-desc"><i class="fas fa-download"></i> Navegación web</span>
-                    <span class="h-cantidad negativo">-15 MB</span>
+        <!-- GRID PRINCIPAL: GRÁFICO + PANEL DE TRADING -->
+        <div class="trading-grid">
+            <!-- COLUMNA IZQUIERDA: GRÁFICO -->
+            <div class="chart-wrapper">
+                <div class="chart-toolbar">
+                    <div class="indicators-bar">
+                        <button class="ind-btn active" data-ind="ma" onclick="toggleIndicator('ma')">MA</button>
+                        <button class="ind-btn active" data-ind="bol" onclick="toggleIndicator('bol')">BOL</button>
+                        <button class="ind-btn" data-ind="rsi" onclick="toggleIndicator('rsi')">RSI</button>
+                        <button class="ind-btn active" data-ind="volume" onclick="toggleIndicator('volume')">Volume</button>
+                        <button class="ind-btn" data-ind="macd" onclick="toggleIndicator('macd')">MACD</button>
+                    </div>
                 </div>
-                <div class="historial-item">
-                    <span class="h-desc"><i class="fas fa-video"></i> Streaming video</span>
-                    <span class="h-cantidad negativo">-45 MB</span>
+                <div id="chart-container"></div>
+            </div>
+
+            <!-- COLUMNA DERECHA: PANEL DE TRADING -->
+            <div class="trade-panel" id="tradePanel">
+                <div class="balance-row">
+                    <span class="item">STOKS: <span class="value" id="balSTOKS">0.00</span></span>
+                    <span class="item">CMT: <span class="value" id="balCMT">0.00</span></span>
                 </div>
-                <div class="historial-item">
-                    <span class="h-desc"><i class="fas fa-upload"></i> Subida de archivos</span>
-                    <span class="h-cantidad negativo">-8 MB</span>
+                <div class="input-group">
+                    <label data-i18n="cantidad_stoks">Cantidad de STOKS</label>
+                    <input type="number" id="tradeAmount" step="0.01" data-i18n-placeholder="cantidad_placeholder" placeholder="0.00" oninput="calcTotal()" />
                 </div>
-                <div class="historial-item">
-                    <span class="h-desc"><i class="fas fa-plus-circle" style="color:var(--success);"></i> Recarga manual</span>
-                    <span class="h-cantidad positivo">+100 MB</span>
+                <div class="price-info">
+                    <span data-i18n="precio_unitario">Precio unitario (referencia)</span>
+                    <span class="value" id="priceRef">0.0000</span>
+                </div>
+                <div class="price-info">
+                    <span data-i18n="total_estimado">Total estimado</span>
+                    <span class="value" id="totalEst">0.00 CMT</span>
+                </div>
+
+                <!-- ===== COMISIÓN 1% (Art. 3.4) ===== -->
+                <div class="commission-info">
+                    💰 <span data-i18n="comision">Comisión de transacción:</span> <strong>1%</strong> <span data-i18n="articulo_34">(Art. 3.4)</span>
+                </div>
+
+                <!-- ===== TÉRMINOS ===== -->
+                <div class="terms-check">
+                    <input type="checkbox" id="acceptTerms" />
+                    <label for="acceptTerms" data-i18n="aceptar_terminos">He leído y acepto los <a href="/terminos-completos.html" style="color:var(--gold-cosmic);text-decoration:underline;">Términos y Condiciones</a></label>
+                </div>
+
+                <button class="btn btn-execute buy" onclick="ejecutarOrden()" id="btnExecute" data-i18n="comprar_stoks">🚀 COMPRAR STOKS</button>
+                <div class="trade-status" id="tradeStatus"></div>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                    <button class="btn btn-success btn-sm" style="flex:1;justify-content:center;" onclick="setTradeMode('buy')"><span data-i18n="comprar">Comprar</span></button>
+                    <button class="btn btn-danger btn-sm" style="flex:1;justify-content:center;" onclick="setTradeMode('sell')"><span data-i18n="vender">Vender</span></button>
+                </div>
+
+                <!-- ===== ADVERTENCIA DE RIESGO (Art. 3.5) ===== -->
+                <div class="risk-warning">
+                    ⚠️ <span data-i18n="riesgo_especulacion">Art. 3.5: La especulación y el riesgo de pérdida son responsabilidad exclusiva del Usuario.</span>
                 </div>
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
+        <!-- ÓRDENES ABIERTAS E HISTORIAL -->
+        <div class="orders-grid">
+            <div class="order-card">
+                <h4 data-i18n="ordenes_abiertas">📋 Órdenes Abiertas</h4>
+                <div id="openOrders">
+                    <div class="order-item" data-i18n="sin_ordenes">No tienes órdenes abiertas.</div>
+                </div>
+            </div>
+            <div class="order-card">
+                <h4 data-i18n="historial">📜 Historial</h4>
+                <div id="historyOrders">
+                    <div class="order-item" data-i18n="sin_historial">Aún no tienes operaciones.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== AVISO LEGAL ===== -->
+        <div class="legal-notice">
+            ⚠️ <span data-i18n="aviso_legal_resumen">Aviso Legal y Términos (resumen): El trading de STOKS implica riesgos. Csariel's no ofrece asesoría financiera. Las transacciones son irreversibles. Comisión: 1% (Art. 3.4).</span>
+            <br>
+            📍 <span data-i18n="jurisdiccion">Jurisdicción:</span> <span class="jurisdiction">Puebla, México</span> <span data-i18n="articulo_510">(Art. 5.10)</span>
+            <br>
+            📜 <a href="/terminos-completos.html" data-i18n="terminos_completos">Términos completos (26 artículos)</a>
+        </div>
+
+        <!-- FOOTER -->
         <footer class="footer">
-            <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — eSIM · Conectividad · Datos
-            </span>
+            <span class="footer-text"><span class="brand">◈ Csariel's</span> — <span data-i18n="footer_trading">STOKS Trading · Utility Token</span></span>
             <div class="footer-links">
-                <a href="../index.html">🏠 Red</a>
-                <a href="../internet/index.html">🌐 Internet</a>
-                <a href="../configuracion/index.html">⚙️ Configuración</a>
+                <a href="/" data-i18n="inicio">🏠 Inicio</a>
+                <a href="/features/red/index.html" data-i18n="mi_red">👥 Mi Red</a>
+                <a href="/features/live/index.html" data-i18n="live">📹 Live</a>
+                <a href="/features/foro/index.html" data-i18n="foro">💬 Foro</a>
+                <a href="/features/servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
+                <a href="/features/internet/index.html" data-i18n="internet">🌐 Internet</a>
+                <a href="/features/tienda/index.html" data-i18n="tienda">🏰 Tienda</a>
+                <a href="/features/wallet/index.html" data-i18n="wallet">◈ Wallet</a>
+                <a href="/terminos-completos.html" data-i18n="terminos">📜 Términos</a>
                 <span class="footer-hex">◈</span>
             </div>
         </footer>
     </div>
 
-    <!-- ===== TOAST ===== -->
+    <!-- ===== MODALES ===== -->
+    <div class="modal-overlay" id="positionModal">
+        <div class="modal-content" style="position:relative;">
+            <button class="modal-close" onclick="cerrarPosicion()">✕</button>
+            <h3 class="modal-title">📍 Posición</h3>
+            <div id="positionContent">
+                <div class="flex justify-between py-2 border-b border-[rgba(255,255,255,0.05)]">
+                    <span class="text-[#8ba3c7]">STOKS en cartera</span>
+                    <span class="text-white font-bold" id="posSTOKS">0.00</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-[rgba(255,255,255,0.05)]">
+                    <span class="text-[#8ba3c7]">Valor en CMT</span>
+                    <span class="text-[#D4AF37] font-bold" id="posCMT">0.00</span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-[#8ba3c7]">Precio promedio</span>
+                    <span class="text-white font-bold" id="posAvg">0.0000</span>
+                </div>
+            </div>
+            <button class="btn btn-outline" onclick="cerrarPosicion()" style="width:100%;justify-content:center;margin-top:12px;">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="receiveModal">
+        <div class="modal-content" style="position:relative;">
+            <button class="modal-close" onclick="cerrarRecibir()">✕</button>
+            <h3 class="modal-title">📥 Recibir STOKS</h3>
+            <p class="text-[#8ba3c7] text-sm mb-3">Deposita STOKS a tu cuenta interna:</p>
+            <div style="background:rgba(0,0,0,0.3);border:1px solid var(--gold-dim);border-radius:10px;padding:12px;word-break:break-all;font-family:monospace;font-size:0.7rem;color:var(--text-secondary);">
+                📱 ID: <span id="internalUserId">usuario_123</span>
+            </div>
+            <button class="btn btn-gold" onclick="copiarUserId()" style="width:100%;justify-content:center;margin-top:12px;"><i class="fas fa-copy"></i> Copiar ID</button>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- SCRIPTS -->
+    <!-- 🔥 SCRIPTS CON SUPABASE -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
-        // 🌟 ESTRELLAS
+        // 🌐 SISTEMA DE IDIOMAS (COMPARTIDO)
         // ================================================================
-        (function initStars() {
-            const canvas = document.getElementById('stars-canvas');
-            const ctx = canvas.getContext('2d');
-            let w, h;
+        const CSARIELS_IDIOMA = {
+            actual: 'es',
+            traducciones: {},
 
-            function resize() {
-                w = canvas.width = window.innerWidth;
-                h = canvas.height = window.innerHeight;
-            }
-            resize();
+            init: async function() {
+                this.actual = localStorage.getItem('csariels_idioma') || 'es';
+                await this.cargarTraducciones(this.actual);
+                this.aplicarTraducciones();
+                this.actualizarBotones();
+                console.log(`🌐 Trading - Idioma: ${this.actual}`);
+                return this.actual;
+            },
 
-            const stars = Array.from({ length: 200 }, () => ({
-                x: Math.random() * w,
-                y: Math.random() * h,
-                r: Math.random() * 0.8 + 0.2,
-                o: Math.random() * 0.8 + 0.2,
-                speed: Math.random() * 0.005 + 0.002,
-                phase: Math.random() * Math.PI * 2
-            }));
+            cargarTraducciones: async function(idioma) {
+                const traduccionesInline = {
+                    es: {
+                        'titulo_trading': 'Csariel\'s STOKS · Trading',
+                        'trading': 'Trading',
+                        'conectado': 'Conectado',
+                        'inicio': 'Inicio',
+                        'mi_red': 'Mi Red',
+                        'live': 'Live',
+                        'foro': 'Foro',
+                        'servicios': 'Servicios',
+                        'internet': 'Internet',
+                        'tienda': 'Tienda',
+                        'wallet': 'Wallet',
+                        'terminos': 'Términos',
+                        'precio_stoks': 'Precio STOKS / CMT',
+                        'cantidad_stoks': 'Cantidad de STOKS',
+                        'cantidad_placeholder': '0.00',
+                        'precio_unitario': 'Precio unitario (referencia)',
+                        'total_estimado': 'Total estimado',
+                        'comision': 'Comisión de transacción:',
+                        'articulo_34': '(Art. 3.4)',
+                        'aceptar_terminos': 'He leído y acepto los Términos y Condiciones',
+                        'comprar_stoks': '🚀 COMPRAR STOKS',
+                        'comprar': 'Comprar',
+                        'vender': 'Vender',
+                        'riesgo_especulacion': 'Art. 3.5: La especulación y el riesgo de pérdida son responsabilidad exclusiva del Usuario.',
+                        'ordenes_abiertas': '📋 Órdenes Abiertas',
+                        'historial': '📜 Historial',
+                        'sin_ordenes': 'No tienes órdenes abiertas.',
+                        'sin_historial': 'Aún no tienes operaciones.',
+                        'footer_trading': 'STOKS Trading · Utility Token',
+                        'aviso_legal_resumen': 'Aviso Legal y Términos (resumen): El trading de STOKS implica riesgos. Csariel\'s no ofrece asesoría financiera. Las transacciones son irreversibles. Comisión: 1% (Art. 3.4).',
+                        'jurisdiccion': 'Jurisdicción:',
+                        'articulo_510': '(Art. 5.10)',
+                        'terminos_completos': '📜 Términos completos (26 artículos)'
+                    },
+                    en: {
+                        'titulo_trading': 'Csariel\'s STOKS · Trading',
+                        'trading': 'Trading',
+                        'conectado': 'Connected',
+                        'inicio': 'Home',
+                        'mi_red': 'My Network',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Store',
+                        'wallet': 'Wallet',
+                        'terminos': 'Terms',
+                        'precio_stoks': 'STOKS / CMT Price',
+                        'cantidad_stoks': 'STOKS Amount',
+                        'cantidad_placeholder': '0.00',
+                        'precio_unitario': 'Unit price (reference)',
+                        'total_estimado': 'Estimated total',
+                        'comision': 'Transaction fee:',
+                        'articulo_34': '(Art. 3.4)',
+                        'aceptar_terminos': 'I have read and accept the Terms and Conditions',
+                        'comprar_stoks': '🚀 BUY STOKS',
+                        'comprar': 'Buy',
+                        'vender': 'Sell',
+                        'riesgo_especulacion': 'Art. 3.5: Speculation and risk of loss are the sole responsibility of the User.',
+                        'ordenes_abiertas': '📋 Open Orders',
+                        'historial': '📜 History',
+                        'sin_ordenes': 'You have no open orders.',
+                        'sin_historial': 'You have no operations yet.',
+                        'footer_trading': 'STOKS Trading · Utility Token',
+                        'aviso_legal_resumen': 'Legal Notice and Terms (summary): STOKS trading involves risks. Csariel\'s does not offer financial advice. Transactions are irreversible. Fee: 1% (Art. 3.4).',
+                        'jurisdiccion': 'Jurisdiction:',
+                        'articulo_510': '(Art. 5.10)',
+                        'terminos_completos': '📜 Full Terms (26 articles)'
+                    },
+                    fr: {
+                        'titulo_trading': 'Csariel\'s STOKS · Trading',
+                        'trading': 'Trading',
+                        'conectado': 'Connecté',
+                        'inicio': 'Accueil',
+                        'mi_red': 'Mon Réseau',
+                        'live': 'Live',
+                        'foro': 'Forum',
+                        'servicios': 'Services',
+                        'internet': 'Internet',
+                        'tienda': 'Magasin',
+                        'wallet': 'Portefeuille',
+                        'terminos': 'Termes',
+                        'precio_stoks': 'Prix STOKS / CMT',
+                        'cantidad_stoks': 'Quantité de STOKS',
+                        'cantidad_placeholder': '0.00',
+                        'precio_unitario': 'Prix unitaire (référence)',
+                        'total_estimado': 'Total estimé',
+                        'comision': 'Frais de transaction :',
+                        'articulo_34': '(Art. 3.4)',
+                        'aceptar_terminos': 'J\'ai lu et j\'accepte les Termes et Conditions',
+                        'comprar_stoks': '🚀 ACHETER STOKS',
+                        'comprar': 'Acheter',
+                        'vender': 'Vendre',
+                        'riesgo_especulacion': 'Art. 3.5 : La spéculation et le risque de perte sont la seule responsabilité de l\'Utilisateur.',
+                        'ordenes_abiertas': '📋 Ordres Ouverts',
+                        'historial': '📜 Historique',
+                        'sin_ordenes': 'Vous n\'avez pas d\'ordres ouverts.',
+                        'sin_historial': 'Vous n\'avez pas encore d\'opérations.',
+                        'footer_trading': 'STOKS Trading · Jeton Utilitaire',
+                        'aviso_legal_resumen': 'Avis légal et Conditions (résumé) : Le trading de STOKS implique des risques. Csariel\'s ne fournit pas de conseils financiers. Les transactions sont irréversibles. Frais : 1% (Art. 3.4).',
+                        'jurisdiccion': 'Juridiction :',
+                        'articulo_510': '(Art. 5.10)',
+                        'terminos_completos': '📜 Conditions complètes (26 articles)'
+                    }
+                };
+                this.traducciones = traduccionesInline[idioma] || traduccionesInline.es;
+            },
 
-            function draw() {
-                ctx.clearRect(0, 0, w, h);
-                stars.forEach(s => {
-                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
-                    ctx.fill();
-                    s.y += s.speed;
-                    s.phase += 0.01;
-                    if (s.y > h) { s.y = 0;
-                        s.x = Math.random() * w; }
+            cambiar: function(idioma) {
+                if (!idioma || idioma === this.actual) return;
+                this.actual = idioma;
+                localStorage.setItem('csariels_idioma', idioma);
+                this.cargarTraducciones(idioma).then(() => {
+                    this.aplicarTraducciones();
+                    this.actualizarBotones();
+                    this.notificarCambio(idioma);
                 });
-                requestAnimationFrame(draw);
-            }
-            draw();
-
-            window.addEventListener('resize', () => {
-                resize();
-                stars.forEach(s => { s.x = Math.random() * w;
-                    s.y = Math.random() * h; });
-            });
-        })();
-
-        // ================================================================
-        // 🌐 IDIOMAS
-        // ================================================================
-        const traducciones = {
-            es: {
-                'esim': 'eSIM',
-                'en_linea': 'En línea',
-                'volver': 'Volver',
-                'internet': 'Internet',
-                'activar': 'Activar eSIM',
-                'recargar': 'Recargar',
-                'desactivar': 'Desactivar',
-                'mb_restantes': 'MB Restantes',
-                'mb_consumidos': 'MB Consumidos',
-                'mb_total': 'MB Total',
-                'dias_restantes': 'Días Restantes',
-                'seleccionar': 'Seleccionar',
-                'historial': 'Historial de Consumo',
-                'plan_basico': 'Plan Básico',
-                'plan_pro': 'Plan Pro',
-                'plan_premium': 'Plan Premium',
-                'plan_ilimitado': 'Plan Ilimitado',
-                'activado': '✅ eSIM activada con {cantidad} MB',
-                'desactivado': '⏸️ eSIM desactivada',
-                'recargado': '✅ +{cantidad} MB recargados',
-                'plan_seleccionado': '📱 Plan {nombre} seleccionado'
             },
-            en: {
-                'esim': 'eSIM',
-                'en_linea': 'Online',
-                'volver': 'Back',
-                'internet': 'Internet',
-                'activar': 'Activate eSIM',
-                'recargar': 'Recharge',
-                'desactivar': 'Deactivate',
-                'mb_restantes': 'MB Remaining',
-                'mb_consumidos': 'MB Consumed',
-                'mb_total': 'MB Total',
-                'dias_restantes': 'Days Remaining',
-                'seleccionar': 'Select',
-                'historial': 'Usage History',
-                'plan_basico': 'Basic Plan',
-                'plan_pro': 'Pro Plan',
-                'plan_premium': 'Premium Plan',
-                'plan_ilimitado': 'Unlimited Plan',
-                'activado': '✅ eSIM activated with {cantidad} MB',
-                'desactivado': '⏸️ eSIM deactivated',
-                'recargado': '✅ +{cantidad} MB recharged',
-                'plan_seleccionado': '📱 {nombre} plan selected'
+
+            aplicarTraducciones: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (this.traducciones[key]) el.textContent = this.traducciones[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (this.traducciones[key]) el.placeholder = this.traducciones[key];
+                });
             },
-            fr: {
-                'esim': 'eSIM',
-                'en_linea': 'En ligne',
-                'volver': 'Retour',
-                'internet': 'Internet',
-                'activar': 'Activer eSIM',
-                'recargar': 'Recharger',
-                'desactivar': 'Désactiver',
-                'mb_restantes': 'MB Restants',
-                'mb_consumidos': 'MB Consommés',
-                'mb_total': 'MB Total',
-                'dias_restantes': 'Jours Restants',
-                'seleccionar': 'Sélectionner',
-                'historial': 'Historique de Consommation',
-                'plan_basico': 'Plan Basique',
-                'plan_pro': 'Plan Pro',
-                'plan_premium': 'Plan Premium',
-                'plan_ilimitado': 'Plan Illimité',
-                'activado': '✅ eSIM activée avec {cantidad} MB',
-                'desactivado': '⏸️ eSIM désactivée',
-                'recargado': '✅ +{cantidad} MB rechargés',
-                'plan_seleccionado': '📱 Plan {nombre} sélectionné'
+
+            actualizarBotones: function() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    btn.classList.toggle('active', lang === this.actual);
+                });
+            },
+
+            notificarCambio: function(idioma) {
+                localStorage.setItem('csariels_idioma', idioma);
+                try {
+                    window.dispatchEvent(new CustomEvent('idioma-cambiado', { detail: { idioma: idioma } }));
+                } catch (e) { console.warn(e); }
+                const nombres = { es: 'Español 🌎', en: 'English 🌍', fr: 'Français 🌏' };
+                mostrarToast(`🌐 ${nombres[idioma] || idioma.toUpperCase()}`);
             }
         };
 
-        let idiomaActual = localStorage.getItem('csariels_idioma') || 'es';
-
-        function aplicarIdioma(idioma) {
-            const t = traducciones[idioma] || traducciones.es;
-            document.querySelector('.logo-badge').textContent = t.esim;
-            document.querySelector('.status-badge span:last-child').textContent = t.en_linea;
-        }
-
-        function cambiarIdioma(idioma) {
-            idiomaActual = idioma;
-            localStorage.setItem('csariels_idioma', idioma);
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`.lang-btn[onclick="cambiarIdioma('${idioma}')"]`).classList.add('active');
-            aplicarIdioma(idioma);
-            mostrarToast(`🌐 ${idioma.toUpperCase()}`);
-        }
-
         // ================================================================
-        // 📋 ESTADO eSIM
+        // 🔐 TOAST
         // ================================================================
-        let esimData = {
-            activa: false,
-            restantes: 0,
-            consumidos: 0,
-            total: 0,
-            dias: 0,
-            porcentaje: 0,
-            planActivo: null
-        };
-
-        const planes = {
-            1: { nombre: 'Básico', mb: 100, precio: '$1.99' },
-            2: { nombre: 'Pro', mb: 500, precio: '$4.99' },
-            3: { nombre: 'Premium', mb: 2048, precio: '$9.99' },
-            4: { nombre: 'Ilimitado', mb: 10240, precio: '$19.99' }
-        };
-
-        // ================================================================
-        // 🖥️ ACTUALIZAR UI
-        // ================================================================
-        function actualizarEsimUI() {
-            const t = traducciones[idiomaActual] || traducciones.es;
-
-            if (esimData.activa) {
-                document.getElementById('esimStatusBadge').textContent = '● Activa';
-                document.getElementById('esimStatusBadge').className = 'status-badge-esim activa';
-                document.getElementById('btnActivarEsim').style.display = 'none';
-                document.getElementById('btnRecargar').style.display = 'inline-flex';
-                document.getElementById('btnDesactivar').style.display = 'inline-flex';
-            } else {
-                document.getElementById('esimStatusBadge').textContent = '● Inactiva';
-                document.getElementById('esimStatusBadge').className = 'status-badge-esim inactiva';
-                document.getElementById('btnActivarEsim').style.display = 'inline-flex';
-                document.getElementById('btnRecargar').style.display = 'none';
-                document.getElementById('btnDesactivar').style.display = 'none';
-            }
-
-            document.getElementById('esimRestantes').innerHTML =
-                `${esimData.restantes.toFixed(0)} <span class="unidad">MB</span>`;
-            document.getElementById('esimConsumidos').innerHTML =
-                `${esimData.consumidos.toFixed(0)} <span class="unidad">MB</span>`;
-            document.getElementById('esimTotal').innerHTML =
-                `${esimData.total.toFixed(0)} <span class="unidad">MB</span>`;
-            document.getElementById('esimDias').textContent = esimData.activa ? esimData.dias : '--';
-
-            document.getElementById('esimProgress').style.width = esimData.porcentaje + '%';
-            document.getElementById('esimProgresoTexto').textContent =
-                `${esimData.porcentaje.toFixed(1)}% utilizado`;
-            document.getElementById('esimProgresoDetalle').textContent =
-                `${esimData.consumidos.toFixed(0)} / ${esimData.total.toFixed(0)} MB`;
-        }
-
-        // ================================================================
-        // 🎯 ACCIONES
-        // ================================================================
-        function activarEsim() {
-            const t = traducciones[idiomaActual] || traducciones.es;
-            const mb = prompt('📊 ¿Cuántos MB quieres activar? (mínimo 50 MB)', '100');
-            if (!mb) return;
-            const cantidad = parseInt(mb);
-            if (isNaN(cantidad) || cantidad < 50) {
-                mostrarToast('⚠️ Mínimo 50 MB', 'error');
-                return;
-            }
-
-            esimData.activa = true;
-            esimData.total = cantidad;
-            esimData.restantes = cantidad;
-            esimData.consumidos = 0;
-            esimData.dias = 30;
-            esimData.porcentaje = 0;
-            esimData.planActivo = null;
-
-            actualizarEsimUI();
-            mostrarToast(t.activado.replace('{cantidad}', cantidad));
-        }
-
-        function recargarDatos() {
-            const t = traducciones[idiomaActual] || traducciones.es;
-            const mb = prompt('📊 ¿Cuántos MB quieres recargar?', '100');
-            if (!mb) return;
-            const cantidad = parseInt(mb);
-            if (isNaN(cantidad) || cantidad < 10) {
-                mostrarToast('⚠️ Mínimo 10 MB', 'error');
-                return;
-            }
-
-            esimData.total += cantidad;
-            esimData.restantes += cantidad;
-            esimData.porcentaje = ((esimData.total - esimData.restantes) / esimData.total) * 100;
-
-            actualizarEsimUI();
-            mostrarToast(t.recargado.replace('{cantidad}', cantidad));
-        }
-
-        function desactivarEsim() {
-            const t = traducciones[idiomaActual] || traducciones.es;
-            if (!confirm('¿Desactivar la eSIM?')) return;
-
-            esimData.activa = false;
-            esimData.restantes = 0;
-            esimData.consumidos = 0;
-            esimData.total = 0;
-            esimData.dias = 0;
-            esimData.porcentaje = 0;
-            esimData.planActivo = null;
-
-            actualizarEsimUI();
-            mostrarToast(t.desactivado);
-        }
-
-        function seleccionarPlan(id) {
-            const t = traducciones[idiomaActual] || traducciones.es;
-            const plan = planes[id];
-            if (!plan) return;
-
-            if (!esimData.activa) {
-                mostrarToast('⚠️ Activa la eSIM primero', 'error');
-                return;
-            }
-
-            esimData.total = plan.mb;
-            esimData.restantes = plan.mb;
-            esimData.consumidos = 0;
-            esimData.dias = 30;
-            esimData.porcentaje = 0;
-            esimData.planActivo = id;
-
-            actualizarEsimUI();
-            mostrarToast(t.plan_seleccionado.replace('{nombre}', plan.nombre));
-        }
-
-        // ================================================================
-        // 🔔 TOAST
-        // ================================================================
-        let toastTimeout;
+        let toastTimeout = null;
 
         function mostrarToast(mensaje, tipo = '') {
             const toast = document.getElementById('toast');
             toast.textContent = mensaje;
-            toast.className = 'toast active';
-            if (tipo === 'error') toast.classList.add('error');
+            toast.className = `toast${tipo ? ' error' : ''}`;
+            toast.classList.add('active');
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
         }
 
         // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height,
+                stars = [],
+                STAR_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        speed: Math.random() * 0.015 + 0.005,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.01,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let star of stars) {
+                    const opacity = star.opacity * (0.6 + 0.4 * Math.sin(star.twinklePhase));
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    star.twinklePhase += star.twinkleSpeed;
+                    star.y += star.speed;
+                    if (star.y > height) { star.y = 0;
+                        star.x = Math.random() * width; }
+                }
+                requestAnimationFrame(draw);
+            }
+            resize();
+            createStars();
+            draw();
+            window.addEventListener('resize', () => { resize();
+                createStars(); });
+        }
+
+        // ================================================================
+        // 🔌 SUPABASE CLIENT
+        // ================================================================
+        let supabase = null;
+        let currentUserId = null;
+        let currentPrice = 1.37;
+        let tradeMode = 'buy';
+        let chart = null;
+        let candlestickSeries = null;
+        let volumeSeries = null;
+        let maSeries = null;
+        let bolSeries = null;
+        let chartData = [];
+        let indicators = { ma: true, bol: true, rsi: false, volume: true, macd: false };
+
+        // DOM refs
+        const priceDisplay = document.getElementById('currentPrice');
+        const changeDisplay = document.getElementById('priceChange');
+        const userDisplay = document.getElementById('userDisplay');
+        const balSTOKS = document.getElementById('balSTOKS');
+        const balCMT = document.getElementById('balCMT');
+        const tradeAmount = document.getElementById('tradeAmount');
+        const priceRef = document.getElementById('priceRef');
+        const totalEst = document.getElementById('totalEst');
+        const tradeStatus = document.getElementById('tradeStatus');
+        const btnExecute = document.getElementById('btnExecute');
+
+        // ================================================================
+        // 🔐 INICIALIZAR SUPABASE
+        // ================================================================
+        async function initSupabase() {
+            try {
+                // Esperar que client-config-loader.js exponga window.supabase
+                let attempts = 0;
+                while (!window.supabase && attempts < 30) {
+                    await new Promise(r => setTimeout(r, 200));
+                    attempts++;
+                }
+
+                if (window.supabase) {
+                    supabase = window.supabase;
+                    console.log('✅ Supabase conectado para Trading');
+
+                    // Obtener usuario
+                    const { data: { user }, error } = await supabase.auth.getUser();
+                    if (error) throw error;
+                    if (user) {
+                        currentUserId = user.id;
+                        userDisplay.textContent = user.email?.split('@')[0] || user.id.slice(0, 8);
+                        await cargarBalances();
+                        await cargarOrdenes();
+                        await cargarHistorial();
+                    } else {
+                        // Sesión anónima
+                        const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+                        if (anonError) throw anonError;
+                        currentUserId = anonData.user.id;
+                        userDisplay.textContent = 'Anónimo';
+                        await cargarBalances();
+                        await cargarOrdenes();
+                        await cargarHistorial();
+                    }
+                } else {
+                    console.warn('⚠️ Supabase no disponible, usando localStorage');
+                    currentUserId = localStorage.getItem('csariels_user_id') || 'user_' + Date.now();
+                    userDisplay.textContent = localStorage.getItem('csariels_user_name') || 'Usuario';
+                    cargarBalancesLocal();
+                    cargarOrdenesLocal();
+                    cargarHistorialLocal();
+                }
+            } catch (e) {
+                console.error('❌ Error iniciando Supabase:', e);
+                mostrarToast('⚠️ Error de conexión', 'error');
+                // Fallback a localStorage
+                currentUserId = localStorage.getItem('csariels_user_id') || 'user_' + Date.now();
+                userDisplay.textContent = localStorage.getItem('csariels_user_name') || 'Usuario';
+                cargarBalancesLocal();
+                cargarOrdenesLocal();
+                cargarHistorialLocal();
+            }
+        }
+
+        // ================================================================
+        // 💰 CARGAR BALANCES DESDE SUPABASE
+        // ================================================================
+        async function cargarBalances() {
+            if (!supabase || !currentUserId) return;
+
+            try {
+                // Cargar saldo de STOKS (csariels_saldos)
+                const { data: saldoData, error: saldoError } = await supabase
+                    .from('csariels_saldos')
+                    .select('stoks, cmt')
+                    .eq('usuario_id', currentUserId)
+                    .maybeSingle();
+
+                if (saldoError && saldoError.code !== 'PGRST116') throw saldoError;
+
+                if (saldoData) {
+                    balSTOKS.textContent = (saldoData.stoks || 0).toFixed(2);
+                    balCMT.textContent = (saldoData.cmt || 0).toFixed(2);
+                } else {
+                    // Crear saldo inicial
+                    const { data: newSaldo, error: createError } = await supabase
+                        .from('csariels_saldos')
+                        .insert({
+                            usuario_id: currentUserId,
+                            stoks: 1000,
+                            cmt: 1000
+                        })
+                        .select()
+                        .single();
+
+                    if (createError) throw createError;
+                    balSTOKS.textContent = (newSaldo.stoks || 0).toFixed(2);
+                    balCMT.textContent = (newSaldo.cmt || 0).toFixed(2);
+                }
+            } catch (e) {
+                console.error('❌ Error cargando balances:', e);
+                cargarBalancesLocal();
+            }
+        }
+
+        // ================================================================
+        // 💰 CARGAR BALANCES (FALLBACK LOCALSTORAGE)
+        // ================================================================
+        function cargarBalancesLocal() {
+            const saved = localStorage.getItem(`csariels_balance_${currentUserId}`);
+            if (saved) {
+                const data = JSON.parse(saved);
+                balSTOKS.textContent = (data.stoks || 0).toFixed(2);
+                balCMT.textContent = (data.cmt || 0).toFixed(2);
+            } else {
+                localStorage.setItem(`csariels_balance_${currentUserId}`, JSON.stringify({ stoks: 1000, cmt: 1000 }));
+                balSTOKS.textContent = '1000.00';
+                balCMT.textContent = '1000.00';
+            }
+        }
+
+        // ================================================================
+        // 📋 CARGAR ÓRDENES DESDE SUPABASE
+        // ================================================================
+        async function cargarOrdenes() {
+            if (!supabase || !currentUserId) {
+                cargarOrdenesLocal();
+                return;
+            }
+
+            try {
+                const { data: orders, error } = await supabase
+                    .from('csariels_ordenes')
+                    .select('*')
+                    .eq('usuario_id', currentUserId)
+                    .eq('status', 'open')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const container = document.getElementById('openOrders');
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = '<div class="order-item" data-i18n="sin_ordenes">No tienes órdenes abiertas.</div>';
+                    return;
+                }
+
+                container.innerHTML = orders.map(o => `
+                        <div class="order-item">
+                            <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
+                            <span>${o.amount} STOKS @ $${o.price}</span>
+                            <span class="status-open">${o.status}</span>
+                        </div>
+                    `).join('');
+            } catch (e) {
+                console.error('❌ Error cargando órdenes:', e);
+                cargarOrdenesLocal();
+            }
+        }
+
+        // ================================================================
+        // 📋 CARGAR ÓRDENES (FALLBACK LOCALSTORAGE)
+        // ================================================================
+        function cargarOrdenesLocal() {
+            const orders = JSON.parse(localStorage.getItem(`csariels_orders_${currentUserId}`) || '[]');
+            const openOrders = orders.filter(o => o.status === 'open');
+            const container = document.getElementById('openOrders');
+
+            if (openOrders.length > 0) {
+                container.innerHTML = openOrders.map(o => `
+                        <div class="order-item">
+                            <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
+                            <span>${o.amount} STOKS @ $${o.price}</span>
+                            <span class="status-open">${o.status}</span>
+                        </div>
+                    `).join('');
+            } else {
+                container.innerHTML = '<div class="order-item" data-i18n="sin_ordenes">No tienes órdenes abiertas.</div>';
+            }
+        }
+
+        // ================================================================
+        // 📜 CARGAR HISTORIAL DESDE SUPABASE
+        // ================================================================
+        async function cargarHistorial() {
+            if (!supabase || !currentUserId) {
+                cargarHistorialLocal();
+                return;
+            }
+
+            try {
+                const { data: history, error } = await supabase
+                    .from('csariels_transacciones')
+                    .select('*')
+                    .eq('usuario_id', currentUserId)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                const container = document.getElementById('historyOrders');
+                if (!history || history.length === 0) {
+                    container.innerHTML = '<div class="order-item" data-i18n="sin_historial">Aún no tienes operaciones.</div>';
+                    return;
+                }
+
+                container.innerHTML = history.map(h => `
+                        <div class="order-item">
+                            <span class="${h.type === 'buy' ? 'type-buy' : 'type-sell'}">${h.type.toUpperCase()}</span>
+                            <span>${h.amount} STOKS @ $${h.price}</span>
+                            <span class="status-filled">filled</span>
+                        </div>
+                    `).join('');
+            } catch (e) {
+                console.error('❌ Error cargando historial:', e);
+                cargarHistorialLocal();
+            }
+        }
+
+        // ================================================================
+        // 📜 CARGAR HISTORIAL (FALLBACK LOCALSTORAGE)
+        // ================================================================
+        function cargarHistorialLocal() {
+            const orders = JSON.parse(localStorage.getItem(`csariels_orders_${currentUserId}`) || '[]');
+            const history = orders.filter(o => o.status === 'filled').slice(0, 10);
+            const container = document.getElementById('historyOrders');
+
+            if (history.length > 0) {
+                container.innerHTML = history.map(o => `
+                        <div class="order-item">
+                            <span class="${o.type === 'buy' ? 'type-buy' : 'type-sell'}">${o.type.toUpperCase()}</span>
+                            <span>${o.amount} STOKS @ $${o.price}</span>
+                            <span class="status-filled">${o.status}</span>
+                        </div>
+                    `).join('');
+            } else {
+                container.innerHTML = '<div class="order-item" data-i18n="sin_historial">Aún no tienes operaciones.</div>';
+            }
+        }
+
+        // ================================================================
+        // 📊 GENERAR DATOS DEL GRÁFICO
+        // ================================================================
+        function generarDatosCandlestick(count = 120) {
+            const data = [];
+            let base = 1.35;
+            const now = Date.now();
+            const intervalMs = 60000;
+            for (let i = count; i > 0; i--) {
+                const time = now - (i * intervalMs);
+                const open = base + (Math.random() - 0.48) * 0.02;
+                const close = open + (Math.random() - 0.48) * 0.025;
+                const high = Math.max(open, close) + Math.random() * 0.015;
+                const low = Math.min(open, close) - Math.random() * 0.015;
+                data.push({
+                    time: Math.floor(time / 1000),
+                    open,
+                    high,
+                    low,
+                    close,
+                    volume: Math.floor(Math.random() * 5000 + 1000)
+                });
+                base = close;
+            }
+            currentPrice = data[data.length - 1].close;
+            return data;
+        }
+
+        // ================================================================
+        // 📈 INICIALIZAR GRÁFICO
+        // ================================================================
+        function initChart() {
+            if (chart) return;
+            const container = document.getElementById('chart-container');
+            chart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: 440,
+                layout: { background: { color: 'transparent' }, textColor: '#d1d4dc' },
+                grid: { vertLines: { color: 'rgba(255,255,255,0.05)' }, horzLines: { color: 'rgba(255,255,255,0.05)' } },
+                crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+                rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' },
+                timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true, secondsVisible: false },
+            });
+
+            candlestickSeries = chart.addCandlestickSeries({
+                upColor: '#00b894',
+                downColor: '#ff3366',
+                borderDownColor: '#ff3366',
+                borderUpColor: '#00b894',
+                wickDownColor: '#ff3366',
+                wickUpColor: '#00b894'
+            });
+
+            volumeSeries = chart.addHistogramSeries({
+                color: 'rgba(0, 184, 148, 0.3)',
+                priceFormat: { type: 'volume' },
+                priceScaleId: ''
+            });
+
+            chartData = generarDatosCandlestick(120);
+            candlestickSeries.setData(chartData);
+            calcularMA(chartData);
+            calcularBollinger(chartData);
+            actualizarPrecio();
+
+            window.addEventListener('resize', () => {
+                if (chart) chart.applyOptions({ width: container.clientWidth });
+            });
+        }
+
+        // ================================================================
+        // 📊 INDICADORES
+        // ================================================================
+        function calcularMA(data) {
+            if (!candlestickSeries) return;
+            const period = 20;
+            const maData = [];
+            for (let i = period - 1; i < data.length; i++) {
+                let sum = 0;
+                for (let j = i - period + 1; j <= i; j++) sum += data[j].close;
+                maData.push({ time: data[i].time, value: sum / period });
+            }
+            if (maSeries) chart.removeSeries(maSeries);
+            if (indicators.ma) {
+                maSeries = chart.addLineSeries({ color: '#D4AF37', lineWidth: 1 });
+                maSeries.setData(maData);
+            }
+        }
+
+        function calcularBollinger(data) {
+            if (!candlestickSeries) return;
+            const period = 20,
+                mult = 2;
+            const upperData = [],
+                lowerData = [];
+            for (let i = period - 1; i < data.length; i++) {
+                let sum = 0;
+                for (let j = i - period + 1; j <= i; j++) sum += data[j].close;
+                const mean = sum / period;
+                let variance = 0;
+                for (let j = i - period + 1; j <= i; j++) variance += Math.pow(data[j].close - mean, 2);
+                const std = Math.sqrt(variance / period);
+                upperData.push({ time: data[i].time, value: mean + (mult * std) });
+                lowerData.push({ time: data[i].time, value: mean - (mult * std) });
+            }
+            if (bolSeries) { chart.removeSeries(bolSeries.upper);
+                chart.removeSeries(bolSeries.lower); }
+            if (indicators.bol) {
+                const upper = chart.addLineSeries({ color: 'rgba(0, 229, 255, 0.4)', lineWidth: 1,
+                    lineStyle: LightweightCharts.LineStyle.Dotted });
+                const lower = chart.addLineSeries({ color: 'rgba(0, 229, 255, 0.4)', lineWidth: 1,
+                    lineStyle: LightweightCharts.LineStyle.Dotted });
+                upper.setData(upperData);
+                lower.setData(lowerData);
+                bolSeries = { upper, lower };
+            }
+        }
+
+        function actualizarPrecio() {
+            const last = chartData[chartData.length - 1];
+            if (!last) return;
+            const price = last.close;
+            const prev = chartData[chartData.length - 2]?.close || price;
+            const change = ((price - prev) / prev * 100) || 0;
+            priceDisplay.textContent = price.toFixed(4);
+            const el = changeDisplay;
+            el.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            el.className = `change ${change >= 0 ? 'positive' : 'negative'}`;
+            priceRef.textContent = price.toFixed(4);
+            calcTotal();
+        }
+
+        function simularActualizacion() {
+            if (!chartData.length) return;
+            const last = chartData[chartData.length - 1];
+            const newClose = last.close + (Math.random() - 0.48) * 0.008;
+            chartData.push({
+                time: Math.floor(Date.now() / 1000),
+                open: last.close,
+                high: Math.max(last.high, newClose) + 0.005,
+                low: Math.min(last.low, newClose) - 0.005,
+                close: newClose,
+                volume: Math.floor(Math.random() * 5000 + 1000)
+            });
+            if (chartData.length > 200) chartData.shift();
+            if (candlestickSeries) {
+                candlestickSeries.setData(chartData);
+                calcularMA(chartData);
+                calcularBollinger(chartData);
+                actualizarPrecio();
+            }
+        }
+
+        // ================================================================
+        // ⏱️ TIMEFRAME
+        // ================================================================
+        function setTimeframe(tf) {
+            document.querySelectorAll('.tf').forEach(b => b.classList.toggle('active', b.dataset.tf === tf));
+            const count = tf === '1d' ? 200 : tf === '1h' ? 120 : tf === '15m' ? 90 : 60;
+            chartData = generarDatosCandlestick(count);
+            if (candlestickSeries) {
+                candlestickSeries.setData(chartData);
+                calcularMA(chartData);
+                calcularBollinger(chartData);
+                actualizarPrecio();
+            }
+        }
+
+        // ================================================================
+        // 📊 TOGGLE INDICADORES
+        // ================================================================
+        function toggleIndicator(ind) {
+            indicators[ind] = !indicators[ind];
+            document.querySelector(`.ind-btn[data-ind="${ind}"]`).classList.toggle('active');
+            if (ind === 'ma') { if (indicators.ma) calcularMA(chartData);
+                else { if (maSeries) chart.removeSeries(maSeries);
+                    maSeries = null; } }
+            if (ind === 'bol') { if (indicators.bol) calcularBollinger(chartData);
+                else { if (bolSeries) { chart.removeSeries(bolSeries.upper);
+                        chart.removeSeries(bolSeries.lower);
+                        bolSeries = null; } } }
+            if (ind === 'rsi') mostrarToast('📊 RSI ' + (indicators.rsi ? 'activado' : 'desactivado'));
+            if (ind === 'macd') mostrarToast('📊 MACD ' + (indicators.macd ? 'activado' : 'desactivado'));
+        }
+
+        // ================================================================
+        // 🧮 TRADING
+        // ================================================================
+        function setTradeMode(mode) {
+            tradeMode = mode;
+            btnExecute.innerHTML = mode === 'buy' ? '🚀 COMPRAR STOKS' : '💸 VENDER STOKS';
+            btnExecute.className = 'btn btn-execute ' + (mode === 'buy' ? 'buy' : 'sell');
+        }
+
+        function calcTotal() {
+            const amount = parseFloat(tradeAmount.value) || 0;
+            const total = amount * currentPrice;
+            totalEst.textContent = total.toFixed(2) + ' CMT';
+        }
+
+        // ================================================================
+        // 🚀 EJECUTAR ORDEN CON SUPABASE
+        // ================================================================
+        async function ejecutarOrden() {
+            if (!document.getElementById('acceptTerms').checked) {
+                tradeStatus.textContent = '⚠️ Acepta los términos.';
+                return;
+            }
+            const amount = parseFloat(tradeAmount.value);
+            if (!amount || amount <= 0) {
+                tradeStatus.textContent = '⚠️ Cantidad válida.';
+                return;
+            }
+            const price = currentPrice;
+            const total = amount * price;
+            const comision = total * 0.01;
+            const totalConComision = total + comision;
+
+            tradeStatus.textContent = '⏳ Procesando...';
+
+            try {
+                if (supabase && currentUserId) {
+                    // Obtener saldo actual
+                    const { data: saldo, error: saldoError } = await supabase
+                        .from('csariels_saldos')
+                        .select('stoks, cmt')
+                        .eq('usuario_id', currentUserId)
+                        .single();
+
+                    if (saldoError) throw saldoError;
+
+                    let stoks = saldo.stoks || 0;
+                    let cmt = saldo.cmt || 0;
+
+                    if (tradeMode === 'buy' && cmt < totalConComision) {
+                        tradeStatus.textContent = `⚠️ Saldo insuficiente. Tienes ${cmt.toFixed(2)} CMT`;
+                        return;
+                    }
+                    if (tradeMode === 'sell' && stoks < amount) {
+                        tradeStatus.textContent = `⚠️ No tienes suficientes STOKS. Tienes ${stoks.toFixed(2)} STOKS`;
+                        return;
+                    }
+
+                    // Actualizar saldo
+                    if (tradeMode === 'buy') {
+                        stoks += amount;
+                        cmt -= totalConComision;
+                    } else {
+                        stoks -= amount;
+                        cmt += total - comision;
+                    }
+
+                    const { error: updateError } = await supabase
+                        .from('csariels_saldos')
+                        .update({ stoks, cmt })
+                        .eq('usuario_id', currentUserId);
+
+                    if (updateError) throw updateError;
+
+                    // Registrar transacción
+                    const { error: transError } = await supabase
+                        .from('csariels_transacciones')
+                        .insert({
+                            usuario_id: currentUserId,
+                            type: tradeMode,
+                            amount: amount,
+                            price: price,
+                            total: total,
+                            comision: comision,
+                            status: 'filled'
+                        });
+
+                    if (transError) throw transError;
+
+                    balSTOKS.textContent = stoks.toFixed(2);
+                    balCMT.textContent = cmt.toFixed(2);
+
+                    // Cerrar orden si era abierta
+                    const { error: orderError } = await supabase
+                        .from('csariels_ordenes')
+                        .update({ status: 'filled' })
+                        .eq('usuario_id', currentUserId)
+                        .eq('type', tradeMode)
+                        .eq('status', 'open');
+
+                    // No es crítico si no hay órdenes abiertas
+
+                    tradeStatus.textContent =
+                        `✅ ${amount} STOKS ${tradeMode === 'buy' ? 'comprados' : 'vendidos'} (comisión: ${comision.toFixed(2)} CMT)`;
+                    mostrarToast('✅ Orden ejecutada');
+                } else {
+                    // Fallback a localStorage
+                    const saved = JSON.parse(localStorage.getItem(`csariels_balance_${currentUserId}`) ||
+                        '{"stoks":1000,"cmt":1000}');
+                    let stoks = saved.stoks || 0;
+                    let cmt = saved.cmt || 0;
+
+                    if (tradeMode === 'buy' && cmt < totalConComision) {
+                        tradeStatus.textContent = `⚠️ Saldo insuficiente. Tienes ${cmt.toFixed(2)} CMT`;
+                        return;
+                    }
+                    if (tradeMode === 'sell' && stoks < amount) {
+                        tradeStatus.textContent = `⚠️ No tienes suficientes STOKS. Tienes ${stoks.toFixed(2)} STOKS`;
+                        return;
+                    }
+
+                    if (tradeMode === 'buy') {
+                        stoks += amount;
+                        cmt -= totalConComision;
+                    } else {
+                        stoks -= amount;
+                        cmt += total - comision;
+                    }
+
+                    localStorage.setItem(`csariels_balance_${currentUserId}`, JSON.stringify({ stoks, cmt }));
+
+                    const orders = JSON.parse(localStorage.getItem(`csariels_orders_${currentUserId}`) || '[]');
+                    orders.push({
+                        id: Date.now(),
+                        type: tradeMode,
+                        amount: amount,
+                        price: price,
+                        total: total,
+                        comision: comision,
+                        status: 'filled',
+                        date: new Date().toISOString()
+                    });
+                    localStorage.setItem(`csariels_orders_${currentUserId}`, JSON.stringify(orders));
+
+                    balSTOKS.textContent = stoks.toFixed(2);
+                    balCMT.textContent = cmt.toFixed(2);
+                    tradeStatus.textContent =
+                        `✅ ${amount} STOKS ${tradeMode === 'buy' ? 'comprados' : 'vendidos'} (comisión: ${comision.toFixed(2)} CMT)`;
+                    mostrarToast('✅ Orden ejecutada (local)');
+                }
+
+                tradeAmount.value = '';
+                totalEst.textContent = '0.00 CMT';
+                await cargarOrdenes();
+                await cargarHistorial();
+            } catch (e) {
+                console.error('❌ Error ejecutando orden:', e);
+                tradeStatus.textContent = '❌ Error: ' + e.message;
+                mostrarToast('❌ Error al ejecutar orden', 'error');
+            }
+        }
+
+        function cerrarPosicion() { document.getElementById('positionModal').classList.remove('active'); }
+
+        function cerrarRecibir() { document.getElementById('receiveModal').classList.remove('active'); }
+
+        function copiarUserId() {
+            navigator.clipboard.writeText(currentUserId || 'usuario_123');
+            mostrarToast('📋 ID copiado: ' + (currentUserId || 'usuario_123'));
+        }
+
+        // ================================================================
         // 🚀 INICIALIZAR
         // ================================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            aplicarIdioma(idiomaActual);
-            actualizarEsimUI();
-            console.log('📶 Csariel\'s - eSIM cargado');
+        document.addEventListener('DOMContentLoaded', async function() {
+            initStars();
+            await initSupabase();
+            await CSARIELS_IDIOMA.init();
+
+            initChart();
+
+            // Simular actualización de precios
+            setInterval(simularActualizacion, 3000);
+
+            console.log('📈 Csariel\'s STOKS Trading - CON SUPABASE');
+            console.log('💰 Comisión: 1% (Art. 3.4)');
+            console.log('📍 Jurisdicción: Puebla, México (Art. 5.10)');
+
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.newValue);
+                }
+            });
+
+            window.addEventListener('idioma-cambiado', (e) => {
+                if (e.detail?.idioma && e.detail.idioma !== CSARIELS_IDIOMA.actual) {
+                    CSARIELS_IDIOMA.cambiar(e.detail.idioma);
+                }
+            });
         });
 
-        // Exponer funciones globales
-        window.cambiarIdioma = cambiarIdioma;
-        window.activarEsim = activarEsim;
-        window.recargarDatos = recargarDatos;
-        window.desactivarEsim = desactivarEsim;
-        window.seleccionarPlan = seleccionarPlan;
+        window.setTimeframe = setTimeframe;
+        window.toggleIndicator = toggleIndicator;
+        window.setTradeMode = setTradeMode;
+        window.ejecutarOrden = ejecutarOrden;
+        window.calcTotal = calcTotal;
         window.mostrarToast = mostrarToast;
+        window.cerrarPosicion = cerrarPosicion;
+        window.cerrarRecibir = cerrarRecibir;
+        window.copiarUserId = copiarUserId;
+        window.CSARIELS_IDIOMA = CSARIELS_IDIOMA;
     </script>
 </body>
 </html>
