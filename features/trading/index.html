@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#0F2D1A" />
     <base href="/">
 
+    <!-- ===== CSP ===== -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
@@ -21,6 +22,7 @@
         form-action 'self';
     ">
 
+    <!-- ===== RECURSOS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.js">
@@ -602,7 +604,7 @@
             font-weight: 600;
         }
 
-        /* ===== COMISIÓN 1% (Art. 3.4) - ALERTA AMARILLA ===== */
+        /* ===== COMISIÓN 1% (Art. 3.4) ===== */
         .commission-info {
             font-size: 0.6rem;
             text-align: center;
@@ -617,7 +619,7 @@
             font-weight: 700;
         }
 
-        /* ===== RIESGO (Art. 3.5) - ALERTA ROJA ===== */
+        /* ===== RIESGO (Art. 3.5) ===== */
         .risk-warning {
             font-size: 0.5rem;
             color: var(--danger);
@@ -716,7 +718,7 @@
             color: var(--gold-cosmic);
         }
 
-        /* ===== AVISO LEGAL (Art. 5.5 y 5.10) ===== */
+        /* ===== AVISO LEGAL ===== */
         .legal-notice {
             margin-top: 16px;
             padding: 12px 16px;
@@ -1112,7 +1114,7 @@
     <div class="toast" id="toast"></div>
 
     <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS CON SUPABASE -->
+    <!-- 🔥 SCRIPTS CON SUPABASE + RPC SEGURA -->
     <!-- ================================================================ -->
     <script>
         // ================================================================
@@ -1381,7 +1383,6 @@
         // ================================================================
         async function initSupabase() {
             try {
-                // Esperar que client-config-loader.js exponga window.supabase
                 let attempts = 0;
                 while (!window.supabase && attempts < 30) {
                     await new Promise(r => setTimeout(r, 200));
@@ -1392,7 +1393,6 @@
                     supabase = window.supabase;
                     console.log('✅ Supabase conectado para Trading');
 
-                    // Obtener usuario
                     const { data: { user }, error } = await supabase.auth.getUser();
                     if (error) throw error;
                     if (user) {
@@ -1402,7 +1402,6 @@
                         await cargarOrdenes();
                         await cargarHistorial();
                     } else {
-                        // Sesión anónima
                         const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
                         if (anonError) throw anonError;
                         currentUserId = anonData.user.id;
@@ -1422,7 +1421,6 @@
             } catch (e) {
                 console.error('❌ Error iniciando Supabase:', e);
                 mostrarToast('⚠️ Error de conexión', 'error');
-                // Fallback a localStorage
                 currentUserId = localStorage.getItem('csariels_user_id') || 'user_' + Date.now();
                 userDisplay.textContent = localStorage.getItem('csariels_user_name') || 'Usuario';
                 cargarBalancesLocal();
@@ -1432,42 +1430,41 @@
         }
 
         // ================================================================
-        // 💰 CARGAR BALANCES DESDE SUPABASE
+        // 💰 CARGAR BALANCES (vía RPC segura)
         // ================================================================
         async function cargarBalances() {
-            if (!supabase || !currentUserId) return;
+            if (!supabase || !currentUserId) {
+                cargarBalancesLocal();
+                return;
+            }
 
             try {
-                // Cargar saldo de STOKS (csariels_saldos)
-                const { data: saldoData, error: saldoError } = await supabase
-                    .from('csariels_saldos')
-                    .select('stoks, cmt')
-                    .eq('usuario_id', currentUserId)
-                    .maybeSingle();
+                // ✅ Llamar a la RPC que crea el saldo inicial si no existe
+                const { data, error } = await supabase
+                    .rpc('crear_saldo_inicial_stoks');
 
-                if (saldoError && saldoError.code !== 'PGRST116') throw saldoError;
+                if (error) throw error;
 
-                if (saldoData) {
-                    balSTOKS.textContent = (saldoData.stoks || 0).toFixed(2);
-                    balCMT.textContent = (saldoData.cmt || 0).toFixed(2);
+                if (data && data.length > 0) {
+                    balSTOKS.textContent = (data[0].stoks || 0).toFixed(2);
+                    balCMT.textContent = (data[0].cmt || 0).toFixed(2);
                 } else {
-                    // Crear saldo inicial
-                    const { data: newSaldo, error: createError } = await supabase
+                    // Fallback: SELECT directo (solo lectura)
+                    const { data: saldo, error: selectError } = await supabase
                         .from('csariels_saldos')
-                        .insert({
-                            usuario_id: currentUserId,
-                            stoks: 1000,
-                            cmt: 1000
-                        })
-                        .select()
-                        .single();
+                        .select('stoks, cmt')
+                        .eq('usuario_id', currentUserId)
+                        .maybeSingle();
 
-                    if (createError) throw createError;
-                    balSTOKS.textContent = (newSaldo.stoks || 0).toFixed(2);
-                    balCMT.textContent = (newSaldo.cmt || 0).toFixed(2);
+                    if (selectError) throw selectError;
+                    if (saldo) {
+                        balSTOKS.textContent = (saldo.stoks || 0).toFixed(2);
+                        balCMT.textContent = (saldo.cmt || 0).toFixed(2);
+                    }
                 }
             } catch (e) {
                 console.error('❌ Error cargando balances:', e);
+                mostrarToast('⚠️ Error al cargar saldo', 'error');
                 cargarBalancesLocal();
             }
         }
@@ -1489,7 +1486,7 @@
         }
 
         // ================================================================
-        // 📋 CARGAR ÓRDENES DESDE SUPABASE
+        // 📋 CARGAR ÓRDENES
         // ================================================================
         async function cargarOrdenes() {
             if (!supabase || !currentUserId) {
@@ -1526,9 +1523,6 @@
             }
         }
 
-        // ================================================================
-        // 📋 CARGAR ÓRDENES (FALLBACK LOCALSTORAGE)
-        // ================================================================
         function cargarOrdenesLocal() {
             const orders = JSON.parse(localStorage.getItem(`csariels_orders_${currentUserId}`) || '[]');
             const openOrders = orders.filter(o => o.status === 'open');
@@ -1548,7 +1542,7 @@
         }
 
         // ================================================================
-        // 📜 CARGAR HISTORIAL DESDE SUPABASE
+        // 📜 CARGAR HISTORIAL
         // ================================================================
         async function cargarHistorial() {
             if (!supabase || !currentUserId) {
@@ -1585,9 +1579,6 @@
             }
         }
 
-        // ================================================================
-        // 📜 CARGAR HISTORIAL (FALLBACK LOCALSTORAGE)
-        // ================================================================
         function cargarHistorialLocal() {
             const orders = JSON.parse(localStorage.getItem(`csariels_orders_${currentUserId}`) || '[]');
             const history = orders.filter(o => o.status === 'filled').slice(0, 10);
@@ -1807,7 +1798,7 @@
         }
 
         // ================================================================
-        // 🚀 EJECUTAR ORDEN CON SUPABASE
+        // 🚀 EJECUTAR ORDEN CON RPC SEGURA
         // ================================================================
         async function ejecutarOrden() {
             if (!document.getElementById('acceptTerms').checked) {
@@ -1820,135 +1811,48 @@
                 return;
             }
             const price = currentPrice;
-            const total = amount * price;
-            const comision = total * 0.01;
-            const totalConComision = total + comision;
 
             tradeStatus.textContent = '⏳ Procesando...';
 
             try {
-                if (supabase && currentUserId) {
-                    // Obtener saldo actual
-                    const { data: saldo, error: saldoError } = await supabase
-                        .from('csariels_saldos')
-                        .select('stoks, cmt')
-                        .eq('usuario_id', currentUserId)
-                        .single();
+                // ✅ Usar RPC en lugar de UPDATE/INSERT directo
+                const { data, error } = await supabase
+                    .rpc('ejecutar_orden_stoks', {
+                        p_type: tradeMode,
+                        p_amount: amount,
+                        p_price: price
+                    });
 
-                    if (saldoError) throw saldoError;
+                if (error) {
+                    tradeStatus.textContent = '❌ ' + error.message;
+                    mostrarToast('❌ ' + error.message, 'error');
+                    return;
+                }
 
-                    let stoks = saldo.stoks || 0;
-                    let cmt = saldo.cmt || 0;
+                // ✅ Actualizar UI con los nuevos saldos retornados
+                if (data && data.length > 0) {
+                    const newStoks = data[0].stoks;
+                    const newCmt = data[0].cmt;
 
-                    if (tradeMode === 'buy' && cmt < totalConComision) {
-                        tradeStatus.textContent = `⚠️ Saldo insuficiente. Tienes ${cmt.toFixed(2)} CMT`;
-                        return;
-                    }
-                    if (tradeMode === 'sell' && stoks < amount) {
-                        tradeStatus.textContent = `⚠️ No tienes suficientes STOKS. Tienes ${stoks.toFixed(2)} STOKS`;
-                        return;
-                    }
+                    balSTOKS.textContent = (newStoks || 0).toFixed(2);
+                    balCMT.textContent = (newCmt || 0).toFixed(2);
 
-                    // Actualizar saldo
-                    if (tradeMode === 'buy') {
-                        stoks += amount;
-                        cmt -= totalConComision;
-                    } else {
-                        stoks -= amount;
-                        cmt += total - comision;
-                    }
-
-                    const { error: updateError } = await supabase
-                        .from('csariels_saldos')
-                        .update({ stoks, cmt })
-                        .eq('usuario_id', currentUserId);
-
-                    if (updateError) throw updateError;
-
-                    // Registrar transacción
-                    const { error: transError } = await supabase
-                        .from('csariels_transacciones')
-                        .insert({
-                            usuario_id: currentUserId,
-                            type: tradeMode,
-                            amount: amount,
-                            price: price,
-                            total: total,
-                            comision: comision,
-                            status: 'filled'
-                        });
-
-                    if (transError) throw transError;
-
-                    balSTOKS.textContent = stoks.toFixed(2);
-                    balCMT.textContent = cmt.toFixed(2);
-
-                    // Cerrar orden si era abierta
-                    const { error: orderError } = await supabase
-                        .from('csariels_ordenes')
-                        .update({ status: 'filled' })
-                        .eq('usuario_id', currentUserId)
-                        .eq('type', tradeMode)
-                        .eq('status', 'open');
-
-                    // No es crítico si no hay órdenes abiertas
-
+                    const comision = amount * price * 0.01;
                     tradeStatus.textContent =
                         `✅ ${amount} STOKS ${tradeMode === 'buy' ? 'comprados' : 'vendidos'} (comisión: ${comision.toFixed(2)} CMT)`;
                     mostrarToast('✅ Orden ejecutada');
-                } else {
-                    // Fallback a localStorage
-                    const saved = JSON.parse(localStorage.getItem(`csariels_balance_${currentUserId}`) ||
-                        '{"stoks":1000,"cmt":1000}');
-                    let stoks = saved.stoks || 0;
-                    let cmt = saved.cmt || 0;
 
-                    if (tradeMode === 'buy' && cmt < totalConComision) {
-                        tradeStatus.textContent = `⚠️ Saldo insuficiente. Tienes ${cmt.toFixed(2)} CMT`;
-                        return;
-                    }
-                    if (tradeMode === 'sell' && stoks < amount) {
-                        tradeStatus.textContent = `⚠️ No tienes suficientes STOKS. Tienes ${stoks.toFixed(2)} STOKS`;
-                        return;
-                    }
-
-                    if (tradeMode === 'buy') {
-                        stoks += amount;
-                        cmt -= totalConComision;
-                    } else {
-                        stoks -= amount;
-                        cmt += total - comision;
-                    }
-
-                    localStorage.setItem(`csariels_balance_${currentUserId}`, JSON.stringify({ stoks, cmt }));
-
-                    const orders = JSON.parse(localStorage.getItem(`csariels_orders_${currentUserId}`) || '[]');
-                    orders.push({
-                        id: Date.now(),
-                        type: tradeMode,
-                        amount: amount,
-                        price: price,
-                        total: total,
-                        comision: comision,
-                        status: 'filled',
-                        date: new Date().toISOString()
-                    });
-                    localStorage.setItem(`csariels_orders_${currentUserId}`, JSON.stringify(orders));
-
-                    balSTOKS.textContent = stoks.toFixed(2);
-                    balCMT.textContent = cmt.toFixed(2);
-                    tradeStatus.textContent =
-                        `✅ ${amount} STOKS ${tradeMode === 'buy' ? 'comprados' : 'vendidos'} (comisión: ${comision.toFixed(2)} CMT)`;
-                    mostrarToast('✅ Orden ejecutada (local)');
+                    // Actualizar órdenes e historial
+                    await cargarOrdenes();
+                    await cargarHistorial();
                 }
 
                 tradeAmount.value = '';
                 totalEst.textContent = '0.00 CMT';
-                await cargarOrdenes();
-                await cargarHistorial();
+
             } catch (e) {
                 console.error('❌ Error ejecutando orden:', e);
-                tradeStatus.textContent = '❌ Error: ' + e.message;
+                tradeStatus.textContent = '❌ ' + (e.message || 'Error al ejecutar orden');
                 mostrarToast('❌ Error al ejecutar orden', 'error');
             }
         }
@@ -1975,9 +1879,10 @@
             // Simular actualización de precios
             setInterval(simularActualizacion, 3000);
 
-            console.log('📈 Csariel\'s STOKS Trading - CON SUPABASE');
+            console.log('📈 Csariel\'s STOKS Trading - CON SUPABASE + RPC SEGURA');
             console.log('💰 Comisión: 1% (Art. 3.4)');
             console.log('📍 Jurisdicción: Puebla, México (Art. 5.10)');
+            console.log('🔒 Los saldos se actualizan vía RPC (SECURITY DEFINER)');
 
             window.addEventListener('storage', (e) => {
                 if (e.key === 'csariels_idioma' && e.newValue !== CSARIELS_IDIOMA.actual) {
