@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>◈ Mi Red · Csariel's Ecosystem</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212, 175, 55, 0.15);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212, 175, 55, 0.08);
+            --border-glow: rgba(212, 175, 55, 0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo .hex {
+            font-size: 1.8rem;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 10px;
+            border-radius: 6px;
+            border: 2px solid var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-badge {
+            font-size: 0.5rem;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 2px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--gold-dim);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            border-color: var(--gold-cosmic);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .btn-primary {
+            background: var(--verde-bosque);
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+        }
+
+        .btn-primary:hover {
+            background: var(--verde-bosque-light);
+        }
+
+        .btn-gold {
+            background: var(--gold-cosmic);
+            border-color: var(--gold-cosmic);
+            color: #0a0c10;
+        }
+
+        .btn-gold:hover {
+            background: #b8923a;
+        }
+
+        .btn-danger {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid var(--gold-dim);
+            border-radius: 30px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 30px;
+            border: 1px solid var(--gold-dim);
+        }
+
+        .user-info .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--verde-bosque);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-cosmic);
+            font-weight: 700;
+            font-size: 0.6rem;
+        }
+
+        .user-info .name {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== WELCOME ===== */
+        .welcome {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(15, 45, 26, 0.08);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+        }
+
+        .welcome h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome p {
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* ===== RED SOCIAL ===== */
+        .red-container {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 24px;
+        }
+
+        @media (max-width: 820px) {
+            .red-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== POSTS ===== */
+        .posts-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .post-card {
+            background: rgba(15, 45, 26, 0.06);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            transition: var(--transition);
+        }
+
+        .post-card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--verde-bosque);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-cosmic);
+            font-weight: 700;
+            font-size: 0.7rem;
+            border: 1px solid var(--gold-dim);
+        }
+
+        .post-author {
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .post-author span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.6rem;
+        }
+
+        .post-content {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin: 6px 0 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .post-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .post-actions button:hover {
+            color: var(--gold-cosmic);
+        }
+
+        .post-actions .liked {
+            color: var(--danger);
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sidebar-card {
+            background: rgba(15, 45, 26, 0.06);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+        }
+
+        .sidebar-card h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            color: var(--gold-cosmic);
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-card .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gold-dim);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-card .item:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-card .item .badge {
+            margin-left: auto;
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-size: 0.5rem;
+        }
+
+        .sidebar-card .btn-new-post {
+            width: 100%;
+            padding: 8px;
+            background: var(--gold-cosmic);
+            border: none;
+            border-radius: 30px;
+            color: #0a0c10;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sidebar-card .btn-new-post:hover {
+            background: #b8923a;
+            transform: scale(1.02);
+        }
+
+        /* ===== CREAR POST ===== */
+        .create-post {
+            background: rgba(15, 45, 26, 0.06);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 16px;
+        }
+
+        .create-post textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            resize: vertical;
+            min-height: 60px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .create-post textarea:focus {
+            border-color: var(--gold-cosmic);
+        }
+
+        .create-post .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            justify-content: flex-end;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--verde-bosque);
+            color: var(--gold-cosmic);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 5000;
+            pointer-events: none;
+            border: 1px solid var(--gold-dim);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .welcome h1 {
+                font-size: 1.3rem;
+            }
+            .post-card {
+                padding: 14px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== FONDO ESTELAR ===== -->
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="/" class="logo">
+                <span class="hex">◈</span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Mi Red</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Conectado</span>
+                </div>
+
+                <div class="user-info" id="userInfo">
+                    <div class="avatar" id="userAvatar">👤</div>
+                    <span class="name" id="userName">Invitado</span>
+                </div>
+
+                <a href="/" class="btn btn-sm">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+                <a href="/features/live/index.html" class="btn btn-sm btn-primary">
+                    <i class="fas fa-broadcast"></i> Live
+                </a>
+                <a href="/features/foro/index.html" class="btn btn-sm">
+                    <i class="fas fa-comments"></i> Foro
+                </a>
+                <a href="/tienda.html" class="btn btn-sm btn-gold">
+                    <i class="fas fa-store"></i> Tienda
+                </a>
+                <button class="btn btn-sm btn-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== WELCOME ===== -->
+        <section class="welcome">
+            <h1>🌐 Mi Red</h1>
+            <p id="welcomeMessage">Conecta, comparte y crece con tu comunidad.</p>
+        </section>
+
+        <!-- ===== CONTENEDOR PRINCIPAL ===== -->
+        <div class="red-container">
+
+            <!-- ===== COLUMNA PRINCIPAL ===== -->
+            <div class="posts-section">
+
+                <!-- CREAR POST -->
+                <div class="create-post">
+                    <textarea id="postInput" placeholder="¿Qué estás pensando? Comparte con tu red..."></textarea>
+                    <div class="actions">
+                        <button class="btn btn-gold btn-sm" onclick="crearPost()">
+                            <i class="fas fa-paper-plane"></i> Publicar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LISTA DE POSTS -->
+                <div id="postsList">
+                    <!-- Los posts se cargan dinámicamente -->
+                </div>
+            </div>
+
+            <!-- ===== SIDEBAR ===== -->
+            <div class="sidebar">
+
+                <!-- ESTADÍSTICAS -->
+                <div class="sidebar-card">
+                    <h3>📊 Estadísticas</h3>
+                    <div class="item">
+                        <span>Miembros</span>
+                        <span class="badge" id="memberCount">42</span>
+                    </div>
+                    <div class="item">
+                        <span>Posts</span>
+                        <span class="badge" id="postCount">0</span>
+                    </div>
+                    <div class="item">
+                        <span>En línea</span>
+                        <span class="badge" id="onlineCount">12</span>
+                    </div>
+                </div>
+
+                <!-- MIEMBROS DESTACADOS -->
+                <div class="sidebar-card">
+                    <h3>⭐ Miembros Destacados</h3>
+                    <div class="item">
+                        <span>🌟 Csariel</span>
+                        <span class="badge">Admin</span>
+                    </div>
+                    <div class="item">
+                        <span>🚀 Puebla</span>
+                        <span class="badge">Mod</span>
+                    </div>
+                    <div class="item">
+                        <span>🌎 Global</span>
+                        <span class="badge">Líder</span>
+                    </div>
+                </div>
+
+                <!-- ACCIONES RÁPIDAS -->
+                <div class="sidebar-card">
+                    <h3>⚡ Acciones</h3>
+                    <button class="btn-new-post" onclick="abrirNuevoPost()">
+                        <i class="fas fa-plus"></i> Nuevo Post
+                    </button>
+                    <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                        <a href="/features/trading/index.html" class="btn btn-sm">📈 Trading</a>
+                        <a href="/features/internet/index.html" class="btn btn-sm">🌐 Internet</a>
+                        <a href="/tienda.html" class="btn btn-sm">🛍️ Tienda</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer" style="margin-top:24px; padding-top:14px; border-top:1px solid var(--gold-dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <span style="color:var(--text-muted); font-size:0.5rem; font-family:'Orbitron',monospace;">
+                <span style="color:var(--gold-cosmic);">◈ Csariel's</span> — Mi Red · Conecta · Comparte
+            </span>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a href="/" style="color:var(--text-muted); text-decoration:none; font-size:0.5rem; font-family:'Orbitron',monospace;">🏠 Inicio</a>
+                <a href="/features/foro/index.html" style="color:var(--text-muted); text-decoration:none; font-size:0.5rem; font-family:'Orbitron',monospace;">💬 Foro</a>
+                <a href="/tienda.html" style="color:var(--text-muted); text-decoration:none; font-size:0.5rem; font-family:'Orbitron',monospace;">🛍️ Tienda</a>
+                <span style="display:inline-block; background:var(--verde-bosque); color:var(--gold-cosmic); padding:2px 8px; border-radius:4px; font-size:0.45rem; font-weight:700; border:1px solid var(--gold-cosmic); font-family:'Orbitron',monospace;">◈</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ================================================================ -->
+
+    <script>
+        // ================================================================
+        // 🌟 ESTRELLAS
+        // ================================================================
+        (function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resize();
+
+            const stars = Array.from({ length: 200 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 0.8 + 0.2,
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.005 + 0.002,
+                phase: Math.random() * Math.PI * 2
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                    ctx.fill();
+                    s.y += s.speed;
+                    s.phase += 0.01;
+                    if (s.y > h) { s.y = 0;
+                        s.x = Math.random() * w; }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+
+            window.addEventListener('resize', () => {
+                resize();
+                stars.forEach(s => { s.x = Math.random() * w;
+                    s.y = Math.random() * h; });
+            });
+        })();
+
+        // ================================================================
+        // 👤 USUARIO
+        // ================================================================
+
+        let currentUser = {
+            name: localStorage.getItem('csariels_user_name') || 'Invitado',
+            id: localStorage.getItem('csariels_user_id') || null,
+            isLoggedIn: localStorage.getItem('csariels_login') === 'true'
+        };
+
+        function updateUserUI() {
+            const nameEl = document.getElementById('userName');
+            const avatarEl = document.getElementById('userAvatar');
+            const welcomeMsg = document.getElementById('welcomeMessage');
+
+            if (currentUser.isLoggedIn && currentUser.name !== 'Invitado') {
+                nameEl.textContent = currentUser.name;
+                avatarEl.textContent = currentUser.name.charAt(0).toUpperCase();
+                welcomeMsg.textContent = `Bienvenido de vuelta, ${currentUser.name}! 🌟 Conecta con tu comunidad.`;
+            } else {
+                nameEl.textContent = 'Invitado';
+                avatarEl.textContent = '👤';
+                welcomeMsg.textContent = 'Conecta, comparte y crece con tu comunidad.';
+            }
+        }
+
+        // ================================================================
+        // 📝 POSTS
+        // ================================================================
+
+        let posts = [];
+
+        function cargarPosts() {
+            try {
+                const saved = localStorage.getItem('csariels_posts');
+                if (saved) {
+                    posts = JSON.parse(saved);
+                } else {
+                    posts = [{
+                        id: Date.now() - 100000,
+                        author: 'Csariel',
+                        content: '¡Bienvenidos a Mi Red! 🌟 Este es el centro de nuestra comunidad. Conecta, comparte y crece con nosotros.',
+                        timestamp: Date.now() - 100000,
+                        likes: 5,
+                        liked: false
+                    }, {
+                        id: Date.now() - 200000,
+                        author: 'Puebla',
+                        content: '🚀 Estamos construyendo el ecosistema más grande de Puebla. ¡Únete y sé parte de la historia!',
+                        timestamp: Date.now() - 200000,
+                        likes: 3,
+                        liked: false
+                    }, {
+                        id: Date.now() - 300000,
+                        author: 'Global',
+                        content: '🌎 La red crece día a día. Pronto tendremos integración con trading, internet eSIM y mucho más.',
+                        timestamp: Date.now() - 300000,
+                        likes: 7,
+                        liked: false
+                    }];
+                    guardarPosts();
+                }
+            } catch (e) {
+                posts = [];
+            }
+            renderPosts();
+        }
+
+        function guardarPosts() {
+            try {
+                localStorage.setItem('csariels_posts', JSON.stringify(posts));
+                actualizarContadorPosts();
+            } catch (e) {}
+        }
+
+        function renderPosts() {
+            const container = document.getElementById('postsList');
+            if (!container) return;
+
+            if (posts.length === 0) {
+                container.innerHTML =
+                    `
+                    <div class="post-card" style="text-align:center; padding:30px;">
+                        <p style="color:var(--text-muted);">📝 No hay posts aún. ¡Sé el primero en publicar!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sorted = [...posts].sort((a, b) => b.timestamp - a.timestamp);
+
+            container.innerHTML = sorted.map(post => `
+                <div class="post-card" data-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-avatar">${post.author.charAt(0).toUpperCase()}</div>
+                        <div class="post-author">
+                            ${post.author}
+                            <span>• ${formatearFecha(post.timestamp)}</span>
+                        </div>
+                    </div>
+                    <div class="post-content">${escapeHTML(post.content)}</div>
+                    <div class="post-actions">
+                        <button onclick="toggleLike('${post.id}')" class="${post.liked ? 'liked' : ''}">
+                            <i class="${post.liked ? 'fas' : 'far'} fa-heart"></i>
+                            <span>${post.likes || 0}</span>
+                        </button>
+                        <button onclick="eliminarPost('${post.id}')">
+                            <i class="far fa-trash-alt"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            actualizarContadorPosts();
+        }
+
+        function formatearFecha(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = (now - date) / 1000;
+
+            if (diff < 60) return 'hace ' + Math.floor(diff) + 's';
+            if (diff < 3600) return 'hace ' + Math.floor(diff / 60) + 'm';
+            if (diff < 86400) return 'hace ' + Math.floor(diff / 3600) + 'h';
+            if (diff < 604800) return 'hace ' + Math.floor(diff / 86400) + 'd';
+
+            return date.toLocaleDateString('es-MX');
+        }
+
+        function escapeHTML(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ================================================================
+        // ✏️ CRUD DE POSTS
+        // ================================================================
+
+        function crearPost() {
+            const input = document.getElementById('postInput');
+            const content = input.value.trim();
+
+            if (!content) {
+                mostrarToast('✏️ Escribe algo para publicar.', 'error');
+                return;
+            }
+
+            if (!currentUser.isLoggedIn || currentUser.name === 'Invitado') {
+                mostrarToast('⚠️ Inicia sesión para publicar.', 'error');
+                return;
+            }
+
+            const newPost = {
+                id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+                author: currentUser.name,
+                content: content,
+                timestamp: Date.now(),
+                likes: 0,
+                liked: false
+            };
+
+            posts.push(newPost);
+            guardarPosts();
+            renderPosts();
+            input.value = '';
+            mostrarToast('✅ Post publicado correctamente.');
+        }
+
+        function toggleLike(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            post.liked = !post.liked;
+            post.likes += post.liked ? 1 : -1;
+            guardarPosts();
+            renderPosts();
+        }
+
+        function eliminarPost(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            if (post.author !== currentUser.name && currentUser.name !== 'Csariel') {
+                mostrarToast('⚠️ Solo el autor puede eliminar su post.', 'error');
+                return;
+            }
+
+            if (!confirm('¿Eliminar este post?')) return;
+
+            posts = posts.filter(p => p.id !== postId);
+            guardarPosts();
+            renderPosts();
+            mostrarToast('🗑️ Post eliminado.');
+        }
+
+        function abrirNuevoPost() {
+            document.getElementById('postInput').focus();
+            document.getElementById('postInput').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function actualizarContadorPosts() {
+            const el = document.getElementById('postCount');
+            if (el) el.textContent = posts.length;
+        }
+
+        // ================================================================
+        // 🔔 TOAST
+        // ================================================================
+
+        let toastTimeout;
+
+        function mostrarToast(mensaje, tipo = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast active';
+            if (tipo === 'error') toast.classList.add('error');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ================================================================
+        // 🚪 LOGOUT
+        // ================================================================
+
+        function logout() {
+            if (!confirm('¿Cerrar sesión?')) return;
+            localStorage.removeItem('csariels_login');
+            localStorage.removeItem('csariels_user_name');
+            localStorage.removeItem('csariels_user_id');
+            currentUser.isLoggedIn = false;
+            currentUser.name = 'Invitado';
+            updateUserUI();
+            mostrarToast('👋 Sesión cerrada.');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 800);
+        }
+
+        // ================================================================
+        // 🚀 INICIALIZAR
+        // ================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const storedName = localStorage.getItem('csariels_user_name');
+            if (storedName && localStorage.getItem('csariels_login') === 'true') {
+                currentUser.name = storedName;
+                currentUser.isLoggedIn = true;
+                currentUser.id = localStorage.getItem('csariels_user_id');
+            }
+
+            updateUserUI();
+            cargarPosts();
+
+            document.getElementById('postInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    crearPost();
+                }
+            });
+
+            console.log('🌟 Csariel\'s Red - cargado correctamente');
+            console.log('👤 Usuario:', currentUser.name);
+        });
+
+        window.crearPost = crearPost;
+        window.toggleLike = toggleLike;
+        window.eliminarPost = eliminarPost;
+        window.abrirNuevoPost = abrirNuevoPost;
+        window.logout = logout;
+        window.mostrarToast = mostrarToast;
+    </script>
+
+</body>
+</html>
