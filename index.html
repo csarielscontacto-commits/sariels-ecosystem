@@ -1,28 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>◈ Csariel's Ecosystem</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Csariel's · Red Social Integral</title>
     <meta name="theme-color" content="#0F2D1A" />
-    <meta name="description" content="Csariel's Ecosystem - Red Social Integral con eSIM, Trading, y Web3" />
+    <meta name="description" content="Red Social Integral · eSIM · Web3" />
+    <base href="/">
 
-    <!-- ===== PWA ===== -->
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" href="/icon-192.png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/icon-512.png" />
+    <!-- 🔒 CSP Estricto (Sin unsafe-inline en scripts) -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
 
-    <!-- ===== FUENTES Y RECURSOS ===== -->
+    <!-- ===== FUENTES Y FONTAWESOME ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
-    <!-- ===== SUPABASE SDK ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
-    </script>
+    <!-- ===== SUPABASE ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <!-- ===== CONECTORES ===== -->
+    <script src="/js/client-config-loader.js"></script>
+    <script src="/js/security.js"></script>
+
+    <!-- ===== UI COMPARTIDA (idiomas, toast, estrellas) ===== -->
+    <script src="/js/red-main.js"></script>
 
     <style>
         /* ================================================================
-           RESET Y VARIABLES
+           ESTILOS COMPLETOS - Csariel's
            ================================================================ */
         :root {
             --space-deep: #05080f;
@@ -30,13 +47,13 @@
             --verde-bosque: #0F2D1A;
             --verde-bosque-light: #1a4a2a;
             --gold-cosmic: #D4AF37;
-            --gold-dim: rgba(212, 175, 55, 0.15);
-            --gold-glow: rgba(212, 175, 55, 0.25);
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
             --text-primary: #e8f0f8;
             --text-secondary: #8ba3c7;
             --text-muted: #4a6a8a;
-            --border: rgba(212, 175, 55, 0.08);
-            --border-glow: rgba(212, 175, 55, 0.25);
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
             --radius: 16px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --success: #00b894;
@@ -51,16 +68,19 @@
             padding: 0;
             box-sizing: border-box;
         }
-        html {
-            scroll-behavior: smooth;
-        }
 
         body {
+            background: #05080f;
             background: var(--space-deep);
+            color: #e8f0f8;
             color: var(--text-primary);
             font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            line-height: 1.5;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
             overflow-x: hidden;
+            position: relative;
         }
 
         #stars-canvas {
@@ -73,73 +93,18 @@
             pointer-events: none;
         }
 
-        .nebula {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.10;
-            pointer-events: none;
-            z-index: 0;
-            animation: nebula-drift 25s ease-in-out infinite alternate;
-        }
-        .nebula-1 {
-            width: 700px;
-            height: 700px;
-            background: var(--verde-bosque);
-            top: -15%;
-            right: -15%;
-        }
-        .nebula-2 {
-            width: 600px;
-            height: 600px;
-            background: var(--gold-cosmic);
-            bottom: -15%;
-            left: -15%;
-            animation-delay: -8s;
-            opacity: 0.05;
-        }
-        .nebula-3 {
-            width: 500px;
-            height: 500px;
-            background: var(--quantum);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -15s;
-            opacity: 0.04;
-        }
-
-        @keyframes nebula-drift {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-            100% {
-                transform: translate(40px, -30px) scale(1.15);
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--space-deep);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(var(--gold-cosmic), var(--verde-bosque));
-            border-radius: 3px;
-        }
-
         .app {
             position: relative;
             z-index: 1;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 16px 20px 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* ================================================================
-           HEADER
-           ================================================================ */
+        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
@@ -169,11 +134,7 @@
             gap: 12px;
             text-decoration: none;
         }
-        .logo-icon {
-            font-size: 2rem;
-            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
-            animation: pulse-glow 3s ease-in-out infinite;
-        }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
         .logo-icon .hex {
             display: inline-block;
             background: var(--verde-bosque);
@@ -185,15 +146,7 @@
             border: 2px solid var(--gold-cosmic);
             font-family: 'Orbitron', monospace;
         }
-        @keyframes pulse-glow {
-            0%,
-            100% {
-                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.2));
-            }
-            50% {
-                filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
-            }
-        }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
 
         .logo-text {
             font-family: 'Orbitron', monospace;
@@ -215,233 +168,27 @@
             letter-spacing: 1.5px;
             text-transform: uppercase;
             -webkit-text-fill-color: white;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212,175,55,0.2);
             animation: badge-pulse 2s ease-in-out infinite;
         }
-        @keyframes badge-pulse {
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(15, 45, 26, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
-            }
-        }
+        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 16px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(212, 175, 55, 0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.6rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover {
-            transform: scale(1.02);
-            border-color: var(--border-glow);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
-            box-shadow: 0 0 40px rgba(15, 45, 26, 0.5);
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-        }
-        .btn-gold:hover:not(:disabled) {
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
-        }
-        .btn-outline {
-            border-color: var(--border);
-            background: transparent;
-        }
-        .btn-outline:hover:not(:disabled) {
-            background: rgba(212, 175, 55, 0.05);
-            border-color: var(--gold-cosmic);
-        }
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 0.55rem;
-        }
-        .btn-trading {
-            background: linear-gradient(135deg, var(--quantum), #0099ff);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-            animation: pulse-trading 2s ease-in-out infinite;
-        }
-        .btn-trading:hover {
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-trading {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
-            }
-        }
-        .btn-internet {
-            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
-            animation: pulse-internet 2s ease-in-out infinite;
-        }
-        .btn-internet:hover {
-            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-internet {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
-            }
-        }
-        .btn-tienda {
-            background: linear-gradient(135deg, #a855f7, #7c3aed);
-            border-color: transparent;
-            color: #fff;
-            -webkit-text-fill-color: #fff;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-            animation: pulse-tienda 2s ease-in-out infinite;
-        }
-        .btn-tienda:hover {
-            box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-tienda {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
-            }
-        }
-        .btn-wallet {
-            background: linear-gradient(135deg, #00d4ff, #0099ff);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-            animation: pulse-wallet 2s ease-in-out infinite;
-        }
-        .btn-wallet:hover {
-            box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-wallet {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
-            }
-        }
-        .btn-live {
-            background: linear-gradient(135deg, var(--live-red), #cc0033);
-            border-color: var(--live-red);
-            color: #fff;
-            -webkit-text-fill-color: #fff;
-            box-shadow: 0 0 20px rgba(255, 0, 51, 0.3);
-            animation: pulse-live 1.5s ease-in-out infinite;
-        }
-        .btn-live:hover {
-            box-shadow: 0 0 40px rgba(255, 0, 51, 0.5);
-            transform: scale(1.05);
-        }
-        @keyframes pulse-live {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(255, 0, 51, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(255, 0, 51, 0.6);
-            }
-        }
-        .btn-live .live-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            animation: dot-pulse 1s infinite;
-            margin-right: 4px;
-        }
-        @keyframes dot-pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.3;
-            }
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            font-size: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(212, 175, 55, 0.06);
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            border-radius: 30px;
-            color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-        .status-dot.online {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--success);
-            display: inline-block;
-        }
-
-        /* ================================================================
-           SELECTOR DE IDIOMA (estilo react-i18n)
-           ================================================================ */
+        /* ===== SELECTOR DE IDIOMA ===== */
         .language-selector {
             display: flex;
             align-items: center;
             gap: 4px;
             padding: 4px 8px;
-            background: rgba(212, 175, 55, 0.03);
+            background: rgba(212,175,55,0.03);
             border-radius: 16px;
-            border: 1px solid rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212,175,55,0.08);
         }
         .language-selector .lang-icon {
             font-size: 0.7rem;
@@ -460,224 +207,337 @@
         }
         .lang-btn:hover {
             color: var(--text-secondary);
-            background: rgba(212, 175, 55, 0.05);
+            background: rgba(212,175,55,0.05);
         }
         .lang-btn.active {
             border-color: var(--gold-cosmic);
-            background: rgba(212, 175, 55, 0.1);
+            background: rgba(212,175,55,0.1);
             color: var(--gold-cosmic);
         }
 
-        /* ================================================================
-           HERO
-           ================================================================ */
-        .hero {
-            display: flex;
-            flex-direction: column;
+        .btn {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            min-height: 50vh;
-            text-align: center;
-            padding: 40px 20px;
-            position: relative;
-        }
-        .hero .title {
+            gap: 6px;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: rgba(212,175,55,0.03);
+            color: var(--text-primary);
             font-family: 'Orbitron', monospace;
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light), var(--gold-cosmic));
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient-shift 4s ease-in-out infinite;
-            line-height: 1.2;
+            font-size: 0.55rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
         }
-        @keyframes gradient-shift {
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-        .hero .subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-top: 12px;
-            max-width: 600px;
-        }
-        .hero .badge {
-            display: inline-block;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid var(--gold-dim);
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-size: 0.6rem;
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
             color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-            margin-top: 16px;
-            letter-spacing: 1px;
+            -webkit-text-fill-color: var(--gold-cosmic);
         }
-        .hero .cta {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
+            box-shadow: 0 0 40px rgba(15,45,26,0.5);
         }
-        .hero .cta .btn {
-            padding: 10px 28px;
-            font-size: 0.7rem;
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+        }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
+        .btn-sm { padding: 4px 10px; font-size: 0.5rem; }
+        .btn-danger {
+            background: rgba(255,51,102,0.15);
+            border-color: rgba(255,51,102,0.3);
+            color: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
+        .btn-trading {
+            background: linear-gradient(135deg, var(--quantum), #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            animation: pulse-trading 2s ease-in-out infinite;
+        }
+        .btn-trading:hover {
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-trading {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        }
+        .btn-internet {
+            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
+            animation: pulse-internet 2s ease-in-out infinite;
+        }
+        .btn-internet:hover {
+            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-internet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
+        }
+        .btn-tienda {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            border-color: transparent;
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(168,85,247,0.2);
+            animation: pulse-tienda 2s ease-in-out infinite;
+        }
+        .btn-tienda:hover {
+            box-shadow: 0 0 40px rgba(168,85,247,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-tienda {
+            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
+        }
+        .btn-wallet {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-color: transparent;
+            color: #0a0c10;
+            -webkit-text-fill-color: #0a0c10;
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+            animation: pulse-wallet 2s ease-in-out infinite;
+        }
+        .btn-wallet:hover {
+            box-shadow: 0 0 40px rgba(0,212,255,0.4);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-wallet {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
         }
 
-        /* ================================================================
-           LOGIN SECTION
-           ================================================================ */
-        .login-section {
-            max-width: 480px;
-            margin: 0 auto 40px;
-            background: rgba(15, 45, 26, 0.15);
+        /* ===== BOTÓN MURO P2P ===== */
+        .btn-muro-p2p {
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            border-color: var(--gold-cosmic);
+            color: var(--gold-cosmic);
+            -webkit-text-fill-color: var(--gold-cosmic);
+            box-shadow: 0 0 20px rgba(212,175,55,0.15);
+            animation: pulse-muro 2s ease-in-out infinite;
+        }
+        .btn-muro-p2p:hover {
+            box-shadow: 0 0 40px rgba(212,175,55,0.3);
+            transform: scale(1.03);
+        }
+        @keyframes pulse-muro {
+            0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.15); }
+            50% { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,175,55,0.06);
+            border: 1px solid rgba(212,175,55,0.15);
+            border-radius: 30px;
+            color: var(--gold-cosmic);
+            font-family: 'Orbitron', monospace;
+        }
+        .status-dot.online {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+        }
+
+        /* ===== BOTÓN LIVE DESTACADO ===== */
+        .btn-live {
+            background: linear-gradient(135deg, var(--live-red), #cc0033);
+            border-color: var(--live-red);
+            color: #fff;
+            -webkit-text-fill-color: #fff;
+            box-shadow: 0 0 20px rgba(255,0,51,0.3);
+            animation: pulse-live 1.5s ease-in-out infinite;
+        }
+        .btn-live:hover {
+            box-shadow: 0 0 40px rgba(255,0,51,0.5);
+            transform: scale(1.05);
+        }
+        @keyframes pulse-live {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,0,51,0.3); }
+            50% { box-shadow: 0 0 40px rgba(255,0,51,0.6); }
+        }
+        .btn-live .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: dot-pulse 1s infinite;
+            margin-right: 4px;
+        }
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ===== LOGIN CARD ===== */
+        .login-card {
+            background: rgba(15,45,26,0.25);
             border: 1px solid var(--gold-dim);
             border-radius: var(--radius);
-            padding: 28px 24px;
+            padding: 32px 28px;
+            max-width: 480px;
+            margin: 20px auto;
             backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            flex: 1;
         }
-        .login-section .login-title {
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
+            background-size: 300% 300%;
+            border-radius: var(--radius);
+            z-index: -1;
+            opacity: 0.1;
+            animation: border-flow 4s ease-in-out infinite;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .login-card .title {
             font-family: 'Orbitron', monospace;
-            font-size: 0.9rem;
-            color: var(--gold-cosmic);
+            font-size: 1.2rem;
             text-align: center;
-            margin-bottom: 12px;
+            color: var(--gold-cosmic);
+            margin-bottom: 4px;
         }
-        .login-section .form-group {
-            margin-bottom: 12px;
+        .login-card .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 20px;
         }
-        .login-section .form-group input {
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input {
             width: 100%;
             padding: 10px 14px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0,0,0,0.3);
             border: 1px solid var(--gold-dim);
             border-radius: 10px;
             color: var(--text-primary);
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             outline: none;
             transition: var(--transition);
             font-family: 'Space Grotesk', sans-serif;
         }
-        .login-section .form-group input:focus {
+        .form-group input:focus {
             border-color: var(--gold-cosmic);
         }
-        .login-section .form-group input::placeholder {
+        .form-group input::placeholder {
             color: var(--text-muted);
+            font-size: 0.8rem;
         }
-        .login-section .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-        .login-section .checkbox-row input {
-            accent-color: var(--gold-cosmic);
-            width: 16px;
-            height: 16px;
-        }
-        .login-section .btn-login {
+
+        .btn-login {
             width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border: none;
-            border-radius: 30px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            font-size: 0.7rem;
-            color: #0a0c10;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .login-section .btn-login:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-        }
-        .login-section .btn-google {
-            width: 100%;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            color: var(--text-primary);
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 8px;
+            padding: 12px;
+            font-size: 0.75rem;
+            margin-top: 8px;
         }
-        .login-section .btn-google:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .login-section .divider {
+
+        .divider {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin: 12px 0;
+            margin: 18px 0;
             color: var(--text-muted);
             font-size: 0.6rem;
+            font-family: 'Orbitron', monospace;
         }
-        .login-section .divider::before,
-        .login-section .divider::after {
-            content: '';
+        .divider hr {
             flex: 1;
-            height: 1px;
-            background: var(--gold-dim);
+            border: none;
+            border-top: 1px solid var(--gold-dim);
         }
 
-        /* ================================================================
-           FEATURES (con enlaces actualizados)
-           ================================================================ */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px;
-            margin: 32px 0;
-        }
-        .feature-card {
-            background: rgba(15, 45, 26, 0.08);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 20px 16px;
-            text-align: center;
-            transition: var(--transition);
-            cursor: pointer;
-            text-decoration: none;
+        .btn-google {
+            width: 100%;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
             color: var(--text-primary);
+            padding: 10px;
+            font-size: 0.7rem;
         }
-        .feature-card:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-4px);
-            background: rgba(15, 45, 26, 0.15);
+        .btn-google:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--gold-cosmic);
         }
-        .feature-card .icon {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 8px;
-        }
-        .feature-card .name {
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-        .feature-card .desc {
+
+        .terms-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 0.55rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin: 12px 0 6px;
+            flex-wrap: wrap;
+        }
+        .terms-row a {
+            color: var(--gold-cosmic);
+            text-decoration: underline;
+        }
+        .terms-row input {
+            accent-color: var(--gold-cosmic);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
         }
 
-        /* ================================================================
-           FOOTER
-           ================================================================ */
+        .login-footer-text {
+            text-align: center;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 14px;
+        }
+
+        /* ===== FOOTER ===== */
         .footer {
             margin-top: 40px;
             padding-top: 14px;
@@ -705,9 +565,7 @@
             letter-spacing: 0.5px;
             font-family: 'Orbitron', monospace;
         }
-        .footer-text .brand {
-            color: var(--gold-cosmic);
-        }
+        .footer-text .brand { color: var(--gold-cosmic); }
         .footer-links {
             display: flex;
             gap: 8px;
@@ -721,9 +579,7 @@
             font-family: 'Orbitron', monospace;
             letter-spacing: 0.5px;
         }
-        .footer-links a:hover {
-            color: var(--gold-cosmic);
-        }
+        .footer-links a:hover { color: var(--gold-cosmic); }
         .footer-hex {
             display: inline-block;
             background: var(--verde-bosque);
@@ -736,9 +592,6 @@
             font-family: 'Orbitron', monospace;
         }
 
-        /* ================================================================
-           TOAST
-           ================================================================ */
         .toast {
             position: fixed;
             bottom: 80px;
@@ -755,676 +608,323 @@
             z-index: 5000;
             pointer-events: none;
             font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212,175,55,0.15);
             max-width: 90%;
             text-align: center;
         }
-        .toast.active {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        .toast.error {
-            background: var(--danger);
-            color: white;
-        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); color: white; }
 
-        /* ================================================================
-           RESPONSIVE
-           ================================================================ */
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .header-actions {
-                width: 100%;
-                justify-content: flex-start;
-                flex-wrap: wrap;
-            }
-            .hero .title {
-                font-size: 2.2rem;
-            }
-            .hero .subtitle {
-                font-size: 0.9rem;
-            }
-            .features {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .login-section {
-                margin: 0 12px 30px;
-                padding: 20px 16px;
-            }
-        }
         @media (max-width: 480px) {
-            .btn {
-                font-size: 0.45rem;
-                padding: 4px 8px;
-            }
-            .hero .title {
-                font-size: 1.8rem;
-            }
-            .features {
-                grid-template-columns: 1fr 1fr;
-            }
-            .hero .cta .btn {
-                padding: 6px 16px;
-                font-size: 0.55rem;
-            }
-            .login-section .btn-login,
-            .login-section .btn-google {
-                font-size: 0.6rem;
-                padding: 8px;
-            }
+            .login-card { padding: 20px 16px; }
+            .login-card .title { font-size: 1rem; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
-
     <!-- ===== FONDO ESTELAR ===== -->
     <canvas id="stars-canvas"></canvas>
-    <div class="nebula nebula-1"></div>
-    <div class="nebula nebula-2"></div>
-    <div class="nebula nebula-3"></div>
 
     <div class="app">
 
-        <!-- ===== HEADER ===== -->
+        <!-- HEADER CON LOGOTIPO Y SELECTOR DE IDIOMA -->
         <header class="header">
             <a href="/" class="logo">
                 <span class="logo-icon"><span class="hex">◈</span></span>
                 <span class="logo-text">Csariel's</span>
-                <span class="logo-badge" data-i18n="ecosistema">Ecosistema</span>
+                <span class="logo-badge" data-i18n="inicio">Inicio</span>
             </a>
             <div class="header-actions">
-                <!-- Selector de idioma -->
+                <!-- ===== SELECTOR DE IDIOMA ===== -->
                 <div class="language-selector">
                     <span class="lang-icon">🌐</span>
-                    <button class="lang-btn active" data-lang="es" onclick="cambiarIdioma('es')">ES</button>
-                    <button class="lang-btn" data-lang="en" onclick="cambiarIdioma('en')">EN</button>
-                    <button class="lang-btn" data-lang="fr" onclick="cambiarIdioma('fr')">FR</button>
+                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
+                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
+                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
                 </div>
 
                 <div class="status-badge">
                     <span class="status-dot online"></span>
-                    <span data-i18n="conectado">Conectado</span>
+                    <span data-i18n="status_online">Online</span>
                 </div>
 
-                <a href="/features/red/index.html" class="btn btn-primary btn-sm">
-                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
-                </a>
-                <a href="/features/live/index.html" class="btn btn-live btn-sm">
-                    <span class="live-dot"></span> <span data-i18n="live">Live</span>
-                </a>
-                <a href="/features/foro/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-comments"></i> <span data-i18n="foro">Foro</span>
-                </a>
-                <a href="/features/trading/index.html" class="btn btn-trading btn-sm">
-                    <i class="fas fa-chart-line"></i> <span data-i18n="trading">Trading</span>
-                </a>
-                <a href="/features/servicios/index.html" class="btn btn-gold btn-sm">
-                    <i class="fas fa-tools"></i> <span data-i18n="servicios">Servicios</span>
-                </a>
-                <a href="/features/internet/index.html" class="btn btn-internet btn-sm">
-                    <i class="fas fa-satellite-dish"></i> <span data-i18n="internet">Internet</span>
-                </a>
-                <a href="/tienda.html" class="btn btn-tienda btn-sm">
-                    <i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span>
-                </a>
-                <a href="/features/wallet/index.html" class="btn btn-wallet btn-sm">
-                    <i class="fas fa-wallet"></i> <span data-i18n="wallet">Wallet</span>
-                </a>
-                <a href="/features/admin/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-cogs"></i> <span data-i18n="admin">Admin</span>
-                </a>
-                <a href="/terminos-completos.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-file-contract"></i> <span data-i18n="terminos">Términos</span>
-                </a>
+                <!-- ===== BOTÓN TIENDA ===== -->
+                <button class="btn btn-tienda btn-sm" onclick="window.location.href='/tienda.html'">
+                    <i class="fa-solid fa-store"></i> <span data-i18n="tienda">Tienda</span>
+                </button>
+
+                <!-- ===== BOTÓN MI RED ===== -->
+                <button class="btn btn-primary btn-sm" onclick="window.location.href='/features/red/index.html'">
+                    <i class="fa-solid fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
+                </button>
+
+                <!-- ===== BOTÓN CHAT ===== -->
+                <button class="btn btn-outline btn-sm" onclick="window.location.href='/features/chat/index.html'">
+                    <i class="fa-solid fa-comment"></i> <span data-i18n="chat">Chat</span>
+                </button>
+
+                <!-- ===== BOTÓN eSIM/INTERNET ===== -->
+                <button class="btn btn-internet btn-sm" onclick="window.location.href='/features/internet/index.html'">
+                    <i class="fa-solid fa-satellite-dish"></i> <span data-i18n="internet">eSIM</span>
+                </button>
+
+                <!-- ===== BOTÓN MURO P2P ===== -->
+                <button class="btn btn-muro-p2p btn-sm" onclick="window.location.href='/muro-p2p/index.html'">
+                    <i class="fa-solid fa-users"></i> <span data-i18n="muro_p2p">Muro P2P</span>
+                </button>
+
+                <!-- ===== BOTÓN LIVE ===== -->
+                <button class="btn btn-live btn-sm" onclick="window.location.href='/live/index.html'">
+                    <span class="live-dot"></span> <span data-i18n="live">LIVE</span>
+                </button>
             </div>
         </header>
 
-        <!-- ===== HERO ===== -->
-        <section class="hero">
-            <span class="badge" data-i18n="bienvenido">✦ Bienvenido a Csariel's</span>
-            <h1 class="title" data-i18n="titulo">Ecosistema Integral</h1>
-            <p class="subtitle" data-i18n="subtitulo">
-                Conecta, comparte y crece en la red social integral con eSIM, Trading, y Web3.
-                <br />Hecho en Puebla, México 🇲🇽
+        <!-- ===== LOGIN CARD ===== -->
+        <main class="login-card">
+            <h1 class="title">ACCESO AL SISTEMA</h1>
+            <p class="subtitle">Ingresa tus datos o conéctate con Web3</p>
+
+            <div class="form-group">
+                <label><i class="fa-regular fa-user"></i> <span data-i18n="username">Nombre de Usuario</span></label>
+                <input type="text" id="inputUsername" placeholder="Ej. Csariel" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-regular fa-envelope"></i> <span data-i18n="email">Correo Electrónico (Opcional)</span></label>
+                <input type="email" id="inputEmail" placeholder="correo@dominio.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-regular fa-phone"></i> <span data-i18n="phone">Teléfono (Opcional)</span></label>
+                <input type="tel" id="inputPhone" placeholder="+52..." autocomplete="tel">
+            </div>
+
+            <div class="terms-row">
+                <input type="checkbox" id="acceptTerms">
+                <label for="acceptTerms">
+                    <span data-i18n="accept_terms">Acepto los</span>
+                    <a href="/terms.html" target="_blank" data-i18n="terms_conditions">Términos y Condiciones</a>
+                </label>
+            </div>
+
+            <button class="btn btn-primary btn-login" onclick="handleLogin()">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <span data-i18n="login">INGRESAR</span>
+            </button>
+
+            <div class="divider">
+                <hr><span data-i18n="or_connect_with">O CONECTAR CON</span><hr>
+            </div>
+
+            <button class="btn btn-google" onclick="loginWithGoogle()">
+                <i class="fa-brands fa-google"></i> Google OAuth
+            </button>
+
+            <p class="login-footer-text" data-i18n="login_footer">
+                <i class="fa-regular fa-shield-check"></i>
+                Tus datos están seguros con Csariel's
             </p>
-            <div class="cta">
-                <a href="/features/red/index.html" class="btn btn-primary">
-                    <i class="fas fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
-                </a>
-                <a href="/features/registro/index.html" class="btn btn-gold" data-i18n="registrarse">
-                    <i class="fas fa-user-plus"></i> Registrarse
-                </a>
-                <a href="/features/descubrir/index.html" class="btn btn-outline" data-i18n="descubrir">
-                    <i class="fas fa-compass"></i> Descubrir
-                </a>
-            </div>
-        </section>
-
-        <!-- ===== LOGIN SECTION ===== -->
-        <div class="login-section">
-            <div class="login-title" data-i18n="acceso_rapido">🚀 Acceso Rápido</div>
-
-            <div class="form-group">
-                <input type="text" id="inputUsername" placeholder="👤 Nombre de usuario *" />
-            </div>
-            <div class="form-group">
-                <input type="email" id="inputEmail" placeholder="📧 Email (opcional)" />
-            </div>
-            <div class="form-group">
-                <input type="tel" id="inputPhone" placeholder="📱 Teléfono (opcional)" />
-            </div>
-
-            <div class="checkbox-row">
-                <input type="checkbox" id="acceptTerms" />
-                <label for="acceptTerms" data-i18n="acepto_terminos">Acepto los <a href="/terminos-completos.html" style="color:var(--gold-cosmic);">Términos y Condiciones</a> *</label>
-            </div>
-
-            <button class="btn-login" onclick="handleLogin()" data-i18n="entrar">
-                <i class="fas fa-sign-in-alt"></i> Entrar
-            </button>
-
-            <div class="divider" data-i18n="o">o</div>
-
-            <button class="btn-google" onclick="loginWithGoogle()">
-                <i class="fab fa-google" style="color:#ea4335;"></i> <span data-i18n="entrar_google">Entrar con Google</span>
-            </button>
-        </div>
-
-        <!-- ===== FEATURES ===== -->
-        <div class="features">
-            <a href="/features/red/index.html" class="feature-card">
-                <span class="icon">👥</span>
-                <div class="name" data-i18n="mi_red">Mi Red</div>
-                <div class="desc" data-i18n="mi_red_desc">Conecta con amigos y crea tu comunidad</div>
-            </a>
-            <a href="/features/live/index.html" class="feature-card">
-                <span class="icon">📹</span>
-                <div class="name" data-i18n="live">Live</div>
-                <div class="desc" data-i18n="live_desc">Transmisiones en vivo con LiveKit</div>
-            </a>
-            <a href="/features/trading/index.html" class="feature-card">
-                <span class="icon">📈</span>
-                <div class="name" data-i18n="trading">Trading</div>
-                <div class="desc" data-i18n="trading_desc">Gráficos STOKS en tiempo real</div>
-            </a>
-            <a href="/features/servicios/index.html" class="feature-card">
-                <span class="icon">🛠️</span>
-                <div class="name" data-i18n="servicios">Servicios</div>
-                <div class="desc" data-i18n="servicios_desc">Servicios comunitarios</div>
-            </a>
-            <a href="/features/internet/index.html" class="feature-card">
-                <span class="icon">🌐</span>
-                <div class="name" data-i18n="internet">Internet eSIM</div>
-                <div class="desc" data-i18n="internet_desc">Conectividad global</div>
-            </a>
-            <a href="/tienda.html" class="feature-card">
-                <span class="icon">🛍️</span>
-                <div class="name" data-i18n="tienda">Tienda CMT</div>
-                <div class="desc" data-i18n="tienda_desc">Viste a Marquinhos</div>
-            </a>
-            <a href="/features/wallet/index.html" class="feature-card">
-                <span class="icon">◈</span>
-                <div class="name" data-i18n="wallet">Wallet CMT</div>
-                <div class="desc" data-i18n="wallet_desc">Tu cartera digital</div>
-            </a>
-            <a href="/features/foro/index.html" class="feature-card">
-                <span class="icon">💬</span>
-                <div class="name" data-i18n="foro">Foro</div>
-                <div class="desc" data-i18n="foro_desc">Discusiones y comunidad</div>
-            </a>
-            <a href="/features/hub-lealtad/index.html" class="feature-card">
-                <span class="icon">⭐</span>
-                <div class="name" data-i18n="hub_lealtad">Hub Lealtad</div>
-                <div class="desc" data-i18n="hub_lealtad_desc">Es.stoks y recompensas</div>
-            </a>
-            <a href="/features/admin/index.html" class="feature-card">
-                <span class="icon">⚙️</span>
-                <div class="name" data-i18n="admin">Panel de Control</div>
-                <div class="desc" data-i18n="admin_desc">Administra tu ecosistema</div>
-            </a>
-        </div>
+        </main>
 
         <!-- ===== FOOTER ===== -->
         <footer class="footer">
             <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — <span data-i18n="footer_ecosistema">Ecosistema Integral · Puebla, México</span>
+                <span class="footer-hex">◈</span>
+                <span class="brand">Csariel's</span> &copy; 2026
             </span>
             <div class="footer-links">
-                <a href="/" data-i18n="inicio">🏠 Inicio</a>
-                <a href="/features/red/index.html" data-i18n="mi_red">👥 Mi Red</a>
-                <a href="/features/live/index.html" data-i18n="live">📹 Live</a>
-                <a href="/features/foro/index.html" data-i18n="foro">💬 Foro</a>
-                <a href="/features/trading/index.html" data-i18n="trading">📈 Trading</a>
-                <a href="/features/servicios/index.html" data-i18n="servicios">🛠️ Servicios</a>
-                <a href="/features/internet/index.html" data-i18n="internet">🌐 Internet</a>
-                <a href="/tienda.html" data-i18n="tienda">🛍️ Tienda</a>
-                <a href="/features/wallet/index.html" data-i18n="wallet">◈ Wallet</a>
-                <a href="/terminos-completos.html" data-i18n="terminos">📜 Términos</a>
-                <a href="/aviso-privacidad.html" data-i18n="privacidad">🔐 Privacidad</a>
-                <a href="/features/takedown/index.html" data-i18n="takedown">📝 Takedown</a>
-                <span class="footer-hex">◈</span>
+                <a href="/privacidad.html" data-i18n="privacy">Privacidad</a>
+                <a href="/terms.html" data-i18n="terms">Términos</a>
+                <a href="/contacto.html" data-i18n="contact">Contacto</a>
+                <a href="/faq.html" data-i18n="faq">FAQ</a>
             </div>
         </footer>
     </div>
 
-    <!-- ===== TOAST ===== -->
-    <div class="toast" id="toast"></div>
+    <!-- ===== TOAST NOTIFICACIONES ===== -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ✅ SCRIPT EXTERNO CORRECTO (Cumple con CSP) -->
+    <script src="/js/login-index.js"></script>
 
     <!-- ================================================================ -->
-    <!-- SCRIPTS -->
+    <!-- 🤖 MARQUINHOS - ASISTENTE FLOTANTE GLOBAL                      -->
     <!-- ================================================================ -->
+
+    <div id="marquinhos-global" style="position:fixed; bottom:24px; right:24px; z-index:9999; pointer-events:none;">
+        <div style="pointer-events:auto; cursor:pointer; position:relative; width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg, #0F2D1A, #D4AF37); display:flex; align-items:center; justify-content:center; font-size:2.5rem; box-shadow:0 8px 32px rgba(212,175,55,0.3); transition:all 0.3s ease; border:2px solid rgba(212,175,55,0.3);" 
+             id="marquinhosBtn" 
+             onclick="toggleMarquinhos()"
+             onmouseenter="this.style.transform='scale(1.1)'" 
+             onmouseleave="this.style.transform='scale(1)'">
+            🤖
+            <span style="position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:#00e5ff; border-radius:50%; border:2px solid #0F2D1A; animation:pulse-dot 1.5s infinite;"></span>
+        </div>
+
+        <!-- Panel de Marquinhos -->
+        <div id="marquinhosPanel" style="display:none; position:absolute; bottom:90px; right:0; width:320px; max-height:400px; background:rgba(5,8,15,0.95); backdrop-filter:blur(20px); border:1px solid rgba(212,175,55,0.15); border-radius:16px; padding:16px; box-shadow:0 20px 60px rgba(0,0,0,0.6); overflow-y:auto; pointer-events:auto; transition:all 0.3s ease;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; border-bottom:1px solid rgba(212,175,55,0.1); padding-bottom:12px;">
+                <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #0F2D1A, #D4AF37); display:flex; align-items:center; justify-content:center; font-size:1.8rem; flex-shrink:0;">🤖</div>
+                <div>
+                    <div style="font-weight:700; font-size:0.9rem; color:#e8f0f8;">Marquinhos</div>
+                    <div style="font-size:0.6rem; color:#8ba3c7;">Asistente · Siempre listo</div>
+                </div>
+                <button onclick="toggleMarquinhos()" style="margin-left:auto; background:transparent; border:none; color:#4a6a8a; font-size:1.2rem; cursor:pointer;">✕</button>
+            </div>
+
+            <!-- Outfit actual -->
+            <div id="marquinhosOutfitPreview" style="background:rgba(15,45,26,0.2); border-radius:12px; padding:12px; margin-bottom:12px; text-align:center; border:1px solid rgba(212,175,55,0.08);">
+                <div style="font-size:0.6rem; color:#8ba3c7; font-family:'Orbitron',monospace; margin-bottom:4px;">OUTFIT ACTUAL</div>
+                <div style="font-size:2rem;" id="marquinhosOutfitEmoji">🤖</div>
+                <div style="font-size:0.55rem; color:#4a6a8a;" id="marquinhosOutfitText">Sin ropa puesta</div>
+            </div>
+
+            <!-- Acciones -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px;">
+                <button onclick="window.location.href='/tienda.html'" style="padding:8px; background:linear-gradient(135deg, #D4AF37, #b8923a); border:none; border-radius:30px; color:#0a0c10; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
+                    🛍️ Tienda
+                </button>
+                <button onclick="window.location.href='/features/red/index.html'" style="padding:8px; background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.15); border-radius:30px; color:#e8f0f8; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
+                    👥 Mi Red
+                </button>
+                <button onclick="window.location.href='/features/chat/index.html'" style="padding:8px; background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.15); border-radius:30px; color:#00e5ff; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
+                    💬 Chat
+                </button>
+                <button onclick="mostrarMensajeMarquinhos()" style="padding:8px; background:rgba(0,184,148,0.1); border:1px solid rgba(0,184,148,0.15); border-radius:30px; color:#00b894; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
+                    🗣️ Hablar
+                </button>
+            </div>
+
+            <!-- Mensaje de Marquinhos -->
+            <div id="marquinhosMensaje" style="background:rgba(15,45,26,0.2); border-radius:10px; padding:10px; font-size:0.7rem; color:#8ba3c7; text-align:center; border-left:3px solid #D4AF37; min-height:40px; display:flex; align-items:center; justify-content:center;">
+                ¡Hola! Soy Marquinhos. ¿En qué puedo ayudarte?
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+        }
+        #marquinhosPanel::-webkit-scrollbar { width: 3px; }
+        #marquinhosPanel::-webkit-scrollbar-track { background: transparent; }
+        #marquinhosPanel::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 3px; }
+    </style>
 
     <script>
         // ================================================================
-        // 🔌 CONFIGURACIÓN DE SUPABASE
+        // 🤖 MARQUINHOS - GLOBAL
         // ================================================================
 
-        let supabaseClient = null;
+        function toggleMarquinhos() {
+            const panel = document.getElementById('marquinhosPanel');
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+                cargarOutfitMarquinhos();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
 
-        async function loadSupabaseConfig() {
+        function cargarOutfitMarquinhos() {
             try {
-                const resp = await fetch('/api/config', { cache: 'no-cache' });
-                if (resp.ok) {
-                    const config = await resp.json();
-                    if (config.SUPABASE_URL && config.SUPABASE_ANON_KEY) {
-                        if (window.supabase?.createClient) {
-                            supabaseClient = window.supabase.createClient(
-                                config.SUPABASE_URL,
-                                config.SUPABASE_ANON_KEY
-                            );
-                            window.supabase = supabaseClient;
-                            console.log('✅ Supabase configurado desde /api/config');
-                            return;
-                        }
-                    }
+                const outfit = JSON.parse(localStorage.getItem('marquinhos_outfit') || '{}');
+                const emojis = {
+                    'gorra_america': '🧢', 'sombrero_charro': '🤠', 'casco_astronauta': '🚀',
+                    'playera_puebla': '⚽', 'traje_godin': '💼', 'traje_batman': '🦇',
+                    'playera_aladdin': '🧞', 'playera_csariel': '◈', 'short_playa': '🏖️',
+                    'mezclilla': '👖', 'crocs': '🩴', 'jordan': '👟', 'chanclas': '🩴',
+                    'lentes_sol': '🕶️', 'cadena_oro': '⛓️', 'capa_heroe': '🦸',
+                    'baguette': '🥖', 'traje_pan_cancha': '🥖'
+                };
+                
+                const allItems = [];
+                if (outfit.gorro) allItems.push(outfit.gorro);
+                if (outfit.playera) allItems.push(outfit.playera);
+                if (outfit.pantalon) allItems.push(outfit.pantalon);
+                if (outfit.tenis) allItems.push(outfit.tenis);
+                if (outfit.extras) allItems.push(...outfit.extras);
+
+                const emojiEl = document.getElementById('marquinhosOutfitEmoji');
+                const textEl = document.getElementById('marquinhosOutfitText');
+
+                if (allItems.length > 0) {
+                    const lastItem = allItems[allItems.length - 1];
+                    emojiEl.textContent = emojis[lastItem] || '🤖';
+                    
+                    const nombres = allItems.map(id => {
+                        const item = {
+                            'gorra_america': 'Gorra América',
+                            'sombrero_charro': 'Sombrero Charro',
+                            'casco_astronauta': 'Casco Astronauta',
+                            'playera_puebla': 'Playera Puebla',
+                            'traje_godin': 'Traje Godín',
+                            'traje_batman': 'Traje Batman',
+                            'playera_aladdin': 'Playera Aladdin',
+                            'playera_csariel': 'Playera Csariel\'s',
+                            'short_playa': 'Short Playa',
+                            'mezclilla': 'Pantalón Mezclilla',
+                            'crocs': 'Crocs',
+                            'jordan': 'Tenis Jordan',
+                            'chanclas': 'Chanclas',
+                            'lentes_sol': 'Lentes de Sol',
+                            'cadena_oro': 'Cadena de Oro',
+                            'capa_heroe': 'Capa de Héroe',
+                            'baguette': 'Baguette',
+                            'traje_pan_cancha': 'Traje Pan Cancha'
+                        };
+                        return item[id] || id;
+                    });
+                    textEl.textContent = nombres.join(' + ');
+                } else {
+                    emojiEl.textContent = '🤖';
+                    textEl.textContent = 'Sin ropa puesta';
                 }
             } catch (e) {
-                console.warn('⚠️ No se pudo cargar /api/config');
-            }
-
-            const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-            const SUPABASE_ANON_KEY =
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXl4Z2tsYWRqYXVvbHZwemZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDA3NjMsImV4cCI6MjA5ODIxNjc2M30.3O6tea8l1UbGIlwR_2iyIS1M-dgoQC5G4G1S9YSiXL0';
-
-            if (window.supabase?.createClient) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                window.supabase = supabaseClient;
-                console.log('✅ Supabase configurado con fallback local');
+                console.warn('⚠️ Error cargando outfit:', e);
             }
         }
 
-        // ================================================================
-        // 🌐 SISTEMA DE IDIOMAS
-        // ================================================================
-
-        const i18nData = {
-            es: {
-                'ecosistema': 'Ecosistema',
-                'conectado': 'Conectado',
-                'mi_red': 'Mi Red',
-                'mi_red_desc': 'Conecta con amigos y crea tu comunidad',
-                'live': 'Live',
-                'live_desc': 'Transmisiones en vivo con LiveKit',
-                'foro': 'Foro',
-                'foro_desc': 'Discusiones y comunidad',
-                'trading': 'Trading',
-                'trading_desc': 'Gráficos STOKS en tiempo real',
-                'servicios': 'Servicios',
-                'servicios_desc': 'Servicios comunitarios',
-                'internet': 'Internet eSIM',
-                'internet_desc': 'Conectividad global',
-                'tienda': 'Tienda CMT',
-                'tienda_desc': 'Viste a Marquinhos',
-                'wallet': 'Wallet CMT',
-                'wallet_desc': 'Tu cartera digital',
-                'hub_lealtad': 'Hub Lealtad',
-                'hub_lealtad_desc': 'Es.stoks y recompensas',
-                'admin': 'Panel de Control',
-                'admin_desc': 'Administra tu ecosistema',
-                'terminos': 'Términos',
-                'privacidad': 'Privacidad',
-                'takedown': 'Takedown',
-                'inicio': '🏠 Inicio',
-                'footer_ecosistema': 'Ecosistema Integral · Puebla, México',
-                'bienvenido': '✦ Bienvenido a Csariel\'s',
-                'titulo': 'Ecosistema Integral',
-                'subtitulo': 'Conecta, comparte y crece en la red social integral con eSIM, Trading, y Web3. Hecho en Puebla, México 🇲🇽',
-                'registrarse': 'Registrarse',
-                'descubrir': 'Descubrir',
-                'acceso_rapido': '🚀 Acceso Rápido',
-                'acepto_terminos': 'Acepto los Términos y Condiciones *',
-                'entrar': 'Entrar',
-                'o': 'o',
-                'entrar_google': 'Entrar con Google',
-                'nombre_usuario': '👤 Nombre de usuario *',
-                'email': '📧 Email (opcional)',
-                'telefono': '📱 Teléfono (opcional)'
-            },
-            en: {
-                'ecosistema': 'Ecosystem',
-                'conectado': 'Connected',
-                'mi_red': 'My Network',
-                'mi_red_desc': 'Connect with friends and create your community',
-                'live': 'Live',
-                'live_desc': 'Live streams with LiveKit',
-                'foro': 'Forum',
-                'foro_desc': 'Discussions and community',
-                'trading': 'Trading',
-                'trading_desc': 'STOKS charts in real time',
-                'servicios': 'Services',
-                'servicios_desc': 'Community services',
-                'internet': 'Internet eSIM',
-                'internet_desc': 'Global connectivity',
-                'tienda': 'CMT Store',
-                'tienda_desc': 'Dress Marquinhos',
-                'wallet': 'CMT Wallet',
-                'wallet_desc': 'Your digital wallet',
-                'hub_lealtad': 'Loyalty Hub',
-                'hub_lealtad_desc': 'Es.stoks and rewards',
-                'admin': 'Control Panel',
-                'admin_desc': 'Manage your ecosystem',
-                'terminos': 'Terms',
-                'privacidad': 'Privacy',
-                'takedown': 'Takedown',
-                'inicio': '🏠 Home',
-                'footer_ecosistema': 'Integral Ecosystem · Puebla, Mexico',
-                'bienvenido': '✦ Welcome to Csariel\'s',
-                'titulo': 'Integral Ecosystem',
-                'subtitulo': 'Connect, share and grow in the integral social network with eSIM, Trading, and Web3. Made in Puebla, Mexico 🇲🇽',
-                'registrarse': 'Sign Up',
-                'descubrir': 'Discover',
-                'acceso_rapido': '🚀 Quick Access',
-                'acepto_terminos': 'I accept the Terms and Conditions *',
-                'entrar': 'Enter',
-                'o': 'or',
-                'entrar_google': 'Sign in with Google',
-                'nombre_usuario': '👤 Username *',
-                'email': '📧 Email (optional)',
-                'telefono': '📱 Phone (optional)'
-            },
-            fr: {
-                'ecosistema': 'Écosystème',
-                'conectado': 'Connecté',
-                'mi_red': 'Mon Réseau',
-                'mi_red_desc': 'Connectez-vous avec vos amis et créez votre communauté',
-                'live': 'Live',
-                'live_desc': 'Streams en direct avec LiveKit',
-                'foro': 'Forum',
-                'foro_desc': 'Discussions et communauté',
-                'trading': 'Trading',
-                'trading_desc': 'Graphiques STOKS en temps réel',
-                'servicios': 'Services',
-                'servicios_desc': 'Services communautaires',
-                'internet': 'Internet eSIM',
-                'internet_desc': 'Connectivité mondiale',
-                'tienda': 'Boutique CMT',
-                'tienda_desc': 'Habillez Marquinhos',
-                'wallet': 'Portefeuille CMT',
-                'wallet_desc': 'Votre portefeuille numérique',
-                'hub_lealtad': 'Hub Loyauté',
-                'hub_lealtad_desc': 'Es.stoks et récompenses',
-                'admin': 'Panneau de Contrôle',
-                'admin_desc': 'Gérez votre écosystème',
-                'terminos': 'Termes',
-                'privacidad': 'Confidentialité',
-                'takedown': 'Takedown',
-                'inicio': '🏠 Accueil',
-                'footer_ecosistema': 'Écosystème Intégral · Puebla, Mexique',
-                'bienvenido': '✦ Bienvenue sur Csariel\'s',
-                'titulo': 'Écosystème Intégral',
-                'subtitulo': 'Connectez-vous, partagez et grandissez dans le réseau social intégral avec eSIM, Trading, et Web3. Fait à Puebla, Mexique 🇲🇽',
-                'registrarse': "S'inscrire",
-                'descubrir': 'Découvrir',
-                'acceso_rapido': '🚀 Accès Rapide',
-                'acepto_terminos': "J'accepte les Termes et Conditions *",
-                'entrar': 'Entrer',
-                'o': 'ou',
-                'entrar_google': 'Se connecter avec Google',
-                'nombre_usuario': '👤 Nom d\'utilisateur *',
-                'email': '📧 Email (optionnel)',
-                'telefono': '📱 Téléphone (optionnel)'
-            }
-        };
-
-        let idiomaActual = localStorage.getItem('csariels_idioma') || 'es';
-
-        function aplicarIdioma(idioma) {
-            const t = i18nData[idioma] || i18nData.es;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key] !== undefined) {
-                    if (el.innerHTML.includes('<')) {
-                        const textNode = el.childNodes[0];
-                        if (textNode && textNode.nodeType === 3) {
-                            textNode.textContent = t[key];
-                        } else {
-                            el.innerHTML = t[key];
-                        }
-                    } else {
-                        el.textContent = t[key];
-                    }
-                }
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
-            });
-            document.querySelectorAll('.lang-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.lang === idioma);
-            });
+        function mostrarMensajeMarquinhos() {
+            const mensajes = [
+                '¡Hola! ¿Cómo estás hoy? 😊',
+                '¡Qué gusto verte! ¿En qué puedo ayudarte? 🤖',
+                '¡Listo para lo que necesites! 🚀',
+                'Soy Marquinhos, tu asistente. ¿Qué se ofrece? 💪',
+                '¡Vamos a darle! 🔥',
+                '¿Quieres ir a la tienda a comprar ropa? 🛍️'
+            ];
+            const msg = mensajes[Math.floor(Math.random() * mensajes.length)];
+            const el = document.getElementById('marquinhosMensaje');
+            el.textContent = msg;
+            el.style.borderLeftColor = '#D4AF37';
         }
 
-        function cambiarIdioma(idioma) {
-            idiomaActual = idioma;
-            localStorage.setItem('csariels_idioma', idioma);
-            aplicarIdioma(idioma);
-            mostrarToast(`🌐 ${idioma.toUpperCase()}`);
-        }
-
-        // ================================================================
-        // 👤 LOGIN
-        // ================================================================
-
-        async function handleLogin() {
-            const username = document.getElementById('inputUsername').value.trim();
-            const email = document.getElementById('inputEmail').value.trim();
-            const phone = document.getElementById('inputPhone').value.trim();
-            const accept = document.getElementById('acceptTerms').checked;
-
-            if (!username || username.length < 2) {
-                mostrarToast('⚠️ Ingresa un nombre de usuario válido', 'error');
-                return;
-            }
-            if (!accept) {
-                mostrarToast('⚠️ Debes aceptar los Términos y Condiciones', 'error');
-                return;
-            }
-
-            localStorage.setItem('csariels_user_name', username);
-            if (email) localStorage.setItem('csariels_email', email);
-            if (phone) localStorage.setItem('csariels_phone', phone);
-            localStorage.setItem('csariels_login', 'true');
-
-            let supabaseOk = false;
-            if (supabaseClient) {
-                try {
-                    const { data: { session } } = await supabaseClient.auth.getSession();
-                    let uid = session?.user?.id;
-                    if (!uid) {
-                        const { data, error } = await supabaseClient.auth.signInAnonymously();
-                        if (error) throw error;
-                        uid = data.session.user.id;
-                    }
-                    localStorage.setItem('csariels_user_id', uid);
-
-                    const payload = { user_id: uid, ultimo_acceso: new Date().toISOString() };
-                    if (username) payload.nombre = username;
-                    if (email) payload.email = email;
-                    if (phone) payload.telefono = phone;
-
-                    const { error: upsertError } = await supabaseClient
-                        .from('perfiles')
-                        .upsert(payload, { onConflict: 'user_id' });
-
-                    if (!upsertError) supabaseOk = true;
-                } catch (e) {
-                    console.warn('⚠️ Supabase no disponible:', e);
+        // Cerrar panel con click fuera
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('marquinhosPanel');
+            const btn = document.getElementById('marquinhosBtn');
+            if (panel && panel.style.display === 'block') {
+                if (!panel.contains(e.target) && !btn.contains(e.target)) {
+                    panel.style.display = 'none';
                 }
             }
-
-            if (!localStorage.getItem('csariels_user_id')) {
-                localStorage.setItem('csariels_user_id', 'user_' + Date.now() + '_' + Math.random().toString(36)
-                    .substring(2, 9));
-            }
-
-            const mensaje = supabaseOk ?
-                `✅ Bienvenido ${username}! (datos en Supabase)` :
-                `✅ Bienvenido ${username}! (modo local)`;
-            mostrarToast(mensaje);
-            setTimeout(() => {
-                window.location.href = '/features/red/index.html';
-            }, 800);
-        }
-
-        // ================================================================
-        // 🔵 LOGIN CON GOOGLE
-        // ================================================================
-
-        async function loginWithGoogle() {
-            if (!supabaseClient) {
-                mostrarToast('⚠️ Supabase no está disponible', 'error');
-                return;
-            }
-            const accept = document.getElementById('acceptTerms').checked;
-            if (!accept) {
-                mostrarToast('⚠️ Debes aceptar los Términos y Condiciones', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: window.location.origin + window.location.pathname
-                    }
-                });
-                if (error) throw error;
-            } catch (e) {
-                console.error(e);
-                mostrarToast('⚠️ No se pudo iniciar con Google: ' + e.message, 'error');
-            }
-        }
-
-        // ================================================================
-        // 🔔 TOAST
-        // ================================================================
-        let toastTimeout;
-
-        function mostrarToast(mensaje, tipo = '') {
-            const toast = document.getElementById('toast');
-            toast.textContent = mensaje;
-            toast.className = 'toast active';
-            if (tipo === 'error') toast.classList.add('error');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
-        }
-
-        // ================================================================
-        // 🌟 ESTRELLAS
-        // ================================================================
-        (function initStars() {
-            const canvas = document.getElementById('stars-canvas');
-            const ctx = canvas.getContext('2d');
-            let w, h;
-
-            function resize() {
-                w = canvas.width = window.innerWidth;
-                h = canvas.height = window.innerHeight;
-            }
-            resize();
-
-            const stars = Array.from({ length: 200 }, () => ({
-                x: Math.random() * w,
-                y: Math.random() * h,
-                r: Math.random() * 0.8 + 0.2,
-                o: Math.random() * 0.8 + 0.2,
-                speed: Math.random() * 0.005 + 0.002,
-                phase: Math.random() * Math.PI * 2
-            }));
-
-            function draw() {
-                ctx.clearRect(0, 0, w, h);
-                stars.forEach(s => {
-                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
-                    ctx.fill();
-                    s.y += s.speed;
-                    s.phase += 0.01;
-                    if (s.y > h) { s.y = 0;
-                        s.x = Math.random() * w; }
-                });
-                requestAnimationFrame(draw);
-            }
-            draw();
-
-            window.addEventListener('resize', () => {
-                resize();
-                stars.forEach(s => { s.x = Math.random() * w;
-                    s.y = Math.random() * h; });
-            });
-        })();
-
-        // ================================================================
-        // 🚀 INICIALIZAR
-        // ================================================================
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            await loadSupabaseConfig();
-            aplicarIdioma(idiomaActual);
-
-            document.getElementById('inputUsername').placeholder = i18nData[idiomaActual]?.nombre_usuario ||
-                '👤 Nombre de usuario *';
-            document.getElementById('inputEmail').placeholder = i18nData[idiomaActual]?.email || '📧 Email (opcional)';
-            document.getElementById('inputPhone').placeholder = i18nData[idiomaActual]?.telefono ||
-                '📱 Teléfono (opcional)';
-
-            document.querySelectorAll('#inputUsername, #inputEmail, #inputPhone').forEach(input => {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') handleLogin();
-                });
-            });
-
-            if (localStorage.getItem('csariels_login') === 'true') {
-                const username = localStorage.getItem('csariels_user_name');
-                if (username) {
-                    mostrarToast(`✅ Sesión activa como ${username}. Redirigiendo...`);
-                    setTimeout(() => {
-                        window.location.href = '/features/red/index.html';
-                    }, 800);
-                }
-            }
-
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'csariels_idioma' && e.newValue !== idiomaActual) {
-                    cambiarIdioma(e.newValue);
-                }
-            });
-
-            console.log('🌟 Csariel\'s Ecosystem - index.html cargado');
-            console.log('📍 Hecho en Puebla, México 🇲🇽');
-            console.log('🌐 Ecosistema listo para escala mundial');
         });
 
-        window.cambiarIdioma = cambiarIdioma;
-        window.mostrarToast = mostrarToast;
-        window.handleLogin = handleLogin;
-        window.loginWithGoogle = loginWithGoogle;
-        window.i18nData = i18nData;
+        // Escuchar cambios en el outfit (desde la tienda)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'marquinhos_outfit') {
+                cargarOutfitMarquinhos();
+            }
+        });
+
+        // Escuchar cambios en el outfit (evento custom)
+        document.addEventListener('marquinhosOutfitChanged', cargarOutfitMarquinhos);
+
+        console.log('🤖 Marquinhos Global - Listo');
+        console.log('🛍️ Ve a la tienda para vestirlo');
     </script>
 
 </body>
