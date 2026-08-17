@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Panel de Servicios | Csariel's Ecosistema</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- 🔒 CSP -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed; border-radius: 50%; filter: blur(120px);
+            opacity: 0.10; pointer-events: none; z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative; z-index: 1; max-width: 1000px;
+            margin: 0 auto; padding: 16px 20px 30px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0 16px; border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px; backdrop-filter: blur(10px);
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon .hex {
+            display: inline-block; background: var(--verde-bosque); color: var(--gold-cosmic);
+            padding: 3px 10px; border-radius: 6px; font-size: 1rem; font-weight: 900;
+            border: 2px solid var(--gold-cosmic); font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace; font-size: 1.3rem; font-weight: 900;
+            letter-spacing: 2px; background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace; font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white; padding: 3px 12px; border-radius: 20px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px;
+            border: 1px solid var(--border); border-radius: 30px; background: rgba(212,175,55,0.03);
+            color: var(--text-primary); font-family: 'Orbitron', monospace; font-size: 0.6rem;
+            font-weight: 600; cursor: pointer; transition: var(--transition); text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold-cosmic), #b8923a); border-color: transparent; color: #0a0c10; -webkit-text-fill-color: #0a0c10; }
+
+        /* CONTENIDO PRINCIPAL */
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .panel-card {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+        .panel-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label {
+            display: block; font-size: 0.7rem; font-weight: 600;
+            color: var(--text-secondary); margin-bottom: 4px; font-family: 'Orbitron', monospace;
+        }
+        .form-control {
+            width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; outline: none;
+        }
+        .form-control:focus { border-color: var(--gold-cosmic); }
+
+        /* PEDIDOS EN VIVO */
+        .pedidos-box {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .pedido-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            border-radius: 10px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--gold-dim);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.55rem; font-family: 'Orbitron', monospace; color: var(--text-muted);
+        }
+        .footer span { color: var(--gold-cosmic); }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(50px);
+            background: var(--verde-bosque); color: var(--gold-cosmic); padding: 10px 20px;
+            border-radius: var(--radius); font-weight: 600; font-size: 0.7rem; opacity: 0;
+            transition: all 0.3s ease; z-index: 5000; font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.3); pointer-events: none;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="../../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Panel Delivery</span>
+            </a>
+            <div class="header-actions">
+                <a href="catalogo/index.html" class="btn btn-outline"><i class="fas fa-store"></i> Ver Catálogo</a>
+                <a href="historial/index.html" class="btn btn-gold"><i class="fas fa-box"></i> Historial</a>
+            </div>
+        </header>
+
+        <!-- GRID DE REGISTRO Y GESTIÓN -->
+        <div class="panel-grid">
+            <div class="panel-card">
+                <h2 class="panel-title"><i class="fas fa-store-alt"></i> Registrar Comercio</h2>
+                <form id="formComercio" onsubmit="guardarComercio(event)">
+                    <div class="form-group">
+                        <label>Nombre del Negocio</label>
+                        <input type="text" id="nombreNegocio" class="form-control" placeholder="Ej. Pastelería Fina" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <input type="text" id="catNegocio" class="form-control" placeholder="Ej. Repostería / Panadería" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción / Oferta</label>
+                        <input type="text" id="descNegocio" class="form-control" placeholder="Ej. Galletas y charolas artesanales" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contacto / WhatsApp</label>
+                        <input type="text" id="contactoNegocio" class="form-control" placeholder="Número de atención" required>
+                    </div>
+                    <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 5px;"><i class="fas fa-plus"></i> Agregar Comercio</button>
+                </form>
+            </div>
+
+            <div class="panel-card">
+                <h2 class="panel-title"><i class="fas fa-info-circle"></i> Ecosistema Activo</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 15px;">
+                    Desde aquí puedes dar de alta nuevos establecimientos para que aparezcan en el catálogo estilo DiDi y reciban pedidos de la comunidad.
+                </p>
+                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; border: 1px solid var(--border);">
+                    <div style="font-size: 0.75rem; color: var(--gold-cosmic); font-family: 'Orbitron', monospace; margin-bottom: 4px;">ESTATUS DEL SISTEMA</div>
+                    <div style="font-size: 0.8rem; color: var(--success);"><i class="fas fa-check-circle"></i> Sincronizado con LocalStorage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PEDIDOS ENTRANTES -->
+        <div class="pedidos-box">
+            <h2 class="panel-title" style="margin-bottom: 15px;"><i class="fas fa-bell"></i> Pedidos Entrantes en Vivo</h2>
+            <div id="listaPedidosEnVivo">
+                <!-- Se cargan dinámicamente -->
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span>◈ Csariel's Ecosistema — Panel Principal de Servicios</span>
+            <a href="../../index.html" style="color: var(--text-muted); text-decoration: none;">🏠 Ir al Inicio</a>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function mostrarToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('active');
+            setTimeout(() => t.classList.remove('active'), 3000);
+        }
+
+        function guardarComercio(e) {
+            e.preventDefault();
+            const nuevo = {
+                nombre: document.getElementById('nombreNegocio').value,
+                categoria: document.getElementById('catNegocio').value,
+                descripcion: document.getElementById('descNegocio').value,
+                contacto: document.getElementById('contactoNegocio').value
+            };
+
+            const negocios = JSON.parse(localStorage.getItem('csariels_servicios') || '[]');
+            negocios.push(nuevo);
+            localStorage.setItem('csariels_servicios', JSON.stringify(negocios));
+
+            mostrarToast("✨ ¡Comercio registrado con éxito!");
+            document.getElementById('formComercio').reset();
+        }
+
+        function cargarPedidosEnVivo() {
+            const contenedor = document.getElementById('listaPedidosEnVivo');
+            const pedidos = JSON.parse(localStorage.getItem('csariels_pedidos_activos') || '[]');
+
+            if(pedidos.length === 0) {
+                contenedor.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px;">No hay pedidos pendientes en este momento.</p>`;
+                return;
+            }
+
+            contenedor.innerHTML = pedidos.map((p, idx) => `
+                <div class="pedido-row">
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);"><i class="fas fa-box" style="color: var(--gold-cosmic);"></i> ${p.detalle}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Dir: ${p.direccion} &bull; Tel: ${p.contacto} &bull; ${p.fecha}</div>
+                    </div>
+                    <div>
+                        <button onclick="completarPedido(${idx})" class="btn btn-gold" style="font-size: 0.55rem; padding: 4px 10px;"><i class="fas fa-check"></i> Atendido</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function completarPedido(idx) {
+            let pedidos = JSON.parse(localStorage.getItem('csariels_pedidos_activos') || '[]');
+            pedidos.splice(idx, 1);
+            localStorage.setItem('csariels_pedidos_activos', JSON.stringify(pedidos));
+            cargarPedidosEnVivo();
+            mostrarToast("📦 Pedido marcado como atendido");
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarPedidosEnVivo);
+
+        // Fondo estelar
+        const canvas = document.getElementById('stars-canvas');
+        const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+        function drawStars() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "rgba(255,255,255,0.5)";
+            for(let i=0; i<100; i++) {
+                let x = (i * 37) % canvas.width;
+                let y = (i * 73) % canvas.height;
+                ctx.fillRect(x, y, 1.5, 1.5);
+            }
+        }
+        drawStars();
+    </script>
+</body>
+</html>
