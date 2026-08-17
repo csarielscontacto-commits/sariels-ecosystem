@@ -1,931 +1,269 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Csariel's · Red Social Integral</title>
-    <meta name="theme-color" content="#0F2D1A" />
-    <meta name="description" content="Red Social Integral · eSIM · Web3" />
-    <base href="/">
-
-    <!-- 🔒 CSP Estricto (Sin unsafe-inline en scripts) -->
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
-        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
-        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-        img-src 'self' data: https://*;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-        frame-src 'self';
-        media-src 'self';
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
-    ">
-
-    <!-- ===== FUENTES Y FONTAWESOME ===== -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-
-    <!-- ===== SUPABASE ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-    <!-- ===== CONECTORES ===== -->
-    <script src="/js/client-config-loader.js"></script>
-    <script src="/js/security.js"></script>
-
-    <!-- ===== UI COMPARTIDA (idiomas, toast, estrellas) ===== -->
-    <script src="/js/red-main.js"></script>
-
-    <style>
-        /* ================================================================
-           ESTILOS COMPLETOS - Csariel's
-           ================================================================ */
-        :root {
-            --space-deep: #05080f;
-            --space-mid: #0a1428;
-            --verde-bosque: #0F2D1A;
-            --verde-bosque-light: #1a4a2a;
-            --gold-cosmic: #D4AF37;
-            --gold-dim: rgba(212,175,55,0.15);
-            --gold-glow: rgba(212,175,55,0.25);
-            --text-primary: #e8f0f8;
-            --text-secondary: #8ba3c7;
-            --text-muted: #4a6a8a;
-            --border: rgba(212,175,55,0.08);
-            --border-glow: rgba(212,175,55,0.25);
-            --radius: 16px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --success: #00b894;
-            --danger: #ff3366;
-            --warning: #D4AF37;
-            --quantum: #00e5ff;
-            --live-red: #ff0033;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: #05080f;
-            background: var(--space-deep);
-            color: #e8f0f8;
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-            line-height: 1.5;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        #stars-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .app {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 16px 20px 30px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0 16px;
-            border-bottom: 2px solid var(--gold-dim);
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-            position: relative;
-        }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
-            opacity: 0.4;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); animation: pulse-glow 3s ease-in-out infinite; }
-        .logo-icon .hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 900;
-            border: 2px solid var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); } 50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.4)); } }
-
-        .logo-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.3rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .logo-badge {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.45rem;
-            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
-            color: white;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            -webkit-text-fill-color: white;
-            border: 1px solid rgba(212,175,55,0.2);
-            animation: badge-pulse 2s ease-in-out infinite;
-        }
-        @keyframes badge-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(15,45,26,0.3); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.2); } }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* ===== SELECTOR DE IDIOMA ===== */
-        .language-selector {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            background: rgba(212,175,55,0.03);
-            border-radius: 16px;
-            border: 1px solid rgba(212,175,55,0.08);
-        }
-        .language-selector .lang-icon {
-            font-size: 0.7rem;
-            margin-right: 2px;
-        }
-        .lang-btn {
-            padding: 2px 8px;
-            border-radius: 10px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.45rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .lang-btn:hover {
-            color: var(--text-secondary);
-            background: rgba(212,175,55,0.05);
-        }
-        .lang-btn.active {
-            border-color: var(--gold-cosmic);
-            background: rgba(212,175,55,0.1);
-            color: var(--gold-cosmic);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(212,175,55,0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.55rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--verde-bosque-light), var(--verde-bosque));
-            box-shadow: 0 0 40px rgba(15,45,26,0.5);
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-        }
-        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
-        .btn-outline { border-color: var(--border); background: transparent; }
-        .btn-outline:hover:not(:disabled) { background: rgba(212,175,55,0.05); border-color: var(--gold-cosmic); }
-        .btn-sm { padding: 4px 10px; font-size: 0.5rem; }
-        .btn-danger {
-            background: rgba(255,51,102,0.15);
-            border-color: rgba(255,51,102,0.3);
-            color: var(--danger);
-        }
-        .btn-danger:hover:not(:disabled) { background: rgba(255,51,102,0.25); }
-        .btn-trading {
-            background: linear-gradient(135deg, var(--quantum), #0099ff);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-            animation: pulse-trading 2s ease-in-out infinite;
-        }
-        .btn-trading:hover {
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-trading {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
-        }
-        .btn-internet {
-            background: linear-gradient(135deg, var(--gold-cosmic), #00d68f);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0, 214, 143, 0.2);
-            animation: pulse-internet 2s ease-in-out infinite;
-        }
-        .btn-internet:hover {
-            box-shadow: 0 0 40px rgba(0, 214, 143, 0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-internet {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(0, 214, 143, 0.4); }
-        }
-        .btn-tienda {
-            background: linear-gradient(135deg, #a855f7, #7c3aed);
-            border-color: transparent;
-            color: #fff;
-            -webkit-text-fill-color: #fff;
-            box-shadow: 0 0 20px rgba(168,85,247,0.2);
-            animation: pulse-tienda 2s ease-in-out infinite;
-        }
-        .btn-tienda:hover {
-            box-shadow: 0 0 40px rgba(168,85,247,0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-tienda {
-            0%, 100% { box-shadow: 0 0 20px rgba(168,85,247,0.2); }
-            50% { box-shadow: 0 0 40px rgba(168,85,247,0.4); }
-        }
-        .btn-wallet {
-            background: linear-gradient(135deg, #00d4ff, #0099ff);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-            box-shadow: 0 0 20px rgba(0,212,255,0.2);
-            animation: pulse-wallet 2s ease-in-out infinite;
-        }
-        .btn-wallet:hover {
-            box-shadow: 0 0 40px rgba(0,212,255,0.4);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-wallet {
-            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
-            50% { box-shadow: 0 0 40px rgba(0,212,255,0.4); }
-        }
-
-        /* ===== BOTÓN MURO P2P ===== */
-        .btn-muro-p2p {
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-            box-shadow: 0 0 20px rgba(212,175,55,0.15);
-            animation: pulse-muro 2s ease-in-out infinite;
-        }
-        .btn-muro-p2p:hover {
-            box-shadow: 0 0 40px rgba(212,175,55,0.3);
-            transform: scale(1.03);
-        }
-        @keyframes pulse-muro {
-            0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.15); }
-            50% { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            font-size: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(212,175,55,0.06);
-            border: 1px solid rgba(212,175,55,0.15);
-            border-radius: 30px;
-            color: var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-        .status-dot.online {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--success);
-            display: inline-block;
-        }
-
-        /* ===== BOTÓN LIVE DESTACADO ===== */
-        .btn-live {
-            background: linear-gradient(135deg, var(--live-red), #cc0033);
-            border-color: var(--live-red);
-            color: #fff;
-            -webkit-text-fill-color: #fff;
-            box-shadow: 0 0 20px rgba(255,0,51,0.3);
-            animation: pulse-live 1.5s ease-in-out infinite;
-        }
-        .btn-live:hover {
-            box-shadow: 0 0 40px rgba(255,0,51,0.5);
-            transform: scale(1.05);
-        }
-        @keyframes pulse-live {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,0,51,0.3); }
-            50% { box-shadow: 0 0 40px rgba(255,0,51,0.6); }
-        }
-        .btn-live .live-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            animation: dot-pulse 1s infinite;
-            margin-right: 4px;
-        }
-        @keyframes dot-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* ===== LOGIN CARD ===== */
-        .login-card {
-            background: rgba(15,45,26,0.25);
-            border: 1px solid var(--gold-dim);
-            border-radius: var(--radius);
-            padding: 32px 28px;
-            max-width: 480px;
-            margin: 20px auto;
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-            flex: 1;
-        }
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic));
-            background-size: 300% 300%;
-            border-radius: var(--radius);
-            z-index: -1;
-            opacity: 0.1;
-            animation: border-flow 4s ease-in-out infinite;
-        }
-        @keyframes border-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .login-card .title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.2rem;
-            text-align: center;
-            color: var(--gold-cosmic);
-            margin-bottom: 4px;
-        }
-        .login-card .subtitle {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            font-family: 'Orbitron', monospace;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--gold-dim);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-            transition: var(--transition);
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .form-group input:focus {
-            border-color: var(--gold-cosmic);
-        }
-        .form-group input::placeholder {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .btn-login {
-            width: 100%;
-            justify-content: center;
-            padding: 12px;
-            font-size: 0.75rem;
-            margin-top: 8px;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 18px 0;
-            color: var(--text-muted);
-            font-size: 0.6rem;
-            font-family: 'Orbitron', monospace;
-        }
-        .divider hr {
-            flex: 1;
-            border: none;
-            border-top: 1px solid var(--gold-dim);
-        }
-
-        .btn-google {
-            width: 100%;
-            justify-content: center;
-            background: rgba(255,255,255,0.05);
-            border-color: rgba(255,255,255,0.1);
-            color: var(--text-primary);
-            padding: 10px;
-            font-size: 0.7rem;
-        }
-        .btn-google:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: var(--gold-cosmic);
-        }
-
-        .terms-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.55rem;
-            color: var(--text-muted);
-            margin: 12px 0 6px;
-            flex-wrap: wrap;
-        }
-        .terms-row a {
-            color: var(--gold-cosmic);
-            text-decoration: underline;
-        }
-        .terms-row input {
-            accent-color: var(--gold-cosmic);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-
-        .login-footer-text {
-            text-align: center;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            margin-top: 14px;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            margin-top: 40px;
-            padding-top: 14px;
-            border-top: 1px solid var(--gold-dim);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            position: relative;
-        }
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), transparent);
-            opacity: 0.2;
-        }
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.5rem;
-            letter-spacing: 0.5px;
-            font-family: 'Orbitron', monospace;
-        }
-        .footer-text .brand { color: var(--gold-cosmic); }
-        .footer-links {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.5rem;
-            transition: var(--transition);
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 0.5px;
-        }
-        .footer-links a:hover { color: var(--gold-cosmic); }
-        .footer-hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.45rem;
-            font-weight: 700;
-            border: 1px solid var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.7rem;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 5000;
-            pointer-events: none;
-            font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(212,175,55,0.15);
-            max-width: 90%;
-            text-align: center;
-        }
-        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--danger); color: white; }
-
-        @media (max-width: 480px) {
-            .login-card { padding: 20px 16px; }
-            .login-card .title { font-size: 1rem; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>◈ Csariel's | Windows de Puebla</title>
+<meta name="theme-color" content="#00ff88" />
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-512.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="./js/security.js"></script>
+<style>
+:root{--gold:#f7d44a;--green:#00ff88;--cyan:#00eaff;--purple:#a855f7}
+body{background:#020208;color:#e8f0f8;font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+.orbitron{font-family:'Orbitron',monospace}
+.glass{backdrop-filter:blur(16px);background:linear-gradient(180deg,rgba(20,40,50,.75),rgba(5,15,20,.9));border:1px solid rgba(247,212,74,.25)}
+.earth{animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+#stars-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.modulo-card{transition:all.45s cubic-bezier(.34,1.56,.64,1)}
+/* Estilos estilo LUXNET-OS pero sin LUXNET */
+.status-bar{background:rgba(0,0,0,0.7);border-bottom:1px solid rgba(247,212,74,0.15);padding:4px 12px;font-size:9px;display:flex;justify-content:space-between;align-items:center;font-family:'Orbitron',monospace;letter-spacing:0.5px}
+.status-bar .left{display:flex;gap:12px;align-items:center}
+.status-bar .right{display:flex;gap:12px;align-items:center}
+.status-bar .online-dot{width:6px;height:6px;background:#00ff88;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.social-node-header{background:rgba(0,0,0,0.5);border-bottom:1px solid rgba(247,212,74,0.08);padding:6px 16px;display:flex;justify-content:space-between;align-items:center;font-size:10px;font-family:'Orbitron',monospace}
+.social-node-header .badge{background:rgba(247,212,74,0.12);border:1px solid rgba(247,212,74,0.2);padding:2px 10px;border-radius:12px;color:#f7d44a}
+.realtime-stats{display:flex;gap:16px;font-size:9px;opacity:0.7}
+.realtime-stats span{display:flex;align-items:center;gap:4px}
+.module-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 12px;background:rgba(0,0,0,0.3);border-radius:12px;border:1px solid rgba(247,212,74,0.06);margin-top:6px}
+.module-grid .mod-item{background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 10px;display:flex;justify-content:space-between;font-size:9px;border:1px solid rgba(247,212,74,0.04)}
+.module-grid .mod-item .mod-label{color:#f7d44a;font-family:'Orbitron',monospace;font-size:8px}
+.module-grid .mod-item .mod-value{color:#00ff88;font-family:'Orbitron',monospace;font-size:8px}
+</style>
 </head>
 <body>
-    <!-- ===== FONDO ESTELAR ===== -->
-    <canvas id="stars-canvas"></canvas>
+<canvas id="stars-canvas"></canvas>
+<div class="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_#0a2a1a_0%,_#020208_70%)] -z-10"></div>
 
-    <div class="app">
+<div class="relative z-10 max-w-[1400px] mx-auto px-4 py-2">
 
-        <!-- HEADER CON LOGOTIPO Y SELECTOR DE IDIOMA -->
-        <header class="header">
-            <a href="/" class="logo">
-                <span class="logo-icon"><span class="hex">◈</span></span>
-                <span class="logo-text">Csariel's</span>
-                <span class="logo-badge" data-i18n="inicio">Inicio</span>
-            </a>
-            <div class="header-actions">
-                <!-- ===== SELECTOR DE IDIOMA ===== -->
-                <div class="language-selector">
-                    <span class="lang-icon">🌐</span>
-                    <button class="lang-btn" data-lang="es" onclick="CSARIELS_IDIOMA.cambiar('es')">ES</button>
-                    <button class="lang-btn" data-lang="en" onclick="CSARIELS_IDIOMA.cambiar('en')">EN</button>
-                    <button class="lang-btn" data-lang="fr" onclick="CSARIELS_IDIOMA.cambiar('fr')">FR</button>
-                </div>
+  <!-- BARRA DE ESTADO ESTILO LUXNET-OS (sin LUXNET) -->
+  <div class="status-bar rounded-t-lg">
+    <div class="left">
+      <span class="online-dot"></span>
+      <span>CSARIEL'S OS</span>
+      <span style="opacity:0.4">|</span>
+      <span style="opacity:0.6">SOCIAL NODE CONTROL</span>
+    </div>
+    <div class="right">
+      <span>TRADING.</span>
+      <span style="opacity:0.5">|</span>
+      <span>MARKETS·REALTIME</span>
+    </div>
+  </div>
 
-                <div class="status-badge">
-                    <span class="status-dot online"></span>
-                    <span data-i18n="status_online">Online</span>
-                </div>
+  <!-- HEADER SOCIAL NODE -->
+  <div class="social-node-header">
+    <div class="flex items-center gap-4">
+      <span class="badge">◈ Mi Red.</span>
+      <span style="font-size:8px;opacity:0.5">Muro live.</span>
+    </div>
+    <div class="realtime-stats">
+      <span>👥 <span id="friendsCount">1.2K</span> ONLINE</span>
+      <span>📺 <span id="liveCount">834</span> VIEWERS</span>
+    </div>
+  </div>
 
-                <!-- ===== BOTÓN TIENDA ===== -->
-                <button class="btn btn-tienda btn-sm" onclick="window.location.href='/tienda.html'">
-                    <i class="fa-solid fa-store"></i> <span data-i18n="tienda">Tienda</span>
-                </button>
+  <!-- MÓDULOS EN FORMATO GRID ESTILO CAPTURA -->
+  <div class="module-grid">
+    <div class="mod-item"><span class="mod-label">TRADING</span><span class="mod-value">📊 0.84%</span></div>
+    <div class="mod-item"><span class="mod-label">MI RED</span><span class="mod-value">👤 1.2K</span></div>
+    <div class="mod-item"><span class="mod-label">MURO LIVE</span><span class="mod-value">📹 834</span></div>
+    <div class="mod-item"><span class="mod-label">WALLET</span><span class="mod-value">👛 $0.00</span></div>
+  </div>
 
-                <!-- ===== BOTÓN MI RED ===== -->
-                <button class="btn btn-primary btn-sm" onclick="window.location.href='/features/red/index.html'">
-                    <i class="fa-solid fa-users"></i> <span data-i18n="mi_red">Mi Red</span>
-                </button>
+  <!-- MENSAJE SWIPE -->
+  <div class="text-center py-2" style="font-size:8px;font-family:'Orbitron',monospace;opacity:0.4;letter-spacing:1px">
+    <span>↕ Swipe to select module</span>
+  </div>
 
-                <!-- ===== BOTÓN CHAT ===== -->
-                <button class="btn btn-outline btn-sm" onclick="window.location.href='/features/chat/index.html'">
-                    <i class="fa-solid fa-comment"></i> <span data-i18n="chat">Chat</span>
-                </button>
+  <!-- CONEXIÓN ACTIVA -->
+  <div class="text-center py-1" style="font-size:7px;font-family:'Orbitron',monospace;opacity:0.3;letter-spacing:0.5px;border-top:1px solid rgba(247,212,74,0.05);border-bottom:1px solid rgba(247,212,74,0.05);margin:4px 0 8px 0">
+    <span>CONNECTED TO NETWORK · <span id="activeUsers">3.2K</span> USERS ACTIVE NOW</span>
+  </div>
 
-                <!-- ===== BOTÓN eSIM/INTERNET ===== -->
-                <button class="btn btn-internet btn-sm" onclick="window.location.href='/features/internet/index.html'">
-                    <i class="fa-solid fa-satellite-dish"></i> <span data-i18n="internet">eSIM</span>
-                </button>
+  <!-- MUNDO CON SOLO 3 MODULOS GIRANDO (preservado) -->
+  <div class="flex flex-col items-center justify-center min-h-[55vh] relative w-full">
 
-                <!-- ===== BOTÓN MURO P2P ===== -->
-                <button class="btn btn-muro-p2p btn-sm" onclick="window.location.href='/muro-p2p/index.html'">
-                    <i class="fa-solid fa-users"></i> <span data-i18n="muro_p2p">Muro P2P</span>
-                </button>
-
-                <!-- ===== BOTÓN LIVE ===== -->
-                <button class="btn btn-live btn-sm" onclick="window.location.href='/live/index.html'">
-                    <span class="live-dot"></span> <span data-i18n="live">LIVE</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- ===== LOGIN CARD ===== -->
-        <main class="login-card">
-            <h1 class="title">ACCESO AL SISTEMA</h1>
-            <p class="subtitle">Ingresa tus datos o conéctate con Web3</p>
-
-            <div class="form-group">
-                <label><i class="fa-regular fa-user"></i> <span data-i18n="username">Nombre de Usuario</span></label>
-                <input type="text" id="inputUsername" placeholder="Ej. Csariel" autocomplete="username">
-            </div>
-            <div class="form-group">
-                <label><i class="fa-regular fa-envelope"></i> <span data-i18n="email">Correo Electrónico (Opcional)</span></label>
-                <input type="email" id="inputEmail" placeholder="correo@dominio.com" autocomplete="email">
-            </div>
-            <div class="form-group">
-                <label><i class="fa-regular fa-phone"></i> <span data-i18n="phone">Teléfono (Opcional)</span></label>
-                <input type="tel" id="inputPhone" placeholder="+52..." autocomplete="tel">
-            </div>
-
-            <div class="terms-row">
-                <input type="checkbox" id="acceptTerms">
-                <label for="acceptTerms">
-                    <span data-i18n="accept_terms">Acepto los</span>
-                    <a href="/terms.html" target="_blank" data-i18n="terms_conditions">Términos y Condiciones</a>
-                </label>
-            </div>
-
-            <button class="btn btn-primary btn-login" onclick="handleLogin()">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                <span data-i18n="login">INGRESAR</span>
-            </button>
-
-            <div class="divider">
-                <hr><span data-i18n="or_connect_with">O CONECTAR CON</span><hr>
-            </div>
-
-            <button class="btn btn-google" onclick="loginWithGoogle()">
-                <i class="fa-brands fa-google"></i> Google OAuth
-            </button>
-
-            <p class="login-footer-text" data-i18n="login_footer">
-                <i class="fa-regular fa-shield-check"></i>
-                Tus datos están seguros con Csariel's
-            </p>
-        </main>
-
-        <!-- ===== FOOTER ===== -->
-        <footer class="footer">
-            <span class="footer-text">
-                <span class="footer-hex">◈</span>
-                <span class="brand">Csariel's</span> &copy; 2026
-            </span>
-            <div class="footer-links">
-                <a href="/privacidad.html" data-i18n="privacy">Privacidad</a>
-                <a href="/terms.html" data-i18n="terms">Términos</a>
-                <a href="/contacto.html" data-i18n="contact">Contacto</a>
-                <a href="/faq.html" data-i18n="faq">FAQ</a>
-            </div>
-        </footer>
+    <!-- MODULO TOP -->
+    <div id="mod-0" onclick="entrarModulo(0)" class="modulo-card glass border-cyan-400/50 rounded-xl px-5 py-3 z-20 cursor-pointer absolute top-0 left-1/2 -translate-x-1/2 flex items-center gap-3">
+      <span id="icon-0" class="text-2xl"></span>
+      <div><div id="label-0" class="orbitron text-[11px]"></div><div id="sub-0" class="text-[8px] opacity-60"></div></div>
+      <span class="w-6 h-6 bg-black border border-[#f7d44a] rounded flex items-center justify-center text-[9px] text-[#f7d44a] orbitron">C</span>
     </div>
 
-    <!-- ===== TOAST NOTIFICACIONES ===== -->
-    <div id="toast" class="toast"></div>
+    <div class="flex items-center justify-between w-full max-w-[900px] px-1 mt-16">
+      <!-- MODULO IZQ -->
+      <div id="mod-1" onclick="entrarModulo(1)" class="modulo-card glass border-yellow-400/50 rounded-xl px-4 py-3 z-20 cursor-pointer flex items-center gap-3">
+        <span id="icon-1" class="text-2xl"></span>
+        <div><div id="label-1" class="orbitron text-[11px]"></div><div id="sub-1" class="text-[7px] opacity-60"></div></div>
+        <span class="w-6 h-6 bg-black border border-[#f7d44a] rounded flex items-center justify-center text-[9px] text-[#f7d44a] orbitron">C</span>
+      </div>
 
-    <!-- ✅ SCRIPT EXTERNO CORRECTO (Cumple con CSP) -->
-    <script src="/js/login-index.js"></script>
+      <!-- TIERRA TACTIL -->
+      <div id="globeEarth" class="earth relative w-[300px] h-[300px] md:w-[380px] md:h-[380px] rounded-full overflow-hidden border-2 border-yellow-400/40 shadow-[0_0_80px_rgba(247,212,74,0.5)] cursor-grab select-none mx-2">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800" class="w-full h-full object-cover pointer-events-none">
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-black/80 border-2 border-yellow-400 rounded-lg rotate-45 flex items-center justify-center"><span class="-rotate-45 orbitron text-xl text-yellow-400">C</span></div>
+        <div id="worldAdsLayer" class="absolute inset-0"></div>
+      </div>
 
-    <!-- ================================================================ -->
-    <!-- 🤖 MARQUINHOS - ASISTENTE FLOTANTE GLOBAL                      -->
-    <!-- ================================================================ -->
-
-    <div id="marquinhos-global" style="position:fixed; bottom:24px; right:24px; z-index:9999; pointer-events:none;">
-        <div style="pointer-events:auto; cursor:pointer; position:relative; width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg, #0F2D1A, #D4AF37); display:flex; align-items:center; justify-content:center; font-size:2.5rem; box-shadow:0 8px 32px rgba(212,175,55,0.3); transition:all 0.3s ease; border:2px solid rgba(212,175,55,0.3);" 
-             id="marquinhosBtn" 
-             onclick="toggleMarquinhos()"
-             onmouseenter="this.style.transform='scale(1.1)'" 
-             onmouseleave="this.style.transform='scale(1)'">
-            🤖
-            <span style="position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:#00e5ff; border-radius:50%; border:2px solid #0F2D1A; animation:pulse-dot 1.5s infinite;"></span>
-        </div>
-
-        <!-- Panel de Marquinhos -->
-        <div id="marquinhosPanel" style="display:none; position:absolute; bottom:90px; right:0; width:320px; max-height:400px; background:rgba(5,8,15,0.95); backdrop-filter:blur(20px); border:1px solid rgba(212,175,55,0.15); border-radius:16px; padding:16px; box-shadow:0 20px 60px rgba(0,0,0,0.6); overflow-y:auto; pointer-events:auto; transition:all 0.3s ease;">
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; border-bottom:1px solid rgba(212,175,55,0.1); padding-bottom:12px;">
-                <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #0F2D1A, #D4AF37); display:flex; align-items:center; justify-content:center; font-size:1.8rem; flex-shrink:0;">🤖</div>
-                <div>
-                    <div style="font-weight:700; font-size:0.9rem; color:#e8f0f8;">Marquinhos</div>
-                    <div style="font-size:0.6rem; color:#8ba3c7;">Asistente · Siempre listo</div>
-                </div>
-                <button onclick="toggleMarquinhos()" style="margin-left:auto; background:transparent; border:none; color:#4a6a8a; font-size:1.2rem; cursor:pointer;">✕</button>
-            </div>
-
-            <!-- Outfit actual -->
-            <div id="marquinhosOutfitPreview" style="background:rgba(15,45,26,0.2); border-radius:12px; padding:12px; margin-bottom:12px; text-align:center; border:1px solid rgba(212,175,55,0.08);">
-                <div style="font-size:0.6rem; color:#8ba3c7; font-family:'Orbitron',monospace; margin-bottom:4px;">OUTFIT ACTUAL</div>
-                <div style="font-size:2rem;" id="marquinhosOutfitEmoji">🤖</div>
-                <div style="font-size:0.55rem; color:#4a6a8a;" id="marquinhosOutfitText">Sin ropa puesta</div>
-            </div>
-
-            <!-- Acciones -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px;">
-                <button onclick="window.location.href='/tienda.html'" style="padding:8px; background:linear-gradient(135deg, #D4AF37, #b8923a); border:none; border-radius:30px; color:#0a0c10; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
-                    🛍️ Tienda
-                </button>
-                <button onclick="window.location.href='/features/red/index.html'" style="padding:8px; background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.15); border-radius:30px; color:#e8f0f8; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
-                    👥 Mi Red
-                </button>
-                <button onclick="window.location.href='/features/chat/index.html'" style="padding:8px; background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.15); border-radius:30px; color:#00e5ff; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
-                    💬 Chat
-                </button>
-                <button onclick="mostrarMensajeMarquinhos()" style="padding:8px; background:rgba(0,184,148,0.1); border:1px solid rgba(0,184,148,0.15); border-radius:30px; color:#00b894; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; cursor:pointer; transition:all 0.3s ease;">
-                    🗣️ Hablar
-                </button>
-            </div>
-
-            <!-- Mensaje de Marquinhos -->
-            <div id="marquinhosMensaje" style="background:rgba(15,45,26,0.2); border-radius:10px; padding:10px; font-size:0.7rem; color:#8ba3c7; text-align:center; border-left:3px solid #D4AF37; min-height:40px; display:flex; align-items:center; justify-content:center;">
-                ¡Hola! Soy Marquinhos. ¿En qué puedo ayudarte?
-            </div>
-        </div>
+      <!-- MODULO DER -->
+      <div id="mod-2" onclick="entrarModulo(2)" class="modulo-card glass border-green-400/50 rounded-xl px-4 py-3 z-20 cursor-pointer flex items-center gap-3">
+        <span id="icon-2" class="text-2xl"></span>
+        <div><div id="label-2" class="orbitron text-[11px]"></div><div id="sub-2" class="text-[7px] opacity-60"></div></div>
+        <span class="w-6 h-6 bg-black border border-[#f7d44a] rounded flex items-center justify-center text-[9px] text-[#f7d44a] orbitron">C</span>
+      </div>
     </div>
 
-    <style>
-        @keyframes pulse-dot {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.5; }
-        }
-        #marquinhosPanel::-webkit-scrollbar { width: 3px; }
-        #marquinhosPanel::-webkit-scrollbar-track { background: transparent; }
-        #marquinhosPanel::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 3px; }
-    </style>
+    <div class="mt-4 text-center">
+      <p class="orbitron text-[8px] opacity-30">👆 DESLIZA EL MUNDO • TOCA EL MÓDULO PARA ENTRAR</p>
+      <div class="flex gap-1.5 justify-center mt-2" id="dots"></div>
+      <p class="text-[7px] opacity-20 mt-1"><span id="contador">1-3</span> de 7 módulos</p>
+    </div>
+  </div>
 
-    <script>
-        // ================================================================
-        // 🤖 MARQUINHOS - GLOBAL
-        // ================================================================
+  <!-- MAPA -->
+  <section class="mt-6 glass rounded-2xl p-4">
+    <h2 class="orbitron text-center text-[#f7d44a] mb-3 text-xs">📍 MAPA DE INFLUENCIA</h2>
+    <div id="community-map" class="h-[250px] rounded-xl border border-yellow-500/20"></div>
+  </section>
 
-        function toggleMarquinhos() {
-            const panel = document.getElementById('marquinhosPanel');
-            if (panel.style.display === 'none' || panel.style.display === '') {
-                panel.style.display = 'block';
-                cargarOutfitMarquinhos();
-            } else {
-                panel.style.display = 'none';
-            }
-        }
+  <footer class="mt-6 border-t border-yellow-900/20 pt-4 grid grid-cols-5 text-center gap-2 opacity-60">
+    <div><div>🛡️</div><div class="text-[7px] orbitron">SEGURIDAD</div></div>
+    <div><div>📦</div><div class="text-[7px] orbitron">TRANSPARENCIA</div></div>
+    <div><div class="text-green-400">◎</div><div class="text-[7px] orbitron">DESCENTRALIZADO</div></div>
+    <div><div>📍</div><div class="text-[7px] orbitron">HECHO EN PUEBLA</div></div>
+    <div><div>💰</div><div class="text-[7px] orbitron">100% NUESTRO</div></div>
+  </footer>
+</div>
 
-        function cargarOutfitMarquinhos() {
-            try {
-                const outfit = JSON.parse(localStorage.getItem('marquinhos_outfit') || '{}');
-                const emojis = {
-                    'gorra_america': '🧢', 'sombrero_charro': '🤠', 'casco_astronauta': '🚀',
-                    'playera_puebla': '⚽', 'traje_godin': '💼', 'traje_batman': '🦇',
-                    'playera_aladdin': '🧞', 'playera_csariel': '◈', 'short_playa': '🏖️',
-                    'mezclilla': '👖', 'crocs': '🩴', 'jordan': '👟', 'chanclas': '🩴',
-                    'lentes_sol': '🕶️', 'cadena_oro': '⛓️', 'capa_heroe': '🦸',
-                    'baguette': '🥖', 'traje_pan_cancha': '🥖'
-                };
-                
-                const allItems = [];
-                if (outfit.gorro) allItems.push(outfit.gorro);
-                if (outfit.playera) allItems.push(outfit.playera);
-                if (outfit.pantalon) allItems.push(outfit.pantalon);
-                if (outfit.tenis) allItems.push(outfit.tenis);
-                if (outfit.extras) allItems.push(...outfit.extras);
+<!-- MODAL AUTH + ESIM $100 -->
+<div id="authModal" class="fixed inset-0 z-[100] hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+  <div class="glass border-yellow-400/30 rounded-2xl w-full max-w-[400px] p-5">
+    <div class="bg-gradient-to-br from-[#0B3D2E] to-black border border-[#00ff88] rounded-xl p-3 mb-4">
+      <div class="flex justify-between"><div class="orbitron text-[11px] text-[#00ff88]">📶 ◈ Csariel's eSIM</div><div class="bg-[#00ff88] text-black text-[9px] px-2 rounded-full font-black">$100 MXN</div></div>
+      <div class="text-[9px] opacity-60 mt-1 mb-2">QR instantáneo • Megas incluidos</div>
+      <button onclick="comprarEsim()" class="w-full bg-[#00ff88] text-black orbitron font-black text-[10px] py-2 rounded-full">COMPRAR eSIM</button>
+    </div>
+    <h3 class="orbitron text-center text-[#f7d44a] text-xs mb-3">ENTRAR</h3>
+    <input id="inputNombre" type="text" placeholder="Tu nombre real (ej: Cesar)" class="w-full bg-black/60 border border-yellow-500/30 rounded-full px-4 py-2.5 text-[12px] outline-none mb-2" oninput="cambiarNombre(this.value)">
+    <input type="email" placeholder="Correo o Celular" class="w-full bg-black/60 border border-white/10 rounded-full px-4 py-2.5 text-[12px] outline-none mb-3">
+    <p class="text-[7px] opacity-40 text-center mb-3">Al poner tu nombre, USUARIO se cambiará a tu nombre real</p>
+    <button onclick="document.getElementById('authModal').classList.add('hidden')" class="w-full text-[9px] text-red-400">Cerrar</button>
+  </div>
+</div>
 
-                const emojiEl = document.getElementById('marquinhosOutfitEmoji');
-                const textEl = document.getElementById('marquinhosOutfitText');
+<script src="./js/estrellas.js"></script>
+<script type="module">
+import { MarquinhosUI } from './js/marquinhos-ui.js';
+const marquinhosUI = new MarquinhosUI();
+window.marquinhosUI = marquinhosUI;
+</script>
+<script src="core/assistant.js" defer></script>
 
-                if (allItems.length > 0) {
-                    const lastItem = allItems[allItems.length - 1];
-                    emojiEl.textContent = emojis[lastItem] || '🤖';
-                    
-                    const nombres = allItems.map(id => {
-                        const item = {
-                            'gorra_america': 'Gorra América',
-                            'sombrero_charro': 'Sombrero Charro',
-                            'casco_astronauta': 'Casco Astronauta',
-                            'playera_puebla': 'Playera Puebla',
-                            'traje_godin': 'Traje Godín',
-                            'traje_batman': 'Traje Batman',
-                            'playera_aladdin': 'Playera Aladdin',
-                            'playera_csariel': 'Playera Csariel\'s',
-                            'short_playa': 'Short Playa',
-                            'mezclilla': 'Pantalón Mezclilla',
-                            'crocs': 'Crocs',
-                            'jordan': 'Tenis Jordan',
-                            'chanclas': 'Chanclas',
-                            'lentes_sol': 'Lentes de Sol',
-                            'cadena_oro': 'Cadena de Oro',
-                            'capa_heroe': 'Capa de Héroe',
-                            'baguette': 'Baguette',
-                            'traje_pan_cancha': 'Traje Pan Cancha'
-                        };
-                        return item[id] || id;
-                    });
-                    textEl.textContent = nombres.join(' + ');
-                } else {
-                    emojiEl.textContent = '🤖';
-                    textEl.textContent = 'Sin ropa puesta';
-                }
-            } catch (e) {
-                console.warn('⚠️ Error cargando outfit:', e);
-            }
-        }
+<script>
+// === TUS 7 MODULOS REALES - SOLO 3 VISIBLES A LA VEZ ===
+const MODULOS = [
+  { id:'usuario', get label(){return localStorage.getItem('csariel_nombre')||'USUARIO'}, sub:'MI RED', icon:'👤', ruta:'#red' },
+  { id:'live', label:'LIVE', sub:'MURO EN VIVO', icon:'📹', ruta:'#live' },
+  { id:'traidig', label:'TRAIDIG', sub:'TRADING', icon:'📊', ruta:'#trading' },
+  { id:'servicios', label:'SERVICIOS', sub:'COMUNITARIOS', icon:'🛠️', ruta:'#servicios' },
+  { id:'tienda', label:'TIENDA', sub:'MARKETPLACE', icon:'🛒', ruta:'#tienda' },
+  { id:'assets', label:'ASSETS', sub:'ROBOT PUEBLA', icon:'🤖', ruta:'#assets' },
+  { id:'wallet', label:'WALLET', sub:'MI CARTERA', icon:'👛', ruta:'#wallet' },
+];
+let idx = 0;
 
-        function mostrarMensajeMarquinhos() {
-            const mensajes = [
-                '¡Hola! ¿Cómo estás hoy? 😊',
-                '¡Qué gusto verte! ¿En qué puedo ayudarte? 🤖',
-                '¡Listo para lo que necesites! 🚀',
-                'Soy Marquinhos, tu asistente. ¿Qué se ofrece? 💪',
-                '¡Vamos a darle! 🔥',
-                '¿Quieres ir a la tienda a comprar ropa? 🛍️'
-            ];
-            const msg = mensajes[Math.floor(Math.random() * mensajes.length)];
-            const el = document.getElementById('marquinhosMensaje');
-            el.textContent = msg;
-            el.style.borderLeftColor = '#D4AF37';
-        }
+function render(){
+  for(let i=0;i<3;i++){
+    let m = MODULOS[(idx+i) % MODULOS.length];
+    let lab = (m.id==='usuario')? (localStorage.getItem('csariel_nombre')||'USUARIO') : m.label;
+    document.getElementById(`label-${i}`).innerText = lab;
+    document.getElementById(`sub-${i}`).innerText = m.sub;
+    document.getElementById(`icon-${i}`).innerText = m.icon;
+  }
+  let fin = Math.min(idx+3, MODULOS.length);
+  let rango = idx+3 <= MODULOS.length? `${idx+1}-${fin}` : `${idx+1}-${MODULOS.length} + 1-${(idx+3)%MODULOS.length}`;
+  document.getElementById('contador').innerText = rango;
+  document.getElementById('dots').innerHTML = MODULOS.map((_,k)=>{
+    let active = (k>=idx && k<idx+3) || (idx+3>7 && k < (idx+3)%7);
+    return `<div class="h-1.5 rounded-full transition-all ${active?'w-5 bg-[#f7d44a]':'w-1.5 bg-white/20'}"></div>`;
+  }).join('');
+}
+function cambiarNombre(v){
+  if(v.trim().length>=2){ localStorage.setItem('csariel_nombre', v.toUpperCase()); render(); }
+}
+function abrirAuth(){
+  document.getElementById('authModal').classList.remove('hidden');
+  gsap.fromTo('#authModal>div',{scale:.85,y:20,opacity:0},{scale:1,y:0,opacity:1,duration:.35,ease:'back.out(1.5)'});
+}
+function entrarModulo(i){
+  let m = MODULOS[(idx+i) % MODULOS.length];
+  console.log('Entrar a', m.id);
+  abrirAuth();
+}
+function comprarEsim(){ alert('eSIM $100: Conecta tu API y entrega QR automático.'); }
+window.abrirAuth = abrirAuth;
 
-        // Cerrar panel con click fuera
-        document.addEventListener('click', function(e) {
-            const panel = document.getElementById('marquinhosPanel');
-            const btn = document.getElementById('marquinhosBtn');
-            if (panel && panel.style.display === 'block') {
-                if (!panel.contains(e.target) && !btn.contains(e.target)) {
-                    panel.style.display = 'none';
-                }
-            }
-        });
+render();
 
-        // Escuchar cambios en el outfit (desde la tienda)
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'marquinhos_outfit') {
-                cargarOutfitMarquinhos();
-            }
-        });
+// === SWIPE MUNDO - GIRA LOS 3 MODULOS ===
+const globe = document.getElementById('globeEarth');
+let startX=0, dragging=false;
+globe.addEventListener('touchstart', e=>{ startX=e.touches[0].clientX; dragging=false; },{passive:true});
+globe.addEventListener('touchmove', e=>{ dragging=true; globe.style.transform=`rotateY(${(e.touches[0].clientX-startX)/6}deg)`; },{passive:true});
+globe.addEventListener('touchend', e=>{
+  let diff = e.changedTouches[0].clientX - startX;
+  globe.style.transform='';
+  if(Math.abs(diff)>35){
+    if(diff<0) idx = (idx+1)%MODULOS.length; else idx = (idx-1+MODULOS.length)%MODULOS.length;
+    gsap.fromTo('.modulo-card',{y:8,opacity:0,scale:.92},{y:0,opacity:1,scale:1,stagger:0.06,duration:.35,ease:'back.out(1.7)',onComplete:render});
+    if(navigator.vibrate) navigator.vibrate(25);
+  } else if(!dragging){ abrirAuth(); }
+  dragging=false;
+});
+globe.addEventListener('mousedown', e=>{ startX=e.clientX; dragging=false; });
+globe.addEventListener('mouseup', e=>{
+  let diff = e.clientX - startX;
+  if(Math.abs(diff)>35){
+    if(diff<0) idx = (idx+1)%MODULOS.length; else idx = (idx-1+MODULOS.length)%MODULOS.length;
+    render();
+  } else { abrirAuth(); }
+});
 
-        // Escuchar cambios en el outfit (evento custom)
-        document.addEventListener('marquinhosOutfitChanged', cargarOutfitMarquinhos);
+// MAPA
+document.addEventListener('DOMContentLoaded', ()=>{
+  const map=L.map('community-map').setView([19.043,-98.197],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const {latitude:lat, longitude:lng}=pos.coords;
+      map.flyTo([lat,lng],14);
+      L.marker([lat,lng]).addTo(map).bindPopup("<b>📍 Estás aquí</b>").openPopup();
+    });
+  }
+});
 
-        console.log('🤖 Marquinhos Global - Listo');
-        console.log('🛍️ Ve a la tienda para vestirlo');
-    </script>
-
+// Actualizar contadores en tiempo real (simulado)
+setInterval(() => {
+  const friends = 900 + Math.floor(Math.random() * 600);
+  const viewers = 600 + Math.floor(Math.random() * 400);
+  const users = 2800 + Math.floor(Math.random() * 800);
+  document.getElementById('friendsCount').textContent = (friends/1000).toFixed(1) + 'K';
+  document.getElementById('liveCount').textContent = viewers;
+  document.getElementById('activeUsers').textContent = (users/1000).toFixed(1) + 'K';
+}, 3000);
+</script>
 </body>
 </html>
