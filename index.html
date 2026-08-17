@@ -301,6 +301,7 @@
             font-family: 'Space Grotesk', sans-serif;
         }
         .pedido-form .form-group textarea { min-height: 60px; resize: vertical; }
+        .pedido-form .form-group.oculto { display: none; }
 
         .btn-delivery {
             width: 100%;
@@ -316,6 +317,7 @@
             transition: var(--transition);
         }
         .btn-delivery:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(212,175,55,0.3); }
+        .btn-delivery:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none; }
 
         .pedidos-list {
             display: flex;
@@ -334,6 +336,21 @@
             flex-wrap: wrap;
             gap: 8px;
         }
+        .pedido-item .pedido-info { flex: 1; min-width: 180px; }
+        .pedido-item .pedido-desc { font-size: 0.75rem; color: var(--text-primary); margin-bottom: 4px; }
+        .pedido-item .pedido-meta { font-size: 0.6rem; color: var(--text-muted); font-family: 'Orbitron', monospace; }
+        .estado-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .estado-pendiente { background: rgba(212,175,55,0.15); color: var(--gold-cosmic); }
+        .estado-en_camino { background: rgba(0,229,255,0.15); color: var(--quantum); }
+        .estado-entregado { background: rgba(0,184,148,0.15); color: var(--success); }
+        .estado-cancelado { background: rgba(255,51,102,0.15); color: var(--danger); }
 
         /* ===== FOOTER ===== */
         .footer {
@@ -442,11 +459,15 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="metodo_pago">Método de pago</label>
-                    <select id="deliveryPago">
+                    <select id="deliveryPago" onchange="toggleMontoCMT()">
                         <option value="efectivo">💵 Efectivo</option>
                         <option value="transferencia">🏦 Transferencia</option>
                         <option value="cmt">🪙 CMT</option>
                     </select>
+                </div>
+                <div class="form-group oculto" id="grupoMontoCMT">
+                    <label data-i18n="monto_cmt">Monto en CMT *</label>
+                    <input type="number" id="deliveryMontoCMT" placeholder="0.00" min="0" step="0.01">
                 </div>
                 <button onclick="crearPedido()" class="btn-delivery" id="btnCrearPedido">
                     <i class="fas fa-truck"></i> <span data-i18n="btn_solicitar">Solicitar entrega</span>
@@ -508,6 +529,7 @@
                         'direccion_entrega': 'Dirección de entrega *',
                         'descripcion_pedido': 'Descripción del pedido *',
                         'metodo_pago': 'Método de pago',
+                        'monto_cmt': 'Monto en CMT *',
                         'btn_solicitar': 'Solicitar entrega',
                         'pedidos_recientes': '📋 Pedidos recientes',
                         'no_pedidos': 'No hay pedidos aún',
@@ -530,6 +552,7 @@
                         'direccion_entrega': 'Delivery Address *',
                         'descripcion_pedido': 'Order Description *',
                         'metodo_pago': 'Payment Method',
+                        'monto_cmt': 'Amount in CMT *',
                         'btn_solicitar': 'Request Delivery',
                         'pedidos_recientes': '📋 Recent Orders',
                         'no_pedidos': 'No orders yet',
@@ -552,6 +575,7 @@
                         'direccion_entrega': 'Adresse de livraison *',
                         'descripcion_pedido': 'Description de la commande *',
                         'metodo_pago': 'Mode de paiement',
+                        'monto_cmt': 'Montant en CMT *',
                         'btn_solicitar': 'Demander la livraison',
                         'pedidos_recientes': '📋 Commandes récentes',
                         'no_pedidos': 'Aucune commande pour le moment',
@@ -594,6 +618,37 @@
             setTimeout(() => toast.classList.remove('active'), 3000);
         }
 
+        // ===== SUPABASE =====
+        // ⚠️ Usa exactamente las mismas constantes SUPABASE_URL / SUPABASE_ANON_KEY
+        // que ya tienes en /features/red/index.html o en perfil-connector.js.
+        // Pégalas aquí para mantener una sola fuente de verdad de auth.uid().
+        const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
+        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUserId = null;
+
+        async function ensureAuth() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session?.user) {
+                currentUserId = session.user.id;
+                return currentUserId;
+            }
+            const { data, error } = await sb.auth.signInAnonymously();
+            if (error) {
+                console.error('Error de autenticación anónima:', error);
+                mostrarToast('⚠️ No se pudo iniciar sesión', 'error');
+                return null;
+            }
+            currentUserId = data.user.id;
+            return currentUserId;
+        }
+
+        function toggleMontoCMT() {
+            const metodo = document.getElementById('deliveryPago').value;
+            document.getElementById('grupoMontoCMT').classList.toggle('oculto', metodo !== 'cmt');
+        }
+
         let map = null;
         function initMap() {
             if (map) return;
@@ -603,14 +658,54 @@
             }).addTo(map);
         }
 
-        function crearPedido() {
+        async function crearPedido() {
             const nombre = document.getElementById('deliveryNombre').value.trim();
             const telefono = document.getElementById('deliveryTelefono').value.trim();
             const direccion = document.getElementById('deliveryDireccion').value.trim();
             const descripcion = document.getElementById('deliveryDescripcion').value.trim();
+            const metodoPago = document.getElementById('deliveryPago').value;
+            const montoCMTInput = document.getElementById('deliveryMontoCMT').value;
 
             if (!nombre || !telefono || !direccion || !descripcion) {
                 mostrarToast('⚠️ Completa todos los campos obligatorios', 'error');
+                return;
+            }
+
+            let montoCMT = null;
+            if (metodoPago === 'cmt') {
+                montoCMT = parseFloat(montoCMTInput);
+                if (!montoCMT || montoCMT <= 0) {
+                    mostrarToast('⚠️ Ingresa un monto válido en CMT', 'error');
+                    return;
+                }
+            }
+
+            const userId = await ensureAuth();
+            if (!userId) return;
+
+            const btn = document.getElementById('btnCrearPedido');
+            btn.disabled = true;
+
+            const { data, error } = await sb.rpc('crear_pedido_delivery', {
+                p_nombre: nombre,
+                p_telefono: telefono,
+                p_direccion: direccion,
+                p_descripcion: descripcion,
+                p_metodo_pago: metodoPago,
+                p_monto_cmt: montoCMT,
+                p_lat: null,
+                p_lng: null
+            });
+
+            btn.disabled = false;
+
+            if (error) {
+                console.error('Error creando pedido:', error);
+                if (error.message && error.message.includes('Saldo insuficiente')) {
+                    mostrarToast('⚠️ Saldo CMT insuficiente', 'error');
+                } else {
+                    mostrarToast('⚠️ No se pudo crear el pedido', 'error');
+                }
                 return;
             }
 
@@ -619,11 +714,73 @@
             document.getElementById('deliveryTelefono').value = '';
             document.getElementById('deliveryDireccion').value = '';
             document.getElementById('deliveryDescripcion').value = '';
+            document.getElementById('deliveryMontoCMT').value = '';
+
+            await cargarPedidos();
+        }
+
+        function renderPedidos(pedidos) {
+            const lista = document.getElementById('pedidosList');
+
+            if (!pedidos || pedidos.length === 0) {
+                lista.innerHTML = `
+                    <div style="text-align:center;padding:30px;color:var(--text-muted);">
+                        <div style="font-size:2rem;opacity:0.3;margin-bottom:8px;">📭</div>
+                        <p>No hay pedidos aún</p>
+                    </div>`;
+                return;
+            }
+
+            const iconosPago = { efectivo: '💵', transferencia: '🏦', cmt: '🪙' };
+            const etiquetasEstado = {
+                pendiente: 'Pendiente',
+                en_camino: 'En camino',
+                entregado: 'Entregado',
+                cancelado: 'Cancelado'
+            };
+
+            lista.innerHTML = pedidos.map(p => `
+                <div class="pedido-item">
+                    <div class="pedido-info">
+                        <div class="pedido-desc">${escapeHTML(p.descripcion)}</div>
+                        <div class="pedido-meta">
+                            ${iconosPago[p.metodo_pago] || '💳'} ${escapeHTML(p.direccion)}
+                            ${p.monto_cmt ? ' · ' + p.monto_cmt + ' CMT' : ''}
+                            · ${new Date(p.created_at).toLocaleString('es-MX')}
+                        </div>
+                    </div>
+                    <span class="estado-badge estado-${p.estado}">${etiquetasEstado[p.estado] || p.estado}</span>
+                </div>
+            `).join('');
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str ?? '';
+            return div.innerHTML;
+        }
+
+        async function cargarPedidos() {
+            if (!currentUserId) return;
+            const { data, error } = await sb
+                .from('pedidos_delivery')
+                .select('*')
+                .eq('user_id', currentUserId)
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (error) {
+                console.error('Error cargando pedidos:', error);
+                return;
+            }
+            renderPedidos(data);
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
             await CSARIELS_IDIOMA.init();
             initMap();
+            await ensureAuth();
+            await cargarPedidos();
         });
     </script>
 </body>
