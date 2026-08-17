@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 Realizar Pedido | Csariel's Delivery</title>
+    <meta name="theme-color" content="#0F2D1A" />
+
+    <!-- 🔒 CSP -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://*.supabase.co;
+        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' data: https://*;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+        frame-src 'self';
+        media-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
+    <!-- ===== RECURSOS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <style>
+        :root {
+            --space-deep: #05080f;
+            --space-mid: #0a1428;
+            --verde-bosque: #0F2D1A;
+            --verde-bosque-light: #1a4a2a;
+            --gold-cosmic: #D4AF37;
+            --gold-dim: rgba(212,175,55,0.15);
+            --gold-glow: rgba(212,175,55,0.25);
+            --text-primary: #e8f0f8;
+            --text-secondary: #8ba3c7;
+            --text-muted: #4a6a8a;
+            --border: rgba(212,175,55,0.08);
+            --border-glow: rgba(212,175,55,0.25);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00b894;
+            --danger: #ff3366;
+            --warning: #D4AF37;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--space-deep);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #stars-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        .nebula {
+            position: fixed; border-radius: 50%; filter: blur(120px);
+            opacity: 0.10; pointer-events: none; z-index: 0;
+            animation: nebula-drift 25s ease-in-out infinite alternate;
+        }
+        .nebula-1 { width: 700px; height: 700px; background: var(--verde-bosque); top: -15%; right: -15%; }
+        .nebula-2 { width: 600px; height: 600px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.05; }
+
+        @keyframes nebula-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.15); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--space-deep); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold-cosmic), var(--verde-bosque)); border-radius: 3px; }
+
+        .app {
+            position: relative; z-index: 1; max-width: 900px;
+            margin: 0 auto; padding: 16px 20px 30px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0 16px; border-bottom: 2px solid var(--gold-dim);
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px; backdrop-filter: blur(10px);
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon .hex {
+            display: inline-block; background: var(--verde-bosque); color: var(--gold-cosmic);
+            padding: 3px 10px; border-radius: 6px; font-size: 1rem; font-weight: 900;
+            border: 2px solid var(--gold-cosmic); font-family: 'Orbitron', monospace;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace; font-size: 1.3rem; font-weight: 900;
+            letter-spacing: 2px; background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo-badge {
+            font-family: 'Orbitron', monospace; font-size: 0.45rem;
+            background: linear-gradient(135deg, var(--verde-bosque), var(--gold-cosmic));
+            color: white; padding: 3px 12px; border-radius: 20px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px;
+            border: 1px solid var(--border); border-radius: 30px; background: rgba(212,175,55,0.03);
+            color: var(--text-primary); font-family: 'Orbitron', monospace; font-size: 0.6rem;
+            font-weight: 600; cursor: pointer; transition: var(--transition); text-decoration: none;
+        }
+        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
+        .btn-outline { border-color: var(--border); background: transparent; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold-cosmic), #b8923a); border-color: transparent; color: #0a0c10; -webkit-text-fill-color: #0a0c10; }
+
+        /* VISTA DETALLE PEDIDO */
+        .detalle-card {
+            background: rgba(15,45,26,0.25);
+            border: 1px solid var(--gold-dim);
+            border-radius: var(--radius);
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .negocio-titulo {
+            font-family: 'Orbitron', monospace;
+            color: var(--gold-cosmic);
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+        }
+        .negocio-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-family: 'Orbitron', monospace;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            border-color: var(--gold-cosmic);
+            box-shadow: 0 0 10px rgba(212,175,55,0.2);
+        }
+
+        textarea.form-control { resize: vertical; min-height: 80px; }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--gold-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.55rem;
+            font-family: 'Orbitron', monospace;
+            color: var(--text-muted);
+        }
+        .footer span { color: var(--gold-cosmic); }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(50px);
+            background: var(--verde-bosque); color: var(--gold-cosmic); padding: 10px 20px;
+            border-radius: var(--radius); font-weight: 600; font-size: 0.7rem; opacity: 0;
+            transition: all 0.3s ease; z-index: 5000; font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(212,175,55,0.3); pointer-events: none;
+        }
+        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+    <canvas id="stars-canvas"></canvas>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <a href="../../index.html" class="logo">
+                <span class="logo-icon"><span class="hex">◈</span></span>
+                <span class="logo-text">Csariel's</span>
+                <span class="logo-badge">Checkout DiDi</span>
+            </a>
+            <div class="header-actions">
+                <a href="../catalogo/index.html" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Volver al Catálogo</a>
+            </div>
+        </header>
+
+        <!-- CONTENEDOR DE PEDIDO -->
+        <div class="detalle-card">
+            <div id="infoNegocioDetalle">
+                <h1 class="negocio-titulo">Cargando comercio...</h1>
+                <p class="negocio-meta">Por favor espera un momento.</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+
+            <form id="formPedido" onsubmit="enviarPedido(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-box"></i> Detalle de tu pedido (Charolas, piezas, notas)</label>
+                    <textarea id="detallePedido" class="form-control" placeholder="Ej. 2 charolas surtidas de galletas, 1 paquete de conchas..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Dirección de Entrega / Referencia</label>
+                    <input type="text" id="direccionCliente" class="form-control" placeholder="Calle, número, colonia o referencias exactas" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Tu Teléfono / Contacto</label>
+                    <input type="text" id="contactoCliente" class="form-control" placeholder="Número celular para el repartidor" required>
+                </div>
+
+                <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px;">
+                    <a href="../catalogo/index.html" class="btn btn-outline">Cancelar</a>
+                    <button type="submit" class="btn btn-gold"><i class="fas fa-paper-plane"></i> Enviar Pedido al Comercio</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span>◈ Csariel's Ecosistema — Módulo de Pedidos</span>
+            <a href="../../index.html" style="color: var(--text-muted); text-decoration: none;">🏠 Ir al Inicio</a>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function mostrarToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('active');
+            setTimeout(() => t.classList.remove('active'), 3000);
+        }
+
+        // Obtener comercio según parámetro de URL si existe, o mostrar genérico
+        const urlParams = new URLSearchParams(window.location.search);
+        const negocioIndex = urlParams.get('id') || 0;
+
+        function cargarDetalle() {
+            const negocios = JSON.parse(localStorage.getItem('csariels_servicios') || '[]');
+            const contenedor = document.getElementById('infoNegocioDetalle');
+
+            if(negocios.length > 0 && negocios[negocioIndex]) {
+                const n = negocios[negocioIndex];
+                contenedor.innerHTML = `
+                    <span style="font-size: 0.6rem; font-family: 'Orbitron', monospace; background: rgba(212,175,55,0.1); color: var(--gold-cosmic); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.2); display: inline-block; margin-bottom: 8px;">${n.categoria}</span>
+                    <h1 class="negocio-titulo">${n.nombre}</h1>
+                    <p class="negocio-meta">${n.descripcion}</p>
+                    <div style="font-size: 0.8rem; color: var(--success);"><i class="fab fa-whatsapp"><b> WhatsApp de atención:</b> ${n.contacto}</i></div>
+                `;
+            } else {
+                contenedor.innerHTML = `
+                    <h1 class="negocio-titulo">Pedido Rápido General</h1>
+                    <p class="negocio-meta">Realiza tu orden directamente al ecosistema de servicios.</p>
+                `;
+            }
+        }
+
+        function enviarPedido(e) {
+            e.preventDefault();
+            const pedido = {
+                detalle: document.getElementById('detallePedido').value,
+                direccion: document.getElementById('direccionCliente').value,
+                contacto: document.getElementById('contactoCliente').value,
+                estado: 'Pendiente',
+                fecha: new Date().toLocaleTimeString()
+            };
+
+            // Guardar en historial de pedidos para el panel en vivo
+            const pedidosActivos = JSON.parse(localStorage.getItem('csariels_pedidos_activos') || '[]');
+            pedidosActivos.push(pedido);
+            localStorage.setItem('csariels_pedidos_activos', JSON.stringify(pedidosActivos));
+
+            mostrarToast("🚀 ¡Pedido enviado con éxito al comerciante!");
+            setTimeout(() => {
+                window.location.href = '../catalogo/index.html';
+            }, 1800);
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarDetalle);
+
+        // Fondo estelar
+        const canvas = document.getElementById('stars-canvas');
+        const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+        function drawStars() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "rgba(255,255,255,0.5)";
+            for(let i=0; i<100; i++) {
+                let x = (i * 37) % canvas.width;
+                let y = (i * 73) % canvas.height;
+                ctx.fillRect(x, y, 1.5, 1.5);
+            }
+        }
+        drawStars();
+    </script>
+</body>
+</html>
