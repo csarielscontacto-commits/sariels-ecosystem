@@ -27,6 +27,7 @@ const ARCHIVOS = [
     'wallet/index.html',
     'admin/index.html',
     'foro/index.html',
+    'marquinhos/index.html',  // ✅ AGREGADO: Marquinhos Asistente
     // Legales
     'contrato-creador/index.html',
     'derechos-autor/index.html',
@@ -64,6 +65,33 @@ const REPLACEMENTS = [
     { 
         find: /href="\/tienda\.html"/g, 
         replace: 'href="/tienda.html"' 
+    },
+
+    // === MARQUINHOS (asistente flotante) ===
+    { 
+        find: /href="\.\.\/marquinhos\/index\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/features\/marquinhos\/index\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
+    },
+    { 
+        find: /href="marquinhos\/index\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
+    },
+    { 
+        find: /href="\/features\/marquinhos\/index\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
+    },
+    // Para el botón de toggle en el header
+    { 
+        find: /href="\.\.\/marquinhos\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
+    },
+    { 
+        find: /href="marquinhos\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
     },
 
     // === RED SOCIAL ===
@@ -151,6 +179,11 @@ const REPLACEMENTS = [
         find: /href="\.\.\/foro\/index\.html"/g, 
         replace: 'href="/features/foro/index.html"' 
     },
+    // === MARQUINHOS desde cualquier nivel ===
+    { 
+        find: /href="\.\.\/marquinhos\/index\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
+    },
 
     // === FEATURES (desde subcarpetas) ===
     { 
@@ -180,6 +213,15 @@ const REPLACEMENTS = [
     { 
         find: /href="\.\.\/\.\.\/foro\/index\.html"/g, 
         replace: 'href="/features/foro/index.html"' 
+    },
+    // === MARQUINHOS desde subcarpetas ===
+    { 
+        find: /href="\.\.\/\.\.\/marquinhos\/index\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
+    },
+    { 
+        find: /href="\.\.\/\.\.\/\.\.\/marquinhos\/index\.html"/g, 
+        replace: 'href="/features/marquinhos/index.html"' 
     },
 
     // === ENLACES A INICIO ===
@@ -390,6 +432,15 @@ const REPLACEMENTS = [
     { 
         find: /data-i18n="terminos">Términos<\/span>/g, 
         replace: 'Términos</span>' 
+    },
+    // === MARQUINHOS en el header ===
+    { 
+        find: /data-i18n="marquinhos">Marquinhos<\/span>/g, 
+        replace: 'Marquinhos</span>' 
+    },
+    { 
+        find: /<span data-i18n="marquinhos">/g, 
+        replace: '<span>' 
     }
 ];
 
@@ -469,4 +520,5 @@ console.log(`   📁 ${totalSinCambios} archivos sin cambios`);
 console.log('');
 console.log('📍 Hecho en Puebla, México 🇲🇽');
 console.log('🛍️ Tienda ahora en la raíz (tienda.html)');
+console.log('🎭 Marquinhos en /features/marquinhos/index.html');
 console.log('📌 Todas las rutas son absolutas (/)');
