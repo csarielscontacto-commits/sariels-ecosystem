@@ -1,239 +1,77 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Marquinhos · Asistente Csariel's</title>
-    <meta name="theme-color" content="#0F2D1A" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1565C0" />
+    <title>Marquinhos · Asistente Personal</title>
 
-    <!-- ===== RECURSOS ===== -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
-
-    <!-- ===== SUPABASE ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-    <!-- ===== CONECTORES DE CSARIEL'S ===== -->
-    <script src="/js/client-config-loader.js"></script>
-    <script src="/js/security.js"></script>
-    <script src="/js/red-main.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
 
     <style>
-        /* ===== RESET Y VARIABLES ===== */
-        :root {
-            --space-deep: #05080f;
-            --space-mid: #0a1428;
-            --verde-bosque: #0F2D1A;
-            --verde-bosque-light: #1a4a2a;
-            --gold-cosmic: #D4AF37;
-            --gold-dim: rgba(212,175,55,0.15);
-            --gold-glow: rgba(212,175,55,0.25);
-            --text-primary: #e8f0f8;
-            --text-secondary: #8ba3c7;
-            --text-muted: #4a6a8a;
-            --border: rgba(212,175,55,0.08);
-            --border-glow: rgba(212,175,55,0.25);
-            --radius: 16px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --success: #00b894;
-            --danger: #ff3366;
-            --warning: #D4AF37;
-            --quantum: #00e5ff;
-            --color-activo: #1565C0;
-            --talavera-blue: #1565C0;
-            --talavera-light: #42A5F5;
-            --talavera-dark: #0D47A1;
-            --ceramic: #FFFFFF;
-            --cream: #FFF8E1;
-            --mic-active: #00E5FF;
+        /* ===== RESET ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-
+        html,
         body {
-            background: var(--space-deep);
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', system-ui, sans-serif;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        #stars-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
-            pointer-events: none;
+            overflow: hidden;
+            background: #0A0A1A;
+            font-family: "Quicksand", system-ui, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
-        .nebula {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.08;
-            pointer-events: none;
-            z-index: 0;
-            animation: nebula-drift 25s ease-in-out infinite alternate;
-        }
-        .nebula-1 { width: 600px; height: 600px; background: var(--verde-bosque); top: -15%; right: -15%; }
-        .nebula-2 { width: 500px; height: 500px; background: var(--gold-cosmic); bottom: -15%; left: -15%; animation-delay: -8s; opacity: 0.04; }
-        .nebula-3 { width: 400px; height: 400px; background: var(--quantum); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -15s; opacity: 0.03; }
-
-        @keyframes nebula-drift {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, -20px) scale(1.1); }
-        }
-
-        .app {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 16px 20px 30px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0 16px;
-            border-bottom: 2px solid var(--gold-dim);
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-            width: 100%;
-            position: relative;
-        }
-        .header::after {
+        /* ===== FONDO DINÁMICO ===== */
+        body::before {
             content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-cosmic), var(--verde-bosque), var(--gold-cosmic), transparent);
-            opacity: 0.4;
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(21, 101, 192, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(13, 71, 161, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(10, 25, 47, 0.9) 0%, #0A0A1A 100%);
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 20px rgba(212,175,55,0.2)); }
-        .logo-icon .hex {
-            display: inline-block;
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 900;
-            border: 2px solid var(--gold-cosmic);
-            font-family: 'Orbitron', monospace;
-        }
-        .logo-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.3rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, var(--gold-cosmic), var(--verde-bosque-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 16px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: rgba(212,175,55,0.03);
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.6rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover { transform: scale(1.02); border-color: var(--border-glow); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--verde-bosque), var(--verde-bosque-light));
-            border-color: var(--gold-cosmic);
-            color: var(--gold-cosmic);
-            -webkit-text-fill-color: var(--gold-cosmic);
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-cosmic), #b8923a);
-            border-color: transparent;
-            color: #0a0c10;
-            -webkit-text-fill-color: #0a0c10;
-        }
-        .btn-outline { border-color: var(--border); background: transparent; }
-        .btn-sm { padding: 4px 12px; font-size: 0.55rem; }
-        .btn-danger {
-            background: rgba(255,51,102,0.15);
-            border-color: rgba(255,51,102,0.3);
-            color: var(--danger);
-        }
-        .btn-danger:hover { background: rgba(255,51,102,0.25); }
-
-        /* ===== MARQUINHOS WIDGET ===== */
-        .marquinhos-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        #marquinhos-float {
+        /* ===== CONTENEDOR PRINCIPAL - FLOTANTE ===== */
+        #marquinhos-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 200px;
             height: 260px;
-            position: relative;
+            z-index: 9999;
             cursor: grab;
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
-            pointer-events: auto;
-            filter: drop-shadow(0 8px 30px rgba(13, 71, 161, 0.3));
             transition: none;
-            margin: 0 auto;
+            filter: drop-shadow(0 8px 30px rgba(13, 71, 161, 0.3));
+            pointer-events: auto;
         }
 
-        #marquinhos-float:active {
+        #marquinhos-container:active {
             cursor: grabbing;
         }
 
-        /* ===== MARQUINHOS WIDGET ===== */
-        .marquinhos-widget {
+        /* ===== MARQUINHOS ===== */
+        .marquinhos {
             position: relative;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            animation: float-mq 4.5s ease-in-out infinite;
+            animation: float 4.5s ease-in-out infinite;
             user-select: none;
             touch-action: none;
             isolation: isolate;
@@ -241,11 +79,12 @@
             margin: 0 auto;
         }
 
-        .marquinhos-widget * {
+        .marquinhos * {
             pointer-events: none;
         }
 
-        .marquinhos-widget .card {
+        /* ===== TARJETA ===== */
+        .card {
             background: transparent;
             border: none;
             padding: 0;
@@ -254,13 +93,13 @@
             height: 100%;
         }
 
-        /* HEAD */
-        .marquinhos-widget .head {
+        /* ===== HEAD ===== */
+        .head {
             position: relative;
-            width: 130px;
-            height: 120px;
+            width: 140px;
+            height: 130px;
             margin: 0 auto 0;
-            border: 3px solid var(--color-activo, #1565C0);
+            border: 4px solid var(--color-activo, #1565C0);
             border-radius: 50% 50% 45% 45%;
             overflow: visible;
             background: radial-gradient(circle at 35% 25%, #FFFFFF 0%, #FFF8E1 60%, #f5efe0 85%, #e8e0d0 100%);
@@ -270,7 +109,7 @@
             z-index: 10;
         }
 
-        .marquinhos-widget .head::before {
+        .head::before {
             content: "";
             position: absolute;
             inset: 6px;
@@ -284,14 +123,14 @@
                 radial-gradient(circle at 50% 55%, #1565C0 2px, transparent 2px),
                 radial-gradient(circle at 15% 55%, #42A5F5 1.5px, transparent 1.5px),
                 radial-gradient(circle at 85% 55%, #42A5F5 1.5px, transparent 1.5px);
-            background-size: 50px 50px;
+            background-size: 60px 60px;
             background-repeat: repeat;
-            opacity: 0.2;
+            opacity: 0.25;
             pointer-events: none;
             z-index: 1;
         }
 
-        .marquinhos-widget .head::after {
+        .head::after {
             content: "";
             position: absolute;
             inset: 0;
@@ -301,27 +140,27 @@
             z-index: 2;
         }
 
-        /* ANTENAS */
-        .marquinhos-widget .antenna {
+        /* ===== ANTENAS ===== */
+        .antenna {
             position: absolute;
-            top: -16px;
-            width: 4px;
-            height: 20px;
+            top: -18px;
+            width: 5px;
+            height: 24px;
             border-radius: 999px;
             background: linear-gradient(180deg, #1565C0, #42A5F5);
             transform-origin: bottom center;
-            animation: sway-mq 3.2s ease-in-out infinite alternate;
+            animation: sway 3.2s ease-in-out infinite alternate;
             box-shadow: none;
             transition: all 0.5s ease;
             z-index: 15;
         }
-        .marquinhos-widget .antenna::after {
+        .antenna::after {
             content: "";
             position: absolute;
             left: 50%;
-            top: -10px;
-            width: 16px;
-            height: 16px;
+            top: -12px;
+            width: 18px;
+            height: 18px;
             transform: translateX(-50%);
             border-radius: 50%;
             background: radial-gradient(circle at 40% 35%, #FFFFFF 0%, #FFF8E1 65%, #42A5F5 100%);
@@ -329,41 +168,41 @@
             box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.5), 0 0 0 1px rgba(13, 71, 161, 0.15);
             transition: all 0.5s ease;
         }
-        .marquinhos-widget .antenna.left {
-            left: 34px;
+        .antenna.left {
+            left: 38px;
         }
-        .marquinhos-widget .antenna.right {
-            right: 34px;
+        .antenna.right {
+            right: 38px;
             animation-delay: .14s;
         }
 
-        /* CEJAS */
-        .marquinhos-widget .brow {
+        /* ===== CEJAS ===== */
+        .brow {
             position: absolute;
-            top: 26px;
-            width: 26px;
-            height: 6px;
-            border-top: 3px solid var(--color-activo, #1565C0);
+            top: 30px;
+            width: 30px;
+            height: 7px;
+            border-top: 4px solid var(--color-activo, #1565C0);
             border-radius: 50%;
             z-index: 14;
             opacity: 1;
             transition: transform .3s ease, top .3s ease, border-color .3s ease;
         }
-        .marquinhos-widget .brow.left {
-            left: 20px;
+        .brow.left {
+            left: 22px;
             transform: rotate(-4deg);
         }
-        .marquinhos-widget .brow.right {
-            right: 20px;
+        .brow.right {
+            right: 22px;
             transform: rotate(4deg);
         }
 
-        /* OJOS */
-        .marquinhos-widget .eye {
+        /* ===== OJOS ===== */
+        .eye {
             position: absolute;
-            top: 34px;
-            width: 30px;
-            height: 34px;
+            top: 38px;
+            width: 34px;
+            height: 38px;
             border-radius: 50%;
             overflow: hidden;
             background: #1A0A2E;
@@ -371,14 +210,14 @@
             transition: clip-path 0.15s ease;
             z-index: 13;
         }
-        .marquinhos-widget .eye.left {
-            left: 20px;
+        .eye.left {
+            left: 22px;
         }
-        .marquinhos-widget .eye.right {
-            right: 20px;
+        .eye.right {
+            right: 22px;
         }
 
-        .marquinhos-widget .eye::before {
+        .eye::before {
             content: "";
             position: absolute;
             inset: 0;
@@ -388,11 +227,11 @@
             transition: transform .2s ease;
         }
 
-        .marquinhos-widget .eye::after {
+        .eye::after {
             content: "";
             position: absolute;
-            left: 5px;
-            right: 5px;
+            left: 6px;
+            right: 6px;
             top: -2px;
             height: 0;
             background: #FFF8F0;
@@ -402,24 +241,24 @@
             transition: height .2s ease, border-color .3s ease;
         }
 
-        /* IRIS */
-        .marquinhos-widget .iris {
+        /* ===== IRIS ===== */
+        .iris {
             position: absolute;
             z-index: 13;
-            width: 14px;
-            height: 14px;
-            left: 8px;
-            top: 10px;
+            width: 16px;
+            height: 16px;
+            left: 9px;
+            top: 12px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 30%, #6dd5ff 0 16%, #1a6cb0 38%, #0a1a3e 74%, #030810 100%);
             box-shadow: 0 0 10px rgba(0, 229, 255, .15), inset 0 0 6px rgba(255, 255, 255, .1);
             transition: transform .3s ease;
         }
-        .marquinhos-widget .iris::before {
+        .iris::before {
             content: "";
             position: absolute;
-            width: 5px;
-            height: 5px;
+            width: 6px;
+            height: 6px;
             left: 2px;
             top: 2px;
             border-radius: 50%;
@@ -427,24 +266,24 @@
             opacity: .9;
         }
 
-        /* BOCA */
-        .marquinhos-widget .mouth-container {
+        /* ===== BOCA ===== */
+        .mouth-container {
             position: absolute;
             left: 50%;
-            bottom: 14px;
+            bottom: 16px;
             transform: translateX(-50%);
-            width: 36px;
-            height: 20px;
+            width: 40px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 13;
         }
 
-        .marquinhos-widget .mouth {
-            width: 28px;
-            height: 8px;
-            border-bottom: 3px solid var(--color-activo, #1565C0);
+        .mouth {
+            width: 32px;
+            height: 10px;
+            border-bottom: 4px solid var(--color-activo, #1565C0);
             border-radius: 0 0 50% 50%;
             transition: all 0.04s ease;
             transform-origin: center;
@@ -453,66 +292,66 @@
             filter: drop-shadow(0 1px 4px rgba(21, 101, 192, .10));
         }
 
-        .marquinhos-widget .mouth.shape-neutral { width: 28px; height: 8px; border-bottom-width: 3px; border-radius: 0 0 50% 50%; }
-        .marquinhos-widget .mouth.talking { animation: talk-mq .12s ease-in-out infinite alternate; }
+        .mouth.shape-neutral { width: 32px; height: 10px; border-bottom-width: 4px; border-radius: 0 0 50% 50%; }
+        .mouth.talking { animation: talk .12s ease-in-out infinite alternate; }
 
-        /* MEJILLAS */
-        .marquinhos-widget .cheek {
+        /* ===== MEJILLAS ===== */
+        .cheek {
             position: absolute;
-            bottom: 20px;
-            width: 18px;
-            height: 12px;
+            bottom: 24px;
+            width: 20px;
+            height: 14px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 107, 138, 0.5) 0%, rgba(255, 59, 111, 0.2) 100%);
+            background: radial-gradient(circle, rgba(255, 107, 138, 0.55) 0%, rgba(255, 59, 111, 0.25) 100%);
             filter: blur(4px);
-            opacity: .5;
+            opacity: .6;
             transition: opacity .3s ease;
             z-index: 12;
         }
-        .marquinhos-widget .cheek.left {
-            left: 8px;
+        .cheek.left {
+            left: 10px;
         }
-        .marquinhos-widget .cheek.right {
-            right: 8px;
+        .cheek.right {
+            right: 10px;
         }
 
-        /* CUERPO */
-        .marquinhos-widget .body {
+        /* ===== CUERPO ===== */
+        .body {
             position: relative;
-            width: 135px;
-            height: 115px;
+            width: 150px;
+            height: 130px;
             margin: -4px auto 0;
-            border: 3px solid var(--color-activo, #1565C0);
-            border-radius: 25px 25px 35px 35px;
+            border: 4px solid var(--color-activo, #1565C0);
+            border-radius: 30px 30px 40px 40px;
             overflow: visible;
             background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #FFF8E1 55%, #f0ead8 85%, #e0d8c0 100%);
             box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.5), inset 0 -4px 12px rgba(13, 71, 161, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08);
             transform: translateZ(8px);
-            animation: breathe-mq 4s ease-in-out infinite;
+            animation: breathe 4s ease-in-out infinite;
             transition: border-color .3s ease;
             z-index: 5;
         }
 
-        .marquinhos-widget .body::before {
+        .body::before {
             content: "";
             position: absolute;
-            inset: 6px;
-            border-radius: 18px;
+            inset: 8px;
+            border-radius: 20px;
             background-image:
-                radial-gradient(circle at 20% 25%, #1565C0 2px, transparent 2px),
-                radial-gradient(circle at 80% 30%, #1565C0 1.8px, transparent 1.8px),
-                radial-gradient(circle at 50% 15%, #1565C0 1.8px, transparent 1.8px),
-                radial-gradient(circle at 70% 70%, #1565C0 1.8px, transparent 1.8px),
-                radial-gradient(circle at 30% 75%, #1565C0 1.8px, transparent 1.8px),
-                radial-gradient(circle at 50% 50%, #42A5F5 2px, transparent 2px);
-            background-size: 40px 40px;
+                radial-gradient(circle at 20% 25%, #1565C0 2.5px, transparent 2.5px),
+                radial-gradient(circle at 80% 30%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 50% 15%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 70% 70%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 30% 75%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 50% 50%, #42A5F5 2.5px, transparent 2.5px);
+            background-size: 50px 50px;
             background-repeat: repeat;
-            opacity: 0.15;
+            opacity: 0.2;
             pointer-events: none;
             z-index: 1;
         }
 
-        .marquinhos-widget .body::after {
+        .body::after {
             content: "";
             position: absolute;
             inset: 0;
@@ -522,16 +361,16 @@
             z-index: 2;
         }
 
-        /* PECHO */
-        .marquinhos-widget .chest {
+        /* ===== PECHO ===== */
+        .chest {
             position: absolute;
             left: 50%;
-            top: 10px;
-            width: 70px;
-            height: 32px;
+            top: 12px;
+            width: 80px;
+            height: 38px;
             transform: translateX(-50%);
-            border: 2.5px solid #1565C0;
-            border-radius: 10px;
+            border: 3px solid #1565C0;
+            border-radius: 12px;
             background: #FFFFFF;
             box-shadow: inset 0 0 0 1px rgba(13, 71, 161, 0.05), 0 2px 8px rgba(0, 0, 0, 0.04);
             display: grid;
@@ -541,11 +380,11 @@
             overflow: hidden;
         }
 
-        .marquinhos-widget .chest::before {
+        .chest::before {
             content: "MARQUINHOS";
             font-weight: 700;
-            letter-spacing: 0.6px;
-            font-size: 7px;
+            letter-spacing: 0.8px;
+            font-size: 9px;
             color: #0D47A1;
             font-family: "Quicksand", sans-serif;
             transition: all 0.5s ease;
@@ -554,14 +393,14 @@
             padding: 0 2px;
         }
 
-        /* BRAZOS - FUERA DEL CUERPO */
-        .marquinhos-widget .arm {
+        /* ===== BRAZOS - FUERA DEL CUERPO ===== */
+        .arm {
             position: absolute;
-            top: 10px;
-            width: 18px;
-            height: 60px;
-            border: 3px solid var(--color-activo, #1565C0);
-            border-radius: 12px;
+            top: 14px;
+            width: 22px;
+            height: 70px;
+            border: 4px solid var(--color-activo, #1565C0);
+            border-radius: 14px;
             background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
             transform-origin: top center;
             box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.4);
@@ -569,20 +408,20 @@
             z-index: 6;
             will-change: transform;
         }
-        .marquinhos-widget .arm.left {
-            left: -16px;
+        .arm.left {
+            left: -20px;
             transform: rotate(-15deg);
         }
-        .marquinhos-widget .arm.right {
-            right: -16px;
+        .arm.right {
+            right: -20px;
             transform: rotate(15deg);
         }
 
-        /* MANOS - FUERA DEL CUERPO */
-        .marquinhos-widget .hand {
+        /* ===== MANOS - FUERA DEL CUERPO ===== */
+        .hand {
             position: absolute;
-            width: 28px;
-            height: 28px;
+            width: 34px;
+            height: 34px;
             border: 3px solid var(--color-activo, #1565C0);
             border-radius: 50%;
             background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #FFF8E1 60%, #e8e0d0 100%);
@@ -591,78 +430,84 @@
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
             z-index: 7;
         }
-        .marquinhos-widget .hand.left {
-            left: -28px;
-            top: 54px;
+        .hand.left {
+            left: -34px;
+            top: 64px;
         }
-        .marquinhos-widget .hand.right {
-            right: -28px;
-            top: 54px;
+        .hand.right {
+            right: -34px;
+            top: 64px;
         }
 
-        /* PIERNAS - FUERA DEL CUERPO */
-        .marquinhos-widget .leg {
+        /* ===== PIERNAS - FUERA DEL CUERPO ===== */
+        .leg {
             position: absolute;
-            bottom: -40px;
-            width: 24px;
-            height: 44px;
-            border: 3px solid var(--color-activo, #1565C0);
-            border-radius: 10px;
+            bottom: -48px;
+            width: 28px;
+            height: 52px;
+            border: 4px solid var(--color-activo, #1565C0);
+            border-radius: 12px;
             background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
             box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
             z-index: 4;
             will-change: transform;
         }
-        .marquinhos-widget .leg.left {
-            left: 32px;
+        .leg.left {
+            left: 36px;
             transform: rotate(0deg);
         }
-        .marquinhos-widget .leg.right {
-            right: 32px;
+        .leg.right {
+            right: 36px;
             transform: rotate(0deg);
         }
 
-        /* PIES - FUERA DEL CUERPO */
-        .marquinhos-widget .foot {
+        /* ===== PIES - FUERA DEL CUERPO ===== */
+        .foot {
             position: absolute;
-            bottom: -14px;
-            left: -8px;
-            width: 38px;
-            height: 16px;
-            border: 3px solid var(--color-activo, #1565C0);
-            border-radius: 12px 12px 8px 8px;
+            bottom: -16px;
+            left: -10px;
+            width: 46px;
+            height: 20px;
+            border: 4px solid var(--color-activo, #1565C0);
+            border-radius: 14px 14px 8px 8px;
             background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
             z-index: 3;
         }
+        .foot.left {
+            bottom: -16px;
+        }
+        .foot.right {
+            bottom: -16px;
+        }
 
-        /* BURBUJA DE TEXTO */
-        .marquinhos-widget #speech-bubble {
+        /* ===== BURBUJA DE TEXTO ===== */
+        #speech-bubble {
             position: absolute;
-            bottom: calc(100% + 8px);
+            bottom: calc(100% + 10px);
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
             color: #0D47A1;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 9px;
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 11px;
             font-family: "Quicksand", sans-serif;
             z-index: 100;
-            max-width: 140px;
+            max-width: 200px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(21, 101, 192, 0.08);
             pointer-events: none;
             transition: opacity 0.3s ease, transform 0.25s ease;
             opacity: 0;
             border: 1px solid rgba(21, 101, 192, 0.1);
-            line-height: 1.3;
+            line-height: 1.4;
             font-weight: 600;
             white-space: nowrap;
         }
 
-        .marquinhos-widget #speech-bubble::after {
+        #speech-bubble::after {
             content: '';
             position: absolute;
             bottom: -6px;
@@ -675,253 +520,210 @@
             border-top: 6px solid rgba(255, 255, 255, 0.95);
         }
 
-        .marquinhos-widget #speech-bubble.visible {
+        #speech-bubble.visible {
             opacity: 1;
             transform: translateX(-50%) translateY(-2px);
         }
 
-        .marquinhos-widget #speech-bubble.listening {
+        #speech-bubble.listening {
             border-color: #00E5FF;
             color: #00B4D8;
             background: rgba(0, 229, 255, 0.08);
         }
 
-        .marquinhos-widget #speech-bubble.listening::after {
+        #speech-bubble.listening::after {
             border-top-color: rgba(0, 229, 255, 0.08);
         }
 
-        .marquinhos-widget #speech-bubble.thinking {
+        #speech-bubble.thinking {
             border-color: #FF6B35;
             color: #BF360C;
             background: rgba(255, 107, 53, 0.08);
         }
 
-        .marquinhos-widget #speech-bubble.thinking::after {
+        #speech-bubble.thinking::after {
             border-top-color: rgba(255, 107, 53, 0.08);
         }
 
-        /* ESTADOS */
-        .marquinhos-widget.on-call .antenna {
-            animation: callPulse-mq 1.2s ease-in-out infinite alternate;
+        /* ===== ESTADOS ===== */
+        .marquinhos.on-call .antenna {
+            animation: callPulse 1.2s ease-in-out infinite alternate;
         }
-        .marquinhos-widget.on-call .chest::before {
+        .marquinhos.on-call .chest::before {
             content: "📞 LLAMADA";
             color: #FF6B35;
-            font-size: 6px;
+            font-size: 7px;
         }
 
-        .marquinhos-widget.talking .mouth {
-            animation: talk-mq .12s ease-in-out infinite alternate;
+        .marquinhos.bluetooth .chest::before {
+            content: "🔊 BT";
+            color: #2979FF;
+            font-size: 8px;
         }
 
-        /* ANIMACIONES */
-        @keyframes float-mq {
+        /* ===== ANIMACIONES ===== */
+        @keyframes float {
             0%, 100% { transform: translateY(0) rotateX(0deg); }
-            50% { transform: translateY(-5px) rotateX(1deg); }
+            50% { transform: translateY(-6px) rotateX(1deg); }
         }
 
-        @keyframes breathe-mq {
+        @keyframes breathe {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(2px); }
+            50% { transform: translateY(3px); }
         }
 
-        @keyframes sway-mq {
+        @keyframes sway {
             from { transform: rotate(-8deg); }
             to { transform: rotate(8deg); }
         }
 
-        @keyframes talk-mq {
-            from { transform: translateX(-50%) scaleX(.9); height: 3px; }
-            to { transform: translateX(-50%) scaleX(1.1); height: 12px; }
+        @keyframes talk {
+            from { transform: translateX(-50%) scaleX(.9); height: 4px; }
+            to { transform: translateX(-50%) scaleX(1.1); height: 16px; }
         }
 
-        @keyframes callPulse-mq {
+        @keyframes callPulse {
             0% { transform: rotate(-10deg) scale(1); }
             100% { transform: rotate(10deg) scale(1.06); }
         }
 
-        /* ===== CONTROLES ===== */
+        /* ===== CONTROLES FLOTANTES ===== */
         .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             gap: 10px;
-            margin-top: 16px;
-            flex-wrap: wrap;
+            z-index: 10000;
+            background: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls button {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
 
-        .status-voice {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-top: 12px;
-            font-family: 'Orbitron', monospace;
-            text-align: center;
-            padding: 8px 16px;
-            background: rgba(212,175,55,0.05);
-            border-radius: 20px;
-            border: 1px solid var(--gold-dim);
+        .controls button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #D4AF37;
+            transform: scale(1.1);
         }
 
-        .chat-input {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-            max-width: 500px;
-            margin-top: 16px;
-        }
-        .chat-input input {
-            flex: 1;
-            padding: 10px 16px;
-            border-radius: 30px;
-            border: 1px solid var(--gold-dim);
-            background: rgba(0,0,0,0.3);
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .chat-input input:focus { border-color: var(--gold-cosmic); }
-        .chat-input input::placeholder { color: var(--text-muted); }
-        .chat-input .btn { padding: 10px 20px; }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            margin-top: 40px;
-            padding-top: 14px;
-            border-top: 1px solid var(--gold-dim);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            width: 100%;
+        .controls button.active {
+            color: #00E5FF;
+            background: rgba(0, 229, 255, 0.1);
         }
 
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.5rem;
-            letter-spacing: 0.5px;
-            font-family: 'Orbitron', monospace;
+        .controls .mic-btn.active {
+            color: #FF6B35;
+            background: rgba(255, 107, 53, 0.15);
         }
-        .footer-text .brand { color: var(--gold-cosmic); }
-
-        .toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--verde-bosque);
-            color: var(--gold-cosmic);
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.7rem;
-            opacity: 0;
-            transition: all 0.4s ease;
-            z-index: 5000;
-            pointer-events: none;
-            font-family: 'Orbitron', monospace;
-            border: 1px solid rgba(212,175,55,0.15);
-            max-width: 90%;
-            text-align: center;
-        }
-        .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--danger); color: white; }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .header { flex-direction: column; align-items: flex-start; }
-            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-            .chat-input { flex-direction: column; }
-            .chat-input .btn { width: 100%; justify-content: center; }
-            #marquinhos-float {
+        @media (max-width: 520px) {
+            #marquinhos-container {
                 width: 160px;
                 height: 210px;
             }
-        }
-
-        @media (max-width: 520px) {
-            #marquinhos-float {
-                width: 140px;
-                height: 185px;
-            }
-            .marquinhos-widget .head {
-                width: 110px;
-                height: 102px;
-            }
-            .marquinhos-widget .body {
+            .head {
                 width: 115px;
-                height: 98px;
+                height: 110px;
             }
-            .marquinhos-widget .arm {
-                width: 15px;
-                height: 50px;
+            .head .eye {
+                width: 28px;
+                height: 32px;
             }
-            .marquinhos-widget .arm.left { left: -14px; }
-            .marquinhos-widget .arm.right { right: -14px; }
-            .marquinhos-widget .hand {
-                width: 24px;
-                height: 24px;
-            }
-            .marquinhos-widget .hand.left { left: -24px; top: 46px; }
-            .marquinhos-widget .hand.right { right: -24px; top: 46px; }
-            .marquinhos-widget .leg {
-                width: 20px;
-                height: 38px;
-                bottom: -34px;
-            }
-            .marquinhos-widget .leg.left { left: 28px; }
-            .marquinhos-widget .leg.right { right: 28px; }
-            .marquinhos-widget .foot {
-                width: 32px;
-                height: 14px;
-                left: -6px;
-                bottom: -12px;
-            }
-            .marquinhos-widget .chest {
-                width: 60px;
-                height: 28px;
-                top: 8px;
-            }
-            .marquinhos-widget .chest::before { font-size: 6px; }
-            .marquinhos-widget .eye {
-                width: 26px;
-                height: 30px;
-                top: 30px;
-            }
-            .marquinhos-widget .eye.left { left: 18px; }
-            .marquinhos-widget .eye.right { right: 18px; }
-            .marquinhos-widget .iris {
-                width: 12px;
-                height: 12px;
+            .head .eye.left { left: 18px; }
+            .head .eye.right { right: 18px; }
+            .head .iris {
+                width: 13px;
+                height: 13px;
                 left: 7px;
-                top: 9px;
+                top: 10px;
             }
-            .marquinhos-widget .brow {
+            .head .brow {
+                width: 24px;
+                top: 24px;
+            }
+            .head .brow.left { left: 18px; }
+            .head .brow.right { right: 18px; }
+            .head .antenna.left { left: 30px; }
+            .head .antenna.right { right: 30px; }
+            .head .cheek { width: 16px; height: 10px; }
+            .head .cheek.left { left: 8px; }
+            .head .cheek.right { right: 8px; }
+            .body {
+                width: 120px;
+                height: 105px;
+            }
+            .body .chest {
+                width: 65px;
+                height: 30px;
+                top: 10px;
+            }
+            .body .chest::before { font-size: 7px; }
+            .arm {
+                width: 18px;
+                height: 58px;
+            }
+            .arm.left { left: -16px; }
+            .arm.right { right: -16px; }
+            .hand {
+                width: 28px;
+                height: 28px;
+            }
+            .hand.left { left: -28px; top: 52px; }
+            .hand.right { right: -28px; top: 52px; }
+            .leg {
                 width: 22px;
-                top: 22px;
+                height: 42px;
+                bottom: -40px;
             }
-            .marquinhos-widget .brow.left { left: 18px; }
-            .marquinhos-widget .brow.right { right: 18px; }
-            .marquinhos-widget .antenna.left { left: 28px; }
-            .marquinhos-widget .antenna.right { right: 28px; }
-            .marquinhos-widget .cheek {
-                width: 14px;
-                height: 10px;
-                bottom: 16px;
+            .leg.left { left: 28px; }
+            .leg.right { right: 28px; }
+            .foot {
+                width: 38px;
+                height: 16px;
+                left: -8px;
+                bottom: -14px;
             }
-            .marquinhos-widget .cheek.left { left: 6px; }
-            .marquinhos-widget .cheek.right { right: 6px; }
-            .marquinhos-widget #speech-bubble {
-                font-size: 7px;
-                padding: 3px 8px;
-                max-width: 100px;
+            .controls {
+                padding: 6px 12px;
+                gap: 6px;
+                bottom: 12px;
+            }
+            .controls button {
+                font-size: 16px;
+                width: 30px;
+                height: 30px;
+            }
+            #speech-bubble {
+                font-size: 9px;
+                padding: 4px 12px;
+                max-width: 140px;
                 white-space: normal;
             }
         }
 
         @media (prefers-reduced-motion:reduce) {
-            .marquinhos-widget, .marquinhos-widget .head, .marquinhos-widget .body,
-            .marquinhos-widget .antenna, .marquinhos-widget .mouth {
+            .marquinhos, .head, .body, .antenna, .mouth, .hand {
                 animation: none !important;
                 transition: none !important;
             }
@@ -929,220 +731,181 @@
     </style>
 </head>
 <body>
-    <canvas id="stars-canvas"></canvas>
-    <div class="nebula nebula-1"></div>
-    <div class="nebula nebula-2"></div>
-    <div class="nebula nebula-3"></div>
 
-    <div class="app">
+    <!-- ===== MARQUINHOS FLOTANTE ===== -->
+    <div id="marquinhos-container">
+        <div class="marquinhos caring" id="marquinhos">
+            <div class="card">
+                <!-- BURBUJA DE TEXTO -->
+                <div id="speech-bubble"></div>
 
-        <!-- ===== HEADER ===== -->
-        <header class="header">
-            <a href="/" class="logo">
-                <span class="logo-icon"><span class="hex">◈</span></span>
-                <span class="logo-text">Csariel's</span>
-            </a>
-            <div class="header-actions">
-                <a href="/" class="btn btn-outline btn-sm">
-                    <i class="fas fa-home"></i> Inicio
-                </a>
-                <a href="/features/red/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-users"></i> Mi Red
-                </a>
-                <a href="/features/live/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-video"></i> Live
-                </a>
-                <a href="/features/servicios/index.html" class="btn btn-outline btn-sm">
-                    <i class="fas fa-arrow-left"></i> Servicios
-                </a>
-            </div>
-        </header>
+                <div class="head">
+                    <div class="antenna left"></div>
+                    <div class="antenna right"></div>
 
-        <!-- ===== MARQUINHOS ===== -->
-        <div class="marquinhos-wrapper">
-            <div id="marquinhos-float">
-                <div class="marquinhos-widget caring" id="marquinhosWidget">
-                    <div class="card">
-                        <div id="speech-bubble"></div>
+                    <div class="brow left"></div>
+                    <div class="brow right"></div>
 
-                        <div class="head">
-                            <div class="antenna left"></div>
-                            <div class="antenna right"></div>
-                            <div class="brow left"></div>
-                            <div class="brow right"></div>
-                            <div class="eye left"><div class="iris"></div></div>
-                            <div class="eye right"><div class="iris"></div></div>
-                            <div class="mouth-container"><div class="mouth shape-neutral" id="disneyMouth"></div></div>
-                            <div class="cheek left"></div>
-                            <div class="cheek right"></div>
-                        </div>
-
-                        <div class="body">
-                            <div class="chest"></div>
-                        </div>
-
-                        <div class="arm left"></div>
-                        <div class="arm right"></div>
-                        <div class="hand left"></div>
-                        <div class="hand right"></div>
-                        <div class="leg left"></div>
-                        <div class="leg right"></div>
-                        <div class="foot left"></div>
-                        <div class="foot right"></div>
+                    <div class="eye left">
+                        <div class="iris"></div>
                     </div>
+                    <div class="eye right">
+                        <div class="iris"></div>
+                    </div>
+
+                    <div class="mouth-container">
+                        <div class="mouth shape-neutral" id="disneyMouth"></div>
+                    </div>
+
+                    <div class="cheek left"></div>
+                    <div class="cheek right"></div>
                 </div>
-            </div>
 
-            <div class="controls">
-                <button class="btn btn-primary btn-sm" id="btnEscuchar">
-                    <i class="fas fa-microphone"></i> Hablar
-                </button>
-                <button class="btn btn-outline btn-sm" onclick="window.Marquinhos?.react('happy')">
-                    😊 Feliz
-                </button>
-                <button class="btn btn-outline btn-sm" onclick="window.Marquinhos?.react('thinking')">
-                    🤔 Pensando
-                </button>
-                <button class="btn btn-outline btn-sm" onclick="window.Marquinhos?.react('waving')">
-                    👋 Saludar
-                </button>
-                <button class="btn btn-outline btn-sm" onclick="resetearPosicion()">
-                    🏠 Centrar
-                </button>
-            </div>
+                <div class="body">
+                    <div class="chest"></div>
+                </div>
 
-            <div class="status-voice" id="statusVoice">💬 Di "Marquinhos" para hablar conmigo</div>
+                <!-- BRAZOS - FUERA DEL CUERPO -->
+                <div class="arm left"></div>
+                <div class="arm right"></div>
 
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Escribe algo para Marquinhos..." />
-                <button class="btn btn-primary" onclick="enviarMensaje()">
-                    <i class="fas fa-paper-plane"></i> Enviar
-                </button>
+                <!-- MANOS - FUERA DEL CUERPO -->
+                <div class="hand left"></div>
+                <div class="hand right"></div>
+
+                <!-- PIERNAS - FUERA DEL CUERPO -->
+                <div class="leg left"></div>
+                <div class="leg right"></div>
+
+                <!-- PIES - FUERA DEL CUERPO -->
+                <div class="foot left"></div>
+                <div class="foot right"></div>
+
             </div>
         </div>
-
-        <!-- ===== FOOTER ===== -->
-        <footer class="footer">
-            <span class="footer-text">
-                <span class="brand">◈ Csariel's</span> — Asistente Marquinhos
-            </span>
-            <span class="footer-text">
-                🎭 Talavera Cerámica · Hecho en Puebla 🇲🇽
-            </span>
-        </footer>
     </div>
 
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
+    <!-- ===== CONTROLES ===== -->
+    <div class="controls" id="controls">
+        <button id="btnMic" class="mic-btn" title="Micrófono">🎤</button>
+        <button id="btnMusic" title="Música">🎵</button>
+        <button id="btnLight" title="Luz">💡</button>
+        <button id="btnReset" title="Resetear posición">🏠</button>
+    </div>
 
-    <!-- ================================================================ -->
-    <!-- 🔥 SCRIPTS DE MARQUINHOS (AUTOCONTENIDO) -->
-    <!-- ================================================================ -->
     <script>
         "use strict";
 
         // ================================================================
-        // 🌟 ESTRELLAS
+        // 1. DISNEY LIP SYNC
         // ================================================================
-        (function initStars() {
-            const canvas = document.getElementById('stars-canvas');
-            const ctx = canvas.getContext('2d');
-            let w, h;
+        const DisneyMouth = {
+            mouthElement: null,
 
-            function resize() {
-                w = canvas.width = window.innerWidth;
-                h = canvas.height = window.innerHeight;
+            init() {
+                this.mouthElement = document.getElementById('disneyMouth');
+                if (!this.mouthElement) return;
+                this.setShape('neutral');
+            },
+
+            setShape(shape, intensity = 1) {
+                if (!this.mouthElement) return;
+                if (shape === 'talking') {
+                    this.mouthElement.className = 'mouth talking';
+                    return;
+                }
+                this.mouthElement.className = 'mouth shape-neutral';
+            },
+
+            setOpenAmount(amount) {
+                if (!this.mouthElement) return;
+                const width = 32 * (0.4 + amount * 0.55);
+                const height = 10 * (0.1 + amount * 0.85);
+                this.mouthElement.style.width = `${Math.max(16, width)}px`;
+                this.mouthElement.style.height = `${Math.max(2, height)}px`;
+                if (amount > 0.5) {
+                    this.mouthElement.style.borderRadius = '50% 50% 45% 45%';
+                } else {
+                    this.mouthElement.style.borderRadius = '0 0 50% 50%';
+                }
+                this.mouthElement.style.borderBottomWidth = `${Math.max(2, 3 + amount * 5)}px`;
+            },
+
+            reset() {
+                if (!this.mouthElement) return;
+                this.mouthElement.className = 'mouth shape-neutral';
+                this.mouthElement.style.width = '32px';
+                this.mouthElement.style.height = '10px';
+                this.mouthElement.style.borderRadius = '0 0 50% 50%';
+                this.mouthElement.style.borderBottomWidth = '4px';
             }
-            resize();
+        };
 
-            const stars = Array.from({ length: 200 }, () => ({
-                x: Math.random() * w,
-                y: Math.random() * h,
-                r: Math.random() * 0.8 + 0.2,
-                o: Math.random() * 0.8 + 0.2,
-                speed: Math.random() * 0.005 + 0.002,
-                phase: Math.random() * Math.PI * 2
-            }));
+        // ================================================================
+        // 2. DETECTOR DE PALABRAS
+        // ================================================================
+        const OraDetector = {
+            triggerWords: [
+                'sorpresa', 'increíble', 'no mames', 'no manches', 'wow',
+                'órale', 'ora', 'qué pedo', 'qué onda', 'no me digas',
+                '¡ora!', 'ora ora', 'no mms', 'nmms', 'ke pedo'
+            ],
 
-            function draw() {
-                ctx.clearRect(0, 0, w, h);
-                stars.forEach(s => {
-                    const opacity = s.o * (0.6 + 0.4 * Math.sin(s.phase));
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-                    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
-                    ctx.fill();
-                    s.y += s.speed;
-                    s.phase += 0.01;
-                    if (s.y > h) { s.y = 0;
-                        s.x = Math.random() * w; }
-                });
-                requestAnimationFrame(draw);
+            check(text) {
+                const lower = text.toLowerCase();
+                for (const word of this.triggerWords) {
+                    if (lower.includes(word)) return true;
+                }
+                return false;
             }
-            draw();
-
-            window.addEventListener('resize', () => {
-                resize();
-                stars.forEach(s => { s.x = Math.random() * w;
-                    s.y = Math.random() * h; });
-            });
-        })();
+        };
 
         // ================================================================
-        // 🎯 MARQUINHOS - ASISTENTE
+        // 3. ASISTENTE DE VOZ
         // ================================================================
+        (function voiceAssistant() {
+            'use strict';
 
-        (function marquinhosAssistant() {
-            // DOM elements
-            const container = document.getElementById('marquinhos-float');
-            const widget = document.getElementById('marquinhosWidget');
+            const container = document.getElementById('marquinhos-container');
             const bubble = document.getElementById('speech-bubble');
-            const mouth = document.getElementById('disneyMouth');
-            const statusVoice = document.getElementById('statusVoice');
-            const chatInput = document.getElementById('chatInput');
+            const marquinhosEl = document.getElementById('marquinhos');
 
-            // Estado
-            let isSpeaking = false;
-            let synth = window.speechSynthesis;
-            let userName = null;
             let recognition = null;
             let isListening = false;
+            let isSpeaking = false;
+            let retries = 0;
+            const maxRetries = 3;
+            let retryTimeout = null;
+            let synth = window.speechSynthesis;
+            let audioContext = null;
+            let isMusicPlaying = false;
+            let isLightOn = false;
+            let currentUtterance = null;
+            let userName = null;
 
             // ===== BURBUJA =====
             function showBubble(text, type = '') {
-                if (!bubble) return;
                 bubble.textContent = text;
                 bubble.className = 'visible';
                 if (type) bubble.classList.add(type);
                 clearTimeout(bubble._timeout);
                 bubble._timeout = setTimeout(() => {
                     bubble.classList.remove('visible', 'listening', 'thinking');
-                }, 3500);
+                }, 4000);
             }
 
             function hideBubble() {
-                if (!bubble) return;
                 bubble.classList.remove('visible', 'listening', 'thinking');
-            }
-
-            // ===== BOCA =====
-            function setMouthTalking(talking) {
-                if (!mouth) return;
-                if (talking) {
-                    mouth.className = 'mouth talking';
-                } else {
-                    mouth.className = 'mouth shape-neutral';
-                }
             }
 
             // ===== HABLAR =====
             function speak(text, callback) {
                 if (!text) return;
-                if (isSpeaking) synth.cancel();
+                if (isSpeaking) {
+                    synth.cancel();
+                }
 
                 showBubble(text, 'thinking');
-                setMouthTalking(true);
-                if (statusVoice) statusVoice.textContent = `🗣️ Marquinhos: ${text}`;
 
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'es-MX';
@@ -1152,56 +915,79 @@
 
                 utterance.onstart = () => {
                     isSpeaking = true;
-                    widget.classList.add('talking');
+                    marquinhosEl.classList.add('talking');
+                    DisneyMouth.setShape('talking');
+                    startMouthTracking();
                 };
 
                 utterance.onend = () => {
                     isSpeaking = false;
-                    widget.classList.remove('talking');
-                    setMouthTalking(false);
+                    marquinhosEl.classList.remove('talking');
+                    DisneyMouth.reset();
+                    stopMouthTracking();
                     hideBubble();
-                    if (statusVoice) statusVoice.textContent = '💬 Esperando tu mensaje...';
                     if (callback) callback();
                 };
 
                 utterance.onerror = () => {
                     isSpeaking = false;
-                    widget.classList.remove('talking');
-                    setMouthTalking(false);
+                    marquinhosEl.classList.remove('talking');
+                    DisneyMouth.reset();
+                    stopMouthTracking();
                     hideBubble();
-                    if (statusVoice) statusVoice.textContent = '💬 Esperando tu mensaje...';
                     if (callback) callback();
                 };
 
+                currentUtterance = utterance;
                 synth.cancel();
                 synth.speak(utterance);
             }
 
-            // ===== REACCIONES =====
-            function react(type, message) {
-                const emotions = {
-                    happy: '😊 ¡Qué bien!',
-                    thinking: '🤔 Pensando...',
-                    waving: '👋 ¡Hola!',
-                    caring: '💙 Estoy aquí para ti',
-                    sad: '😢 No te preocupes',
-                    excited: '🎉 ¡Qué emocionante!'
-                };
+            // ===== TRACKING DE BOCA =====
+            let mouthTrackInterval = null;
 
-                const msg = message || emotions[type] || '¿Cómo puedo ayudarte?';
-                if (type === 'waving') {
-                    widget.classList.add('waving');
-                    setTimeout(() => widget.classList.remove('waving'), 1500);
+            function startMouthTracking() {
+                if (!audioContext) {
+                    try {
+                        audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) { return; }
                 }
-                speak(msg);
+                let lastLevel = 0;
+                if (mouthTrackInterval) clearInterval(mouthTrackInterval);
+                mouthTrackInterval = setInterval(() => {
+                    if (!isSpeaking) {
+                        DisneyMouth.setOpenAmount(0);
+                        return;
+                    }
+                    // Simulación de movimiento de boca basado en tiempo
+                    const time = Date.now() / 100;
+                    const level = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(time));
+                    const smoothed = lastLevel * 0.3 + level * 0.7;
+                    lastLevel = smoothed;
+                    DisneyMouth.setOpenAmount(smoothed * 0.8);
+                }, 50);
+            }
+
+            function stopMouthTracking() {
+                if (mouthTrackInterval) {
+                    clearInterval(mouthTrackInterval);
+                    mouthTrackInterval = null;
+                }
+                DisneyMouth.reset();
             }
 
             // ===== COMANDOS =====
             function processCommand(text) {
                 const lower = text.toLowerCase();
 
+                // Detectar ORA
+                if (OraDetector.check(text)) {
+                    speak('¡Ora! ¿Qué pasó?');
+                    return;
+                }
+
                 // Saludar
-                if (lower.includes('hola') || lower.includes('buenas') || lower.includes('hey')) {
+                if (lower.includes('hola') || lower.includes('buenas') || lower.includes('hey') || lower.includes('qué tal')) {
                     const namePart = userName ? ` ${userName}` : '';
                     speak(`¡Hola${namePart}! ¿Cómo estás hoy?`);
                     return;
@@ -1213,8 +999,34 @@
                     if (match && match[1]) {
                         userName = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
                         speak(`¡Mucho gusto ${userName}! Ya te voy a recordar.`);
-                        try { localStorage.setItem('marquinhos_user_name', userName); } catch (e) {}
+                        try {
+                            localStorage.setItem('marquinhos_user_name', userName);
+                        } catch (e) {}
                     }
+                    return;
+                }
+
+                // Música
+                if (lower.includes('música') || lower.includes('música') || lower.includes('canción') || lower.includes('musica')) {
+                    toggleMusic();
+                    return;
+                }
+
+                // Luz
+                if (lower.includes('luz') || lower.includes('luz') || lower.includes('prende') || lower.includes('apaga')) {
+                    toggleLight();
+                    return;
+                }
+
+                // Cómo estás
+                if (lower.includes('cómo estás') || lower.includes('como estas') || lower.includes('qué tal')) {
+                    speak('¡Estoy muy bien! Gracias por preguntar. ¿Y tú?');
+                    return;
+                }
+
+                // Quién eres
+                if (lower.includes('quién eres') || lower.includes('quien eres') || lower.includes('qué haces')) {
+                    speak('Soy Marquinhos, tu asistente personal. Estoy aquí para ayudarte con música, luces y lo que necesites.');
                     return;
                 }
 
@@ -1233,32 +1045,21 @@
                                 try { recognition.stop(); } catch (e) {}
                             }
                             isListening = false;
-                            if (statusVoice) statusVoice.textContent = '💬 En espera';
+                            document.getElementById('btnMic').classList.remove('active');
+                            showBubble('🔇 En espera');
                         }, 2000);
                     }
                     return;
                 }
 
-                // Cómo estás
-                if (lower.includes('cómo estás') || lower.includes('como estas') || lower.includes('qué tal')) {
-                    speak('¡Estoy muy bien! Gracias por preguntar. ¿Y tú?');
-                    return;
-                }
-
-                // Quién eres
-                if (lower.includes('quién eres') || lower.includes('quien eres') || lower.includes('qué haces')) {
-                    speak('Soy Marquinhos, tu asistente personal. Estoy aquí para ayudarte, escucharte y ser tu compañero.');
-                    return;
-                }
-
                 // Ayuda
-                if (lower.includes('ayuda') || lower.includes('qué puedes hacer')) {
+                if (lower.includes('ayuda') || lower.includes('ayuda') || lower.includes('qué puedes hacer')) {
                     speak('Puedo ayudarte con música, luces, responder preguntas y ser tu compañero. Solo dímelo.');
                     return;
                 }
 
-                // Hora
-                if (lower.includes('hora') || lower.includes('qué hora')) {
+                // Tiempo
+                if (lower.includes('hora') || lower.includes('tiempo') || lower.includes('qué hora')) {
                     const now = new Date();
                     const hora = now.getHours();
                     const minutos = now.getMinutes().toString().padStart(2, '0');
@@ -1270,11 +1071,100 @@
                 speak('No entendí bien, ¿puedes repetirlo?');
             }
 
+            // ===== MÚSICA =====
+            function toggleMusic() {
+                isMusicPlaying = !isMusicPlaying;
+                if (isMusicPlaying) {
+                    playMusic();
+                } else {
+                    stopMusic();
+                }
+                document.getElementById('btnMusic').classList.toggle('active', isMusicPlaying);
+                speak(isMusicPlaying ? '🎵 Música activada' : '⏹️ Música pausada');
+            }
+
+            let musicNode = null;
+
+            function playMusic() {
+                try {
+                    if (!audioContext) {
+                        audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (musicNode) {
+                        musicNode.disconnect();
+                        musicNode = null;
+                    }
+                    // Crear un tono simple y agradable
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = 440;
+                    gain.gain.value = 0.1;
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.start();
+                    musicNode = { osc, gain };
+
+                    // Cambiar frecuencia suavemente
+                    let noteIndex = 0;
+                    const notes = [440, 523, 587, 659, 784];
+                    if (musicNoteInterval) clearInterval(musicNoteInterval);
+                    musicNoteInterval = setInterval(() => {
+                        if (!isMusicPlaying || !musicNode) return;
+                        noteIndex = (noteIndex + 1) % notes.length;
+                        musicNode.osc.frequency.setTargetAtTime(notes[noteIndex], audioContext.currentTime, 0.3);
+                    }, 500);
+
+                    showBubble('🎵 Música activa');
+                } catch (e) {
+                    console.warn('Error al reproducir música:', e);
+                    isMusicPlaying = false;
+                    document.getElementById('btnMusic').classList.remove('active');
+                }
+            }
+
+            let musicNoteInterval = null;
+
+            function stopMusic() {
+                if (musicNode) {
+                    try {
+                        musicNode.osc.stop();
+                        musicNode.osc.disconnect();
+                        musicNode.gain.disconnect();
+                    } catch (e) {}
+                    musicNode = null;
+                }
+                if (musicNoteInterval) {
+                    clearInterval(musicNoteInterval);
+                    musicNoteInterval = null;
+                }
+                hideBubble();
+            }
+
+            // ===== LUZ =====
+            function toggleLight() {
+                isLightOn = !isLightOn;
+                if (isLightOn) {
+                    document.body.style.background = '#1A1A3A';
+                    document.body.style.transition = 'background 0.5s ease';
+                    document.querySelector('.controls').style.borderColor = 'rgba(255, 215, 0, 0.3)';
+                    document.getElementById('btnLight').classList.add('active');
+                    showBubble('💡 Luz encendida');
+                    speak('💡 Luz encendida');
+                } else {
+                    document.body.style.background = '#0A0A1A';
+                    document.querySelector('.controls').style.borderColor = 'rgba(212, 175, 55, 0.15)';
+                    document.getElementById('btnLight').classList.remove('active');
+                    showBubble('💡 Luz apagada');
+                    speak('💡 Luz apagada');
+                }
+            }
+
             // ===== RECONOCIMIENTO DE VOZ =====
             function initSpeechRecognition() {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (!SpeechRecognition) {
-                    if (statusVoice) statusVoice.textContent = '⚠️ Tu navegador no soporta voz';
+                    showBubble('⚠️ Tu navegador no soporta voz');
                     return;
                 }
 
@@ -1282,15 +1172,18 @@
                 recognition.lang = 'es-MX';
                 recognition.continuous = true;
                 recognition.interimResults = true;
+                recognition.maxAlternatives = 1;
 
-                const activationWords = ['marquinhos', 'hola marquinhos', 'hey marquinhos', 'marquinhos'];
+                const activationWords = ['hola marquinhos', 'marquinhos', 'hey marquinhos', 'buenas marquinhos', 'marquinhos'];
 
                 recognition.onresult = (event) => {
+                    retries = 0;
                     for (let i = event.resultIndex; i < event.results.length; i++) {
                         const transcript = event.results[i][0].transcript.trim();
                         if (event.results[i].isFinal) {
                             console.log('🎤 Dijiste:', transcript);
-                            if (statusVoice) statusVoice.textContent = `🎤 Tú: ${transcript}`;
+                            // Mostrar en burbuja
+                            showBubble(`🎤 ${transcript}`, 'listening');
 
                             const lower = transcript.toLowerCase();
                             const isActivation = activationWords.some(word => lower.includes(word));
@@ -1310,138 +1203,101 @@
                 recognition.onerror = (event) => {
                     console.warn('⚠️ Error de reconocimiento:', event.error);
                     if (event.error === 'not-allowed') {
-                        if (statusVoice) statusVoice.textContent = '🔇 Necesito permiso del micrófono';
+                        retries = maxRetries;
+                        showBubble('🔇 Necesito permiso del micrófono');
+                        document.getElementById('btnMic').classList.remove('active');
                         isListening = false;
                         return;
                     }
-                    if (isListening) {
-                        setTimeout(() => {
-                            try { recognition.start(); } catch (e) {}
-                        }, 1000);
+                    if (retries < maxRetries) {
+                        retries++;
+                        const delay = [1000, 3000, 5000][retries - 1] || 3000;
+                        clearTimeout(retryTimeout);
+                        retryTimeout = setTimeout(() => {
+                            if (isListening && recognition) {
+                                try { recognition.start(); } catch (e) {}
+                            }
+                        }, delay);
+                    } else {
+                        showBubble('🔇 Toca el micrófono para reactivar');
+                        document.getElementById('btnMic').classList.remove('active');
+                        isListening = false;
                     }
                 };
 
                 recognition.onend = () => {
+                    if (retries >= maxRetries) return;
                     if (isListening) {
-                        setTimeout(() => {
+                        clearTimeout(retryTimeout);
+                        retryTimeout = setTimeout(() => {
                             try { recognition.start(); } catch (e) {}
-                        }, 500);
+                        }, 300);
                     }
                 };
 
                 try {
                     recognition.start();
                     isListening = true;
-                    if (statusVoice) statusVoice.textContent = '🎤 Escuchando... di "Marquinhos"';
-                    console.log('🎤 Marquinhos escuchando...');
+                    retries = 0;
+                    document.getElementById('btnMic').classList.add('active');
+                    showBubble('🎤 Escuchando...', 'listening');
                 } catch (e) {
                     console.warn('⚠️ No se pudo iniciar:', e);
                 }
             }
 
-            // ===== TOGGLE MICRÓFONO =====
+            // ===== CONTROL DE MICRÓFONO =====
             function toggleMic() {
                 if (isListening) {
+                    // Apagar
                     isListening = false;
                     if (recognition) {
                         try { recognition.stop(); } catch (e) {}
                     }
-                    if (statusVoice) statusVoice.textContent = '🔇 Micrófono apagado';
-                    document.getElementById('btnEscuchar').innerHTML = '<i class="fas fa-microphone"></i> Hablar';
-                    document.getElementById('btnEscuchar').classList.remove('btn-danger');
-                    document.getElementById('btnEscuchar').classList.add('btn-primary');
+                    document.getElementById('btnMic').classList.remove('active');
+                    showBubble('🔇 Micrófono apagado');
                 } else {
+                    // Encender
                     if (!recognition) {
                         initSpeechRecognition();
                         return;
                     }
                     isListening = true;
+                    retries = 0;
                     try {
                         recognition.start();
-                        if (statusVoice) statusVoice.textContent = '🎤 Escuchando... di "Marquinhos"';
-                        document.getElementById('btnEscuchar').innerHTML = '<i class="fas fa-stop"></i> Detener';
-                        document.getElementById('btnEscuchar').classList.remove('btn-primary');
-                        document.getElementById('btnEscuchar').classList.add('btn-danger');
+                        document.getElementById('btnMic').classList.add('active');
+                        showBubble('🎤 Escuchando...', 'listening');
                     } catch (e) {
-                        if (statusVoice) statusVoice.textContent = '⚠️ Error al activar micrófono';
+                        showBubble('⚠️ Error al activar micrófono');
                     }
                 }
             }
 
-            // ===== ENVIAR MENSAJE =====
-            function enviarMensaje() {
-                const input = document.getElementById('chatInput');
-                const texto = input.value.trim();
-                if (!texto) return;
-
-                if (statusVoice) statusVoice.textContent = `💬 Tú: ${texto}`;
-                processCommand(texto);
-                input.value = '';
-            }
-
-            // ===== RESETEAR POSICIÓN =====
-            function resetearPosicion() {
-                container.style.position = 'relative';
-                container.style.left = 'auto';
-                container.style.top = 'auto';
+            // ===== CONTROLES UI =====
+            document.getElementById('btnMic').addEventListener('click', toggleMic);
+            document.getElementById('btnMusic').addEventListener('click', toggleMusic);
+            document.getElementById('btnLight').addEventListener('click', toggleLight);
+            document.getElementById('btnReset').addEventListener('click', () => {
+                container.style.top = '50%';
+                container.style.left = '50%';
+                container.style.transform = 'translate(-50%, -50%)';
                 container.style.right = 'auto';
                 container.style.bottom = 'auto';
-                container.style.transform = 'none';
-                container.style.margin = '0 auto';
                 showBubble('🏠 Posición restaurada');
                 setTimeout(hideBubble, 1500);
-            }
-
-            // ===== ARRASTRE =====
-            let isDragging = false;
-            let startX = 0,
-                startY = 0;
-            let origX = 0,
-                origY = 0;
-
-            container.addEventListener('pointerdown', (e) => {
-                isDragging = true;
-                const rect = container.getBoundingClientRect();
-                startX = e.clientX;
-                startY = e.clientY;
-                origX = rect.left;
-                origY = rect.top;
-                container.setPointerCapture(e.pointerId);
-                container.style.cursor = 'grabbing';
-            });
-
-            container.addEventListener('pointermove', (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                container.style.position = 'fixed';
-                container.style.left = (origX + dx) + 'px';
-                container.style.top = (origY + dy) + 'px';
-                container.style.right = 'auto';
-                container.style.bottom = 'auto';
-                container.style.margin = '0';
-                container.style.transform = 'none';
-            });
-
-            container.addEventListener('pointerup', () => {
-                isDragging = false;
-                container.style.cursor = 'grab';
-            });
-
-            container.addEventListener('pointercancel', () => {
-                isDragging = false;
-                container.style.cursor = 'grab';
             });
 
             // ===== INICIALIZAR =====
-            function init() {
+            document.addEventListener('DOMContentLoaded', () => {
+                DisneyMouth.init();
                 // Cargar nombre guardado
                 try {
                     const saved = localStorage.getItem('marquinhos_user_name');
                     if (saved) userName = saved;
                 } catch (e) {}
 
-                // Iniciar reconocimiento
+                // Iniciar reconocimiento automáticamente
                 setTimeout(initSpeechRecognition, 1000);
 
                 // Saludo de bienvenida
@@ -1450,25 +1306,18 @@
                     speak(`¡Hola${namePart}! Soy Marquinhos, tu asistente personal. ¿Cómo puedo ayudarte?`);
                 }, 1500);
 
-                // Eventos
-                document.getElementById('btnEscuchar').addEventListener('click', toggleMic);
-                chatInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') enviarMensaje();
-                });
-
-                console.log('🎭 MARQUINHOS - Asistente Personal');
+                console.log('🚀 MARQUINHOS - Asistente Personal');
                 console.log('🎤 Di "Marquinhos" para activarme');
+                console.log('🎵 Comandos: música, luz, hora, hola, gracias, adiós');
                 console.log('👤 Di "me llamo [nombre]" para recordarlo');
-            }
+            });
 
-            // ===== EXPONER FUNCIONES =====
-            window.Marquinhos = {
+            // Exponer funciones
+            window.MarquinhosAssistant = {
                 speak,
-                react,
-                processCommand,
+                toggleMusic,
+                toggleLight,
                 toggleMic,
-                enviarMensaje,
-                resetearPosicion,
                 isListening: () => isListening,
                 isSpeaking: () => isSpeaking,
                 getUserName: () => userName,
@@ -1478,42 +1327,251 @@
                 }
             };
 
-            // Inicializar cuando el DOM esté listo
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
+            // Limpiar al salir
+            window.addEventListener('beforeunload', () => {
+                stopMusic();
+                if (recognition) {
+                    try { recognition.stop(); } catch (e) {}
+                }
+                synth.cancel();
+            });
 
         })();
 
         // ================================================================
-        // 💬 FUNCIONES GLOBALES
+        // 4. ARRASTRE CON FÍSICA
         // ================================================================
 
-        function enviarMensaje() {
-            if (window.Marquinhos) window.Marquinhos.enviarMensaje();
-        }
+        (function dragPhysics() {
+            const container = document.getElementById('marquinhos-container');
+            const marquinhos = document.getElementById('marquinhos');
 
-        function resetearPosicion() {
-            if (window.Marquinhos) window.Marquinhos.resetearPosicion();
-        }
+            // Referencias a brazos y piernas
+            const arms = marquinhos.querySelectorAll('.arm');
+            const legs = marquinhos.querySelectorAll('.leg');
+            const hands = marquinhos.querySelectorAll('.hand');
+            const feet = marquinhos.querySelectorAll('.foot');
 
-        function mostrarToast(mensaje, tipo = '') {
-            const toast = document.getElementById('toast');
-            toast.textContent = mensaje;
-            toast.className = 'toast active';
-            if (tipo === 'error') toast.classList.add('error');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => toast.classList.remove('active'), 3000);
-        }
+            let isDragging = false;
+            let startX = 0,
+                startY = 0;
+            let origX = 0,
+                origY = 0;
+            let lastDx = 0,
+                lastDy = 0;
+            let velocityX = 0,
+                velocityY = 0;
+            let animationId = null;
 
-        // Exponer globalmente
-        window.enviarMensaje = enviarMensaje;
-        window.resetearPosicion = resetearPosicion;
-        window.mostrarToast = mostrarToast;
+            // Función para aplicar física a extremidades
+            function applyPhysics(dx, dy, velX, velY) {
+                const factor = 0.35;
+                // Dirección CONTRARIA al arrastre
+                const xOffset = -dx * factor + velX * 2.5;
+                const yOffset = -dy * factor + velY * 2.5;
+                const rotX = dx * 0.08 + velX * 0.6;
+                const rotY = dy * 0.08 + velY * 0.6;
 
-        console.log('🚀 Marquinhos cargado exitosamente');
+                // Brazos: rotación en dirección contraria
+                arms.forEach((arm, index) => {
+                    const delay = index * 20;
+                    clearTimeout(arm._physicsTimeout);
+                    arm._physicsTimeout = setTimeout(() => {
+                        const baseRotation = index === 0 ? -15 : 15;
+                        const extraRot = -rotX * 0.4 + (index === 0 ? -rotY * 0.15 : rotY * 0.15);
+                        arm.style.transform = `rotate(${baseRotation + extraRot + xOffset * 0.25}deg)`;
+                        arm.style.transition = 'transform 0.05s ease';
+                    }, delay);
+                });
+
+                // Manos: siguen a los brazos
+                hands.forEach((hand, index) => {
+                    const delay = index * 20 + 10;
+                    clearTimeout(hand._physicsTimeout);
+                    hand._physicsTimeout = setTimeout(() => {
+                        const baseX = index === 0 ? -34 : -34;
+                        const baseY = 64;
+                        const moveX = -dx * factor * 0.5 + velX * 1.5;
+                        const moveY = -dy * factor * 0.5 + velY * 1.5;
+                        hand.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                        hand.style.transition = 'transform 0.05s ease';
+                    }, delay);
+                });
+
+                // Piernas: rotación en dirección contraria
+                legs.forEach((leg, index) => {
+                    const delay = index * 20 + 10;
+                    clearTimeout(leg._physicsTimeout);
+                    leg._physicsTimeout = setTimeout(() => {
+                        const baseRotation = 0;
+                        const extraRot = -rotX * 0.25 + (index === 0 ? -rotY * 0.12 : rotY * 0.12);
+                        leg.style.transform = `rotate(${baseRotation + extraRot + xOffset * 0.15}deg)`;
+                        leg.style.transition = 'transform 0.05s ease';
+                    }, delay);
+                });
+
+                // Pies: siguen a las piernas
+                feet.forEach((foot, index) => {
+                    const delay = index * 20 + 20;
+                    clearTimeout(foot._physicsTimeout);
+                    foot._physicsTimeout = setTimeout(() => {
+                        const moveX = -dx * factor * 0.3 + velX * 1.0;
+                        const moveY = -dy * factor * 0.3 + velY * 1.0;
+                        foot.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                        foot.style.transition = 'transform 0.05s ease';
+                    }, delay);
+                });
+            }
+
+            // Función para resetear extremidades con bounce
+            function resetPhysics() {
+                arms.forEach((arm, index) => {
+                    clearTimeout(arm._physicsTimeout);
+                    const baseRotation = index === 0 ? -15 : 15;
+                    arm.style.transform = `rotate(${baseRotation}deg)`;
+                    arm.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    setTimeout(() => {
+                        arm.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }, 500);
+                });
+
+                hands.forEach((hand) => {
+                    clearTimeout(hand._physicsTimeout);
+                    hand.style.transform = 'translate(0px, 0px)';
+                    hand.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    setTimeout(() => {
+                        hand.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }, 500);
+                });
+
+                legs.forEach((leg) => {
+                    clearTimeout(leg._physicsTimeout);
+                    leg.style.transform = 'rotate(0deg)';
+                    leg.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    setTimeout(() => {
+                        leg.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }, 500);
+                });
+
+                feet.forEach((foot) => {
+                    clearTimeout(foot._physicsTimeout);
+                    foot.style.transform = 'translate(0px, 0px)';
+                    foot.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    setTimeout(() => {
+                        foot.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }, 500);
+                });
+            }
+
+            // Eventos de arrastre
+            container.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                const rect = container.getBoundingClientRect();
+                startX = e.clientX;
+                startY = e.clientY;
+                origX = rect.left;
+                origY = rect.top;
+                container.setPointerCapture(e.pointerId);
+                container.style.cursor = 'grabbing';
+                lastDx = 0;
+                lastDy = 0;
+                velocityX = 0;
+                velocityY = 0;
+
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            });
+
+            container.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                const velX = dx - lastDx;
+                const velY = dy - lastDy;
+                lastDx = dx;
+                lastDy = dy;
+
+                container.style.left = (origX + dx) + 'px';
+                container.style.top = (origY + dy) + 'px';
+                container.style.right = 'auto';
+                container.style.bottom = 'auto';
+                container.style.transform = 'none';
+
+                applyPhysics(dx, dy, velX, velY);
+
+                velocityX = velX;
+                velocityY = velY;
+            });
+
+            container.addEventListener('pointerup', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                container.style.cursor = 'grab';
+
+                resetPhysics();
+
+                const friction = 0.92;
+                let vx = velocityX * 0.5;
+                let vy = velocityY * 0.5;
+
+                if (Math.abs(vx) > 0.5 || Math.abs(vy) > 0.5) {
+                    let lastTime = performance.now();
+
+                    function animateInertia() {
+                        const now = performance.now();
+                        const delta = Math.min((now - lastTime) / 16, 2);
+                        lastTime = now;
+
+                        vx *= Math.pow(friction, delta);
+                        vy *= Math.pow(friction, delta);
+
+                        const rect = container.getBoundingClientRect();
+                        const newX = rect.left + vx * delta;
+                        const newY = rect.top + vy * delta;
+
+                        const maxX = window.innerWidth - rect.width;
+                        const maxY = window.innerHeight - rect.height;
+
+                        container.style.left = Math.max(0, Math.min(maxX, newX)) + 'px';
+                        container.style.top = Math.max(0, Math.min(maxY, newY)) + 'px';
+                        container.style.right = 'auto';
+                        container.style.bottom = 'auto';
+                        container.style.transform = 'none';
+
+                        if (Math.abs(vx) > 0.1 || Math.abs(vy) > 0.1) {
+                            animationId = requestAnimationFrame(animateInertia);
+                        } else {
+                            animationId = null;
+                        }
+                    }
+                    animateInertia();
+                }
+
+                velocityX = 0;
+                velocityY = 0;
+            });
+
+            container.addEventListener('pointercancel', () => {
+                isDragging = false;
+                container.style.cursor = 'grab';
+                resetPhysics();
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            });
+
+            container.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+
+            console.log('👆 Arrastre con física activado');
+            console.log('🦵 Brazos, manos, piernas y pies fuera del cuerpo');
+
+        })();
     </script>
 </body>
 </html>
