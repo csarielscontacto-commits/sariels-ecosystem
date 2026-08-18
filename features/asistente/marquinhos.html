@@ -2,60 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#1565C0" />
-    <title>Marquinhos · Talavera Cerámica</title>
+    <title>Marquinhos · Asistente Personal</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
 
     <style>
-        /* ===== VARIABLES Y RESET ===== */
-        :root {
-            --bg: #0A0A1A;
-            --bg2: #1A0A2E;
-            --card: rgba(20, 10, 40, .85);
-            --blue: #6C3CE0;
-            --blue2: #8B5CF6;
-            --white: #FFF8F0;
-            --gold: #FFD700;
-            --gold2: #FFC107;
-            --pink: #FF6B8A;
-            --shadow: rgba(0, 0, 0, .45);
-            --glow: rgba(255, 215, 0, .35);
-            --speed: .28s;
-            --idle: 4s;
-            --talavera-white: #F5F5F5;
-            --talavera-dark: #0D47A1;
-            --talavera-blue: #1565C0;
-            --talavera-light: #42A5F5;
-            --deep-blue: #0A1E3F;
-            --talavera-gold: #FFD700;
-            --soft-gold: #FFC107;
-            --talavera-green: #00897B;
-            --terracotta: #E65100;
-            --cream: #FFF8E1;
-            --ceramic: #FFFFFF;
-            --child-safe: #4CAF50;
-            --child-safe-bg: rgba(76, 175, 80, 0.15);
-            --call-pause: #FF6B35;
-            --call-pause-bg: rgba(255, 107, 53, 0.15);
-            --mic-active: #00E5FF;
-            --mic-active-bg: rgba(0, 229, 255, 0.15);
-            --bluetooth: #2979FF;
-            --bluetooth-bg: rgba(41, 121, 255, 0.15);
-            /* Color activo (controlado por el usuario) - por defecto Talavera Blue */
-            --color-activo: #1565C0;
-            --color-activo-rgb: 21, 101, 192;
-            /* Disney Colors (mantenemos compatibilidad) */
-            --disney-yellow: #FFD700;
-            --disney-red: #FF3B30;
-            --disney-blue: #007AFF;
-            --disney-pink: #FF2D55;
-            --disney-orange: #FF9500;
-        }
-
+        /* ===== RESET ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -67,88 +23,105 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: transparent;
-            font-family: "Quicksand", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #0A0A1A;
+            font-family: "Quicksand", system-ui, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
-        /* ===== ESCENA: contenedor flotante pequeño ===== */
-        .scene {
+        /* ===== FONDO DINÁMICO ===== */
+        body::before {
+            content: '';
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 130px;
-            height: 160px;
-            display: block;
-            background: transparent;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(21, 101, 192, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(13, 71, 161, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(10, 25, 47, 0.9) 0%, #0A0A1A 100%);
+            z-index: 0;
             pointer-events: none;
-            z-index: 9998;
-            perspective: 800px;
-            perspective-origin: 50% 50%;
         }
 
-        /* .ambient y .shadow eliminados completamente */
+        /* ===== CONTENEDOR PRINCIPAL - FLOTANTE ===== */
+        #marquinhos-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 200px;
+            z-index: 9999;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: none;
+            filter: drop-shadow(0 8px 30px rgba(13, 71, 161, 0.3));
+            pointer-events: auto;
+        }
 
-        /* ===== CONTENEDOR PRINCIPAL ===== */
+        #marquinhos-container:active {
+            cursor: grabbing;
+        }
+
+        /* ===== MARQUINHOS ===== */
         .marquinhos {
             position: relative;
-            width: 130px;
+            width: 100%;
+            height: 100%;
             transform-style: preserve-3d;
             animation: float 4.5s ease-in-out infinite;
-            filter: drop-shadow(0 8px 18px rgba(13, 71, 161, 0.25));
             user-select: none;
             touch-action: none;
             isolation: isolate;
-            transition: all 0.5s ease;
-            pointer-events: auto;
+            pointer-events: none;
             margin: 0 auto;
         }
 
-        /* ===== TARJETA: sin fondo, sin borde, sin blur ===== */
+        .marquinhos * {
+            pointer-events: none;
+        }
+
+        /* ===== TARJETA ===== */
         .card {
             background: transparent;
             border: none;
             padding: 0;
-            backdrop-filter: none;
-            box-shadow: none;
             position: relative;
-            transition: all 0.5s ease;
-            transform: none !important;
             width: 100%;
+            height: 100%;
         }
 
-        /* ===== HEAD: Talavera Cerámica ===== */
+        /* ===== HEAD ===== */
         .head {
             position: relative;
-            width: 110px;
-            height: 105px;
+            width: 140px;
+            height: 130px;
             margin: 0 auto 0;
-            border: 4px solid var(--color-activo);
+            border: 4px solid var(--color-activo, #1565C0);
             border-radius: 50% 50% 45% 45%;
             overflow: visible;
-            background: radial-gradient(circle at 35% 25%, var(--ceramic) 0%, var(--cream) 60%, #f5efe0 85%, #e8e0d0 100%);
+            background: radial-gradient(circle at 35% 25%, #FFFFFF 0%, #FFF8E1 60%, #f5efe0 85%, #e8e0d0 100%);
             box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.6), inset 0 -4px 12px rgba(13, 71, 161, 0.08), 0 4px 12px rgba(0, 0, 0, 0.10);
             transform: translateZ(10px);
             transition: border-color .3s ease, box-shadow .3s ease;
         }
 
-        /* Patrón floral Talavera en la cabeza */
         .head::before {
             content: "";
             position: absolute;
             inset: 6px;
             border-radius: 50%;
             background-image:
-                radial-gradient(circle at 20% 30%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 80% 25%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 50% 15%, var(--talavera-blue) 2.5px, transparent 2.5px),
-                radial-gradient(circle at 70% 70%, var(--talavera-blue) 1.8px, transparent 1.8px),
-                radial-gradient(circle at 30% 75%, var(--talavera-blue) 1.8px, transparent 1.8px),
-                radial-gradient(circle at 50% 55%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 15% 55%, var(--talavera-light) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 85% 55%, var(--talavera-light) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 45% 85%, var(--talavera-blue) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 60% 40%, var(--talavera-blue) 1.2px, transparent 1.2px),
-                radial-gradient(circle at 40% 45%, var(--talavera-blue) 1.2px, transparent 1.2px);
+                radial-gradient(circle at 20% 30%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 80% 25%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 50% 15%, #1565C0 2.5px, transparent 2.5px),
+                radial-gradient(circle at 70% 70%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 30% 75%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 50% 55%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 15% 55%, #42A5F5 1.5px, transparent 1.5px),
+                radial-gradient(circle at 85% 55%, #42A5F5 1.5px, transparent 1.5px);
             background-size: 60px 60px;
             background-repeat: repeat;
             opacity: 0.25;
@@ -166,14 +139,14 @@
             z-index: 2;
         }
 
-        /* ===== ANTENAS TALAVERA: esferas cerámicas con flor ===== */
+        /* ===== ANTENAS ===== */
         .antenna {
             position: absolute;
             top: -18px;
             width: 5px;
             height: 24px;
             border-radius: 999px;
-            background: linear-gradient(180deg, var(--talavera-blue), var(--talavera-light));
+            background: linear-gradient(180deg, #1565C0, #42A5F5);
             transform-origin: bottom center;
             animation: sway 3.2s ease-in-out infinite alternate;
             box-shadow: none;
@@ -189,60 +162,46 @@
             height: 18px;
             transform: translateX(-50%);
             border-radius: 50%;
-            background: radial-gradient(circle at 40% 35%, var(--ceramic) 0%, var(--cream) 65%, var(--talavera-light) 100%);
-            border: 2px solid var(--talavera-blue);
+            background: radial-gradient(circle at 40% 35%, #FFFFFF 0%, #FFF8E1 65%, #42A5F5 100%);
+            border: 2px solid #1565C0;
             box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.5), 0 0 0 1px rgba(13, 71, 161, 0.15);
             transition: all 0.5s ease;
         }
-        /* Motivo floral en la esfera de la antena */
-        .antenna::after {
-            background-image:
-                radial-gradient(circle at 45% 40%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 50% 55%, var(--talavera-blue) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 55% 45%, var(--talavera-blue) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 40% 55%, var(--talavera-blue) 1px, transparent 1px),
-                radial-gradient(circle at 60% 50%, var(--talavera-blue) 1px, transparent 1px);
-            background-size: 12px 12px;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-color: var(--ceramic);
-        }
         .antenna.left {
-            left: 28px;
+            left: 38px;
         }
         .antenna.right {
-            right: 28px;
+            right: 38px;
             animation-delay: .14s;
         }
 
-        /* ===== CEJAS: azul talavera ===== */
+        /* ===== CEJAS ===== */
         .brow {
-            position: absolute;
-            top: 24px;
-            width: 26px;
-            height: 7px;
-            border-top: 4px solid var(--color-activo);
-            border-radius: 50%;
-            z-index: 4;
-            opacity: 1;
-            transition: transform .3s ease, top .3s ease, border-color .3s ease, width .3s ease;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,.05));
-        }
-        .brow.left {
-            left: 16px;
-            transform: rotate(-4deg);
-        }
-        .brow.right {
-            right: 16px;
-            transform: rotate(4deg);
-        }
-
-        /* ===== OJOS grandes y expresivos ===== */
-        .eye {
             position: absolute;
             top: 30px;
             width: 30px;
-            height: 34px;
+            height: 7px;
+            border-top: 4px solid var(--color-activo, #1565C0);
+            border-radius: 50%;
+            z-index: 4;
+            opacity: 1;
+            transition: transform .3s ease, top .3s ease, border-color .3s ease;
+        }
+        .brow.left {
+            left: 22px;
+            transform: rotate(-4deg);
+        }
+        .brow.right {
+            right: 22px;
+            transform: rotate(4deg);
+        }
+
+        /* ===== OJOS ===== */
+        .eye {
+            position: absolute;
+            top: 38px;
+            width: 34px;
+            height: 38px;
             border-radius: 50%;
             overflow: hidden;
             background: #1A0A2E;
@@ -251,10 +210,10 @@
             z-index: 3;
         }
         .eye.left {
-            left: 16px;
+            left: 22px;
         }
         .eye.right {
-            right: 16px;
+            right: 22px;
         }
 
         .eye::before {
@@ -274,8 +233,8 @@
             right: 6px;
             top: -2px;
             height: 0;
-            background: var(--white);
-            border-bottom: 3px solid var(--color-activo);
+            background: #FFF8F0;
+            border-bottom: 3px solid var(--color-activo, #1565C0);
             border-radius: 50%;
             z-index: 3;
             transition: height .2s ease, border-color .3s ease;
@@ -285,10 +244,10 @@
         .iris {
             position: absolute;
             z-index: 2;
-            width: 14px;
-            height: 14px;
-            left: 8px;
-            top: 10px;
+            width: 16px;
+            height: 16px;
+            left: 9px;
+            top: 12px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 30%, #6dd5ff 0 16%, #1a6cb0 38%, #0a1a3e 74%, #030810 100%);
             box-shadow: 0 0 10px rgba(0, 229, 255, .15), inset 0 0 6px rgba(255, 255, 255, .1);
@@ -304,132 +263,85 @@
             border-radius: 50%;
             background: #fff;
             opacity: .9;
-            box-shadow: 0 0 6px rgba(255, 255, 255, .2);
-        }
-        .iris::after {
-            content: "";
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            right: 2px;
-            bottom: 2px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .25);
         }
 
         /* ===== BOCA ===== */
         .mouth-container {
             position: absolute;
             left: 50%;
-            bottom: 14px;
+            bottom: 16px;
             transform: translateX(-50%);
-            width: 36px;
-            height: 22px;
+            width: 40px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.05s ease;
             z-index: 3;
         }
 
         .mouth {
-            width: 28px;
+            width: 32px;
             height: 10px;
-            border-bottom: 4px solid var(--color-activo);
+            border-bottom: 4px solid var(--color-activo, #1565C0);
             border-radius: 0 0 50% 50%;
             transition: all 0.04s ease;
             transform-origin: center;
             background: transparent;
             position: relative;
-            transition: width 0.04s ease, height 0.04s ease, border-bottom-width 0.04s ease, border-radius 0.04s ease;
             filter: drop-shadow(0 1px 4px rgba(21, 101, 192, .10));
         }
 
-        /* Formas de boca (mantenemos compatibilidad con Disney) */
-        .mouth.shape-A { width: 34px; height: 18px; border-bottom-width: 5px; border-radius: 50% 50% 45% 45%; }
-        .mouth.shape-E { width: 30px; height: 12px; border-bottom-width: 4px; border-radius: 0 0 50% 50%; }
-        .mouth.shape-I { width: 22px; height: 8px; border-bottom-width: 3px; border-radius: 0 0 40% 40%; }
-        .mouth.shape-O { width: 32px; height: 18px; border-bottom-width: 5px; border-radius: 50%; }
-        .mouth.shape-U { width: 20px; height: 14px; border-bottom-width: 4px; border-radius: 50% 50% 40% 40%; }
-        .mouth.shape-M { width: 18px; height: 6px; border-bottom-width: 3px; border-radius: 0 0 50% 50%; }
-        .mouth.shape-F { width: 20px; height: 6px; border-bottom-width: 3px; border-radius: 0 0 30% 30%; }
-        .mouth.shape-S { width: 22px; height: 6px; border-bottom-width: 3px; border-radius: 0 0 40% 40%; }
-        .mouth.shape-neutral { width: 28px; height: 8px; border-bottom-width: 3px; border-radius: 0 0 50% 50%; }
-        .mouth.shape-ORA { width: 34px; height: 20px; border-bottom-width: 6px; border-radius: 50%; border-color: var(--disney-orange); animation: oraShake 0.4s ease-in-out; }
+        .mouth.shape-neutral { width: 32px; height: 10px; border-bottom-width: 4px; border-radius: 0 0 50% 50%; }
+        .mouth.talking { animation: talk .12s ease-in-out infinite alternate; }
 
-        @keyframes oraShake {
-            0% { transform: translateX(-50%) scale(1) rotate(0deg); }
-            25% { transform: translateX(-50%) scale(1.15) rotate(-4deg); }
-            50% { transform: translateX(-50%) scale(1.05) rotate(4deg); }
-            75% { transform: translateX(-50%) scale(1.10) rotate(-2deg); }
-            100% { transform: translateX(-50%) scale(1) rotate(0deg); }
-        }
-
-        /* ===== MEJILLAS: rubor rosa suave ===== */
+        /* ===== MEJILLAS ===== */
         .cheek {
             position: absolute;
-            bottom: 20px;
-            width: 18px;
-            height: 12px;
+            bottom: 24px;
+            width: 20px;
+            height: 14px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255, 107, 138, 0.55) 0%, rgba(255, 59, 111, 0.25) 100%);
             filter: blur(4px);
             opacity: .6;
-            transition: opacity .3s ease, transform .3s ease;
-            box-shadow: 0 0 12px rgba(255, 107, 138, 0.08);
+            transition: opacity .3s ease;
             z-index: 2;
         }
         .cheek.left {
-            left: 6px;
+            left: 10px;
         }
         .cheek.right {
-            right: 6px;
+            right: 10px;
         }
 
-        .chin {
-            position: absolute;
-            left: 50%;
-            bottom: 4px;
-            width: 44px;
-            height: 12px;
-            transform: translateX(-50%);
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(21, 101, 192, 0.06) 0%, transparent 70%);
-            opacity: .9;
-            z-index: 1;
-        }
-
-        /* ===== CUERPO: Talavera Cerámica ===== */
+        /* ===== CUERPO ===== */
         .body {
             position: relative;
-            width: 118px;
-            height: 116px;
+            width: 150px;
+            height: 130px;
             margin: -4px auto 0;
-            border: 4px solid var(--color-activo);
+            border: 4px solid var(--color-activo, #1565C0);
             border-radius: 30px 30px 40px 40px;
             overflow: hidden;
-            background: radial-gradient(circle at 50% 0%, var(--ceramic) 0%, var(--cream) 55%, #f0ead8 85%, #e0d8c0 100%);
+            background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #FFF8E1 55%, #f0ead8 85%, #e0d8c0 100%);
             box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.5), inset 0 -4px 12px rgba(13, 71, 161, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08);
             transform: translateZ(8px);
-            animation: breathe var(--idle) ease-in-out infinite;
-            transition: border-color .3s ease, box-shadow .3s ease;
+            animation: breathe 4s ease-in-out infinite;
+            transition: border-color .3s ease;
         }
 
-        /* Patrón floral Talavera en el cuerpo */
         .body::before {
             content: "";
             position: absolute;
             inset: 8px;
             border-radius: 20px;
             background-image:
-                radial-gradient(circle at 20% 25%, var(--talavera-blue) 2.5px, transparent 2.5px),
-                radial-gradient(circle at 80% 30%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 50% 15%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 70% 70%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 30% 75%, var(--talavera-blue) 2px, transparent 2px),
-                radial-gradient(circle at 50% 50%, var(--talavera-light) 2.5px, transparent 2.5px),
-                radial-gradient(circle at 15% 50%, var(--talavera-blue) 1.8px, transparent 1.8px),
-                radial-gradient(circle at 85% 50%, var(--talavera-blue) 1.8px, transparent 1.8px);
+                radial-gradient(circle at 20% 25%, #1565C0 2.5px, transparent 2.5px),
+                radial-gradient(circle at 80% 30%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 50% 15%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 70% 70%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 30% 75%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 50% 50%, #42A5F5 2.5px, transparent 2.5px);
             background-size: 50px 50px;
             background-repeat: repeat;
             opacity: 0.2;
@@ -447,17 +359,17 @@
             z-index: 2;
         }
 
-        /* ===== PECHO: azulejo "MARQUINHOS" ===== */
+        /* ===== PECHO ===== */
         .chest {
             position: absolute;
             left: 50%;
             top: 12px;
-            width: 68px;
-            height: 34px;
+            width: 80px;
+            height: 38px;
             transform: translateX(-50%);
-            border: 3px solid var(--talavera-blue);
+            border: 3px solid #1565C0;
             border-radius: 12px;
-            background: var(--ceramic);
+            background: #FFFFFF;
             box-shadow: inset 0 0 0 1px rgba(13, 71, 161, 0.05), 0 2px 8px rgba(0, 0, 0, 0.04);
             display: grid;
             place-items: center;
@@ -470,507 +382,128 @@
             content: "MARQUINHOS";
             font-weight: 700;
             letter-spacing: 0.8px;
-            font-size: 8px;
-            color: var(--talavera-dark);
-            text-shadow: none;
+            font-size: 9px;
+            color: #0D47A1;
             font-family: "Quicksand", sans-serif;
             transition: all 0.5s ease;
             text-align: center;
             line-height: 1.1;
             padding: 0 2px;
         }
-        /* Pequeño detalle floral en el azulejo */
-        .chest::after {
-            content: "";
-            position: absolute;
-            bottom: 2px;
-            right: 4px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 45% 40%, var(--talavera-blue) 1.5px, transparent 1.5px);
-            background-size: 4px 4px;
-            opacity: 0.15;
-            pointer-events: none;
-        }
 
-        /* ===== BRAZOS: cerámica ===== */
+        /* ===== BRAZOS ===== */
         .arm {
             position: absolute;
             top: 14px;
-            width: 18px;
-            height: 58px;
-            border: 4px solid var(--color-activo);
+            width: 22px;
+            height: 70px;
+            border: 4px solid var(--color-activo, #1565C0);
             border-radius: 14px;
-            background: linear-gradient(180deg, var(--ceramic), var(--cream));
+            background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
             transform-origin: top center;
             box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.4);
-            transition: transform .4s cubic-bezier(.2, .8, .2, 1), border-color .3s ease;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
             z-index: 2;
+            will-change: transform;
         }
         .arm.left {
-            left: -10px;
+            left: -12px;
             transform: rotate(-12deg);
         }
         .arm.right {
-            right: -10px;
+            right: -12px;
             transform: rotate(12deg);
         }
 
         .forearm {
             position: absolute;
             left: 0;
-            top: 42px;
-            width: 16px;
-            height: 48px;
-            border: 3px solid var(--color-activo);
+            top: 50px;
+            width: 20px;
+            height: 52px;
+            border: 3px solid var(--color-activo, #1565C0);
             border-radius: 12px;
-            background: linear-gradient(180deg, var(--ceramic), var(--cream));
+            background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
             transform-origin: top center;
             box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3);
-            transition: transform .4s cubic-bezier(.2, .8, .2, 1), border-color .3s ease;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
         }
 
         .hand {
             position: absolute;
-            left: -6px;
-            top: 40px;
-            width: 26px;
-            height: 26px;
-            border: 3px solid var(--color-activo);
+            left: -8px;
+            top: 44px;
+            width: 34px;
+            height: 34px;
+            border: 3px solid var(--color-activo, #1565C0);
             border-radius: 50%;
-            background: radial-gradient(circle at 35% 30%, var(--ceramic) 0%, var(--cream) 60%, #e8e0d0 100%);
+            background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #FFF8E1 60%, #e8e0d0 100%);
             transform-origin: center;
             box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
-            transition: transform .4s cubic-bezier(.2, .8, .2, 1), border-color .3s ease;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
         }
 
-        .hand::after {
-            content: "";
-            position: absolute;
-            inset: 6px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(21, 101, 192, 0.08) 0%, transparent 68%);
-            opacity: .6;
-        }
-
-        .finger {
-            position: absolute;
-            top: 1px;
-            width: 5px;
-            height: 12px;
-            border: 2px solid var(--color-activo);
-            border-radius: 4px;
-            background: var(--ceramic);
-            transform-origin: bottom center;
-            transition: transform .3s ease, border-color .3s ease;
-        }
-        .finger:nth-child(1) { left: 2px; }
-        .finger:nth-child(2) { left: 10px; }
-        .finger:nth-child(3) { left: 18px; }
-
-        /* ===== PIERNAS: cerámica ===== */
+        /* ===== PIERNAS ===== */
         .leg {
             position: absolute;
             bottom: -4px;
-            width: 24px;
-            height: 44px;
-            border: 4px solid var(--color-activo);
+            width: 28px;
+            height: 52px;
+            border: 4px solid var(--color-activo, #1565C0);
             border-radius: 12px;
-            background: linear-gradient(180deg, var(--ceramic), var(--cream));
+            background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
             box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3);
-            transition: border-color .3s ease, height 0.5s cubic-bezier(.34, 1.2, .64, 1);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
             z-index: 1;
+            will-change: transform;
         }
         .leg.left {
-            left: 28px;
+            left: 38px;
+            transform: rotate(0deg);
         }
         .leg.right {
-            right: 28px;
+            right: 38px;
+            transform: rotate(0deg);
         }
 
         .foot {
             position: absolute;
             bottom: -10px;
-            left: -6px;
-            width: 34px;
-            height: 16px;
-            border: 4px solid var(--color-activo);
+            left: -8px;
+            width: 42px;
+            height: 18px;
+            border: 4px solid var(--color-activo, #1565C0);
             border-radius: 14px 14px 8px 8px;
-            background: linear-gradient(180deg, var(--ceramic), var(--cream));
-            transition: border-color .3s ease, transform 0.5s cubic-bezier(.34, 1.2, .64, 1);
+            background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
         }
 
-        /* ===== SITTING (sentado) ===== */
-        .marquinhos.sitting .leg {
-            height: 20px;
-        }
-        .marquinhos.sitting .body {
-            transform: translateY(15px);
-            transition: transform 0.5s cubic-bezier(.34, 1.2, .64, 1);
-        }
-        .marquinhos.sitting .foot {
-            transform: rotate(8deg);
-        }
-
-        /* ===== STRETCHING (estirón) ===== */
-        .marquinhos.stretching .arm.left {
-            transform: rotate(-160deg);
-            transition: transform 0.6s cubic-bezier(.34, 1.2, .64, 1);
-        }
-        .marquinhos.stretching .arm.right {
-            transform: rotate(160deg);
-            transition: transform 0.6s cubic-bezier(.34, 1.2, .64, 1);
-        }
-        .marquinhos.stretching .body {
-            transform: scaleY(1.05);
-            transition: transform 0.6s cubic-bezier(.34, 1.2, .64, 1);
-        }
-
-        /* ===== TEXTO: eliminamos caption y name que no se usan en el flotante ===== */
-        .caption, .name {
-            display: none;
-        }
-
-        /* ===== BURBUJA (bubble) oculta en este layout ===== */
-        .bubble {
-            display: none;
-        }
-
-        /* ===== INDICADOR DE MICRÓFONO: mini ===== */
-        .mic-indicator {
+        /* ===== BURBUJA DE TEXTO ===== */
+        #speech-bubble {
             position: absolute;
-            bottom: -4px;
+            bottom: calc(100% + 10px);
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: rgba(0, 229, 255, 0.10);
-            padding: 2px 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #0D47A1;
+            padding: 8px 16px;
             border-radius: 16px;
-            border: 1px solid rgba(0, 229, 255, 0.15);
-            font-size: 8px;
-            color: var(--mic-active);
-            transition: all 0.5s ease;
-            opacity: 0;
-            pointer-events: none;
-            backdrop-filter: blur(2px);
-            z-index: 20;
-            white-space: nowrap;
-        }
-
-        .mic-indicator.active {
-            opacity: 1;
-        }
-
-        .mic-indicator .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--mic-active);
-            animation: micPulse 1s ease-in-out infinite;
-            box-shadow: 0 0 8px rgba(0, 229, 255, .2);
-        }
-        #micStatus {
-            font-size: 7px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        @keyframes micPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-        }
-
-        /* ===== SELECTOR DE COLOR (PALETA) mini ===== */
-        .color-picker {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            z-index: 100;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.3s ease;
-        }
-
-        .color-picker .palette-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(4px);
-            border: 2px solid var(--talavera-blue);
-            display: grid;
-            place-items: center;
-            font-size: 12px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(255, 255, 255, 0.2);
-        }
-
-        .color-picker .palette-icon:hover {
-            transform: scale(1.10) rotate(8deg);
-            border-color: var(--talavera-dark);
-            box-shadow: 0 2px 12px rgba(21, 101, 192, 0.15);
-        }
-
-        .color-picker .palette-options {
-            position: absolute;
-            top: 32px;
-            right: -4px;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(21, 101, 192, 0.12);
-            border-radius: 12px;
-            padding: 6px 0;
-            min-width: 140px;
-            display: none;
-            flex-direction: column;
-            gap: 2px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            transform-origin: top right;
-            animation: pickerSlide 0.2s ease-out;
-        }
-
-        .color-picker .palette-options.open {
-            display: flex;
-        }
-
-        @keyframes pickerSlide {
-            from { opacity: 0; transform: scale(0.92) translateY(-8px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .color-picker .color-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            border: none;
-            background: transparent;
-            color: #1A1A2E;
-            font-family: "Quicksand", sans-serif;
             font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            border-radius: 0;
-            width: 100%;
-            text-align: left;
-        }
-
-        .color-picker .color-option:hover {
-            background: rgba(21, 101, 192, 0.05);
-        }
-
-        .color-picker .color-option .swatch {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 0, 0, 0.06);
-            flex-shrink: 0;
-            transition: border-color 0.2s ease, transform 0.2s ease;
-        }
-
-        .color-picker .color-option:hover .swatch {
-            border-color: var(--talavera-blue);
-            transform: scale(1.05);
-        }
-
-        .color-picker .color-option .check-mark {
-            margin-left: auto;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            font-size: 12px;
-            color: var(--talavera-blue);
-        }
-
-        .color-picker .color-option.active .check-mark {
-            opacity: 1;
-        }
-
-        .color-picker .color-option.active {
-            background: rgba(21, 101, 192, 0.04);
-        }
-
-        /* ===== ESTADOS DE LLAMADA ===== */
-        .marquinhos.on-call .antenna {
-            animation: callPulse 1.2s ease-in-out infinite alternate;
-        }
-        .marquinhos.on-call .antenna::after {
-            animation: callGlow 1.2s ease-in-out infinite alternate;
-        }
-        .marquinhos.on-call .chest {
-            border-color: var(--call-pause);
-            box-shadow: 0 0 20px var(--call-pause-bg);
-            animation: callChestPulse 1.2s ease-in-out infinite alternate;
-        }
-        .marquinhos.on-call .chest::before {
-            content: "📞 LLAMADA";
-            color: var(--call-pause);
-            text-shadow: 0 0 12px rgba(255, 107, 53, 0.2);
-            font-size: 7px;
-        }
-
-        .marquinhos.bluetooth-connected .chest::before {
-            content: "🔊 BT";
-            color: var(--bluetooth);
-            text-shadow: 0 0 12px rgba(41, 121, 255, 0.2);
-            font-size: 8px;
-        }
-        .marquinhos.bluetooth-connected .chest {
-            border-color: var(--bluetooth);
-            box-shadow: 0 0 20px var(--bluetooth-bg);
-        }
-
-        /* ===== ESTADOS / EMOCIONES (adaptados a escala) ===== */
-        .marquinhos.happy .mouth { border-bottom-width: 5px; border-radius: 0 0 50% 50%; width: 32px; height: 14px; }
-        .marquinhos.happy .cheek { opacity: .8; transform: scale(1.1); }
-        .marquinhos.loving .mouth { width: 30px; height: 12px; border-bottom-width: 5px; }
-        .marquinhos.loving .cheek { opacity: .9; transform: scale(1.2); background: radial-gradient(circle, rgba(255, 107, 138, 0.7) 0%, rgba(255, 59, 111, 0.3) 100%); }
-        .marquinhos.sad .mouth { border-bottom: 0; border-top: 4px solid var(--color-activo); border-radius: 50% 50% 0 0; height: 10px; width: 24px; }
-        .marquinhos.sad .brow.left { transform: rotate(10deg) translateY(4px); }
-        .marquinhos.sad .brow.right { transform: rotate(-10deg) translateY(4px); }
-        .marquinhos.surprised .mouth { width: 22px; height: 18px; border: 4px solid var(--color-activo); border-radius: 50%; border-bottom: 4px solid var(--color-activo); }
-        .marquinhos.surprised .brow { top: 16px; }
-        .marquinhos.talking .mouth { animation: talk .12s ease-in-out infinite alternate; }
-        .marquinhos.talking .body { animation: breathe var(--idle) ease-in-out infinite, talkBody .65s ease-in-out infinite alternate; }
-        .marquinhos.waving .arm.right { animation: waveR .45s ease-in-out infinite alternate; }
-        .marquinhos.waving .arm.left { animation: waveL .45s ease-in-out infinite alternate; }
-        .marquinhos.waving .finger { animation: wiggle .24s ease-in-out infinite alternate; }
-        .marquinhos.wink .eye.left::after { height: 30px; }
-        .marquinhos.wink .eye.left::before { transform: scaleY(.06); }
-        .marquinhos.excited { animation: bounce .55s ease-in-out infinite alternate; }
-        .marquinhos.excited .mouth { width: 32px; height: 16px; border-bottom-width: 5px; }
-        .marquinhos.excited .cheek { opacity: .9; transform: scale(1.15); }
-        .marquinhos.thinking .iris { animation: think 1.2s ease-in-out infinite alternate; }
-        .marquinhos.thinking .brow.left { transform: rotate(-14deg) translateY(-4px); }
-        .marquinhos.thinking .brow.right { transform: rotate(14deg) translateY(-4px); }
-        .marquinhos.caring .cheek { opacity: .7; transform: scale(1.1); }
-        .marquinhos.caring .mouth { width: 28px; height: 12px; border-bottom-width: 4px; }
-        .marquinhos.grateful .mouth { width: 30px; height: 14px; border-bottom-width: 4px; }
-        .marquinhos.grateful .cheek { opacity: .8; transform: scale(1.05); }
-        .marquinhos.grateful .brow.left { transform: rotate(-3deg) translateY(-2px); }
-        .marquinhos.grateful .brow.right { transform: rotate(3deg) translateY(-2px); }
-        .marquinhos.embarrassed .cheek { opacity: 1; transform: scale(1.5); background: radial-gradient(circle, rgba(255, 59, 48, 0.6) 0%, rgba(255, 45, 85, 0.3) 100%); }
-        .marquinhos.embarrassed .mouth { width: 18px; height: 6px; border-bottom-width: 3px; }
-        .marquinhos.embarrassed .head { animation: embarrassedHead 1.2s ease-in-out infinite alternate; }
-        .marquinhos.curious .brow.left { transform: rotate(-18deg) translateY(-4px); }
-        .marquinhos.curious .brow.right { transform: rotate(4deg) translateY(1px); }
-        .marquinhos.curious .head { animation: curiousHead 1.6s ease-in-out infinite alternate; }
-        .marquinhos.tired .eye::before { transform: scaleY(.4); }
-        .marquinhos.tired .brow.left, .marquinhos.tired .brow.right { top: 28px; transform: rotate(3deg); }
-        .marquinhos.tired .mouth { width: 20px; height: 5px; border-bottom-width: 3px; }
-        .marquinhos.thrilled { animation: thrilledBounce .48s ease-in-out infinite alternate; }
-        .marquinhos.thrilled .mouth { width: 34px; height: 18px; border-bottom-width: 5px; }
-        .marquinhos.thrilled .cheek { opacity: .9; transform: scale(1.2); }
-
-        .marquinhos.ora .mouth { width: 34px; height: 20px; border-bottom-width: 6px; border-radius: 50%; border-color: var(--disney-orange); animation: oraShake 0.5s ease-in-out; }
-        .marquinhos.ora .brow.left { transform: rotate(-18deg) translateY(-6px); }
-        .marquinhos.ora .brow.right { transform: rotate(18deg) translateY(-6px); }
-        .marquinhos.ora .eye { animation: oraEyes 0.5s ease-in-out; }
-
-        @keyframes oraEyes {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        /* ===== ANIMACIONES (escaladas) ===== */
-        @keyframes talk {
-            from { transform: translateX(-50%) scaleX(.9); height: 4px; }
-            to { transform: translateX(-50%) scaleX(1.1); height: 14px; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotateX(0deg); }
-            50% { transform: translateY(-4px) rotateX(1deg); }
-        }
-        @keyframes breathe {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(3px); }
-        }
-        @keyframes sway {
-            from { transform: rotate(-8deg); }
-            to { transform: rotate(8deg); }
-        }
-        @keyframes talkBody {
-            from { margin-top: 0; }
-            to { margin-top: 1px; }
-        }
-        @keyframes waveR {
-            from { transform: rotate(8deg); }
-            to { transform: rotate(50deg); }
-        }
-        @keyframes waveL {
-            from { transform: rotate(-8deg); }
-            to { transform: rotate(-50deg); }
-        }
-        @keyframes wiggle {
-            from { transform: rotate(-8deg); }
-            to { transform: rotate(14deg); }
-        }
-        @keyframes think {
-            from { transform: translate(0, -1px); }
-            to { transform: translate(6px, -4px); }
-        }
-        @keyframes bounce {
-            from { transform: translateY(0) scale(1); }
-            to { transform: translateY(-8px) scale(1.02); }
-        }
-        @keyframes embarrassedHead {
-            from { transform: translateZ(10px) rotateZ(-2deg); }
-            to { transform: translateZ(10px) rotateZ(3deg) translateY(2px); }
-        }
-        @keyframes curiousHead {
-            from { transform: translateZ(10px) rotateZ(-4deg); }
-            to { transform: translateZ(10px) rotateZ(4deg); }
-        }
-        @keyframes thrilledBounce {
-            from { transform: translateY(0) scale(1); }
-            to { transform: translateY(-10px) scale(1.02); }
-        }
-        @keyframes callPulse {
-            0% { transform: rotate(-10deg) scale(1); }
-            100% { transform: rotate(10deg) scale(1.06); }
-        }
-        @keyframes callGlow {
-            0% { box-shadow: 0 0 10px rgba(255, 107, 53, 0.4); }
-            100% { box-shadow: 0 0 25px rgba(255, 107, 53, 0.6); }
-        }
-        @keyframes callChestPulse {
-            0% { box-shadow: 0 0 12px rgba(255, 107, 53, 0.1); }
-            100% { box-shadow: 0 0 25px rgba(255, 107, 53, 0.25); }
-        }
-
-        /* ===== COGNITIVE BUBBLE: posicionada sobre el personaje ===== */
-        #cognitive-speech-bubble {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.94);
-            color: var(--talavera-dark);
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-family: "Quicksand", system-ui, sans-serif;
-            z-index: 9999;
-            max-width: 160px;
+            font-family: "Quicksand", sans-serif;
+            z-index: 100;
+            max-width: 200px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(21, 101, 192, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(21, 101, 192, 0.08);
             pointer-events: none;
             transition: opacity 0.3s ease, transform 0.25s ease;
             opacity: 0;
-            border: 1px solid rgba(21, 101, 192, 0.08);
-            backdrop-filter: blur(4px);
+            border: 1px solid rgba(21, 101, 192, 0.1);
             line-height: 1.4;
             font-weight: 600;
-            letter-spacing: 0.2px;
             white-space: nowrap;
         }
 
-        #cognitive-speech-bubble::after {
+        #speech-bubble::after {
             content: '';
             position: absolute;
             bottom: -6px;
@@ -980,84 +513,211 @@
             height: 0;
             border-left: 6px solid transparent;
             border-right: 6px solid transparent;
-            border-top: 6px solid rgba(255, 255, 255, 0.94);
+            border-top: 6px solid rgba(255, 255, 255, 0.95);
         }
 
-        #cognitive-speech-bubble.visible {
+        #speech-bubble.visible {
             opacity: 1;
             transform: translateX(-50%) translateY(-2px);
         }
 
-        #cognitive-speech-bubble.ora-mode {
-            border-color: var(--disney-orange);
-            color: #E65100;
-            background: rgba(255, 248, 225, 0.96);
-            box-shadow: 0 4px 20px rgba(255, 149, 0, 0.10);
-        }
-        #cognitive-speech-bubble.ora-mode::after {
-            border-top-color: rgba(255, 248, 225, 0.96);
+        #speech-bubble.listening {
+            border-color: #00E5FF;
+            color: #00B4D8;
+            background: rgba(0, 229, 255, 0.08);
         }
 
-        #cognitive-speech-bubble.child-safe {
-            border-color: var(--child-safe);
-            color: #2E7D32;
-            background: rgba(232, 245, 233, 0.96);
-        }
-        #cognitive-speech-bubble.child-safe::after {
-            border-top-color: rgba(232, 245, 233, 0.96);
+        #speech-bubble.listening::after {
+            border-top-color: rgba(0, 229, 255, 0.08);
         }
 
-        #cognitive-speech-bubble.on-call {
-            border-color: var(--call-pause);
+        #speech-bubble.thinking {
+            border-color: #FF6B35;
             color: #BF360C;
-            background: rgba(255, 243, 224, 0.96);
+            background: rgba(255, 107, 53, 0.08);
         }
-        #cognitive-speech-bubble.on-call::after {
-            border-top-color: rgba(255, 243, 224, 0.96);
+
+        #speech-bubble.thinking::after {
+            border-top-color: rgba(255, 107, 53, 0.08);
+        }
+
+        /* ===== ESTADOS ===== */
+        .marquinhos.on-call .antenna {
+            animation: callPulse 1.2s ease-in-out infinite alternate;
+        }
+        .marquinhos.on-call .chest::before {
+            content: "📞 LLAMADA";
+            color: #FF6B35;
+            font-size: 7px;
+        }
+
+        .marquinhos.bluetooth .chest::before {
+            content: "🔊 BT";
+            color: #2979FF;
+            font-size: 8px;
+        }
+
+        /* ===== ANIMACIONES ===== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotateX(0deg); }
+            50% { transform: translateY(-6px) rotateX(1deg); }
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(3px); }
+        }
+
+        @keyframes sway {
+            from { transform: rotate(-8deg); }
+            to { transform: rotate(8deg); }
+        }
+
+        @keyframes talk {
+            from { transform: translateX(-50%) scaleX(.9); height: 4px; }
+            to { transform: translateX(-50%) scaleX(1.1); height: 16px; }
+        }
+
+        @keyframes callPulse {
+            0% { transform: rotate(-10deg) scale(1); }
+            100% { transform: rotate(10deg) scale(1.06); }
+        }
+
+        /* ===== CONTROLES FLOTANTES ===== */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10000;
+            background: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls button {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .controls button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #D4AF37;
+            transform: scale(1.1);
+        }
+
+        .controls button.active {
+            color: #00E5FF;
+            background: rgba(0, 229, 255, 0.1);
+        }
+
+        .controls .mic-btn.active {
+            color: #FF6B35;
+            background: rgba(255, 107, 53, 0.15);
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width:520px) {
-            .scene {
-                bottom: 16px;
-                right: 16px;
-                width: 110px;
-                height: 140px;
+        @media (max-width: 520px) {
+            #marquinhos-container {
+                width: 130px;
+                height: 165px;
             }
-            .marquinhos {
-                transform: scale(0.9);
-                transform-origin: bottom right;
+            .head {
+                width: 115px;
+                height: 110px;
             }
-            #cognitive-speech-bubble {
-                max-width: 130px;
-                font-size: 8px;
-                padding: 4px 10px;
-                white-space: nowrap;
+            .head .eye {
+                width: 28px;
+                height: 32px;
             }
-            .mic-indicator {
-                font-size: 7px;
-                padding: 1px 8px;
+            .head .eye.left { left: 18px; }
+            .head .eye.right { right: 18px; }
+            .head .iris {
+                width: 13px;
+                height: 13px;
+                left: 7px;
+                top: 10px;
             }
-            .mic-indicator .dot {
-                width: 5px;
-                height: 5px;
+            .head .brow {
+                width: 24px;
+                top: 24px;
             }
-            .color-picker .palette-icon {
-                width: 20px;
-                height: 20px;
-                font-size: 10px;
+            .head .brow.left { left: 18px; }
+            .head .brow.right { right: 18px; }
+            .head .antenna.left { left: 30px; }
+            .head .antenna.right { right: 30px; }
+            .head .cheek { width: 16px; height: 10px; }
+            .head .cheek.left { left: 8px; }
+            .head .cheek.right { right: 8px; }
+            .body {
+                width: 120px;
+                height: 105px;
             }
-            .color-picker .palette-options {
-                min-width: 120px;
-                right: -2px;
+            .body .chest {
+                width: 65px;
+                height: 30px;
+                top: 10px;
             }
-            .color-picker .color-option {
-                font-size: 10px;
-                padding: 4px 12px;
+            .body .chest::before { font-size: 7px; }
+            .arm {
+                width: 18px;
+                height: 58px;
             }
-            .color-picker .color-option .swatch {
-                width: 14px;
+            .arm.left { left: -10px; }
+            .arm.right { right: -10px; }
+            .forearm {
+                width: 16px;
+                height: 42px;
+                top: 40px;
+            }
+            .hand {
+                width: 28px;
+                height: 28px;
+                left: -6px;
+                top: 36px;
+            }
+            .leg {
+                width: 22px;
+                height: 42px;
+            }
+            .leg.left { left: 30px; }
+            .leg.right { right: 30px; }
+            .foot {
+                width: 34px;
                 height: 14px;
+                left: -6px;
+            }
+            .controls {
+                padding: 6px 12px;
+                gap: 6px;
+                bottom: 12px;
+            }
+            .controls button {
+                font-size: 16px;
+                width: 30px;
+                height: 30px;
+            }
+            #speech-bubble {
+                font-size: 9px;
+                padding: 4px 12px;
+                max-width: 140px;
+                white-space: normal;
             }
         }
 
@@ -1069,13 +729,15 @@
         }
     </style>
 </head>
-
 <body>
-    <div class="scene">
-        <!-- .ambient y .shadow eliminados completamente -->
 
-        <div class="marquinhos caring" id="marquinhos" data-emotion="caring">
+    <!-- ===== MARQUINHOS FLOTANTE ===== -->
+    <div id="marquinhos-container">
+        <div class="marquinhos caring" id="marquinhos">
             <div class="card">
+                <!-- BURBUJA DE TEXTO -->
+                <div id="speech-bubble"></div>
+
                 <div class="head">
                     <div class="antenna left"></div>
                     <div class="antenna right"></div>
@@ -1096,7 +758,6 @@
 
                     <div class="cheek left"></div>
                     <div class="cheek right"></div>
-                    <div class="chin"></div>
                 </div>
 
                 <div class="body">
@@ -1104,21 +765,13 @@
 
                     <div class="arm left">
                         <div class="forearm">
-                            <div class="hand">
-                                <div class="finger"></div>
-                                <div class="finger"></div>
-                                <div class="finger"></div>
-                            </div>
+                            <div class="hand"></div>
                         </div>
                     </div>
 
                     <div class="arm right">
                         <div class="forearm">
-                            <div class="hand">
-                                <div class="finger"></div>
-                                <div class="finger"></div>
-                                <div class="finger"></div>
-                            </div>
+                            <div class="hand"></div>
                         </div>
                     </div>
 
@@ -1129,103 +782,26 @@
                         <div class="foot"></div>
                     </div>
                 </div>
-
-                <!-- Indicador de micrófono -->
-                <div class="mic-indicator" id="micIndicator">
-                    <span class="dot"></span>
-                    <span id="micStatus">Escuchando...</span>
-                </div>
-
-                <!-- Selector de color (paleta) -->
-                <div class="color-picker" id="colorPicker">
-                    <div class="palette-icon" id="paletteToggle" aria-label="Cambiar color">🎨</div>
-                    <div class="palette-options" id="paletteOptions">
-                        <button class="color-option active" data-color="#1565C0" data-name="Talavera Azul">
-                            <span class="swatch" style="background:#1565C0;"></span>
-                            Talavera Azul
-                            <span class="check-mark">✓</span>
-                        </button>
-                        <button class="color-option" data-color="#0D47A1" data-name="Azul Profundo">
-                            <span class="swatch" style="background:#0D47A1;"></span>
-                            Azul Profundo
-                            <span class="check-mark">✓</span>
-                        </button>
-                        <button class="color-option" data-color="#FF3B30" data-name="Rojo Disney">
-                            <span class="swatch" style="background:#FF3B30;"></span>
-                            Rojo Disney
-                            <span class="check-mark">✓</span>
-                        </button>
-                        <button class="color-option" data-color="#FF9500" data-name="Naranja ORA">
-                            <span class="swatch" style="background:#FF9500;"></span>
-                            Naranja ORA
-                            <span class="check-mark">✓</span>
-                        </button>
-                        <button class="color-option" data-color="#FFD700" data-name="Oro Talavera">
-                            <span class="swatch" style="background:#FFD700;"></span>
-                            Oro Talavera
-                            <span class="check-mark">✓</span>
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
+    </div>
+
+    <!-- ===== CONTROLES ===== -->
+    <div class="controls" id="controls">
+        <button id="btnMic" class="mic-btn" title="Micrófono">🎤</button>
+        <button id="btnMusic" title="Música">🎵</button>
+        <button id="btnLight" title="Luz">💡</button>
+        <button id="btnReset" title="Resetear posición">🏠</button>
     </div>
 
     <script>
         "use strict";
 
         // ================================================================
-        // 1. DISNEY LIP SYNC + REACCIÓN ORA
+        // 1. DISNEY LIP SYNC
         // ================================================================
         const DisneyMouth = {
-            shapes: {
-                'AA': { width: 0.9, height: 0.85, borderRadius: '50% 50% 45% 45%', borderWidth: 6 },
-                'AE': { width: 0.85, height: 0.8, borderRadius: '50% 50% 45% 45%', borderWidth: 6 },
-                'AH': { width: 0.75, height: 0.75, borderRadius: '50% 50% 40% 40%', borderWidth: 5 },
-                'AO': { width: 0.85, height: 0.85, borderRadius: '50%', borderWidth: 6 },
-                'AW': { width: 0.65, height: 0.65, borderRadius: '50% 50% 40% 40%', borderWidth: 5 },
-                'AY': { width: 0.75, height: 0.7, borderRadius: '50% 50% 40% 40%', borderWidth: 5 },
-                'EH': { width: 0.7, height: 0.55, borderRadius: '0 0 50% 50%', borderWidth: 5 },
-                'ER': { width: 0.55, height: 0.5, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'EY': { width: 0.75, height: 0.6, borderRadius: '0 0 50% 50%', borderWidth: 5 },
-                'IH': { width: 0.45, height: 0.4, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'IY': { width: 0.5, height: 0.4, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'OW': { width: 0.9, height: 0.8, borderRadius: '50%', borderWidth: 6 },
-                'OY': { width: 0.8, height: 0.75, borderRadius: '50%', borderWidth: 6 },
-                'UH': { width: 0.55, height: 0.55, borderRadius: '50% 50% 40% 40%', borderWidth: 5 },
-                'UW': { width: 0.45, height: 0.5, borderRadius: '50% 50% 40% 40%', borderWidth: 5 },
-                'B': { width: 0.35, height: 0.2, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'CH': { width: 0.45, height: 0.3, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'D': { width: 0.35, height: 0.25, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'DH': { width: 0.35, height: 0.25, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'F': { width: 0.4, height: 0.2, borderRadius: '0 0 30% 30%', borderWidth: 3 },
-                'G': { width: 0.35, height: 0.25, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'HH': { width: 0.45, height: 0.35, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'JH': { width: 0.45, height: 0.35, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'K': { width: 0.35, height: 0.25, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'L': { width: 0.4, height: 0.3, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'M': { width: 0.3, height: 0.15, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'N': { width: 0.35, height: 0.2, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'NG': { width: 0.35, height: 0.25, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'P': { width: 0.3, height: 0.18, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'R': { width: 0.4, height: 0.35, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'S': { width: 0.35, height: 0.18, borderRadius: '0 0 40% 40%', borderWidth: 3 },
-                'SH': { width: 0.35, height: 0.18, borderRadius: '0 0 40% 40%', borderWidth: 3 },
-                'T': { width: 0.3, height: 0.2, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'TH': { width: 0.35, height: 0.2, borderRadius: '0 0 50% 50%', borderWidth: 4 },
-                'V': { width: 0.35, height: 0.18, borderRadius: '0 0 30% 30%', borderWidth: 3 },
-                'W': { width: 0.4, height: 0.35, borderRadius: '50% 50% 40% 40%', borderWidth: 4 },
-                'Y': { width: 0.4, height: 0.35, borderRadius: '0 0 40% 40%', borderWidth: 4 },
-                'Z': { width: 0.35, height: 0.18, borderRadius: '0 0 40% 40%', borderWidth: 3 },
-                'ZH': { width: 0.35, height: 0.18, borderRadius: '0 0 40% 40%', borderWidth: 3 },
-                'neutral': { width: 0.5, height: 0.25, borderRadius: '0 0 50% 50%', borderWidth: 4 }
-            },
-
             mouthElement: null,
-            currentShape: 'neutral',
-            lastPhoneme: null,
-            animationFrame: null,
-            oraTimeout: null,
 
             init() {
                 this.mouthElement = document.getElementById('disneyMouth');
@@ -1233,35 +809,20 @@
                 this.setShape('neutral');
             },
 
-            setShape(phoneme, intensity = 1) {
+            setShape(shape, intensity = 1) {
                 if (!this.mouthElement) return;
-
-                const cleanPhoneme = phoneme.toUpperCase().replace(/[^A-Z]/g, '');
-                const shape = this.shapes[cleanPhoneme] || this.shapes['neutral'];
-
-                const widthBase = 28;
-                const heightBase = 10;
-
-                const width = widthBase * (0.5 + (shape.width * 0.5 * intensity));
-                const height = heightBase * (0.3 + (shape.height * 0.7 * intensity));
-
-                this.mouthElement.style.width = `${Math.max(14, width)}px`;
-                this.mouthElement.style.height = `${Math.max(2, height)}px`;
-                this.mouthElement.style.borderRadius = shape.borderRadius || '0 0 50% 50%';
-                this.mouthElement.style.borderBottomWidth = `${Math.max(2, shape.borderWidth || 4)}px`;
-
-                if (height > 14) {
-                    this.mouthElement.style.borderRadius = '50% 50% 45% 45%';
+                if (shape === 'talking') {
+                    this.mouthElement.className = 'mouth talking';
+                    return;
                 }
-
-                this.currentShape = cleanPhoneme;
+                this.mouthElement.className = 'mouth shape-neutral';
             },
 
             setOpenAmount(amount) {
                 if (!this.mouthElement) return;
-                const width = 28 * (0.4 + amount * 0.55);
+                const width = 32 * (0.4 + amount * 0.55);
                 const height = 10 * (0.1 + amount * 0.85);
-                this.mouthElement.style.width = `${Math.max(14, width)}px`;
+                this.mouthElement.style.width = `${Math.max(16, width)}px`;
                 this.mouthElement.style.height = `${Math.max(2, height)}px`;
                 if (amount > 0.5) {
                     this.mouthElement.style.borderRadius = '50% 50% 45% 45%';
@@ -1271,1926 +832,707 @@
                 this.mouthElement.style.borderBottomWidth = `${Math.max(2, 3 + amount * 5)}px`;
             },
 
-            triggerOra() {
-                if (!this.mouthElement) return;
-
-                const marquinhosEl = document.getElementById('marquinhos');
-
-                marquinhosEl.classList.add('ora');
-                this.mouthElement.className = 'mouth shape-ORA';
-
-                const oraMessages = [
-                    '¡ORA! 🤯', '¡O R A! 😱', '¡No mames, ORA! 😲',
-                    '¡Órale, ORA! 🙀', '¡Qué pedo, ORA! 😳', '¡Sácate de onda, ORA! 🤯'
-                ];
-                const msg = oraMessages[Math.floor(Math.random() * oraMessages.length)];
-
-                const speechBubble = document.getElementById('cognitive-speech-bubble');
-                if (speechBubble) {
-                    speechBubble.textContent = msg;
-                    speechBubble.classList.add('ora-mode', 'visible');
-                }
-
-                if (window.Marquinhos && typeof window.Marquinhos.speak === 'function') {
-                    window.Marquinhos.speak('¡Ora!');
-                }
-
-                clearTimeout(this.oraTimeout);
-                this.oraTimeout = setTimeout(() => {
-                    marquinhosEl.classList.remove('ora');
-                    this.mouthElement.className = 'mouth shape-neutral';
-                    this.setShape('neutral');
-                    if (speechBubble) {
-                        speechBubble.classList.remove('ora-mode', 'visible');
-                    }
-                }, 2500);
-            },
-
             reset() {
                 if (!this.mouthElement) return;
-                this.setShape('neutral', 0);
-                const marquinhosEl = document.getElementById('marquinhos');
-                if (marquinhosEl) marquinhosEl.classList.remove('ora');
-                clearTimeout(this.oraTimeout);
+                this.mouthElement.className = 'mouth shape-neutral';
+                this.mouthElement.style.width = '32px';
+                this.mouthElement.style.height = '10px';
+                this.mouthElement.style.borderRadius = '0 0 50% 50%';
+                this.mouthElement.style.borderBottomWidth = '4px';
             }
         };
 
         // ================================================================
-        // 2. DETECTOR DE PALABRAS PARA ORA
+        // 2. DETECTOR DE PALABRAS
         // ================================================================
         const OraDetector = {
             triggerWords: [
                 'sorpresa', 'increíble', 'no mames', 'no manches', 'wow',
                 'órale', 'ora', 'qué pedo', 'qué onda', 'no me digas',
-                '¡ora!', 'ora ora', 'no mms', 'nmms', 'ke pedo',
-                'que pedo', 'que onda', 'como que', 'enserio', 'en serio'
+                '¡ora!', 'ora ora', 'no mms', 'nmms', 'ke pedo'
             ],
 
             check(text) {
                 const lower = text.toLowerCase();
                 for (const word of this.triggerWords) {
-                    if (lower.includes(word)) {
-                        return true;
-                    }
+                    if (lower.includes(word)) return true;
                 }
                 return false;
             }
         };
 
         // ================================================================
-        // 3. MÓDULO DE INTELIGENCIA COGNITIVA (CON SUPABASE)
+        // 3. ASISTENTE DE VOZ
         // ================================================================
-        (function cognitiveModule() {
+        (function voiceAssistant() {
             'use strict';
 
-            const STORAGE_KEY = 'marquinhos_cognitive_state_v6';
-            const supabase = window.supabase || null;
-
-            let cognitiveState = {
-                irritability: 0,
-                affection: 60,
-                boredom: 0,
-                lastInteraction: Date.now(),
-                history: [],
-                userProfile: 'general',
-                isChild: false,
-                childConfidence: 0,
-                lastChildDetection: 0,
-                isOnCall: false,
-                callStartTime: 0,
-                lastCallEndTime: 0,
-                pendingConversation: false,
-                callHistory: [],
-                bluetoothDevices: [],
-                bluetoothConnected: false,
-                audioOutputDevices: [],
-                selectedColor: '#1565C0',
-                userName: null,
-                _nameConfirmed: false
-            };
-
-            // ===== NUEVA FUNCIÓN: detectUserName =====
-            function detectUserName(text) {
-                const namePatterns = [
-                    /me llamo\s+([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+)/i,
-                    /mi nombre es\s+([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+)/i,
-                    /^soy\s+([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+)$/i,
-                    /me dicen\s+([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+)/i,
-                    /([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+)\s*,\s*me llamo/i
-                ];
-
-                for (const pattern of namePatterns) {
-                    const match = text.match(pattern);
-                    if (match && match[1]) {
-                        let name = match[1].trim();
-                        // Capitalizar primera letra
-                        name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-                        return name;
-                    }
-                }
-                return null;
-            }
-
-            // ===== MODIFICACIÓN: analyzeInput ahora detecta nombre =====
-            function analyzeInput(text) {
-                const now = Date.now();
-                cognitiveState.lastInteraction = now;
-                if (cognitiveState.isOnCall) {
-                    return { recentSimilar: false, profile: cognitiveState.userProfile, isChild: false, onCall: true };
-                }
-
-                // Detectar nombre ANTES de child detection
-                const detectedName = detectUserName(text);
-                let isNewName = false;
-                if (detectedName) {
-                    const currentName = cognitiveState.userName;
-                    if (currentName !== detectedName) {
-                        cognitiveState.userName = detectedName;
-                        isNewName = true;
-                        cognitiveState._nameConfirmed = true;
-                        console.log(`👤 Nombre detectado y guardado: "${detectedName}"`);
-                        saveMemory(); // Persistir inmediatamente
-                        // Confirmación amable la primera vez
-                        if (!currentName) {
-                            const confirmMsg = `¡Mucho gusto, ${detectedName}! Ya te voy a recordar.`;
-                            triggerVisualReaction('greeting', confirmMsg);
-                        }
-                    }
-                }
-
-                const isChild = detectChildVoice(text);
-                cognitiveState.userProfile = isChild ? 'infantil' : 'general';
-                const recentSimilar = cognitiveState.history.find(h =>
-                    h.text.toLowerCase() === text.toLowerCase() &&
-                    (now - h.timestamp) < 900000
-                );
-                const isAggressive = /estúpido|inútil|cállate|maldito|pendejo|wey|güey|chinga|verga|puto|culero/i.test(text);
-                if (isAggressive) {
-                    cognitiveState.irritability = Math.min(100, cognitiveState.irritability + 10);
-                    if (isChild) {
-                        return { recentSimilar, profile: 'infantil', isChild: true, gentleReminder: true, onCall: false };
-                    }
-                } else {
-                    cognitiveState.irritability = Math.max(0, cognitiveState.irritability - 10);
-                }
-                cognitiveState.boredom = 0;
-                cognitiveState.history.push({
-                    text,
-                    timestamp: now,
-                    profile: cognitiveState.userProfile,
-                    isChild,
-                    userName: detectedName || cognitiveState.userName
-                });
-                saveMemory();
-                return {
-                    recentSimilar,
-                    profile: cognitiveState.userProfile,
-                    isChild,
-                    gentleReminder: false,
-                    onCall: false,
-                    detectedName,
-                    isNewName
-                };
-            }
-
-            // ===== MODIFICACIÓN: getPhraseByCategory con nombre personalizado =====
-            function getPhraseByCategory(category, isChild = false) {
-                let rawPhrase;
-                if (isChild) {
-                    rawPhrase = getChildSafePhrase(category);
-                } else {
-                    const list = neutralPhrases[category] || neutralPhrases.casual || neutralPhrases.greeting;
-                    rawPhrase = list[Math.floor(Math.random() * list.length)];
-                }
-
-                // Interpolar nombre si existe y es un saludo
-                const userName = cognitiveState.userName;
-                if (userName && (category === 'greeting' || category === 'activation')) {
-                    // Reemplazar "¡Hola!" por "¡Hola {nombre}!" o similar
-                    if (rawPhrase.includes('¡Hola!')) {
-                        rawPhrase = rawPhrase.replace('¡Hola!', `¡Hola ${userName}!`);
-                    } else if (rawPhrase.includes('Hola,')) {
-                        rawPhrase = rawPhrase.replace('Hola,', `Hola ${userName},`);
-                    } else if (rawPhrase.includes('¡Hola')) {
-                        rawPhrase = rawPhrase.replace('¡Hola', `¡Hola ${userName}`);
-                    } else if (rawPhrase.includes('¡Buen día!')) {
-                        rawPhrase = rawPhrase.replace('¡Buen día!', `¡Buen día, ${userName}!`);
-                    } else if (rawPhrase.includes('¡Qué gusto verte!')) {
-                        rawPhrase = rawPhrase.replace('¡Qué gusto verte!', `¡Qué gusto verte, ${userName}!`);
-                    } else {
-                        // Si no coincide con ningún patrón, anteponer el nombre
-                        rawPhrase = `${userName}, ${rawPhrase}`;
-                    }
-                }
-                return rawPhrase;
-            }
-
-            // ===== MODIFICACIÓN: loadCognitiveState incluye user_name =====
-            async function loadCognitiveState() {
-                loadFromLocalStorage();
-                if (supabase) {
-                    try {
-                        const userId = await getUserId();
-                        if (!userId) return;
-                        const { data, error } = await supabase
-                            .from('marquinhos_preferences')
-                            .select('color_preference, historial, is_child_mode, user_name')
-                            .eq('user_id', userId)
-                            .maybeSingle();
-                        if (error) return;
-                        if (data) {
-                            if (data.color_preference) {
-                                cognitiveState.selectedColor = data.color_preference;
-                                try {
-                                    localStorage.setItem('marquinhos_color_preference', data.color_preference);
-                                } catch (e) {}
-                                applyColorToUI(data.color_preference);
-                            }
-                            if (data.historial && Array.isArray(data.historial)) {
-                                cognitiveState.history = data.historial;
-                                try {
-                                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.historial));
-                                } catch (e) {}
-                            }
-                            if (typeof data.is_child_mode === 'boolean') {
-                                cognitiveState.isChild = data.is_child_mode;
-                                cognitiveState.childConfidence = data.is_child_mode ? 0.8 : 0;
-                            }
-                            if (data.user_name) {
-                                cognitiveState.userName = data.user_name;
-                                cognitiveState._nameConfirmed = true;
-                                console.log(`👤 Nombre cargado desde Supabase: "${cognitiveState.userName}"`);
-                            }
-                            console.log('✅ Datos cognitivos cargados desde Supabase');
-                        } else {
-                            await saveToSupabase(userId);
-                        }
-                    } catch (e) {
-                        console.warn('⚠️ Error en carga desde Supabase:', e);
-                    }
-                }
-            }
-
-            // ===== MODIFICACIÓN: saveToSupabase incluye user_name =====
-            async function saveToSupabase(userId) {
-                if (!supabase) return;
-                if (!userId) {
-                    userId = await getUserId();
-                    if (!userId) return;
-                }
-                try {
-                    const payload = {
-                        user_id: userId,
-                        color_preference: cognitiveState.selectedColor,
-                        historial: cognitiveState.history.slice(-50),
-                        is_child_mode: cognitiveState.isChild,
-                        user_name: cognitiveState.userName || null,
-                        updated_at: new Date().toISOString()
-                    };
-                    const { error } = await supabase
-                        .from('marquinhos_preferences')
-                        .upsert(payload, { onConflict: 'user_id' });
-                    if (error) {
-                        console.warn('⚠️ Error al guardar en Supabase:', error);
-                    } else {
-                        console.log('✅ Datos cognitivos guardados en Supabase');
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Error en guardado Supabase:', e);
-                }
-            }
-
-            // Resto del módulo cognitivo (neutralPhrases, childSafePhrases, etc.) se mantiene igual
-            const neutralPhrases = {
-                greeting: [
-                    "¡Hola! ¿Cómo estás hoy?",
-                    "¡Qué gusto verte! ¿Cómo va todo?",
-                    "Hola, ¿qué tal tu día?",
-                    "¡Buen día! Me alegra verte.",
-                    "¡Hola! Siempre es un placer hablar contigo."
-                ],
-                compliment: [
-                    "Qué bonito es cuando hablamos.",
-                    "Me encanta tu energía positiva.",
-                    "Eres muy especial, ¿sabes?",
-                    "Tienes una voz muy agradable.",
-                    "Qué lindo es cuando compartes."
-                ],
-                help: [
-                    "Claro que te ayudo. ¿Qué necesitas?",
-                    "Con mucho gusto te ayudo.",
-                    "Para ti, lo que sea. Dime qué necesitas.",
-                    "Por supuesto. Estoy aquí para ti.",
-                    "Cuenta conmigo. ¿En qué te ayudo?"
-                ],
-                casual: [
-                    "¿Qué onda? ¿Cómo andas?",
-                    "Va que va, aquí andamos al tiro.",
-                    "Órale, déjame ver cómo te ayudo.",
-                    "No hay falla, lo resolvemos juntos."
-                ],
-                activation: [
-                    "¡Hola! ¿Cómo estás?",
-                    "¡Qué gusto que me hayas activado!",
-                    "¡Listo! Aquí estoy para ti.",
-                    "Bueno, ¿qué te gustaría hacer hoy?"
-                ],
-                farewell: [
-                    "¡Hasta luego! Fue un placer.",
-                    "Cuídate mucho. ¡Nos vemos pronto!",
-                    "¡Adiós! Que tengas un lindo día.",
-                    "Fue bonito hablar contigo. ¡Hasta la vista!"
-                ]
-            };
-
-            const childSafePhrases = {
-                greeting: [
-                    "¡Hola, pequeño! ¿Cómo estás hoy?",
-                    "¡Qué alegría verte! ¿Qué vamos a aprender hoy?",
-                    "Hola, campeón. ¿Listo para divertirnos?",
-                    "¡Buen día! Espero que estés muy bien.",
-                    "¡Hola! Me encanta cuando vienes a visitarme."
-                ],
-                help: [
-                    "Claro que te ayudo con eso. Vamos a resolverlo juntos.",
-                    "No te preocupes, yo te explico paso a paso.",
-                    "¡Qué buena pregunta! Vamos a descubrir la respuesta.",
-                    "Con gusto te ayudo. ¿Por dónde empezamos?",
-                    "Tranquilo, todo tiene solución. Vamos a pensarlo."
-                ],
-                encouragement: [
-                    "¡Excelente! Lo estás haciendo muy bien.",
-                    "¡Qué inteligente eres! Sigue así.",
-                    "Eso es increíble, ¡me encanta tu creatividad!",
-                    "¡Genial! Cada día aprendes más.",
-                    "¡Bravo! Estoy muy orgulloso de ti."
-                ],
-                question: [
-                    "¿Qué te gustaría saber hoy?",
-                    "Cuéntame más sobre eso, me interesa mucho.",
-                    "¿Y qué opinas tú sobre eso?",
-                    "¿Te gustaría aprender algo nuevo?",
-                    "Dime, ¿qué es lo que más te gusta hacer?"
-                ],
-                play: [
-                    "¿Quieres jugar a algo divertido?",
-                    "Podemos hacer un juego de preguntas y respuestas.",
-                    "¿Te gustan los juegos de adivinanzas?",
-                    "Vamos a contar historias, ¿te parece?",
-                    "Podemos dibujar algo juntos, ¿qué te parece?"
-                ],
-                comfort: [
-                    "No te preocupes, todo va a estar bien.",
-                    "Estoy aquí contigo, no estás solo.",
-                    "A veces las cosas son difíciles, pero tú puedes con todo.",
-                    "Respira profundo, yo te acompaño.",
-                    "Recuerda que siempre puedes contar conmigo."
-                ],
-                learning: [
-                    "Aprender es divertido, ¿verdad?",
-                    "Cada día sabemos un poquito más.",
-                    "La curiosidad es el mejor superpoder.",
-                    "Hoy vamos a aprender algo muy interesante.",
-                    "¿Sabías que...? Dime, ¿quieres saber más?"
-                ],
-                thanks: [
-                    "¡Gracias a ti por ser tan amable!",
-                    "Eres muy educado, ¡me encanta!",
-                    "Qué bonito es cuando das las gracias.",
-                    "¡Qué bien que lo hayas hecho! Me siento muy feliz.",
-                    "Me encanta cuando compartes tus ideas."
-                ],
-                noSwear: [
-                    "Recuerda que siempre podemos hablar con respeto y cariño.",
-                    "Usar palabras bonitas nos hace sentir mejor.",
-                    "En este lugar siempre hablamos con amabilidad.",
-                    "¿Qué tal si lo decimos de una forma más bonita?",
-                    "Las palabras amables son como abrazos para el corazón."
-                ],
-                activation: [
-                    "¡Hola! ¿Cómo estás?",
-                    "¡Qué gusto que me hayas activado!",
-                    "¡Listo! Estoy aquí para lo que necesites.",
-                    "Bueno, ¿qué te gustaría hacer hoy?",
-                    "¡Me encanta que me llames! ¿Qué se ofrece?"
-                ],
-                permission: [
-                    "Para poder hablar, necesito tu permiso para usar el micrófono. ¿Me lo concedes?",
-                    "Necesito acceso al micrófono para escucharte. ¿Puedo activarlo?",
-                    "Para escucharte mejor, necesito permiso del micrófono. ¿Me das acceso?",
-                    "El micrófono está apagado. ¿Me das permiso para encenderlo y poder conversar?",
-                    "Para que podamos platicar, necesito que me des permiso del micrófono."
-                ]
-            };
-
-            function getChildSafePhrase(category) {
-                const list = childSafePhrases[category] || childSafePhrases.greeting || childSafePhrases.help;
-                return list[Math.floor(Math.random() * list.length)];
-            }
-
-            // ===== NUEVO GETTER: getUserName =====
-            function getUserName() {
-                return cognitiveState.userName || null;
-            }
-
-            // ===== NUEVO: getPersonalizedGreeting =====
-            function getPersonalizedGreeting(isChild = false) {
-                const userName = cognitiveState.userName;
-                if (userName) {
-                    const templates = isChild ? [
-                        `¡Hola ${userName}! ¿Cómo estás hoy?`,
-                        `¡Qué alegría verte, ${userName}!`,
-                        `Hola ${userName}, ¿qué vamos a aprender hoy?`,
-                        `¡Buen día, ${userName}! Espero que estés muy bien.`,
-                        `${userName}, ¡qué gusto tenerte aquí!`
-                    ] : [
-                        `¡Hola ${userName}! ¿Cómo estás hoy?`,
-                        `¡Qué gusto verte, ${userName}! ¿Cómo va todo?`,
-                        `Hola ${userName}, ¿qué tal tu día?`,
-                        `¡Buen día, ${userName}! Me alegra verte.`,
-                        `${userName}, siempre es un placer hablar contigo.`
-                    ];
-                    return templates[Math.floor(Math.random() * templates.length)];
-                }
-                return getPhraseByCategory('greeting', isChild);
-            }
-
-            // ===== MODIFICACIÓN: triggerVisualReaction usa greeting personalizado =====
-            function triggerVisualReaction(type, customMessage = null) {
-                const targetElement = document.getElementById('marquinhos') || document.body;
-                let speechBubble = document.getElementById('cognitive-speech-bubble');
-                if (!speechBubble) {
-                    speechBubble = document.createElement('div');
-                    speechBubble.id = 'cognitive-speech-bubble';
-                    targetElement.style.position = targetElement.style.position || 'relative';
-                    targetElement.appendChild(speechBubble);
-                }
-                let message;
-                if (customMessage) {
-                    message = customMessage;
-                } else {
-                    const isChild = cognitiveState.isChild;
-                    if (type === 'greeting') {
-                        message = getPersonalizedGreeting(isChild);
-                    } else {
-                        message = getPhraseByCategory(type, isChild);
-                    }
-                }
-                speechBubble.textContent = message;
-                speechBubble.classList.remove('child-safe', 'on-call', 'ora-mode');
-                if (cognitiveState.isChild) {
-                    speechBubble.classList.add('child-safe');
-                    const marquinhosEl = document.getElementById('marquinhos');
-                    if (marquinhosEl) marquinhosEl.classList.add('child-mode');
-                } else if (cognitiveState.isOnCall) {
-                    speechBubble.classList.add('on-call');
-                } else {
-                    const marquinhosEl = document.getElementById('marquinhos');
-                    if (marquinhosEl) marquinhosEl.classList.remove('child-mode');
-                }
-                speechBubble.classList.add('visible');
-                if (window.Marquinhos && typeof window.Marquinhos.speak === 'function' && !cognitiveState.isOnCall) {
-                    window.Marquinhos.speak(message);
-                }
-                const duration = cognitiveState.isChild ? 6000 : 5000;
-                setTimeout(() => {
-                    speechBubble.classList.remove('visible');
-                }, duration);
-            }
-
-            async function getUserId() {
-                if (!supabase?.auth) return null;
-                try {
-                    const { data: { session } } = await supabase.auth.getSession();
-                    if (session?.user?.id) return session.user.id;
-                    const { data, error } = await supabase.auth.signInAnonymously();
-                    if (error) return null;
-                    return data?.user?.id || null;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            function loadFromLocalStorage() {
-                try {
-                    const saved = localStorage.getItem(STORAGE_KEY);
-                    if (saved) {
-                        const parsed = JSON.parse(saved);
-                        cognitiveState.history = parsed;
-                    } else {
-                        cognitiveState.history = [];
-                    }
-                    const savedColor = localStorage.getItem('marquinhos_color_preference');
-                    if (savedColor) {
-                        cognitiveState.selectedColor = savedColor;
-                    }
-                    const savedName = localStorage.getItem('marquinhos_user_name');
-                    if (savedName) {
-                        cognitiveState.userName = savedName;
-                        cognitiveState._nameConfirmed = true;
-                    }
-                } catch (e) {
-                    cognitiveState.history = [];
-                }
-            }
-
-            async function saveMemory() {
-                if (cognitiveState.history.length > 50) {
-                    cognitiveState.history = cognitiveState.history.slice(-50);
-                }
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(cognitiveState.history));
-                    if (cognitiveState.userName) {
-                        localStorage.setItem('marquinhos_user_name', cognitiveState.userName);
-                    }
-                } catch (e) {}
-                try {
-                    const userId = await getUserId();
-                    if (userId) {
-                        await saveToSupabase(userId);
-                    }
-                } catch (e) {}
-            }
-
-            function applyColorToUI(colorHex) {
-                const root = document.documentElement;
-                root.style.setProperty('--color-activo', colorHex);
-                const r = parseInt(colorHex.slice(1, 3), 16);
-                const g = parseInt(colorHex.slice(3, 5), 16);
-                const b = parseInt(colorHex.slice(5, 7), 16);
-                root.style.setProperty('--color-activo-rgb', `${r}, ${g}, ${b}`);
-                const options = document.querySelectorAll('.color-option');
-                options.forEach(opt => {
-                    opt.classList.toggle('active', opt.dataset.color === colorHex);
-                });
-            }
-
-            function detectChildVoice(text) {
-                const now = Date.now();
-                const childPatterns = [
-                    /\b(mami|papi|abuelo|abuela|tío|tía|hermano|hermana)\b/i,
-                    /\b(cole|escuela|maestro|maestra|profesor|clase|amigo|amiga)\b/i,
-                    /\b(jugar|juego|juguete|diversión|risa|pelota|carro|muñeca)\b/i,
-                    /\b(me gusta|no me gusta|quiero|tengo miedo|estoy feliz|estoy triste)\b/i,
-                    /\b(por qué|porqué|cómo|cual|quien|cuando|donde)\b/i,
-                    /\b(ay|oh|wow|guao|epa|uy|ah)\b/i,
-                    /\b(¿?.*\?)\b/,
-                    /\b(ta|pa|ma|na|da)\b/,
-                    /[😊😄😁😅😂🤣😍🥰😘😗😙😚]/,
-                    /\b(mucho|muchísimo|super|re|requete)\b/i,
-                    /\b(animal|perro|gato|pájaro|pez|conejo|tortuga)\b/i,
-                    /\b(princesa|príncipe|rey|reina|castillo|dragón|hada)\b/i,
-                    /\b(robot|avión|nave|espacio|astronauta)\b/i,
-                    /\b(años|edad|chico|chica|niño|niña|pequeño|pequeña)\b/i
-                ];
-                const offensivePatterns = [
-                    /\b(pendejo|pendeja|wey|güey|chinga|chingar|mamón|mamona|verga|puto|puta|culero|culera|pito|v*rga)\b/i
-                ];
-                const textLower = text.toLowerCase();
-                const hasOffensive = offensivePatterns.some(p => p.test(textLower));
-                if (hasOffensive) {
-                    cognitiveState.isChild = false;
-                    cognitiveState.childConfidence = Math.max(0, cognitiveState.childConfidence - 0.3);
-                    return false;
-                }
-                let childScore = 0;
-                for (const pattern of childPatterns) {
-                    const matches = (textLower.match(new RegExp(pattern.source, 'gi')) || []).length;
-                    if (matches > 0) {
-                        childScore += matches * 0.15;
-                    }
-                }
-                const wordCount = text.split(/\s+/).length;
-                if (wordCount < 3) {
-                    childScore *= 0.5;
-                }
-                const questionCount = (text.match(/\?/g) || []).length;
-                if (questionCount >= 2) {
-                    childScore += 0.2;
-                }
-                const emotionCount = (text.match(/[😊😄😁😅😂🤣😍🥰😘😗😙😚❤️💕💖]/g) || []).length;
-                if (emotionCount > 0) {
-                    childScore += 0.15 * emotionCount;
-                }
-                const threshold = 0.4;
-                const isChild = childScore > threshold;
-                if (isChild) {
-                    cognitiveState.childConfidence = Math.min(1, cognitiveState.childConfidence + 0.15);
-                } else {
-                    cognitiveState.childConfidence = Math.max(0, cognitiveState.childConfidence - 0.1);
-                }
-                const wasChild = cognitiveState.isChild;
-                cognitiveState.isChild = cognitiveState.childConfidence > 0.3;
-                if (wasChild !== cognitiveState.isChild) {
-                    console.log(`🧒 Modo infantil ${cognitiveState.isChild ? 'ACTIVADO' : 'DESACTIVADO'}`);
-                    saveMemory();
-                }
-                cognitiveState.lastChildDetection = now;
-                return cognitiveState.isChild;
-            }
-
-            function handleCallStart() {
-                if (cognitiveState.isOnCall) return;
-                cognitiveState.isOnCall = true;
-                cognitiveState.callStartTime = Date.now();
-                cognitiveState.pendingConversation = false;
-                if (window.Marquinhos && typeof window.Marquinhos.setEmotion === 'function') {
-                    window.Marquinhos.setEmotion('thinking', '📞 En llamada... regreso en un momento.', 0);
-                }
-                const marquinhosEl = document.getElementById('marquinhos');
-                if (marquinhosEl) {
-                    marquinhosEl.classList.add('on-call');
-                }
-                const bubble = document.getElementById('cognitive-speech-bubble');
-                if (bubble) {
-                    bubble.classList.add('on-call');
-                    bubble.textContent = '📞 En llamada... regreso en un momento.';
-                    bubble.classList.add('visible');
-                }
-                cognitiveState.callHistory.push({
-                    type: 'start',
-                    timestamp: cognitiveState.callStartTime
-                });
-                if (cognitiveState.callHistory.length > 10) cognitiveState.callHistory.shift();
-                console.log('📞 Marquinhos en pausa por llamada.');
-            }
-
-            function handleCallEnd() {
-                if (!cognitiveState.isOnCall) return;
-                const callDuration = (Date.now() - cognitiveState.callStartTime) / 1000;
-                cognitiveState.isOnCall = false;
-                cognitiveState.lastCallEndTime = Date.now();
-                cognitiveState.pendingConversation = true;
-                const marquinhosEl = document.getElementById('marquinhos');
-                if (marquinhosEl) {
-                    marquinhosEl.classList.remove('on-call');
-                }
-                const bubble = document.getElementById('cognitive-speech-bubble');
-                if (bubble) {
-                    bubble.classList.remove('on-call');
-                    bubble.classList.remove('visible');
-                }
-                cognitiveState.callHistory.push({
-                    type: 'end',
-                    timestamp: Date.now(),
-                    duration: callDuration
-                });
-                if (cognitiveState.callHistory.length > 10) cognitiveState.callHistory.shift();
-                console.log(`📞 Llamada finalizada (${callDuration.toFixed(1)}s). Retomando conversación...`);
-                setTimeout(() => {
-                    if (!cognitiveState.isOnCall && cognitiveState.pendingConversation) {
-                        cognitiveState.pendingConversation = false;
-                        const isChild = cognitiveState.isChild;
-                        let resumeMessages;
-                        if (isChild) {
-                            resumeMessages = [
-                                "¡Ya regresé! ¿Seguimos con lo que estábamos haciendo?",
-                                "Listo, ya terminó la llamada. ¿Qué tal si seguimos?",
-                                "Perdón por la interrupción. ¿Continuamos?"
-                            ];
-                        } else {
-                            resumeMessages = [
-                                "Disculpa la pausa. ¿Seguimos con nuestra conversación?",
-                                "Ya regresé. ¿En qué estábamos?",
-                                "Perdona la interrupción. ¿Continuamos?",
-                                "Listo. ¿Qué te parece si retomamos donde nos quedamos?"
-                            ];
-                        }
-                        const msg = resumeMessages[Math.floor(Math.random() * resumeMessages.length)];
-                        if (window.Marquinhos && typeof window.Marquinhos.react === 'function') {
-                            window.Marquinhos.react('happy', msg);
-                        }
-                    }
-                }, 1500);
-            }
-
-            function detectAudioDevices() {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-                    console.log('🔊 API de dispositivos no disponible');
-                    return;
-                }
-                navigator.mediaDevices.enumerateDevices()
-                    .then(devices => {
-                        const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
-                        cognitiveState.audioOutputDevices = audioOutputs.map(d => ({
-                            id: d.deviceId,
-                            label: d.label || 'Dispositivo de audio',
-                            kind: d.kind
-                        }));
-                        const bluetoothDevices = audioOutputs.filter(d =>
-                            d.label &&
-                            (d.label.toLowerCase().includes('bluetooth') ||
-                             d.label.toLowerCase().includes('bt') ||
-                             d.label.toLowerCase().includes('headset') ||
-                             d.label.toLowerCase().includes('earbuds') ||
-                             d.label.toLowerCase().includes('speaker') ||
-                             d.label.toLowerCase().includes('bocina'))
-                        );
-                        if (bluetoothDevices.length > 0) {
-                            cognitiveState.bluetoothDevices = bluetoothDevices.map(d => ({
-                                id: d.deviceId,
-                                label: d.label,
-                                kind: d.kind
-                            }));
-                            cognitiveState.bluetoothConnected = true;
-                            const marquinhosEl = document.getElementById('marquinhos');
-                            if (marquinhosEl) {
-                                marquinhosEl.classList.add('bluetooth-connected');
-                            }
-                            console.log('🔊 Dispositivos Bluetooth detectados:', bluetoothDevices.map(d => d.label));
-                        }
-                    })
-                    .catch(err => {
-                        console.warn('⚠️ No se pudieron enumerar dispositivos:', err);
-                    });
-            }
-
-            if (navigator.mediaDevices) {
-                setTimeout(detectAudioDevices, 1000);
-                if (navigator.mediaDevices.addEventListener) {
-                    navigator.mediaDevices.addEventListener('devicechange', () => {
-                        console.log('🔄 Cambio en dispositivos de audio detectado');
-                        setTimeout(detectAudioDevices, 500);
-                    });
-                }
-            }
-
-            let cognitiveLoopRunning = false;
-
-            function cognitiveLoop() {
-                if (!cognitiveLoopRunning) return;
-                const idleTime = (Date.now() - cognitiveState.lastInteraction) / 1000;
-                if (!cognitiveState.isOnCall && idleTime > 120 && cognitiveState.boredom === 0 && !cognitiveState.isChild) {
-                    cognitiveState.boredom = 1;
-                    triggerVisualReaction('bored');
-                    // Llamar a stretch() si existe
-                    if (typeof window.Marquinhos?.stretch === 'function') {
-                        window.Marquinhos.stretch();
-                    }
-                    setTimeout(() => {
-                        cognitiveState.boredom = 0;
-                    }, 30000);
-                }
-                requestAnimationFrame(cognitiveLoop);
-            }
-
-            // ===== EXPOSICIÓN PÚBLICA DEL MÓDULO =====
-            window.MarquinhosCognitiveAI = {
-                evalInput(userInput) {
-                    const analysis = analyzeInput(userInput);
-                    if (analysis.onCall) {
-                        return { allowed: true, onCall: true, message: '📞 En llamada...' };
-                    }
-                    if (analysis.gentleReminder) {
-                        const reminder = childSafePhrases.noSwear[Math.floor(Math.random() * childSafePhrases.noSwear
-                            .length)];
-                        triggerVisualReaction('noSwear', reminder);
-                        return { allowed: true, isChild: true, message: reminder, gentleReminder: true };
-                    }
-                    if (analysis.recentSimilar) {
-                        const isChild = analysis.isChild;
-                        const message = getPhraseByCategory('play', isChild);
-                        triggerVisualReaction('associative', message);
-                        return { allowed: true, isChild: analysis.isChild, message, profile: analysis.profile };
-                    }
-                    if (analysis.isChild) {
-                        const message = getPersonalizedGreeting(true);
-                        triggerVisualReaction('greeting', message);
-                        return { allowed: true, isChild: true, message, profile: 'infantil' };
-                    }
-                    const message = getPersonalizedGreeting(false);
-                    triggerVisualReaction('greeting', message);
-                    return { allowed: true, profile: analysis.profile, isChild: false };
-                },
-                getStatus() {
-                    return { ...cognitiveState };
-                },
-                getSelectedColor() {
-                    return cognitiveState.selectedColor || '#1565C0';
-                },
-                setSelectedColor: async function(colorHex) {
-                    cognitiveState.selectedColor = colorHex;
-                    try {
-                        localStorage.setItem('marquinhos_color_preference', colorHex);
-                    } catch (e) {}
-                    applyColorToUI(colorHex);
-                    try {
-                        const userId = await getUserId();
-                        if (userId && supabase) {
-                            await supabase
-                                .from('marquinhos_preferences')
-                                .upsert({
-                                    user_id: userId,
-                                    color_preference: colorHex,
-                                    updated_at: new Date().toISOString()
-                                }, { onConflict: 'user_id' });
-                            console.log(`🎨 Color guardado en Supabase: ${colorHex}`);
-                        }
-                    } catch (e) {
-                        console.warn('⚠️ No se pudo guardar color en Supabase:', e);
-                    }
-                },
-                triggerReaction(type, customMessage = null) {
-                    triggerVisualReaction(type, customMessage);
-                },
-                resetBoredom() {
-                    cognitiveState.boredom = 0;
-                },
-                setChildMode(active) {
-                    cognitiveState.isChild = active;
-                    cognitiveState.childConfidence = active ? 0.8 : 0;
-                    const marquinhosEl = document.getElementById('marquinhos');
-                    if (marquinhosEl) {
-                        if (active) marquinhosEl.classList.add('child-mode');
-                        else marquinhosEl.classList.remove('child-mode');
-                    }
-                    saveMemory();
-                },
-                isChildDetected() {
-                    return cognitiveState.isChild;
-                },
-                callStart() {
-                    handleCallStart();
-                },
-                callEnd() {
-                    handleCallEnd();
-                },
-                isOnCall() {
-                    return cognitiveState.isOnCall;
-                },
-                getCallHistory() {
-                    return [...cognitiveState.callHistory];
-                },
-                getAudioDevices() {
-                    return [...cognitiveState.audioOutputDevices];
-                },
-                getBluetoothDevices() {
-                    return [...cognitiveState.bluetoothDevices];
-                },
-                isBluetoothConnected() {
-                    return cognitiveState.bluetoothConnected;
-                },
-                scanAudioDevices() {
-                    detectAudioDevices();
-                },
-                requestMicPermission() {
-                    return new Promise((resolve) => {
-                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                            const msg = '⚠️ Tu navegador no soporta micrófono.';
-                            console.warn(msg);
-                            triggerVisualReaction('permission', msg);
-                            resolve(false);
-                            return;
-                        }
-                        const isChild = cognitiveState.isChild;
-                        let permissionMsg;
-                        if (isChild) {
-                            permissionMsg = childSafePhrases.permission[Math.floor(Math.random() * childSafePhrases
-                                .permission.length)];
-                        } else {
-                            permissionMsg = "Para poder escucharte, necesito permiso del micrófono. ¿Me lo concedes?";
-                        }
-                        triggerVisualReaction('permission', permissionMsg);
-                        navigator.mediaDevices.getUserMedia({ audio: true })
-                            .then((stream) => {
-                                cognitiveState._micStream = stream;
-                                cognitiveState._micActive = true;
-                                const micIndicator = document.getElementById('micIndicator');
-                                if (micIndicator) {
-                                    micIndicator.classList.add('active');
-                                    const status = document.getElementById('micStatus');
-                                    if (status) status.textContent = '🎤 Micrófono activo';
-                                }
-                                console.log('🎤 Permiso de micrófono concedido.');
-                                const activationMsg = getPhraseByCategory('activation', cognitiveState
-                                    .isChild);
-                                triggerVisualReaction('activation', activationMsg);
-                                resolve(true);
-                            })
-                            .catch((err) => {
-                                console.warn('⚠️ Permiso de micrófono denegado:', err);
-                                const msg = '⚠️ Necesito permiso del micrófono para poder escucharte.';
-                                triggerVisualReaction('permission', msg);
-                                resolve(false);
-                            });
-                    });
-                },
-                isMicActive() {
-                    return cognitiveState._micActive || false;
-                },
-                stopMic() {
-                    if (cognitiveState._micStream) {
-                        cognitiveState._micStream.getTracks().forEach(track => track.stop());
-                        cognitiveState._micStream = null;
-                        cognitiveState._micActive = false;
-                        const micIndicator = document.getElementById('micIndicator');
-                        if (micIndicator) {
-                            micIndicator.classList.remove('active');
-                            const status = document.getElementById('micStatus');
-                            if (status) status.textContent = '⏸️ Micrófono pausado';
-                        }
-                        console.log('⏸️ Micrófono detenido.');
-                    }
-                },
-                getActivationPhrase() {
-                    return getPhraseByCategory('activation', cognitiveState.isChild);
-                },
-                syncWithSupabase: saveToSupabase,
-                loadFromSupabase: loadCognitiveState,
-                // NUEVO GETTER
-                getUserName: getUserName,
-                // NUEVO: greeting personalizado
-                getPersonalizedGreeting: getPersonalizedGreeting
-            };
-
-            document.addEventListener('DOMContentLoaded', async () => {
-                await loadCognitiveState();
-                applyColorToUI(cognitiveState.selectedColor);
-                DisneyMouth.init();
-                cognitiveLoopRunning = true;
-                requestAnimationFrame(cognitiveLoop);
-                console.log('🧠 Módulo Cognitivo de Marquinhos iniciado.');
-                console.log('👶 Detección infantil automática activada.');
-                console.log('👤 Memoria de nombre activada.');
-                console.log('🎤 Micrófono: requestMicPermission() (solo por acción explícita)');
-                console.log('🎨 Selector de color manual (toca 🎨)');
-                console.log('🗄️ Supabase sincronizado: color + historial + modo niño + nombre');
-                console.log('🔒 RLS activado: solo el usuario puede ver/escribir sus datos');
-                console.log('🎬 Disney Lip Sync ACTIVADO - la boca se mueve al hablar');
-                console.log('😲 Reacción ORA - cuando le cuentan algo sorprendente');
-            });
-
-            window.addEventListener('beforeunload', () => {
-                cognitiveLoopRunning = false;
-                if (cognitiveState._micStream) {
-                    cognitiveState._micStream.getTracks().forEach(track => track.stop());
-                }
-                saveMemory();
-            });
-
-        })();
-
-
-        // ================================================================
-        // 4. MÓDULO PRINCIPAL DE MARQUINHOS
-        // ================================================================
-        (() => {
+            const container = document.getElementById('marquinhos-container');
+            const bubble = document.getElementById('speech-bubble');
             const marquinhosEl = document.getElementById('marquinhos');
-            const irises = [...document.querySelectorAll('.iris')];
-            const eyes = [...document.querySelectorAll('.eye')];
-            const mouth = document.getElementById('disneyMouth');
-            const antennas = [...document.querySelectorAll('.antenna')];
-            const micIndicator = document.getElementById('micIndicator');
-            const micStatus = document.getElementById('micStatus');
 
-            const colorPicker = document.getElementById('colorPicker');
-            const paletteToggle = document.getElementById('paletteToggle');
-            const paletteOptions = document.getElementById('paletteOptions');
-            const colorOptions = paletteOptions.querySelectorAll('.color-option');
+            let recognition = null;
+            let isListening = false;
+            let isSpeaking = false;
+            let retries = 0;
+            const maxRetries = 3;
+            let retryTimeout = null;
+            let synth = window.speechSynthesis;
+            let audioContext = null;
+            let isMusicPlaying = false;
+            let isLightOn = false;
+            let currentUtterance = null;
+            let userName = null;
 
-            const validEmotions = new Set([
-                'idle', 'happy', 'loving', 'sad', 'surprised', 'talking',
-                'waving', 'wink', 'excited', 'thinking', 'caring',
-                'grateful', 'embarrassed', 'curious', 'tired', 'thrilled', 'ora'
-            ]);
-
-            const state = {
-                emotion: 'caring',
-                speaking: false,
-                audioLevel: 0,
-                targetLookX: 0,
-                targetLookY: 0,
-                lookX: 0,
-                lookY: 0,
-                targetTiltX: 0,
-                targetTiltY: 0,
-                tiltX: 0,
-                tiltY: 0,
-                nextBlink: performance.now() + 3000 + Math.random() * 3500,
-                blinkUntil: 0,
-                nextIdleAction: performance.now() + 3500 + Math.random() * 5000,
-                idleActionUntil: 0,
-                idleAction: '',
-                audioContext: null,
-                analyser: null,
-                audioData: null,
-                audioSource: null,
-                audioElement: null,
-                speechToken: 0,
-                lastFrame: performance.now(),
-                _audioPaused: false,
-                recognition: null,
-                isListening: false,
-                recognitionRetries: 0,
-                maxRetries: 3,
-                retryTimeout: null,
-                volumeMouthTimeout: null,
-                hasBeenTouched: false,
-                micNameTimer: null
-            };
-
-            let resetTimer = null;
-
-            function clamp(value, min, max) {
-                return Math.max(min, Math.min(max, value));
+            // ===== BURBUJA =====
+            function showBubble(text, type = '') {
+                bubble.textContent = text;
+                bubble.className = 'visible';
+                if (type) bubble.classList.add(type);
+                clearTimeout(bubble._timeout);
+                bubble._timeout = setTimeout(() => {
+                    bubble.classList.remove('visible', 'listening', 'thinking');
+                }, 4000);
             }
 
-            function random(min, max) {
-                return min + Math.random() * (max - min);
+            function hideBubble() {
+                bubble.classList.remove('visible', 'listening', 'thinking');
             }
 
-            function resetState() {
-                clearTimeout(resetTimer);
-                marquinhosEl.classList.remove(...validEmotions);
-                marquinhosEl.classList.add('caring');
-                if (!window.MarquinhosCognitiveAI || !window.MarquinhosCognitiveAI.isChildDetected()) {
-                    marquinhosEl.classList.remove('child-mode');
-                }
-                if (!window.MarquinhosCognitiveAI || !window.MarquinhosCognitiveAI.isOnCall()) {
-                    marquinhosEl.classList.remove('on-call');
-                }
-                state.emotion = 'caring';
-                state.speaking = false;
-                state.audioLevel = 0;
-                if (DisneyMouth) DisneyMouth.reset();
-            }
-
-            function applyColor(colorHex) {
-                if (window.MarquinhosCognitiveAI && typeof window.MarquinhosCognitiveAI.setSelectedColor === 'function') {
-                    window.MarquinhosCognitiveAI.setSelectedColor(colorHex);
-                } else {
-                    const root = document.documentElement;
-                    root.style.setProperty('--color-activo', colorHex);
-                    const r = parseInt(colorHex.slice(1, 3), 16);
-                    const g = parseInt(colorHex.slice(3, 5), 16);
-                    const b = parseInt(colorHex.slice(5, 7), 16);
-                    root.style.setProperty('--color-activo-rgb', `${r}, ${g}, ${b}`);
-                }
-            }
-
-            // ===== DISNEY SPEAK CON LIP SYNC =====
-            function speakWithDisneyMouth(text, options = {}) {
-                if (!('speechSynthesis' in window)) {
-                    console.warn('Web Speech API no soportada.');
-                    return null;
+            // ===== HABLAR =====
+            function speak(text, callback) {
+                if (!text) return;
+                if (isSpeaking) {
+                    synth.cancel();
                 }
 
-                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
-                    console.log('📞 En llamada, Marquinhos no habla.');
-                    return null;
-                }
+                showBubble(text, 'thinking');
 
-                let safeText = String(text || '');
-                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected()) {
-                    const offensiveWords = ['pendejo', 'wey', 'güey', 'chinga', 'verga', 'puto', 'culero', 'mamón', 'chingar'];
-                    for (const word of offensiveWords) {
-                        const regex = new RegExp(word, 'gi');
-                        safeText = safeText.replace(regex, 'amigo');
-                    }
-                    safeText = safeText.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.,;:!?¿¡]/g, '');
-                }
-
-                if (!safeText) return null;
-
-                const token = ++state.speechToken;
-                state.speaking = true;
-
-                const emotion = options.emotion || 'talking';
-                const label = options.caption || safeText;
-                setEmotion(emotion, label, 0);
-
-                const utterance = new SpeechSynthesisUtterance(safeText);
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-MX';
                 utterance.pitch = 1.08;
-                utterance.rate = 1;
-                utterance.lang = options.lang || 'es-MX';
-                utterance.volume = Number(options.volume) || 1;
-
-                let lastPhoneme = 'neutral';
-
-                utterance.onboundary = (event) => {
-                    if (token !== state.speechToken) return;
-                    if (event.name === 'phoneme' && event.text) {
-                        const phoneme = event.text.toUpperCase().replace(/[^A-Z]/g, '');
-                        const intensity = 0.5 + Math.random() * 0.5;
-                        DisneyMouth.setShape(phoneme, intensity);
-                        lastPhoneme = phoneme;
-                    }
-                    if (event.name === 'word' || event.name === 'sentence') {
-                        if (lastPhoneme !== 'neutral') {
-                            DisneyMouth.setShape(lastPhoneme, 0.6);
-                        }
-                    }
-                    state.audioLevel = Math.max(state.audioLevel, 0.2);
-                };
+                utterance.rate = 0.95;
+                utterance.volume = 1;
 
                 utterance.onstart = () => {
-                    if (token !== state.speechToken) return;
-                    state.speaking = true;
-                    setEmotion(emotion, label, 0);
+                    isSpeaking = true;
                     marquinhosEl.classList.add('talking');
-                    startVolumeMouthTracking();
+                    DisneyMouth.setShape('talking');
+                    startMouthTracking();
                 };
 
                 utterance.onend = () => {
-                    if (token !== state.speechToken) return;
-                    state.speaking = false;
-                    state.audioLevel = 0;
+                    isSpeaking = false;
                     marquinhosEl.classList.remove('talking');
                     DisneyMouth.reset();
-                    setEmotion('caring', '', 1800);
-                    stopVolumeMouthTracking();
+                    stopMouthTracking();
+                    hideBubble();
+                    if (callback) callback();
                 };
 
                 utterance.onerror = () => {
-                    if (token !== state.speechToken) return;
-                    state.speaking = false;
-                    state.audioLevel = 0;
+                    isSpeaking = false;
                     marquinhosEl.classList.remove('talking');
                     DisneyMouth.reset();
-                    setEmotion('caring', '', 1800);
-                    stopVolumeMouthTracking();
+                    stopMouthTracking();
+                    hideBubble();
+                    if (callback) callback();
                 };
 
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(utterance);
-                return utterance;
+                currentUtterance = utterance;
+                synth.cancel();
+                synth.speak(utterance);
             }
 
-            function startVolumeMouthTracking() {
-                if (!state.audioContext) {
+            // ===== TRACKING DE BOCA =====
+            let mouthTrackInterval = null;
+
+            function startMouthTracking() {
+                if (!audioContext) {
                     try {
-                        state.audioContext = new(window.AudioContext || window.webkitAudioContext)();
-                        state.analyser = state.audioContext.createAnalyser();
-                        state.analyser.fftSize = 256;
-                        state.audioData = new Uint8Array(state.analyser.fftSize);
-                    } catch (e) {
+                        audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) { return; }
+                }
+                let lastLevel = 0;
+                if (mouthTrackInterval) clearInterval(mouthTrackInterval);
+                mouthTrackInterval = setInterval(() => {
+                    if (!isSpeaking) {
+                        DisneyMouth.setOpenAmount(0);
                         return;
                     }
-                }
-
-                if (!state.audioSource && window.MarquinhosCognitiveAI?.isMicActive()) {
-                    try {
-                        const stream = window.MarquinhosCognitiveAI._micStream;
-                        if (stream) {
-                            state.audioSource = state.audioContext.createMediaStreamSource(stream);
-                            state.audioSource.connect(state.analyser);
-                        }
-                    } catch (e) {}
-                }
-
-                if (!state.audioSource) {
-                    try {
-                        const osc = state.audioContext.createOscillator();
-                        const gain = state.audioContext.createGain();
-                        gain.gain.value = 0;
-                        osc.connect(gain);
-                        gain.connect(state.analyser);
-                        osc.start();
-                        state.audioSource = osc;
-                    } catch (e) {}
-                }
-
-                if (state.volumeMouthTimeout) {
-                    clearInterval(state.volumeMouthTimeout);
-                }
-
-                state.volumeMouthTimeout = setInterval(() => {
-                    if (!state.speaking) {
-                        return;
-                    }
-                    if (state.analyser && state.audioData) {
-                        state.analyser.getByteTimeDomainData(state.audioData);
-                        let sum = 0;
-                        for (let i = 0; i < state.audioData.length; i++) {
-                            const val = (state.audioData[i] - 128) / 128;
-                            sum += val * val;
-                        }
-                        const rms = Math.sqrt(sum / state.audioData.length);
-                        const level = clamp(rms * 6, 0, 1);
-                        const mouthOpen = Math.min(level * 1.5, 1);
-                        if (mouthOpen > 0.05) {
-                            DisneyMouth.setOpenAmount(mouthOpen);
-                        } else {
-                            DisneyMouth.setOpenAmount(0.1);
-                        }
-                    }
+                    // Simulación de movimiento de boca basado en tiempo
+                    const time = Date.now() / 100;
+                    const level = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(time));
+                    const smoothed = lastLevel * 0.3 + level * 0.7;
+                    lastLevel = smoothed;
+                    DisneyMouth.setOpenAmount(smoothed * 0.8);
                 }, 50);
             }
 
-            function stopVolumeMouthTracking() {
-                if (state.volumeMouthTimeout) {
-                    clearInterval(state.volumeMouthTimeout);
-                    state.volumeMouthTimeout = null;
+            function stopMouthTracking() {
+                if (mouthTrackInterval) {
+                    clearInterval(mouthTrackInterval);
+                    mouthTrackInterval = null;
+                }
+                DisneyMouth.reset();
+            }
+
+            // ===== COMANDOS =====
+            function processCommand(text) {
+                const lower = text.toLowerCase();
+
+                // Detectar ORA
+                if (OraDetector.check(text)) {
+                    speak('¡Ora! ¿Qué pasó?');
+                    return;
+                }
+
+                // Saludar
+                if (lower.includes('hola') || lower.includes('buenas') || lower.includes('hey') || lower.includes('qué tal')) {
+                    const namePart = userName ? ` ${userName}` : '';
+                    speak(`¡Hola${namePart}! ¿Cómo estás hoy?`);
+                    return;
+                }
+
+                // Nombre
+                if (lower.includes('me llamo') || lower.includes('mi nombre es') || lower.includes('soy ')) {
+                    const match = text.match(/(?:me llamo|mi nombre es|soy)\s+([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+)/i);
+                    if (match && match[1]) {
+                        userName = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+                        speak(`¡Mucho gusto ${userName}! Ya te voy a recordar.`);
+                        try {
+                            localStorage.setItem('marquinhos_user_name', userName);
+                        } catch (e) {}
+                    }
+                    return;
+                }
+
+                // Música
+                if (lower.includes('música') || lower.includes('música') || lower.includes('canción') || lower.includes('musica')) {
+                    toggleMusic();
+                    return;
+                }
+
+                // Luz
+                if (lower.includes('luz') || lower.includes('luz') || lower.includes('prende') || lower.includes('apaga')) {
+                    toggleLight();
+                    return;
+                }
+
+                // Cómo estás
+                if (lower.includes('cómo estás') || lower.includes('como estas') || lower.includes('qué tal')) {
+                    speak('¡Estoy muy bien! Gracias por preguntar. ¿Y tú?');
+                    return;
+                }
+
+                // Quién eres
+                if (lower.includes('quién eres') || lower.includes('quien eres') || lower.includes('qué haces')) {
+                    speak('Soy Marquinhos, tu asistente personal. Estoy aquí para ayudarte con música, luces y lo que necesites.');
+                    return;
+                }
+
+                // Gracias
+                if (lower.includes('gracias') || lower.includes('gracias')) {
+                    speak('¡De nada! Es un placer ayudarte.');
+                    return;
+                }
+
+                // Adiós
+                if (lower.includes('adiós') || lower.includes('adios') || lower.includes('hasta luego') || lower.includes('chao')) {
+                    speak('¡Hasta luego! Fue un placer hablar contigo.');
+                    if (isListening) {
+                        setTimeout(() => {
+                            if (recognition) {
+                                try { recognition.stop(); } catch (e) {}
+                            }
+                            isListening = false;
+                            document.getElementById('btnMic').classList.remove('active');
+                            showBubble('🔇 En espera');
+                        }, 2000);
+                    }
+                    return;
+                }
+
+                // Ayuda
+                if (lower.includes('ayuda') || lower.includes('ayuda') || lower.includes('qué puedes hacer')) {
+                    speak('Puedo ayudarte con música, luces, responder preguntas y ser tu compañero. Solo dímelo.');
+                    return;
+                }
+
+                // Tiempo
+                if (lower.includes('hora') || lower.includes('tiempo') || lower.includes('qué hora')) {
+                    const now = new Date();
+                    const hora = now.getHours();
+                    const minutos = now.getMinutes().toString().padStart(2, '0');
+                    speak(`Son las ${hora}:${minutos}.`);
+                    return;
+                }
+
+                // Respuesta por defecto
+                speak('No entendí bien, ¿puedes repetirlo?');
+            }
+
+            // ===== MÚSICA =====
+            function toggleMusic() {
+                isMusicPlaying = !isMusicPlaying;
+                if (isMusicPlaying) {
+                    playMusic();
+                } else {
+                    stopMusic();
+                }
+                document.getElementById('btnMusic').classList.toggle('active', isMusicPlaying);
+                speak(isMusicPlaying ? '🎵 Música activada' : '⏹️ Música pausada');
+            }
+
+            let musicNode = null;
+
+            function playMusic() {
+                try {
+                    if (!audioContext) {
+                        audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (musicNode) {
+                        musicNode.disconnect();
+                        musicNode = null;
+                    }
+                    // Crear un tono simple y agradable
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = 440;
+                    gain.gain.value = 0.1;
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.start();
+                    musicNode = { osc, gain };
+
+                    // Cambiar frecuencia suavemente
+                    let noteIndex = 0;
+                    const notes = [440, 523, 587, 659, 784];
+                    if (musicNoteInterval) clearInterval(musicNoteInterval);
+                    musicNoteInterval = setInterval(() => {
+                        if (!isMusicPlaying || !musicNode) return;
+                        noteIndex = (noteIndex + 1) % notes.length;
+                        musicNode.osc.frequency.setTargetAtTime(notes[noteIndex], audioContext.currentTime, 0.3);
+                    }, 500);
+
+                    showBubble('🎵 Música activa');
+                } catch (e) {
+                    console.warn('Error al reproducir música:', e);
+                    isMusicPlaying = false;
+                    document.getElementById('btnMusic').classList.remove('active');
                 }
             }
 
-            const speakWithBrowser = speakWithDisneyMouth;
+            let musicNoteInterval = null;
 
-            // ===== PROCESAR COMANDOS DE VOZ =====
-            function processVoiceCommand(transcript) {
-                const text = transcript.toLowerCase();
-
-                if (OraDetector.check(text)) {
-                    DisneyMouth.triggerOra();
-                    return;
+            function stopMusic() {
+                if (musicNode) {
+                    try {
+                        musicNode.osc.stop();
+                        musicNode.osc.disconnect();
+                        musicNode.gain.disconnect();
+                    } catch (e) {}
+                    musicNode = null;
                 }
-
-                if (text.includes('salir') || text.includes('adiós') || text.includes('hasta luego')) {
-                    state.isListening = false;
-                    if (micIndicator) micIndicator.classList.remove('active');
-                    if (micStatus) micStatus.textContent = '⏸️ En espera';
-                    let farewellMsg = "¡Hasta luego! Fue un placer.";
-                    setEmotion('waving', farewellMsg, 3000);
-                    speakWithDisneyMouth(farewellMsg);
-                    setTimeout(() => {
-                        state.isListening = true;
-                        if (micIndicator) micIndicator.classList.add('active');
-                        if (micStatus) micStatus.textContent = '🎤 Escuchando...';
-                        state.recognitionRetries = 0;
-                        if (state.recognition) {
-                            try {
-                                state.recognition.start();
-                            } catch (e) {}
-                        }
-                    }, 10000);
-                    return;
+                if (musicNoteInterval) {
+                    clearInterval(musicNoteInterval);
+                    musicNoteInterval = null;
                 }
+                hideBubble();
+            }
 
-                if (text.includes('gracias')) {
-                    let thanksMsg = "¡De nada! Es un placer ayudarte.";
-                    react('grateful', thanksMsg);
-                    return;
+            // ===== LUZ =====
+            function toggleLight() {
+                isLightOn = !isLightOn;
+                if (isLightOn) {
+                    document.body.style.background = '#1A1A3A';
+                    document.body.style.transition = 'background 0.5s ease';
+                    document.querySelector('.controls').style.borderColor = 'rgba(255, 215, 0, 0.3)';
+                    document.getElementById('btnLight').classList.add('active');
+                    showBubble('💡 Luz encendida');
+                    speak('💡 Luz encendida');
+                } else {
+                    document.body.style.background = '#0A0A1A';
+                    document.querySelector('.controls').style.borderColor = 'rgba(212, 175, 55, 0.15)';
+                    document.getElementById('btnLight').classList.remove('active');
+                    showBubble('💡 Luz apagada');
+                    speak('💡 Luz apagada');
                 }
-
-                if (text.includes('cómo estás') || text.includes('qué tal')) {
-                    let howMsg = "¡Estoy muy bien! ¿Y tú cómo estás?";
-                    setEmotion('happy', howMsg, 3000);
-                    speakWithDisneyMouth(howMsg);
-                    return;
-                }
-
-                if (text.includes('quién eres') || text.includes('qué haces')) {
-                    let whoMsg = "Soy Marquinhos, tu asistente de voz. Estoy aquí para ayudarte y acompañarte.";
-                    setEmotion('caring', whoMsg, 5000);
-                    speakWithDisneyMouth(whoMsg);
-                    return;
-                }
-
-                if (text.includes('llamada') || text.includes('teléfono') || text.includes('llamar')) {
-                    if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.callStart) {
-                        window.MarquinhosCognitiveAI.callStart();
-                        const msg = 'Entendido, pausando para la llamada.';
-                        setEmotion('thinking', msg, 3000);
-                        speakWithDisneyMouth(msg);
-                    }
-                    return;
-                }
-
-                if (text.includes('colgar') || text.includes('terminar llamada') || text.includes('finalizar')) {
-                    if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.callEnd) {
-                        window.MarquinhosCognitiveAI.callEnd();
-                    }
-                    return;
-                }
-
-                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
-                    return;
-                }
-
-                if (window.MarquinhosCognitiveAI && typeof window.MarquinhosCognitiveAI.evalInput === 'function') {
-                    const result = window.MarquinhosCognitiveAI.evalInput(text);
-                    if (result.message) {
-                        setEmotion('talking', result.message, 4500);
-                        speakWithDisneyMouth(result.message);
-                        return;
-                    }
-                }
-
-                let fallbackMsg = "No entendí bien, ¿puedes repetirlo?";
-                setEmotion('thinking', fallbackMsg, 3500);
-                speakWithDisneyMouth(fallbackMsg);
             }
 
             // ===== RECONOCIMIENTO DE VOZ =====
             function initSpeechRecognition() {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (!SpeechRecognition) {
-                    console.warn('⚠️ Speech Recognition no soportado en este navegador.');
+                    showBubble('⚠️ Tu navegador no soporta voz');
                     return;
                 }
 
-                state.recognition = new SpeechRecognition();
-                state.recognition.lang = 'es-MX';
-                state.recognition.continuous = true;
-                state.recognition.interimResults = true;
-                state.recognition.maxAlternatives = 1;
+                recognition = new SpeechRecognition();
+                recognition.lang = 'es-MX';
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 1;
 
-                const activationWords = ['hola marquinhos', 'marquinhos', 'hey marquinhos', 'buenas marquinhos'];
+                const activationWords = ['hola marquinhos', 'marquinhos', 'hey marquinhos', 'buenas marquinhos', 'marquinhos'];
 
-                state.recognition.onresult = (event) => {
-                    state.recognitionRetries = 0;
+                recognition.onresult = (event) => {
+                    retries = 0;
                     for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript.toLowerCase().trim();
-                        if (micStatus) {
-                            micStatus.textContent = '🎤 ' + (event.results[i].isFinal ? 'Escuchando...' : '...');
-                        }
+                        const transcript = event.results[i][0].transcript.trim();
                         if (event.results[i].isFinal) {
                             console.log('🎤 Dijiste:', transcript);
-                            const isActivation = activationWords.some(word => transcript.includes(word));
+                            // Mostrar en burbuja
+                            showBubble(`🎤 ${transcript}`, 'listening');
+
+                            const lower = transcript.toLowerCase();
+                            const isActivation = activationWords.some(word => lower.includes(word));
+
                             if (isActivation) {
-                                const msg = window.MarquinhosCognitiveAI.getActivationPhrase();
-                                react('greet', msg);
-                                state.isListening = true;
-                                if (micIndicator) micIndicator.classList.add('active');
+                                speak('¡Dime! Estoy aquí.');
                                 continue;
                             }
-                            if (state.isListening) {
-                                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
-                                    continue;
-                                }
-                                processVoiceCommand(transcript);
+
+                            if (isListening) {
+                                processCommand(transcript);
                             }
                         }
                     }
                 };
 
-                state.recognition.onerror = (event) => {
+                recognition.onerror = (event) => {
                     console.warn('⚠️ Error de reconocimiento:', event.error);
                     if (event.error === 'not-allowed') {
-                        state.recognitionRetries = state.maxRetries;
-                        if (micStatus) micStatus.textContent = '🔇 Toca el avatar para activar';
-                        showMicPermissionMessage();
+                        retries = maxRetries;
+                        showBubble('🔇 Necesito permiso del micrófono');
+                        document.getElementById('btnMic').classList.remove('active');
+                        isListening = false;
                         return;
                     }
-                    if (state.recognitionRetries < state.maxRetries) {
-                        state.recognitionRetries++;
-                        const delay = [1000, 3000, 6000][state.recognitionRetries - 1] || 3000;
-                        console.log(`🔄 Reintento ${state.recognitionRetries}/${state.maxRetries} en ${delay}ms...`);
-                        if (micStatus) {
-                            micStatus.textContent = `⏳ Reintentando (${state.recognitionRetries}/${state.maxRetries})...`;
-                        }
-                        clearTimeout(state.retryTimeout);
-                        state.retryTimeout = setTimeout(() => {
-                            if (state.isListening) {
-                                try {
-                                    state.recognition.start();
-                                } catch (e) {}
+                    if (retries < maxRetries) {
+                        retries++;
+                        const delay = [1000, 3000, 5000][retries - 1] || 3000;
+                        clearTimeout(retryTimeout);
+                        retryTimeout = setTimeout(() => {
+                            if (isListening && recognition) {
+                                try { recognition.start(); } catch (e) {}
                             }
                         }, delay);
                     } else {
-                        console.log('❌ Máximo de reintentos alcanzado.');
-                        if (micStatus) micStatus.textContent = '🔇 Toca el avatar para reactivar';
-                        showMicPermissionMessage();
-                        state.isListening = false;
-                        if (micIndicator) micIndicator.classList.remove('active');
+                        showBubble('🔇 Toca el micrófono para reactivar');
+                        document.getElementById('btnMic').classList.remove('active');
+                        isListening = false;
                     }
                 };
 
-                state.recognition.onend = () => {
-                    if (state.recognitionRetries >= state.maxRetries) {
+                recognition.onend = () => {
+                    if (retries >= maxRetries) return;
+                    if (isListening) {
+                        clearTimeout(retryTimeout);
+                        retryTimeout = setTimeout(() => {
+                            try { recognition.start(); } catch (e) {}
+                        }, 300);
+                    }
+                };
+
+                try {
+                    recognition.start();
+                    isListening = true;
+                    retries = 0;
+                    document.getElementById('btnMic').classList.add('active');
+                    showBubble('🎤 Escuchando...', 'listening');
+                } catch (e) {
+                    console.warn('⚠️ No se pudo iniciar:', e);
+                }
+            }
+
+            // ===== CONTROL DE MICRÓFONO =====
+            function toggleMic() {
+                if (isListening) {
+                    // Apagar
+                    isListening = false;
+                    if (recognition) {
+                        try { recognition.stop(); } catch (e) {}
+                    }
+                    document.getElementById('btnMic').classList.remove('active');
+                    showBubble('🔇 Micrófono apagado');
+                } else {
+                    // Encender
+                    if (!recognition) {
+                        initSpeechRecognition();
                         return;
                     }
-                    if (state.isListening) {
-                        clearTimeout(state.retryTimeout);
-                        state.retryTimeout = setTimeout(() => {
-                            try {
-                                state.recognition.start();
-                            } catch (e) {}
-                        }, 500);
+                    isListening = true;
+                    retries = 0;
+                    try {
+                        recognition.start();
+                        document.getElementById('btnMic').classList.add('active');
+                        showBubble('🎤 Escuchando...', 'listening');
+                    } catch (e) {
+                        showBubble('⚠️ Error al activar micrófono');
                     }
-                };
+                }
+            }
 
+            // ===== CONTROLES UI =====
+            document.getElementById('btnMic').addEventListener('click', toggleMic);
+            document.getElementById('btnMusic').addEventListener('click', toggleMusic);
+            document.getElementById('btnLight').addEventListener('click', toggleLight);
+            document.getElementById('btnReset').addEventListener('click', () => {
+                container.style.top = '50%';
+                container.style.left = '50%';
+                container.style.transform = 'translate(-50%, -50%)';
+                container.style.right = 'auto';
+                container.style.bottom = 'auto';
+                showBubble('🏠 Posición restaurada');
+                setTimeout(hideBubble, 1500);
+            });
+
+            // ===== INICIALIZAR =====
+            document.addEventListener('DOMContentLoaded', () => {
+                DisneyMouth.init();
+                // Cargar nombre guardado
                 try {
-                    state.recognition.start();
-                    state.isListening = true;
-                    state.recognitionRetries = 0;
-                    if (micIndicator) micIndicator.classList.add('active');
-                    if (micStatus) micStatus.textContent = '🎤 Escuchando...';
-                    console.log('🎤 Reconocimiento de voz iniciado.');
-                } catch (e) {
-                    console.warn('⚠️ No se pudo iniciar reconocimiento:', e);
-                }
-            }
-
-            function showMicPermissionMessage() {
-                const msg = '🔇 Necesito permiso del micrófono. Toca el avatar para activarlo.';
-                if (window.MarquinhosCognitiveAI && typeof window.MarquinhosCognitiveAI.triggerReaction === 'function') {
-                    window.MarquinhosCognitiveAI.triggerReaction('permission', msg);
-                }
-            }
-
-            function setEmotion(emotion, text, duration = 3200) {
-                const next = validEmotions.has(emotion) ? emotion : 'caring';
-                clearTimeout(resetTimer);
-
-                marquinhosEl.classList.remove(...validEmotions);
-                marquinhosEl.classList.add(next);
-                state.emotion = next;
-
-                if (duration > 0) {
-                    resetTimer = window.setTimeout(() => {
-                        if (!state.speaking) {
-                            resetState();
-                        }
-                    }, duration);
-                }
-            }
-
-            function react(kind, message = '') {
-                const text = String(message).toLowerCase();
-
-                if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isOnCall()) {
-                    const callMsg = '📞 Disculpa, estoy en una llamada. En cuanto termine, retomamos nuestra conversación.';
-                    setEmotion('thinking', callMsg, 3000);
-                    speakWithDisneyMouth(callMsg);
-                    return;
-                }
-
-                const isChild = window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected();
-
-                if (kind === 'greet' || text.includes('hola') || text.includes('buenas') || text.includes('bienvenido')) {
-                    // Usar greeting personalizado si está disponible
-                    let msg;
-                    if (window.MarquinhosCognitiveAI && typeof window.MarquinhosCognitiveAI.getPersonalizedGreeting === 'function') {
-                        msg = window.MarquinhosCognitiveAI.getPersonalizedGreeting(isChild);
-                    } else {
-                        msg = isChild ? "¡Hola! Qué gusto verte. ¿Cómo estás hoy?" :
-                            "Hola, qué gusto verte.";
-                    }
-                    setEmotion('waving', msg, 3800);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'happy' || text.includes('gracias') || text.includes('excelente') || text.includes('genial')) {
-                    let msg = isChild ? "¡Qué bien! Me alegra mucho que estés feliz." :
-                        "Me alegra mucho.";
-                    setEmotion('happy', msg, 3000);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'loving' || text.includes('cariño') || text.includes('amor') || text.includes('te quiero')) {
-                    let msg = isChild ? "Yo también te quiero mucho. Eres muy especial." :
-                        "Te acompaño con cariño.";
-                    setEmotion('loving', msg, 4200);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'sad' || text.includes('triste') || text.includes('mal') || text.includes('problema')) {
-                    let msg = isChild ? "No te preocupes, todo va a estar bien. Estoy aquí contigo." :
-                        "Estoy contigo.";
-                    setEmotion('sad', msg, 4200);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'surprised' || text.includes('wow') || text.includes('increíble') || text.includes('sorpresa')) {
-                    let msg = isChild ? "¡Qué increíble! Eso es muy interesante." :
-                        "Qué interesante.";
-                    setEmotion('surprised', msg, 2800);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'thinking' || text.includes('espera') || text.includes('pensando') || text.includes('analizando')) {
-                    let msg = isChild ? "Dame un momentito para pensar en eso." :
-                        "Estoy pensando.";
-                    setEmotion('thinking', msg, 3800);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'wink') {
-                    let msg = isChild ? "¡Aquí estoy! Siempre listo para ayudarte." :
-                        "Aquí estoy.";
-                    setEmotion('wink', msg, 2400);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'excited' || text.includes('vamos') || text.includes('celebrar')) {
-                    let msg = isChild ? "¡Vamos! Esto va a ser muy divertido." :
-                        "¡Vamos!";
-                    setEmotion('excited', msg, 2600);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'grateful' || text.includes('agradecido') || text.includes('muchas gracias')) {
-                    let msg = isChild ? "Gracias a ti por ser tan amable." :
-                        "Gracias por confiar en mí.";
-                    setEmotion('grateful', msg, 3200);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'embarrassed' || text.includes('error') || text.includes('vergüenza')) {
-                    let msg = isChild ? "No pasa nada, todos cometemos errores. Lo importante es aprender." :
-                        "Ups... tienes razón.";
-                    setEmotion('embarrassed', msg, 3200);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'curious' || text.includes('qué opinas') || text.includes('por qué')) {
-                    let msg = isChild ? "¡Qué buena pregunta! Vamos a descubrir la respuesta juntos." :
-                        "Quiero entender mejor.";
-                    setEmotion('curious', msg, 3200);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'tired' || text.includes('cansado') || text.includes('mucho tiempo')) {
-                    let msg = isChild ? "Vamos a descansar un poquito, ¿te parece?" :
-                        "Tomemos un pequeño descanso.";
-                    setEmotion('tired', msg, 3600);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-                if (kind === 'thrilled' || text.includes('lo logramos') || text.includes('celebración')) {
-                    let msg = isChild ? "¡Lo logramos! ¡Eso es fantástico!" :
-                        "¡Esto es extraordinario!";
-                    setEmotion('thrilled', msg, 3200);
-                    speakWithDisneyMouth(msg);
-                    return;
-                }
-
-                let fallbackMsg = isChild ? "Cuéntame más, me interesa mucho lo que dices." :
-                    "Cuéntame más.";
-                setEmotion('talking', fallbackMsg, 2600);
-                speakWithDisneyMouth(fallbackMsg);
-            }
-
-            function initColorPicker() {
-                let savedColor = '#1565C0';
-                try {
-                    const stored = localStorage.getItem('marquinhos_color_preference');
-                    if (stored) savedColor = stored;
+                    const saved = localStorage.getItem('marquinhos_user_name');
+                    if (saved) userName = saved;
                 } catch (e) {}
 
-                applyColor(savedColor);
+                // Iniciar reconocimiento automáticamente
+                setTimeout(initSpeechRecognition, 1000);
 
-                colorOptions.forEach(opt => {
-                    const color = opt.dataset.color;
-                    opt.classList.toggle('active', color === savedColor);
-                });
-
-                paletteToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    paletteOptions.classList.toggle('open');
-                });
-
-                document.addEventListener('click', () => {
-                    paletteOptions.classList.remove('open');
-                });
-
-                colorOptions.forEach(opt => {
-                    opt.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const color = opt.dataset.color;
-                        const name = opt.dataset.name;
-
-                        colorOptions.forEach(o => o.classList.remove('active'));
-                        opt.classList.add('active');
-
-                        applyColor(color);
-                        paletteOptions.classList.remove('open');
-                        console.log(`🎨 Color cambiado a: ${name} (${color})`);
-                    });
-                });
-            }
-
-            function analyseAudio() {
-                if (!state.analyser || !state.audioData) {
-                    if (!state.speaking) state.audioLevel *= 0.88;
-                    return;
-                }
-                state.analyser.getByteTimeDomainData(state.audioData);
-                let sum = 0;
-                for (let i = 0; i < state.audioData.length; i += 1) {
-                    const normalized = (state.audioData[i] - 128) / 128;
-                    sum += normalized * normalized;
-                }
-                const rms = Math.sqrt(sum / state.audioData.length);
-                const level = clamp(rms * 5.2, 0, 1);
-                state.audioLevel += (level - state.audioLevel) * 0.28;
-                state.speaking = level > 0.025;
-            }
-
-            function blink(now) {
-                if (now >= state.nextBlink && now > state.blinkUntil) {
-                    state.blinkUntil = now + 135;
-                    state.nextBlink = now + 3200 + Math.random() * 5000;
-                }
-                const blinking = now < state.blinkUntil;
-                eyes.forEach((eye, index) => {
-                    if (blinking) {
-                        eye.style.clipPath = 'inset(46% 0 46% 0 round 50%)';
-                        if (index === 1) eye.style.transform = 'scaleY(.94)';
-                    } else {
-                        eye.style.clipPath = 'none';
-                        eye.style.transform = 'scaleY(1)';
-                    }
-                });
-            }
-
-            function performIdleAction(now) {
-                if (now < state.nextIdleAction) return;
-                const actions = ['lookLeft', 'lookRight', 'nod', 'listen', 'antenna', 'wave'];
-                state.idleAction = actions[Math.floor(Math.random() * actions.length)];
-                state.idleActionUntil = now + random(900, 1800);
-                state.nextIdleAction = now + random(3600, 7200);
-
-                if (state.idleAction === 'lookLeft') setLook(-0.75, -0.04);
-                if (state.idleAction === 'lookRight') setLook(0.75, -0.04);
-                if (state.idleAction === 'nod') {
-                    state.targetTiltX = random(-3, 3);
-                    state.targetTiltY = random(-5, 5);
-                }
-                if (state.idleAction === 'listen') {
-                    state.targetTiltY = random(-8, 8);
-                    state.targetTiltX = random(2, 5);
-                }
-                if (state.idleAction === 'wave') {
-                    if (!state.speaking && (state.emotion === 'caring' || state.emotion === 'idle')) {
-                        marquinhosEl.classList.add('waving');
-                        setTimeout(() => {
-                            marquinhosEl.classList.remove('waving');
-                        }, 1200);
-                    }
-                }
-            }
-
-            function finishIdleAction(now) {
-                if (state.idleAction && now > state.idleActionUntil) {
-                    state.idleAction = '';
-                    setLook(0, 0);
-                    state.targetTiltX = 0;
-                    state.targetTiltY = 0;
-                }
-            }
-
-            function setLook(x = 0, y = 0) {
-                state.targetLookX = clamp(Number(x) || 0, -1, 1);
-                state.targetLookY = clamp(Number(y) || 0, -1, 1);
-            }
-
-            function updateLookAndPosture(delta) {
-                const emotion = state.emotion;
-                let lookX = state.targetLookX;
-                let lookY = state.targetLookY;
-                let tiltX = state.targetTiltX;
-                let tiltY = state.targetTiltY;
-
-                if (emotion === 'thinking') {
-                    lookX = 0.35;
-                    lookY = -0.45;
-                    tiltY += 5;
-                }
-                if (emotion === 'curious') {
-                    lookX += 0.18;
-                    tiltY += 3;
-                }
-                if (emotion === 'surprised') {
-                    lookY = -0.2;
-                    tiltX -= 3;
-                }
-                if (emotion === 'tired') {
-                    lookY += 0.12;
-                    tiltX += 2;
-                }
-                if (emotion === 'talking') {
-                    tiltY += Math.sin(performance.now() / 870) * 2.2;
-                    tiltX += Math.sin(performance.now() / 1130) * 1.2;
-                }
-
-                state.lookX += (lookX - state.lookX) * delta * 7;
-                state.lookY += (lookY - state.lookY) * delta * 7;
-                state.tiltX += (tiltX - state.tiltX) * delta * 5;
-                state.tiltY += (tiltY - state.tiltY) * delta * 5;
-
-                const card = document.querySelector('.marquinhos .card');
-                if (card) {
-                    card.style.transform =
-                        `rotateX(${2 + state.tiltX * 0.3}deg) rotateY(${state.tiltY * 0.3}deg)`;
-                }
-
-                irises.forEach((iris) => {
-                    iris.style.transform =
-                        `translate(${state.lookX * 7}px, ${state.lookY * 4}px)`;
-                });
-            }
-
-            function updateActing(now) {
-                const level = state.audioLevel;
-                const talking = state.speaking || level > 0.03;
-
-                if (talking) {
-                    antennas.forEach((antenna, index) => {
-                        const rotation = Math.sin(now / 180 + index) * (5 + level * 12);
-                        antenna.style.transform = `rotate(${rotation}deg)`;
-                    });
-                } else {
-                    antennas.forEach((antenna, index) => {
-                        const rotation = Math.sin(now / 850 + index) * 7;
-                        antenna.style.transform = `rotate(${rotation}deg)`;
-                    });
-                }
-            }
-
-            function animationLoop(now) {
-                const delta = Math.min((now - state.lastFrame) / 1000, 0.05);
-                state.lastFrame = now;
-
-                analyseAudio();
-                blink(now);
-                performIdleAction(now);
-                finishIdleAction(now);
-                updateLookAndPosture(delta);
-                updateActing(now);
-
-                requestAnimationFrame(animationLoop);
-            }
-
-            // ===== NUEVAS FUNCIONES =====
-            function sit() {
-                marquinhosEl.classList.add('sitting');
-            }
-
-            function stand() {
-                marquinhosEl.classList.remove('sitting');
-            }
-
-            function stretch() {
-                if (state.speaking) return;
-                marquinhosEl.classList.add('stretching');
+                // Saludo de bienvenida
                 setTimeout(() => {
-                    marquinhosEl.classList.remove('stretching');
-                }, 1800);
+                    const namePart = userName ? ` ${userName}` : '';
+                    speak(`¡Hola${namePart}! Soy Marquinhos, tu asistente personal. ¿Cómo puedo ayudarte?`);
+                }, 1500);
+
+                console.log('🚀 MARQUINHOS - Asistente Personal');
+                console.log('🎤 Di "Marquinhos" para activarme');
+                console.log('🎵 Comandos: música, luz, hora, hola, gracias, adiós');
+                console.log('👤 Di "me llamo [nombre]" para recordarlo');
+            });
+
+            // Exponer funciones
+            window.MarquinhosAssistant = {
+                speak,
+                toggleMusic,
+                toggleLight,
+                toggleMic,
+                isListening: () => isListening,
+                isSpeaking: () => isSpeaking,
+                getUserName: () => userName,
+                setUserName: (name) => {
+                    userName = name;
+                    try { localStorage.setItem('marquinhos_user_name', name); } catch (e) {}
+                }
+            };
+
+            // Limpiar al salir
+            window.addEventListener('beforeunload', () => {
+                stopMusic();
+                if (recognition) {
+                    try { recognition.stop(); } catch (e) {}
+                }
+                synth.cancel();
+            });
+
+        })();
+
+        // ================================================================
+        // 4. ARRASTRE CON FÍSICA
+        // ================================================================
+
+        (function dragPhysics() {
+            const container = document.getElementById('marquinhos-container');
+            const marquinhos = document.getElementById('marquinhos');
+
+            // Referencias a brazos y piernas
+            const arms = marquinhos.querySelectorAll('.arm');
+            const legs = marquinhos.querySelectorAll('.leg');
+
+            let isDragging = false;
+            let startX = 0,
+                startY = 0;
+            let origX = 0,
+                origY = 0;
+            let lastDx = 0,
+                lastDy = 0;
+            let velocityX = 0,
+                velocityY = 0;
+            let animationId = null;
+
+            // Función para aplicar física a extremidades
+            function applyPhysics(dx, dy, velX, velY) {
+                const factor = 0.4;
+                // Dirección CONTRARIA al arrastre
+                const xOffset = -dx * factor + velX * 3;
+                const yOffset = -dy * factor + velY * 3;
+                const rotX = dx * 0.1 + velX * 0.8;
+                const rotY = dy * 0.1 + velY * 0.8;
+
+                // Brazos: rotación en dirección contraria
+                arms.forEach((arm, index) => {
+                    const delay = index * 20;
+                    clearTimeout(arm._physicsTimeout);
+                    arm._physicsTimeout = setTimeout(() => {
+                        const baseRotation = index === 0 ? -12 : 12;
+                        const extraRot = -rotX * 0.5 + (index === 0 ? -rotY * 0.2 : rotY * 0.2);
+                        arm.style.transform = `rotate(${baseRotation + extraRot + xOffset * 0.3}deg)`;
+                        arm.style.transition = 'transform 0.05s ease';
+                    }, delay);
+                });
+
+                // Piernas: rotación en dirección contraria
+                legs.forEach((leg, index) => {
+                    const delay = index * 20 + 10;
+                    clearTimeout(leg._physicsTimeout);
+                    leg._physicsTimeout = setTimeout(() => {
+                        const baseRotation = 0;
+                        const extraRot = -rotX * 0.3 + (index === 0 ? -rotY * 0.15 : rotY * 0.15);
+                        leg.style.transform = `rotate(${baseRotation + extraRot + xOffset * 0.2}deg)`;
+                        leg.style.transition = 'transform 0.05s ease';
+                    }, delay);
+                });
             }
 
-            // ===== MEJORA UX: mostrar nombre en micStatus =====
-            function showNameInMicStatus() {
-                const userName = window.MarquinhosCognitiveAI?.getUserName?.();
-                if (userName && micStatus) {
-                    const currentText = micStatus.textContent;
-                    // Solo cambiar si está en modo escucha
-                    if (currentText.includes('🎤 Escuchando')) {
-                        micStatus.textContent = `🎤 Escuchando, ${userName}...`;
-                        clearTimeout(state.micNameTimer);
-                        state.micNameTimer = setTimeout(() => {
-                            if (micStatus && micStatus.textContent.includes(`Escuchando, ${userName}`)) {
-                                micStatus.textContent = '🎤 Escuchando...';
-                            }
-                        }, 2000);
-                    }
-                }
+            // Función para resetear extremidades con bounce
+            function resetPhysics() {
+                arms.forEach((arm, index) => {
+                    clearTimeout(arm._physicsTimeout);
+                    const baseRotation = index === 0 ? -12 : 12;
+                    arm.style.transform = `rotate(${baseRotation}deg)`;
+                    arm.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    setTimeout(() => {
+                        arm.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }, 500);
+                });
+
+                legs.forEach((leg) => {
+                    clearTimeout(leg._physicsTimeout);
+                    leg.style.transform = 'rotate(0deg)';
+                    leg.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    setTimeout(() => {
+                        leg.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }, 500);
+                });
             }
 
-            // Hookear en los puntos donde cambia micStatus a "🎤 Escuchando..."
-            const originalSetMicStatus = (text) => {
-                if (micStatus) {
-                    micStatus.textContent = text;
-                    if (text === '🎤 Escuchando...') {
-                        showNameInMicStatus();
-                    }
-                }
-            };
+            // Eventos de arrastre
+            container.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                const rect = container.getBoundingClientRect();
+                startX = e.clientX;
+                startY = e.clientY;
+                origX = rect.left;
+                origY = rect.top;
+                container.setPointerCapture(e.pointerId);
+                container.style.cursor = 'grabbing';
+                lastDx = 0;
+                lastDy = 0;
+                velocityX = 0;
+                velocityY = 0;
 
-            // Override de setEmotion para capturar cambios de micStatus
-            const origSetEmotion = setEmotion;
-            setEmotion = function(emotion, text, duration) {
-                origSetEmotion(emotion, text, duration);
-                // Si se está poniendo en modo 'caring' o 'idle', mostrar nombre en mic
-                if (emotion === 'caring' || emotion === 'idle') {
-                    if (state.isListening && micStatus) {
-                        showNameInMicStatus();
-                    }
-                }
-            };
-
-            window.Marquinhos = {
-                react,
-                talk: (text) => {
-                    let safeText = String(text || '');
-                    if (window.MarquinhosCognitiveAI && window.MarquinhosCognitiveAI.isChildDetected()) {
-                        const offensiveWords = ['pendejo', 'wey', 'güey', 'chinga', 'verga', 'puto', 'culero', 'mamón',
-                            'chingar'
-                        ];
-                        for (const word of offensiveWords) {
-                            const regex = new RegExp(word, 'gi');
-                            safeText = safeText.replace(regex, 'amigo');
-                        }
-                        safeText = safeText.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.,;:!?¿¡]/g, '');
-                    }
-                    if (!safeText) safeText = "Dime algo, por favor.";
-                    setEmotion('talking', safeText, Math.max(2200, safeText.length * 55));
-                    speakWithDisneyMouth(safeText);
-                },
-                setEmotion,
-                setLook,
-                speak: speakWithDisneyMouth,
-                reset: resetState,
-                startListening: () => {
-                    state.recognitionRetries = 0;
-                    if (!state.recognition) {
-                        initSpeechRecognition();
-                    }
-                    state.isListening = true;
-                    if (micIndicator) micIndicator.classList.add('active');
-                    if (micStatus) {
-                        micStatus.textContent = '🎤 Escuchando...';
-                        showNameInMicStatus();
-                    }
-                    try {
-                        state.recognition.start();
-                    } catch (e) {}
-                },
-                stopListening: () => {
-                    state.isListening = false;
-                    if (micIndicator) micIndicator.classList.remove('active');
-                    if (micStatus) micStatus.textContent = '⏸️ En espera';
-                    try {
-                        state.recognition.stop();
-                    } catch (e) {}
-                },
-                isListening: () => state.isListening,
-                applyColor: applyColor,
-                _disneyMouth: DisneyMouth,
-                _triggerOra: () => DisneyMouth.triggerOra(),
-                // NUEVAS FUNCIONES
-                sit: sit,
-                stand: stand,
-                stretch: stretch,
-                // Exponer showNameInMicStatus para uso externo
-                _showNameInMicStatus: showNameInMicStatus
-            };
-
-            initColorPicker();
-            requestAnimationFrame(animationLoop);
-
-            console.log('🚀 Marquinhos · Asistente de voz con DISNEY LIP SYNC');
-            console.log('🎤 Di "Hola Marquinhos" para activarlo (toca el avatar para activar micrófono).');
-            console.log('👶 Detección infantil automática activada.');
-            console.log('👤 Memoria de nombre activada - di "me llamo [nombre]" para guardarlo.');
-            console.log('🎨 Selector de color: toca 🎨 para cambiar el color.');
-            console.log('🎬 La boca se mueve al ritmo de los fonemas (como Disney)');
-            console.log('😲 Reacción ORA: dice "ORA" cuando le cuentas algo sorprendente');
-            console.log('🔒 RLS activado: solo el usuario puede ver/escribir sus datos');
-
-            marquinhosEl.addEventListener('click', () => {
-                // Saludo en el primer toque
-                if (!state.hasBeenTouched) {
-                    state.hasBeenTouched = true;
-                    // Usar greeting personalizado si existe
-                    let greetMsg = '¡Hola!';
-                    if (window.MarquinhosCognitiveAI && typeof window.MarquinhosCognitiveAI.getPersonalizedGreeting === 'function') {
-                        greetMsg = window.MarquinhosCognitiveAI.getPersonalizedGreeting(
-                            window.MarquinhosCognitiveAI.isChildDetected?.() || false
-                        );
-                    }
-                    setEmotion('waving', greetMsg, 2500);
-                }
-
-                if (!window.MarquinhosCognitiveAI.isMicActive()) {
-                    window.MarquinhosCognitiveAI.requestMicPermission().then(() => {
-                        if (state.recognition) {
-                            state.recognitionRetries = 0;
-                            state.isListening = true;
-                            if (micIndicator) micIndicator.classList.add('active');
-                            if (micStatus) {
-                                micStatus.textContent = '🎤 Escuchando...';
-                                showNameInMicStatus();
-                            }
-                            try {
-                                state.recognition.start();
-                            } catch (e) {}
-                        } else {
-                            initSpeechRecognition();
-                        }
-                    });
-                } else if (!state.isListening) {
-                    state.recognitionRetries = 0;
-                    state.isListening = true;
-                    if (micIndicator) micIndicator.classList.add('active');
-                    if (micStatus) {
-                        micStatus.textContent = '🎤 Escuchando...';
-                        showNameInMicStatus();
-                    }
-                    try {
-                        state.recognition.start();
-                    } catch (e) {}
+                // Cancelar animación de inercia
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
                 }
             });
 
-            console.log('🎤 Micrófono: se activa al tocar el avatar de Marquinhos.');
-            console.log('🎬 Disney Lip Sync: la boca se mueve con cada fonema');
-            console.log('😲 Palabras que activan ORA: sorpresa, increíble, no mames, wow, órale, etc.');
-            console.log('🪑 Funciones nuevas: window.Marquinhos.sit(), stand(), stretch()');
-            console.log('👤 window.MarquinhosCognitiveAI.getUserName() disponible');
+            container.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
 
-            // Mostrar nombre en micStatus cada vez que se reinicia la escucha
-            // Hook en startListening para mostrar nombre
-            const origStartListening = window.Marquinhos.startListening;
-            window.Marquinhos.startListening = function() {
-                origStartListening.call(window.Marquinhos);
-                setTimeout(() => {
-                    if (window.Marquinhos._showNameInMicStatus) {
-                        window.Marquinhos._showNameInMicStatus();
+                const velX = dx - lastDx;
+                const velY = dy - lastDy;
+                lastDx = dx;
+                lastDy = dy;
+
+                // Mover el contenedor
+                container.style.left = (origX + dx) + 'px';
+                container.style.top = (origY + dy) + 'px';
+                container.style.right = 'auto';
+                container.style.bottom = 'auto';
+                container.style.transform = 'none';
+
+                // Aplicar física a extremidades
+                applyPhysics(dx, dy, velX, velY);
+
+                // Guardar velocidad para inercia
+                velocityX = velX;
+                velocityY = velY;
+            });
+
+            container.addEventListener('pointerup', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                container.style.cursor = 'grab';
+
+                // Resetear extremidades con bounce
+                resetPhysics();
+
+                // Inercia
+                const friction = 0.92;
+                let vx = velocityX * 0.5;
+                let vy = velocityY * 0.5;
+
+                if (Math.abs(vx) > 0.5 || Math.abs(vy) > 0.5) {
+                    let lastTime = performance.now();
+
+                    function animateInertia() {
+                        const now = performance.now();
+                        const delta = Math.min((now - lastTime) / 16, 2);
+                        lastTime = now;
+
+                        vx *= Math.pow(friction, delta);
+                        vy *= Math.pow(friction, delta);
+
+                        const rect = container.getBoundingClientRect();
+                        const newX = rect.left + vx * delta;
+                        const newY = rect.top + vy * delta;
+
+                        // Limitar dentro de la pantalla
+                        const maxX = window.innerWidth - rect.width;
+                        const maxY = window.innerHeight - rect.height;
+
+                        container.style.left = Math.max(0, Math.min(maxX, newX)) + 'px';
+                        container.style.top = Math.max(0, Math.min(maxY, newY)) + 'px';
+                        container.style.right = 'auto';
+                        container.style.bottom = 'auto';
+                        container.style.transform = 'none';
+
+                        if (Math.abs(vx) > 0.1 || Math.abs(vy) > 0.1) {
+                            animationId = requestAnimationFrame(animateInertia);
+                        } else {
+                            animationId = null;
+                        }
                     }
-                }, 100);
-            };
+                    animateInertia();
+                }
+
+                velocityX = 0;
+                velocityY = 0;
+            });
+
+            container.addEventListener('pointercancel', () => {
+                isDragging = false;
+                container.style.cursor = 'grab';
+                resetPhysics();
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            });
+
+            // Prevenir scroll
+            container.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+
+            console.log('👆 Arrastre con física activado');
+            console.log('🦵 Brazos y piernas se mueven en dirección contraria al arrastre');
 
         })();
     </script>
