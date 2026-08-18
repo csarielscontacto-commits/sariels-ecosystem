@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title data-i18n="titulo_delivery">🚚 Delivery | Csariel's</title>
     <meta name="theme-color" content="#0F2D1A" />
     <base href="/">
@@ -24,7 +24,7 @@
 
     <!-- ===== RECURSOS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -50,6 +50,14 @@
             --danger: #ff3366;
             --warning: #D4AF37;
             --quantum: #00e5ff;
+            /* Colores de Marquinhos */
+            --color-activo: #1565C0;
+            --talavera-blue: #1565C0;
+            --talavera-light: #42A5F5;
+            --talavera-dark: #0D47A1;
+            --ceramic: #FFFFFF;
+            --cream: #FFF8E1;
+            --mic-active: #00E5FF;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -383,13 +391,17 @@
         .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--danger); color: white; }
 
-        /* ===== ESTILOS PARA MARQUINHOS ===== */
-        #marquinhos-container {
+        /* ================================================================
+           ===== ESTILOS DE MARQUINHOS (AUTOCONTENIDO) =====
+           ================================================================ */
+
+        /* Contenedor flotante de Marquinhos */
+        #marquinhos-float {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 160px;
-            height: 200px;
+            width: 150px;
+            height: 190px;
             z-index: 9999;
             cursor: grab;
             touch-action: none;
@@ -397,19 +409,15 @@
             -webkit-user-select: none;
             pointer-events: auto;
             filter: drop-shadow(0 8px 30px rgba(13, 71, 161, 0.3));
+            transition: none;
         }
 
-        #marquinhos-container:active {
+        #marquinhos-float:active {
             cursor: grabbing;
         }
 
-        #marquinhos-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 20px;
-            background: transparent;
-            pointer-events: auto;
+        #marquinhos-float.hidden {
+            display: none;
         }
 
         .marquinhos-toggle {
@@ -430,6 +438,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Quicksand', sans-serif;
         }
 
         .marquinhos-toggle:hover {
@@ -441,14 +450,524 @@
             display: none;
         }
 
-        #marquinhos-container.hidden {
-            display: none;
+        /* ===== MARQUINHOS WIDGET ===== */
+        .marquinhos-widget {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: float-mq 4.5s ease-in-out infinite;
+            user-select: none;
+            touch-action: none;
+            isolation: isolate;
+            pointer-events: none;
+            margin: 0 auto;
         }
 
+        .marquinhos-widget * {
+            pointer-events: none;
+        }
+
+        .marquinhos-widget .card {
+            background: transparent;
+            border: none;
+            padding: 0;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* HEAD */
+        .marquinhos-widget .head {
+            position: relative;
+            width: 130px;
+            height: 120px;
+            margin: 0 auto 0;
+            border: 3px solid var(--color-activo, #1565C0);
+            border-radius: 50% 50% 45% 45%;
+            overflow: visible;
+            background: radial-gradient(circle at 35% 25%, #FFFFFF 0%, #FFF8E1 60%, #f5efe0 85%, #e8e0d0 100%);
+            box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.6), inset 0 -4px 12px rgba(13, 71, 161, 0.08), 0 4px 12px rgba(0, 0, 0, 0.10);
+            transform: translateZ(10px);
+            transition: border-color .3s ease, box-shadow .3s ease;
+            z-index: 10;
+        }
+
+        .marquinhos-widget .head::before {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background-image:
+                radial-gradient(circle at 20% 30%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 80% 25%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 50% 15%, #1565C0 2.5px, transparent 2.5px),
+                radial-gradient(circle at 70% 70%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 30% 75%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 50% 55%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 15% 55%, #42A5F5 1.5px, transparent 1.5px),
+                radial-gradient(circle at 85% 55%, #42A5F5 1.5px, transparent 1.5px);
+            background-size: 50px 50px;
+            background-repeat: repeat;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .marquinhos-widget .head::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
+            pointer-events: none;
+            border-radius: inherit;
+            z-index: 2;
+        }
+
+        /* ANTENAS */
+        .marquinhos-widget .antenna {
+            position: absolute;
+            top: -16px;
+            width: 4px;
+            height: 20px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #1565C0, #42A5F5);
+            transform-origin: bottom center;
+            animation: sway-mq 3.2s ease-in-out infinite alternate;
+            box-shadow: none;
+            transition: all 0.5s ease;
+            z-index: 15;
+        }
+        .marquinhos-widget .antenna::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: -10px;
+            width: 16px;
+            height: 16px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, #FFFFFF 0%, #FFF8E1 65%, #42A5F5 100%);
+            border: 2px solid #1565C0;
+            box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.5), 0 0 0 1px rgba(13, 71, 161, 0.15);
+            transition: all 0.5s ease;
+        }
+        .marquinhos-widget .antenna.left {
+            left: 34px;
+        }
+        .marquinhos-widget .antenna.right {
+            right: 34px;
+            animation-delay: .14s;
+        }
+
+        /* CEJAS */
+        .marquinhos-widget .brow {
+            position: absolute;
+            top: 26px;
+            width: 26px;
+            height: 6px;
+            border-top: 3px solid var(--color-activo, #1565C0);
+            border-radius: 50%;
+            z-index: 14;
+            opacity: 1;
+            transition: transform .3s ease, top .3s ease, border-color .3s ease;
+        }
+        .marquinhos-widget .brow.left {
+            left: 20px;
+            transform: rotate(-4deg);
+        }
+        .marquinhos-widget .brow.right {
+            right: 20px;
+            transform: rotate(4deg);
+        }
+
+        /* OJOS */
+        .marquinhos-widget .eye {
+            position: absolute;
+            top: 34px;
+            width: 30px;
+            height: 34px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #1A0A2E;
+            box-shadow: inset 0 0 0 2px rgba(13, 71, 161, 0.12), 0 0 8px rgba(21, 101, 192, 0.08);
+            transition: clip-path 0.15s ease;
+            z-index: 13;
+        }
+        .marquinhos-widget .eye.left {
+            left: 20px;
+        }
+        .marquinhos-widget .eye.right {
+            right: 20px;
+        }
+
+        .marquinhos-widget .eye::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 42%, #fff 0 56%, #f5f0e8 66%, #e8e0d0 100%);
+            border-radius: 50%;
+            transform: scaleY(.78);
+            transition: transform .2s ease;
+        }
+
+        .marquinhos-widget .eye::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            right: 5px;
+            top: -2px;
+            height: 0;
+            background: #FFF8F0;
+            border-bottom: 3px solid var(--color-activo, #1565C0);
+            border-radius: 50%;
+            z-index: 13;
+            transition: height .2s ease, border-color .3s ease;
+        }
+
+        /* IRIS */
+        .marquinhos-widget .iris {
+            position: absolute;
+            z-index: 13;
+            width: 14px;
+            height: 14px;
+            left: 8px;
+            top: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #6dd5ff 0 16%, #1a6cb0 38%, #0a1a3e 74%, #030810 100%);
+            box-shadow: 0 0 10px rgba(0, 229, 255, .15), inset 0 0 6px rgba(255, 255, 255, .1);
+            transition: transform .3s ease;
+        }
+        .marquinhos-widget .iris::before {
+            content: "";
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            left: 2px;
+            top: 2px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: .9;
+        }
+
+        /* BOCA */
+        .marquinhos-widget .mouth-container {
+            position: absolute;
+            left: 50%;
+            bottom: 14px;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 13;
+        }
+
+        .marquinhos-widget .mouth {
+            width: 28px;
+            height: 8px;
+            border-bottom: 3px solid var(--color-activo, #1565C0);
+            border-radius: 0 0 50% 50%;
+            transition: all 0.04s ease;
+            transform-origin: center;
+            background: transparent;
+            position: relative;
+            filter: drop-shadow(0 1px 4px rgba(21, 101, 192, .10));
+        }
+
+        .marquinhos-widget .mouth.shape-neutral { width: 28px; height: 8px; border-bottom-width: 3px; border-radius: 0 0 50% 50%; }
+        .marquinhos-widget .mouth.talking { animation: talk-mq .12s ease-in-out infinite alternate; }
+
+        /* MEJILLAS */
+        .marquinhos-widget .cheek {
+            position: absolute;
+            bottom: 20px;
+            width: 18px;
+            height: 12px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 107, 138, 0.5) 0%, rgba(255, 59, 111, 0.2) 100%);
+            filter: blur(4px);
+            opacity: .5;
+            transition: opacity .3s ease;
+            z-index: 12;
+        }
+        .marquinhos-widget .cheek.left {
+            left: 8px;
+        }
+        .marquinhos-widget .cheek.right {
+            right: 8px;
+        }
+
+        /* CUERPO */
+        .marquinhos-widget .body {
+            position: relative;
+            width: 135px;
+            height: 115px;
+            margin: -4px auto 0;
+            border: 3px solid var(--color-activo, #1565C0);
+            border-radius: 25px 25px 35px 35px;
+            overflow: visible;
+            background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #FFF8E1 55%, #f0ead8 85%, #e0d8c0 100%);
+            box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.5), inset 0 -4px 12px rgba(13, 71, 161, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateZ(8px);
+            animation: breathe-mq 4s ease-in-out infinite;
+            transition: border-color .3s ease;
+            z-index: 5;
+        }
+
+        .marquinhos-widget .body::before {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            border-radius: 18px;
+            background-image:
+                radial-gradient(circle at 20% 25%, #1565C0 2px, transparent 2px),
+                radial-gradient(circle at 80% 30%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 50% 15%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 70% 70%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 30% 75%, #1565C0 1.8px, transparent 1.8px),
+                radial-gradient(circle at 50% 50%, #42A5F5 2px, transparent 2px);
+            background-size: 40px 40px;
+            background-repeat: repeat;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .marquinhos-widget .body::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25) 0%, transparent 50%);
+            pointer-events: none;
+            border-radius: inherit;
+            z-index: 2;
+        }
+
+        /* PECHO */
+        .marquinhos-widget .chest {
+            position: absolute;
+            left: 50%;
+            top: 10px;
+            width: 70px;
+            height: 32px;
+            transform: translateX(-50%);
+            border: 2.5px solid #1565C0;
+            border-radius: 10px;
+            background: #FFFFFF;
+            box-shadow: inset 0 0 0 1px rgba(13, 71, 161, 0.05), 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: grid;
+            place-items: center;
+            transition: all 0.5s ease;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .marquinhos-widget .chest::before {
+            content: "MARQUINHOS";
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            font-size: 7px;
+            color: #0D47A1;
+            font-family: "Quicksand", sans-serif;
+            transition: all 0.5s ease;
+            text-align: center;
+            line-height: 1.1;
+            padding: 0 2px;
+        }
+
+        /* BRAZOS - FUERA DEL CUERPO */
+        .marquinhos-widget .arm {
+            position: absolute;
+            top: 10px;
+            width: 18px;
+            height: 60px;
+            border: 3px solid var(--color-activo, #1565C0);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
+            transform-origin: top center;
+            box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
+            z-index: 6;
+            will-change: transform;
+        }
+        .marquinhos-widget .arm.left {
+            left: -16px;
+            transform: rotate(-15deg);
+        }
+        .marquinhos-widget .arm.right {
+            right: -16px;
+            transform: rotate(15deg);
+        }
+
+        /* MANOS - FUERA DEL CUERPO */
+        .marquinhos-widget .hand {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border: 3px solid var(--color-activo, #1565C0);
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #FFF8E1 60%, #e8e0d0 100%);
+            transform-origin: center;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
+            z-index: 7;
+        }
+        .marquinhos-widget .hand.left {
+            left: -28px;
+            top: 54px;
+        }
+        .marquinhos-widget .hand.right {
+            right: -28px;
+            top: 54px;
+        }
+
+        /* PIERNAS - FUERA DEL CUERPO */
+        .marquinhos-widget .leg {
+            position: absolute;
+            bottom: -40px;
+            width: 24px;
+            height: 44px;
+            border: 3px solid var(--color-activo, #1565C0);
+            border-radius: 10px;
+            background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
+            box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
+            z-index: 4;
+            will-change: transform;
+        }
+        .marquinhos-widget .leg.left {
+            left: 32px;
+            transform: rotate(0deg);
+        }
+        .marquinhos-widget .leg.right {
+            right: 32px;
+            transform: rotate(0deg);
+        }
+
+        /* PIES - FUERA DEL CUERPO */
+        .marquinhos-widget .foot {
+            position: absolute;
+            bottom: -14px;
+            left: -8px;
+            width: 38px;
+            height: 16px;
+            border: 3px solid var(--color-activo, #1565C0);
+            border-radius: 12px 12px 8px 8px;
+            background: linear-gradient(180deg, #FFFFFF, #FFF8E1);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
+            z-index: 3;
+        }
+
+        /* BURBUJA DE TEXTO */
+        .marquinhos-widget #speech-bubble {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #0D47A1;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-family: "Quicksand", sans-serif;
+            z-index: 100;
+            max-width: 140px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(21, 101, 192, 0.08);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.25s ease;
+            opacity: 0;
+            border: 1px solid rgba(21, 101, 192, 0.1);
+            line-height: 1.3;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .marquinhos-widget #speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(255, 255, 255, 0.95);
+        }
+
+        .marquinhos-widget #speech-bubble.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .marquinhos-widget #speech-bubble.listening {
+            border-color: #00E5FF;
+            color: #00B4D8;
+            background: rgba(0, 229, 255, 0.08);
+        }
+
+        .marquinhos-widget #speech-bubble.listening::after {
+            border-top-color: rgba(0, 229, 255, 0.08);
+        }
+
+        .marquinhos-widget #speech-bubble.thinking {
+            border-color: #FF6B35;
+            color: #BF360C;
+            background: rgba(255, 107, 53, 0.08);
+        }
+
+        .marquinhos-widget #speech-bubble.thinking::after {
+            border-top-color: rgba(255, 107, 53, 0.08);
+        }
+
+        /* ESTADOS */
+        .marquinhos-widget.on-call .antenna {
+            animation: callPulse-mq 1.2s ease-in-out infinite alternate;
+        }
+        .marquinhos-widget.on-call .chest::before {
+            content: "📞 LLAMADA";
+            color: #FF6B35;
+            font-size: 6px;
+        }
+
+        .marquinhos-widget.talking .mouth {
+            animation: talk-mq .12s ease-in-out infinite alternate;
+        }
+
+        /* ANIMACIONES */
+        @keyframes float-mq {
+            0%, 100% { transform: translateY(0) rotateX(0deg); }
+            50% { transform: translateY(-5px) rotateX(1deg); }
+        }
+
+        @keyframes breathe-mq {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(2px); }
+        }
+
+        @keyframes sway-mq {
+            from { transform: rotate(-8deg); }
+            to { transform: rotate(8deg); }
+        }
+
+        @keyframes talk-mq {
+            from { transform: translateX(-50%) scaleX(.9); height: 3px; }
+            to { transform: translateX(-50%) scaleX(1.1); height: 12px; }
+        }
+
+        @keyframes callPulse-mq {
+            0% { transform: rotate(-10deg) scale(1); }
+            100% { transform: rotate(10deg) scale(1.06); }
+        }
+
+        /* RESPONSIVE */
         @media (max-width: 520px) {
-            #marquinhos-container {
-                width: 130px;
-                height: 165px;
+            #marquinhos-float {
+                width: 120px;
+                height: 155px;
                 bottom: 10px;
                 right: 10px;
             }
@@ -458,6 +977,80 @@
                 font-size: 18px;
                 bottom: 10px;
                 right: 10px;
+            }
+            .marquinhos-widget .head {
+                width: 105px;
+                height: 98px;
+            }
+            .marquinhos-widget .eye {
+                width: 24px;
+                height: 28px;
+                top: 28px;
+            }
+            .marquinhos-widget .eye.left { left: 16px; }
+            .marquinhos-widget .eye.right { right: 16px; }
+            .marquinhos-widget .iris {
+                width: 12px;
+                height: 12px;
+                left: 6px;
+                top: 8px;
+            }
+            .marquinhos-widget .brow {
+                width: 22px;
+                top: 20px;
+            }
+            .marquinhos-widget .brow.left { left: 16px; }
+            .marquinhos-widget .brow.right { right: 16px; }
+            .marquinhos-widget .antenna.left { left: 26px; }
+            .marquinhos-widget .antenna.right { right: 26px; }
+            .marquinhos-widget .cheek {
+                width: 14px;
+                height: 10px;
+                bottom: 16px;
+            }
+            .marquinhos-widget .cheek.left { left: 6px; }
+            .marquinhos-widget .cheek.right { right: 6px; }
+            .marquinhos-widget .body {
+                width: 108px;
+                height: 92px;
+            }
+            .marquinhos-widget .chest {
+                width: 56px;
+                height: 26px;
+                top: 8px;
+            }
+            .marquinhos-widget .chest::before { font-size: 6px; }
+            .marquinhos-widget .arm {
+                width: 14px;
+                height: 48px;
+                top: 8px;
+            }
+            .marquinhos-widget .arm.left { left: -12px; }
+            .marquinhos-widget .arm.right { right: -12px; }
+            .marquinhos-widget .hand {
+                width: 22px;
+                height: 22px;
+            }
+            .marquinhos-widget .hand.left { left: -22px; top: 42px; }
+            .marquinhos-widget .hand.right { right: -22px; top: 42px; }
+            .marquinhos-widget .leg {
+                width: 20px;
+                height: 36px;
+                bottom: -34px;
+            }
+            .marquinhos-widget .leg.left { left: 26px; }
+            .marquinhos-widget .leg.right { right: 26px; }
+            .marquinhos-widget .foot {
+                width: 30px;
+                height: 14px;
+                left: -6px;
+                bottom: -12px;
+            }
+            .marquinhos-widget #speech-bubble {
+                font-size: 7px;
+                padding: 3px 8px;
+                max-width: 100px;
+                white-space: normal;
             }
         }
     </style>
@@ -564,12 +1157,42 @@
         </footer>
     </div>
 
-    <!-- ===== MARQUINHOS ASISTENTE FLOTANTE ===== -->
+    <!-- ===== MARQUINHOS ASISTENTE FLOTANTE (AUTOCONTENIDO) ===== -->
     <button class="marquinhos-toggle" id="marquinhosToggle" title="Marquinhos Asistente">
         🎭
     </button>
-    <div id="marquinhos-container" class="hidden">
-        <iframe src="/features/marquinhos/index.html" scrolling="no" allow="microphone"></iframe>
+
+    <div id="marquinhos-float" class="hidden">
+        <div class="marquinhos-widget caring" id="marquinhosWidget">
+            <div class="card">
+                <div id="speech-bubble"></div>
+
+                <div class="head">
+                    <div class="antenna left"></div>
+                    <div class="antenna right"></div>
+                    <div class="brow left"></div>
+                    <div class="brow right"></div>
+                    <div class="eye left"><div class="iris"></div></div>
+                    <div class="eye right"><div class="iris"></div></div>
+                    <div class="mouth-container"><div class="mouth shape-neutral" id="disneyMouth"></div></div>
+                    <div class="cheek left"></div>
+                    <div class="cheek right"></div>
+                </div>
+
+                <div class="body">
+                    <div class="chest"></div>
+                </div>
+
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+                <div class="hand left"></div>
+                <div class="hand right"></div>
+                <div class="leg left"></div>
+                <div class="leg right"></div>
+                <div class="foot left"></div>
+                <div class="foot right"></div>
+            </div>
+        </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -850,34 +1473,271 @@
             renderPedidos(data);
         }
 
-        // ===== MARQUINHOS - TOGGLE =====
-        document.addEventListener('DOMContentLoaded', function() {
+        // ================================================================
+        // ===== MARQUINHOS - ASISTENTE AUTOCONTENIDO =====
+        // ================================================================
+
+        (function marquinhosAssistant() {
+            const container = document.getElementById('marquinhos-float');
             const toggleBtn = document.getElementById('marquinhosToggle');
-            const container = document.getElementById('marquinhos-container');
+            const widget = document.getElementById('marquinhosWidget');
+            const bubble = document.getElementById('speech-bubble');
+            const mouth = document.getElementById('disneyMouth');
 
+            // Estado
+            let isOpen = false;
+            let isSpeaking = false;
+            let synth = window.speechSynthesis;
+            let userName = null;
+
+            // ===== BURBUJA =====
+            function showBubble(text, type = '') {
+                bubble.textContent = text;
+                bubble.className = 'visible';
+                if (type) bubble.classList.add(type);
+                clearTimeout(bubble._timeout);
+                bubble._timeout = setTimeout(() => {
+                    bubble.classList.remove('visible', 'listening', 'thinking');
+                }, 3500);
+            }
+
+            function hideBubble() {
+                bubble.classList.remove('visible', 'listening', 'thinking');
+            }
+
+            // ===== BOCA =====
+            function setMouthTalking(talking) {
+                if (talking) {
+                    mouth.className = 'mouth talking';
+                } else {
+                    mouth.className = 'mouth shape-neutral';
+                }
+            }
+
+            // ===== HABLAR =====
+            function speak(text) {
+                if (!text) return;
+                if (isSpeaking) synth.cancel();
+
+                showBubble(text, 'thinking');
+                setMouthTalking(true);
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-MX';
+                utterance.pitch = 1.08;
+                utterance.rate = 0.95;
+                utterance.volume = 1;
+
+                utterance.onstart = () => {
+                    isSpeaking = true;
+                    widget.classList.add('talking');
+                };
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    widget.classList.remove('talking');
+                    setMouthTalking(false);
+                    hideBubble();
+                };
+
+                utterance.onerror = () => {
+                    isSpeaking = false;
+                    widget.classList.remove('talking');
+                    setMouthTalking(false);
+                    hideBubble();
+                };
+
+                synth.cancel();
+                synth.speak(utterance);
+            }
+
+            // ===== COMANDOS =====
+            function processCommand(text) {
+                const lower = text.toLowerCase();
+
+                if (lower.includes('hola') || lower.includes('buenas') || lower.includes('hey')) {
+                    const namePart = userName ? ` ${userName}` : '';
+                    speak(`¡Hola${namePart}! ¿Cómo estás hoy?`);
+                    return;
+                }
+
+                if (lower.includes('me llamo') || lower.includes('mi nombre es') || lower.includes('soy ')) {
+                    const match = text.match(/(?:me llamo|mi nombre es|soy)\s+([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+)/i);
+                    if (match && match[1]) {
+                        userName = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+                        speak(`¡Mucho gusto ${userName}!`);
+                        try { localStorage.setItem('marquinhos_user_name', userName); } catch (e) {}
+                    }
+                    return;
+                }
+
+                if (lower.includes('gracias')) {
+                    speak('¡De nada! Es un placer ayudarte.');
+                    return;
+                }
+
+                if (lower.includes('adiós') || lower.includes('adios') || lower.includes('hasta luego')) {
+                    speak('¡Hasta luego! Fue un placer.');
+                    return;
+                }
+
+                if (lower.includes('cómo estás') || lower.includes('como estas')) {
+                    speak('¡Estoy muy bien! Gracias por preguntar.');
+                    return;
+                }
+
+                if (lower.includes('quién eres') || lower.includes('quien eres')) {
+                    speak('Soy Marquinhos, tu asistente personal. Estoy aquí para ayudarte.');
+                    return;
+                }
+
+                speak('No entendí bien, ¿puedes repetirlo?');
+            }
+
+            // ===== RECONOCIMIENTO DE VOZ =====
+            let recognition = null;
+            let isListening = false;
+
+            function initSpeechRecognition() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) return;
+
+                recognition = new SpeechRecognition();
+                recognition.lang = 'es-MX';
+                recognition.continuous = true;
+                recognition.interimResults = true;
+
+                const activationWords = ['marquinhos', 'hola marquinhos', 'hey marquinhos'];
+
+                recognition.onresult = (event) => {
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript.trim();
+                        if (event.results[i].isFinal) {
+                            const lower = transcript.toLowerCase();
+                            const isActivation = activationWords.some(word => lower.includes(word));
+                            if (isActivation) {
+                                speak('¡Dime! Estoy aquí.');
+                                continue;
+                            }
+                            if (isOpen) {
+                                processCommand(transcript);
+                            }
+                        }
+                    }
+                };
+
+                recognition.onerror = () => {
+                    if (isListening) {
+                        setTimeout(() => {
+                            try { recognition.start(); } catch (e) {}
+                        }, 1000);
+                    }
+                };
+
+                recognition.onend = () => {
+                    if (isListening) {
+                        setTimeout(() => {
+                            try { recognition.start(); } catch (e) {}
+                        }, 500);
+                    }
+                };
+
+                try {
+                    recognition.start();
+                    isListening = true;
+                    console.log('🎤 Marquinhos escuchando...');
+                } catch (e) {}
+            }
+
+            // ===== TOGGLE =====
             toggleBtn.addEventListener('click', function() {
-                const isHidden = container.classList.toggle('hidden');
-                toggleBtn.classList.toggle('hidden', !isHidden);
-                if (!isHidden) {
-                    // Recargar iframe al abrir
-                    const iframe = container.querySelector('iframe');
-                    if (iframe) {
-                        iframe.src = iframe.src;
+                isOpen = !isOpen;
+                container.classList.toggle('hidden', !isOpen);
+                toggleBtn.classList.toggle('hidden', isOpen);
+
+                if (isOpen) {
+                    showBubble('🎤 Di "Marquinhos" para hablar');
+                    setTimeout(() => {
+                        if (!recognition) initSpeechRecognition();
+                        if (recognition) {
+                            isListening = true;
+                            try { recognition.start(); } catch (e) {}
+                        }
+                        // Saludo de bienvenida
+                        setTimeout(() => {
+                            const savedName = localStorage.getItem('marquinhos_user_name');
+                            if (savedName) userName = savedName;
+                            const namePart = userName ? ` ${userName}` : '';
+                            speak(`¡Hola${namePart}! Soy Marquinhos. ¿Cómo puedo ayudarte?`);
+                        }, 300);
+                    }, 500);
+                } else {
+                    if (recognition) {
+                        try { recognition.stop(); } catch (e) {}
+                        isListening = false;
                     }
+                    hideBubble();
+                    setMouthTalking(false);
                 }
             });
 
-            // Cerrar automáticamente al tocar fuera
+            // Cerrar al tocar fuera
             document.addEventListener('click', function(e) {
-                if (!container.classList.contains('hidden')) {
-                    const isClickInside = container.contains(e.target) || toggleBtn.contains(e.target);
-                    if (!isClickInside) {
-                        container.classList.add('hidden');
-                        toggleBtn.classList.remove('hidden');
+                if (isOpen && !container.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    isOpen = false;
+                    container.classList.add('hidden');
+                    toggleBtn.classList.remove('hidden');
+                    if (recognition) {
+                        try { recognition.stop(); } catch (e) {}
+                        isListening = false;
                     }
+                    hideBubble();
+                    setMouthTalking(false);
                 }
             });
-        });
+
+            // ===== ARRASTRE =====
+            let isDragging = false;
+            let startX = 0,
+                startY = 0;
+            let origX = 0,
+                origY = 0;
+
+            container.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                const rect = container.getBoundingClientRect();
+                startX = e.clientX;
+                startY = e.clientY;
+                origX = rect.left;
+                origY = rect.top;
+                container.setPointerCapture(e.pointerId);
+                container.style.cursor = 'grabbing';
+            });
+
+            container.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                container.style.left = (origX + dx) + 'px';
+                container.style.top = (origY + dy) + 'px';
+                container.style.right = 'auto';
+                container.style.bottom = 'auto';
+                container.style.transform = 'none';
+            });
+
+            container.addEventListener('pointerup', () => {
+                isDragging = false;
+                container.style.cursor = 'grab';
+            });
+
+            container.addEventListener('pointercancel', () => {
+                isDragging = false;
+                container.style.cursor = 'grab';
+            });
+
+            console.log('🎭 Marquinhos Asistente cargado!');
+            console.log('🎤 Di "Marquinhos" para activarlo');
+        })();
 
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', async () => {
