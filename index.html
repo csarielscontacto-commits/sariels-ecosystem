@@ -382,6 +382,84 @@
         }
         .toast.active { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--danger); color: white; }
+
+        /* ===== ESTILOS PARA MARQUINHOS ===== */
+        #marquinhos-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 160px;
+            height: 200px;
+            z-index: 9999;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: auto;
+            filter: drop-shadow(0 8px 30px rgba(13, 71, 161, 0.3));
+        }
+
+        #marquinhos-container:active {
+            cursor: grabbing;
+        }
+
+        #marquinhos-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 20px;
+            background: transparent;
+            pointer-events: auto;
+        }
+
+        .marquinhos-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1565C0, #0D47A1);
+            border: 2px solid #D4AF37;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(21, 101, 192, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .marquinhos-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 30px rgba(21, 101, 192, 0.6);
+        }
+
+        .marquinhos-toggle.hidden {
+            display: none;
+        }
+
+        #marquinhos-container.hidden {
+            display: none;
+        }
+
+        @media (max-width: 520px) {
+            #marquinhos-container {
+                width: 130px;
+                height: 165px;
+                bottom: 10px;
+                right: 10px;
+            }
+            .marquinhos-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                bottom: 10px;
+                right: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -484,6 +562,14 @@
                 <a href="/features/servicios/index.html" data-i18n="servicios">🔧 Servicios</a>
             </div>
         </footer>
+    </div>
+
+    <!-- ===== MARQUINHOS ASISTENTE FLOTANTE ===== -->
+    <button class="marquinhos-toggle" id="marquinhosToggle" title="Marquinhos Asistente">
+        🎭
+    </button>
+    <div id="marquinhos-container" class="hidden">
+        <iframe src="/features/marquinhos/index.html" scrolling="no" allow="microphone"></iframe>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -611,7 +697,7 @@
 
         // ===== SUPABASE =====
         const SUPABASE_URL = 'https://nvyyxgkladjauolvpzfp.supabase.co';
-        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI'; // Recuerda colocar tu llave de Supabase aquí si lo requiere tu entorno
+        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUserId = null;
@@ -764,6 +850,36 @@
             renderPedidos(data);
         }
 
+        // ===== MARQUINHOS - TOGGLE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('marquinhosToggle');
+            const container = document.getElementById('marquinhos-container');
+
+            toggleBtn.addEventListener('click', function() {
+                const isHidden = container.classList.toggle('hidden');
+                toggleBtn.classList.toggle('hidden', !isHidden);
+                if (!isHidden) {
+                    // Recargar iframe al abrir
+                    const iframe = container.querySelector('iframe');
+                    if (iframe) {
+                        iframe.src = iframe.src;
+                    }
+                }
+            });
+
+            // Cerrar automáticamente al tocar fuera
+            document.addEventListener('click', function(e) {
+                if (!container.classList.contains('hidden')) {
+                    const isClickInside = container.contains(e.target) || toggleBtn.contains(e.target);
+                    if (!isClickInside) {
+                        container.classList.add('hidden');
+                        toggleBtn.classList.remove('hidden');
+                    }
+                }
+            });
+        });
+
+        // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', async () => {
             await CSARIELS_IDIOMA.init();
             initMap();
